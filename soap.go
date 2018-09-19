@@ -413,7 +413,7 @@ func (t *TestParamsContainer) SetMulti(key string, value []string) {
 	}
 }
 
-// Len returns current lenght of test data in TestParamsContainer
+// Len returns current length of test data in TestParamsContainer
 func (t TestParamsContainer) Len() int {
 	return len(t.Prm)
 }

@@ -32,7 +32,7 @@ func GetAvailablePackages(c gotransip.Client) ([]Package, error) {
 	return v.V, err
 }
 
-// GetInfo retuns information about existing webhosting on a domain.
+// GetInfo returns information about existing webhosting on a domain.
 func GetInfo(c gotransip.Client, domainName string) (Host, error) {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
