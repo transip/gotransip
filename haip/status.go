@@ -35,14 +35,16 @@ type statusXMLInner struct {
 			Item []struct {
 				Key   string `xml:"key"` // name of loadbalancer
 				Value struct {
-					Item []struct {
-						Key   string `xml:"key"` // fields like loadBalancerIp and status
-						Value string `xml:"value"`
-					} `xml:"item"`
+					Item []statusKV `xml:"item"` // fields like loadBalancerIp and status
 				} `xml:"value"`
 			} `xml:"item"`
 		} `xml:"value"`
 	} `xml:"item"`
+}
+
+type statusKV struct {
+	Key   string `xml:"key"`
+	Value string `xml:"value"`
 }
 
 // multi-level structs to represent the status report
@@ -66,6 +68,38 @@ type statusReportVPS struct {
 type statusReportPortConfiguration struct {
 	Port int
 	VPS  []statusReportVPS
+}
+
+func parseStatusReportLb(name, ipVersion string, kv []statusKV) (lb statusReportLb, err error) {
+
+	lb.Name = name
+
+	for _, x := range kv {
+		switch x.Key {
+		case "loadBalancerIp":
+			if ipVersion == "ipv4" {
+				lb.IPAddress = net.ParseIP(x.Value).To4()
+			} else {
+				lb.IPAddress = net.ParseIP(x.Value).To16()
+			}
+		case "state":
+			lb.State = x.Value
+		case "lastChangeTimestamp":
+			var i int64
+			if i, err = strconv.ParseInt(x.Value, 10, 64); err == nil {
+				t := time.Unix(i, 0)
+				lb.LastChange = t
+			}
+		case "lastChange":
+			// ignore lastChange since it is the same as lastChangeTimestamp
+			// anyway, but formatted as a string
+		default:
+			err = fmt.Errorf("unhandled field in parsing ip versions: %s", x.Key)
+			return
+		}
+	}
+
+	return
 }
 
 func parseStatusReportBody(data []byte) (StatusReport, error) {
@@ -98,31 +132,12 @@ func parseStatusReportBody(data []byte) (StatusReport, error) {
 					xml.Unmarshal([]byte("<transip>"+xx.Value.Cont+"</transip>"), &vv)
 					for _, xxx := range vv.IPVersions {
 						ipv.Version = xxx.Version
+						// parse loadbalancers from status report
 						for _, xxxx := range xxx.Value.Item {
-							lb := statusReportLb{Name: xxxx.Key}
-							for _, xxxxx := range xxxx.Value.Item {
-								switch xxxxx.Key {
-								case "loadBalancerIp":
-									if xxx.Version == "ipv4" {
-										lb.IPAddress = net.ParseIP(xxxxx.Value).To4()
-									} else {
-										lb.IPAddress = net.ParseIP(xxxxx.Value).To16()
-									}
-								case "state":
-									lb.State = xxxxx.Value
-								case "lastChangeTimestamp":
-									if i, err := strconv.ParseInt(xxxxx.Value, 10, 64); err == nil {
-										t := time.Unix(i, 0)
-										lb.LastChange = t
-									}
-								case "lastChange":
-									// ignore lastChange since it is the same as lastChangeTimestamp
-									// anyway, but formatted as a string
-								default:
-									return sr, fmt.Errorf("unhandled field in parsing ip versions: %s", xxxxx.Key)
-								}
+							lb, err := parseStatusReportLb(xxxx.Key, xxx.Version, xxxx.Value.Item)
+							if err != nil {
+								return sr, err
 							}
-
 							ipv.LoadBalancer = append(ipv.LoadBalancer, lb)
 						}
 						srv.IPVersion = append(srv.IPVersion, ipv)
@@ -130,7 +145,6 @@ func parseStatusReportBody(data []byte) (StatusReport, error) {
 				default:
 					return sr, fmt.Errorf("unhandled field in parsing key/values: %s", xx.Key)
 				}
-
 			}
 
 			srpc.VPS = append(srpc.VPS, srv)
