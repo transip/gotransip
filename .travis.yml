@@ -2,3 +2,9 @@ language: go
 
 go:
   - "1.10"
+
+script:
+  - go test -v ./...
+  - go fmt ./... | grep . && echo "go fmt failed" && exit 1
+  - go vet ./...
+  - golint -set_exit_status ./...
