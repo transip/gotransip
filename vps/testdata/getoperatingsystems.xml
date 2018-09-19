@@ -1,0 +1,25 @@
+<SOAP-ENV:Envelope
+	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:ns1="http://www.transip.nl/soap"
+	xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+	<SOAP-ENV:Body>
+		<ns1:getOperatingSystemsResponse>
+			<return SOAP-ENC:arrayType="ns1:OperatingSystem[2]" xsi:type="ns1:ArrayOfOperatingSystem">
+				<item xsi:type="ns1:OperatingSystem">
+					<name xsi:type="xsd:string">gentoo12</name>
+					<description xsi:type="xsd:string">Gentoo</description>
+					<dateTimeCreate xsi:type="xsd:string"></dateTimeCreate>
+					<isPreinstallableImage xsi:type="xsd:boolean">true</isPreinstallableImage>
+				</item>
+				<item xsi:type="ns1:OperatingSystem">
+					<name xsi:type="xsd:string">centos65</name>
+					<description xsi:type="xsd:string">CentOS</description>
+					<dateTimeCreate xsi:type="xsd:string"></dateTimeCreate>
+					<isPreinstallableImage xsi:type="xsd:boolean">false</isPreinstallableImage>
+				</item>
+			</return>
+		</ns1:getOperatingSystemsResponse>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

@@ -1,0 +1,25 @@
+<SOAP-ENV:Envelope
+	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:ns1="http://www.transip.nl/soap"
+	xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+	<SOAP-ENV:Body>
+		<ns1:getSnapshotsByVpsResponse>
+			<return SOAP-ENC:arrayType="ns1:Snapshot[1]" xsi:type="ns1:ArrayOfSnapshot">
+				<item xsi:type="ns1:Snapshot">
+					<name xsi:type="xsd:string">1501750169</name>
+					<description xsi:type="xsd:string">clean install ubuntu 17.04</description>
+					<dateTimeCreate xsi:type="xsd:string">2017-08-03 10:49:29</dateTimeCreate>
+					<availabilityZone xsi:type="xsd:string">ams0</availabilityZone>
+				</item>
+				<item xsi:type="ns1:Snapshot">
+					<name xsi:type="xsd:string">1501860169</name>
+					<description xsi:type="xsd:string">master ubuntu 17.04</description>
+					<dateTimeCreate xsi:type="xsd:string">2017-08-04 17:22:49</dateTimeCreate>
+					<availabilityZone xsi:type="xsd:string">ams0</availabilityZone>
+				</item>
+			</return>
+		</ns1:getSnapshotsByVpsResponse>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

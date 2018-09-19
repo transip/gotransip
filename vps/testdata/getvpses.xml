@@ -1,0 +1,35 @@
+<SOAP-ENV:Envelope
+	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:ns1="http://www.transip.nl/soap"
+	xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+	<SOAP-ENV:Body>
+		<ns1:getVpsesResponse>
+			<return SOAP-ENC:arrayType="ns1:Vps[2]" xsi:type="ns1:ArrayOfVps">
+				<item xsi:type="ns1:Vps">
+					<name xsi:type="xsd:string">example-vps</name>
+					<description xsi:type="xsd:string">my vps</description>
+					<operatingSystem xsi:type="xsd:string">ubuntu-18.04</operatingSystem>
+					<diskSize xsi:type="xsd:string">157286400</diskSize>
+					<memorySize xsi:type="xsd:string">1048576</memorySize>
+					<cpus xsi:type="xsd:string">2</cpus>
+					<status xsi:type="xsd:string">running</status>
+					<ipAddress xsi:type="xsd:string">1.2.3.4</ipAddress>
+					<ipv6Address xsi:type="xsd:string">2a01:7c8::1</ipv6Address>
+					<macAddress xsi:type="xsd:string">52:54:00:01:02:03</macAddress>
+					<vncHostname xsi:type="xsd:string">Deprecated</vncHostname>
+					<vncPortNumber xsi:type="xsd:string">Deprecated</vncPortNumber>
+					<vncPassword xsi:type="xsd:string">Deprecated</vncPassword>
+					<isBlocked xsi:type="xsd:boolean">true</isBlocked>
+					<isCustomerLocked xsi:type="xsd:boolean">true</isCustomerLocked>
+					<availabilityZone xsi:type="xsd:string">rtm0</availabilityZone>
+				</item>
+				<item xsi:type="ns1:Vps">
+					<name xsi:type="xsd:string">example-vps2</name>
+					<!-- Data is shortened for brevity -->
+				</item>
+			</return>
+		</ns1:getVpsesResponse>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

@@ -1,0 +1,21 @@
+<SOAP-ENV:Envelope
+	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:ns1="http://www.transip.nl/soap"
+	xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+	<SOAP-ENV:Body>
+		<ns1:getHaipsResponse>
+			<return SOAP-ENC:arrayType="ns1:Haip[2]" xsi:type="ns1:ArrayOfHaip">
+				<item xsi:type="ns1:Haip">
+			    <name xsi:type="xsd:string">example-haip</name>
+			    <!-- Data is shortened for brevity -->
+				</item>
+			  <item xsi:type="ns1:Haip">
+			    <name xsi:type="xsd:string">example-haip2</name>
+			    <!-- Data is shortened for brevity -->
+				</item>
+			</return>
+		</ns1:getHaipsResponse>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

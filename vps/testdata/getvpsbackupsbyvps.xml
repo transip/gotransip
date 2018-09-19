@@ -1,0 +1,27 @@
+<SOAP-ENV:Envelope
+	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:ns1="http://www.transip.nl/soap"
+	xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+	<SOAP-ENV:Body>
+		<ns1:getVpsBackupsByVpsResponse>
+			<return SOAP-ENC:arrayType="ns1:VpsBackup[9]" xsi:type="ns1:ArrayOfVpsBackup">
+				<item xsi:type="ns1:VpsBackup">
+					<id xsi:type="xsd:int">6996570</id>
+					<dateTimeCreate xsi:type="xsd:string">2018-09-11 01:32:51</dateTimeCreate>
+					<diskSize xsi:type="xsd:int">157286400</diskSize>
+					<operatingSystem xsi:type="xsd:string">Ubuntu 18.04 LTS</operatingSystem>
+					<availabilityZone xsi:type="xsd:string">ams0</availabilityZone>
+				</item>
+				<item xsi:type="ns1:VpsBackup">
+					<id xsi:type="xsd:int">7039319</id>
+					<dateTimeCreate xsi:type="xsd:string">2018-09-11 05:37:31</dateTimeCreate>
+					<diskSize xsi:type="xsd:int">157286400</diskSize>
+					<operatingSystem xsi:type="xsd:string">Ubuntu 18.04 LTS</operatingSystem>
+					<availabilityZone xsi:type="xsd:string">ams0</availabilityZone>
+				</item>
+			</return>
+		</ns1:getVpsBackupsByVpsResponse>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

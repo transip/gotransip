@@ -1,0 +1,34 @@
+<SOAP-ENV:Envelope
+	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:ns1="http://www.transip.nl/soap"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:ns2="http://xml.apache.org/xml-soap"
+	xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+	<SOAP-ENV:Body>
+		<ns1:getPooledTrafficInformation>
+			<return xsi:type="ns2:Map">
+				<item>
+					<key xsi:type="xsd:string">startDate</key>
+					<value xsi:type="xsd:string">2018-08-01 00:00:00</value>
+				</item>
+				<item>
+					<key xsi:type="xsd:string">endDate</key>
+					<value xsi:type="xsd:string">2018-09-01 00:00:00</value>
+				</item>
+				<item>
+					<key xsi:type="xsd:string">usedInBytes</key>
+					<value xsi:type="xsd:string">128356924407</value>
+				</item>
+				<item>
+					<key xsi:type="xsd:string">usedTotalBytes</key>
+					<value xsi:type="xsd:string">200639805776</value>
+				</item>
+				<item>
+					<key xsi:type="xsd:string">maxBytes</key>
+					<value xsi:type="xsd:int">16106127360000</value>
+				</item>
+			</return>
+		</ns1:getPooledTrafficInformation>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

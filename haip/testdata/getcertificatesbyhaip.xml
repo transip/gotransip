@@ -1,0 +1,42 @@
+<SOAP-ENV:Envelope
+	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:ns1="http://www.transip.nl/soap"
+	xmlns:ns2="http://xml.apache.org/xml-soap"
+	xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+	<SOAP-ENV:Body>
+		<ns1:getCertificatesByHaipResponse>
+			<return SOAP-ENC:arrayType="ns2:Map[2]" xsi:type="SOAP-ENC:Array">
+				<item xsi:type="ns2:Map">
+					<item>
+						<key xsi:type="xsd:string">id</key>
+						<value xsi:type="xsd:string">484739</value>
+					</item>
+					<item>
+						<key xsi:type="xsd:string">commonName</key>
+						<value xsi:type="xsd:string">example.org</value>
+					</item>
+					<item>
+						<key xsi:type="xsd:string">expirationDate</key>
+						<value xsi:type="xsd:string">2018-11-21 20:07:33</value>
+					</item>
+				</item>
+				<item xsi:type="ns2:Map">
+					<item>
+						<key xsi:type="xsd:string">id</key>
+						<value xsi:type="xsd:string">485554</value>
+					</item>
+					<item>
+						<key xsi:type="xsd:string">commonName</key>
+						<value xsi:type="xsd:string">example.net</value>
+					</item>
+					<item>
+						<key xsi:type="xsd:string">expirationDate</key>
+						<value xsi:type="xsd:string">2018-11-22 11:04:30</value>
+					</item>
+				</item>
+			</return>
+		</ns1:getCertificatesByHaipResponse>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

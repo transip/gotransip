@@ -1,0 +1,23 @@
+<SOAP-ENV:Envelope
+	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:ns1="http://www.transip.nl/soap"
+	xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+	<SOAP-ENV:Body>
+		<ns1:getAvailableAvailabilityZonesResponse>
+			<return SOAP-ENC:arrayType="ns1:AvailabilityZone[2]" xsi:type="ns1:ArrayOfAvailabilityZone">
+				<item xsi:type="ns1:AvailabilityZone">
+					<name xsi:type="xsd:string">ams0</name>
+					<country xsi:type="xsd:string">nl</country>
+					<isDefault xsi:type="xsd:boolean">true</isDefault>
+				</item>
+				<item xsi:type="ns1:AvailabilityZone">
+					<name xsi:type="xsd:string">rtm0</name>
+					<country xsi:type="xsd:string">nl</country>
+					<isDefault xsi:type="xsd:boolean">false</isDefault>
+				</item>
+			</return>
+		</ns1:getAvailableAvailabilityZonesResponse>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

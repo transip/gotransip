@@ -1,0 +1,16 @@
+<SOAP-ENV:Envelope
+	xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+	xmlns:ns1="http://www.transip.nl/soap"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+	<SOAP-ENV:Body>
+		<ns1:getCurrentDomainActionResponse>
+			<return xsi:type="ns1:DomainAction">
+				<name xsi:nil="true">test</name>
+				<hasFailed xsi:type="xsd:boolean">true</hasFailed>
+				<message xsi:type="xsd:string">test message</message>
+			</return>
+		</ns1:getCurrentDomainActionResponse>
+	</SOAP-ENV:Body>
+</SOAP-ENV:Envelope>
