@@ -11,7 +11,7 @@ func TestMailBoxEncoding(t *testing.T) {
 	mailbox := MailBox{
 		Address:              "info@example.org",
 		SpamCheckerStrength:  SpamCheckStrengthAverage,
-		MaxDiskUsage:               100,
+		MaxDiskUsage:         100,
 		HasVacationReply:     true,
 		VacationReplySubject: "out of office",
 		VacationReplyMessage: "I'm out of office, ktnxbye",
