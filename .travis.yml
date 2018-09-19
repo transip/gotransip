@@ -4,7 +4,9 @@ go:
   - "1.10"
 
 before_install:
-  - sudo apt-get install -y golint
+  - go get -u golang.org/x/lint/golint
+  - echo $PATH
+  - find $GOPATH/bin
 
 script:
   - go test -v ./...
