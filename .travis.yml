@@ -3,9 +3,8 @@ language: go
 go:
   - "1.10"
 
-install:
-  - go get -t ./...
-  - apt-get install -y golint
+before_install:
+  - sudo apt-get install -y golint
 
 script:
   - go test -v ./...
