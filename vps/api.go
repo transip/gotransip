@@ -100,8 +100,35 @@ func GetCancellableAddonsForVps(c gotransip.Client, vpsName string) ([]Product, 
 	return v.V, err
 }
 
-// TODO: implement orderVps
-// TODO: implement orderVpsInAvailabilityZone
+// OrderVps orders a VPS with optional addons
+func OrderVps(c gotransip.Client, productName string, addons []string, operatingSystemName, hostname string) error {
+	sr := gotransip.SoapRequest{
+		Service: serviceName,
+		Method:  "orderVps",
+	}
+	sr.AddArgument("productName", productName)
+	sr.AddArgument("addons", addons)
+	sr.AddArgument("operatingSystemName", operatingSystemName)
+	sr.AddArgument("hostname", hostname)
+
+	return c.Call(sr, nil)
+}
+
+// OrderVpsInAvailabilityZone orders a VPS with optional addons in a specific
+// availability zone
+func OrderVpsInAvailabilityZone(c gotransip.Client, productName string, addons []string, operatingSystemName, hostname, availabilityZone string) error {
+	sr := gotransip.SoapRequest{
+		Service: serviceName,
+		Method:  "orderVpsInAvailabilityZone",
+	}
+	sr.AddArgument("productName", productName)
+	sr.AddArgument("addons", addons)
+	sr.AddArgument("operatingSystemName", operatingSystemName)
+	sr.AddArgument("hostname", hostname)
+	sr.AddArgument("availabilityZone", availabilityZone)
+
+	return c.Call(sr, nil)
+}
 
 // CloneVps clones a Vps
 func CloneVps(c gotransip.Client, vpsName string) error {
@@ -114,8 +141,8 @@ func CloneVps(c gotransip.Client, vpsName string) error {
 	return c.Call(sr, nil)
 }
 
-// CloneVpsToAvailabilityZone clones a Vps to a availability zone
-func CloneVpsToAvailabilityZone(c gotransip.Client, vpsName string, availabilityZone string) error {
+// CloneVpsToAvailabilityZone clones a Vps to a specific availability zone
+func CloneVpsToAvailabilityZone(c gotransip.Client, vpsName, availabilityZone string) error {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "cloneVpsToAvailabilityZone",
@@ -126,8 +153,25 @@ func CloneVpsToAvailabilityZone(c gotransip.Client, vpsName string, availability
 	return c.Call(sr, nil)
 }
 
-// TODO: implement orderAddon
-// TODO: implement orderPrivateNetwork
+// OrderAddon orders addons to a VPS
+func OrderAddon(c gotransip.Client, vpsName string, addons []string) error {
+	sr := gotransip.SoapRequest{
+		Service: serviceName,
+		Method:  "orderAddon",
+	}
+	sr.AddArgument("vpsName", vpsName)
+	sr.AddArgument("addons", addons)
+
+	return c.Call(sr, nil)
+}
+
+// OrderPrivateNetwork orders a private Network
+func OrderPrivateNetwork(c gotransip.Client) error {
+	return c.Call(gotransip.SoapRequest{
+		Service: serviceName,
+		Method:  "orderPrivateNetwork",
+	}, nil)
+}
 
 // UpgradeVps upgrades given Vps to new contract name
 func UpgradeVps(c gotransip.Client, vpsName, upgradeToProductName string) error {
