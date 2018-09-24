@@ -35,11 +35,11 @@ AeN9hjadhpK2ql+X9qnmkw==
 -----END PRIVATE KEY-----`
 
 	params := &soapParams{}
-	params.Set("__method", "getHaip")
-	params.Set("__service", "HaipService")
-	params.Set("__hostname", "api.transip.nl")
-	params.Set("__timestamp", "1534839460")
-	params.Set("__nonce", "5b7bcab97f1a98.77032926")
+	params.Add("__method", "getHaip")
+	params.Add("__service", "HaipService")
+	params.Add("__hostname", "api.transip.nl")
+	params.Add("__timestamp", 1534839460)
+	params.Add("__nonce", "5b7bcab97f1a98.77032926")
 
 	signature, err := signWithKey(params, []byte(key))
 	if err != nil {

@@ -125,67 +125,33 @@ AeN9hjadhpK2ql+X9qnmkw==
 	}
 }
 
-func TestSoapParamsSet(t *testing.T) {
+func TestSoapParamsAdd(t *testing.T) {
 	p := soapParams{}
 	// empty soapParams
 	assert.Equal(t, 0, p.Len())
 
 	// set first pair
-	p.Set("foo", "bar")
-	assert.Equal(t, 1, p.Len())
-	assert.Equal(t, "foo", p.keys[0])
-	assert.Equal(t, "bar", p.values[0])
-
-	// set second pair
-	p.Set("foo2", "bar2")
-	assert.Equal(t, 2, p.Len())
-	assert.Equal(t, "foo2", p.keys[1])
-	assert.Equal(t, "bar2", p.values[1])
-
-	// override first pair
-	p.Set("foo", "bar3")
-	assert.Equal(t, 2, p.Len())
-	assert.Equal(t, "foo", p.keys[0])
-	assert.Equal(t, "bar3", p.values[0])
-}
-
-func TestSoapParamsSetMulti(t *testing.T) {
-	p := soapParams{}
-
-	p.SetMulti("foo", []string{
-		"foo", "bar", "baz",
-	})
-	p.Set("bar", "baz")
-	assert.Equal(t, 4, p.Len())
-	assert.Equal(t, "foo[0]=foo&foo[1]=bar&foo[2]=baz&bar=baz", p.Encode())
-}
-
-func TestSoapParamsGet(t *testing.T) {
-	var v string
-	var err error
-
-	p := soapParams{}
-	v, err = p.Get("foo")
-	assert.Errorf(t, err, "expected error, got %s", v)
-
-	p.Set("foo", "bar")
-	v, err = p.Get("foo")
-	assert.NoError(t, err)
-	assert.Equal(t, "bar", v)
-
-	p.Set("foo", "bar2")
-	v, err = p.Get("foo")
-	assert.NoError(t, err)
-	assert.Equal(t, "bar2", v)
+	p.Add("foo", "foo")
+	p.Add("bar", "bar")
+	p.Add("baz", 1337)
+	assert.Equal(t, 3, p.Len())
 }
 
 func TestSoapParamsEncode(t *testing.T) {
 	p := soapParams{}
-	p.Set("foo", "bar+bar")
-	p.Set("bar", "bar bar")
-	p.Set("baz", "YmFyCg==")
+	p.Add("0", "bar+bar")
+	p.Add("1", "bar bar")
+	p.Add("2", "YmFyCg==")
+	p.Add("3", "")
+	p.Add("4", []string{"foo", "bar"})
+	p.Add("5", []string{})
+	p.Add("6", []string{"foo"})
+	p.Add("7", 6)
+	p.Add("8", "86400")
+	p.Add("__method", "foo")
+	p.Add("__service", "bar")
 
-	assert.Equal(t, "foo=bar%2Bbar&bar=bar+bar&baz=YmFyCg%3D%3D", p.Encode())
+	assert.Equal(t, "0=bar%2Bbar&1=bar%20bar&2=YmFyCg%3D%3D&3=&4[0]=foo&4[1]=bar&&6[0]=foo&7=6&8=86400&__method=foo&__service=bar", p.Encode())
 }
 
 func TestGetSOAPArgs(t *testing.T) {
@@ -253,7 +219,7 @@ func TestSoapRequestAddArgument(t *testing.T) {
 	sr.AddArgument("ipAddress", net.ParseIP("1.2.3.4"))
 	sr.AddArgument("sourcePort", 86400)
 
-	assert.Equal(t, "0=test&1[0]=test-vps&1[1]=test-vps2&3=1.2.3.4&4=86400", sr.params.Encode())
+	assert.Equal(t, "0=test&1[0]=test-vps&1[1]=test-vps2&2=1.2.3.4&3=86400", sr.params.Encode())
 	assert.Equal(t, []string{
 		"<haipName xsi:type=\"xsd:string\">test</haipName>",
 		"<vpsNames SOAP-ENC:arrayType=\"xsd:string[2]\" xsi:type=\"ns1:ArrayOfString\"><item xsi:type=\"xsd:string\">test-vps</item><item xsi:type=\"xsd:string\">test-vps2</item></vpsNames>",
@@ -268,8 +234,8 @@ type TestParamsEncoder struct {
 }
 
 func (t TestParamsEncoder) EncodeParams(prm ParamsContainer) {
-	prm.Set(fmt.Sprintf("%d[key]", prm.Len()), t.key)
-	prm.Set(fmt.Sprintf("%d[value]", prm.Len()), t.value)
+	prm.Add("0[key]", t.key)
+	prm.Add("1[value]", t.value)
 }
 
 func (t TestParamsEncoder) EncodeArgs(key string) string {
