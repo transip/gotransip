@@ -102,8 +102,30 @@ func GetCancellableAddonsForVps(c gotransip.Client, vpsName string) ([]Product, 
 
 // TODO: implement orderVps
 // TODO: implement orderVpsInAvailabilityZone
-// TODO: implement cloneVps
-// TODO: implement cloneVpsToAvailabilityZone
+
+// CloneVps clones a Vps
+func CloneVps(c gotransip.Client, vpsName string) error {
+	sr := gotransip.SoapRequest{
+		Service: serviceName,
+		Method:  "cloneVps",
+	}
+	sr.AddArgument("vpsName", vpsName)
+
+	return c.Call(sr, nil)
+}
+
+// CloneVpsToAvailabilityZone clones a Vps to a availability zone
+func CloneVpsToAvailabilityZone(c gotransip.Client, vpsName string, availabilityZone string) error {
+	sr := gotransip.SoapRequest{
+		Service: serviceName,
+		Method:  "cloneVpsToAvailabilityZone",
+	}
+	sr.AddArgument("vpsName", vpsName)
+	sr.AddArgument("availabilityZone", availabilityZone)
+
+	return c.Call(sr, nil)
+}
+
 // TODO: implement orderAddon
 // TODO: implement orderPrivateNetwork
 
