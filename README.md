@@ -21,7 +21,7 @@ func main() {
   // create new TransIP API SOAP client
   c, err := gotransip.NewSOAPClient(gotransip.ClientConfig{
     AccountName: "accountname",
-    PrivateKey:  "/path/to/api/private.key"
+    PrivateKeyPath:  "/path/to/api/private.key"
   })
   if err != nil {
     panic(err.Error())
