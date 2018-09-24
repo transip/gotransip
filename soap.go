@@ -403,21 +403,14 @@ type TestParamsContainer struct {
 	Prm string
 }
 
-// Set just make sure we use Len(), key and value in the result so it can be
+// Add just makes sure we use Len(), key and value in the result so it can be
 // tested
-func (t *TestParamsContainer) Set(key, value string) {
+func (t *TestParamsContainer) Add(key string, value interface{}) {
 	var prefix string
 	if t.Len() > 0 {
 		prefix = "&"
 	}
 	t.Prm = t.Prm + prefix + fmt.Sprintf("%d%s=%s", t.Len(), key, value)
-}
-
-// SetMulti is a wrapper for Set to use with string arrays
-func (t *TestParamsContainer) SetMulti(key string, value []string) {
-	for i, x := range value {
-		t.Set(fmt.Sprintf("%s[%d]", key, i), x)
-	}
 }
 
 // Len returns current length of test data in TestParamsContainer

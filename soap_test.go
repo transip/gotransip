@@ -282,8 +282,8 @@ func TestSoapRequestGetEnvelope(t *testing.T) {
 func TestTestParamsContainer(t *testing.T) {
 	prm := TestParamsContainer{}
 
-	prm.Set("foo", "bar")
-	prm.SetMulti("bar", []string{"boo", "far"})
+	prm.Add("foo", "bar")
+	prm.Add("bar", []string{"boo", "far"})
 
-	assert.Equal(t, "0foo=bar&8bar[0]=boo&20bar[1]=far", prm.Prm)
+	assert.Equal(t, "0foo=bar&8bar=[boo far]", prm.Prm)
 }
