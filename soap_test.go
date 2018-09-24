@@ -1,7 +1,6 @@
 package gotransip
 
 import (
-	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -129,39 +128,25 @@ AeN9hjadhpK2ql+X9qnmkw==
 func TestSoapParamsSet(t *testing.T) {
 	p := soapParams{}
 	// empty soapParams
-	if p.Len() != 0 {
-		t.Errorf("expected empty params, got length %d", p.Len())
-	}
+	assert.Equal(t, 0, p.Len())
 
 	// set first pair
 	p.Set("foo", "bar")
-	if p.Len() != 1 {
-		t.Errorf("expected 1 entry, got length %d", p.Len())
-	} else if p.keys[0] != "foo" {
-		t.Errorf("expected foo, got %s", p.keys[0])
-	} else if p.values[0] != "bar" {
-		t.Errorf("expected bar, got %s", p.values[0])
-	}
+	assert.Equal(t, 1, p.Len())
+	assert.Equal(t, "foo", p.keys[0])
+	assert.Equal(t, "bar", p.values[0])
 
 	// set second pair
 	p.Set("foo2", "bar2")
-	if p.Len() != 2 {
-		t.Errorf("expected 2 entries, got length %d", p.Len())
-	} else if p.keys[1] != "foo2" {
-		t.Errorf("expected foo2, got %s", p.keys[1])
-	} else if p.values[1] != "bar2" {
-		t.Errorf("expected bar2, got %s", p.values[1])
-	}
+	assert.Equal(t, 2, p.Len())
+	assert.Equal(t, "foo2", p.keys[1])
+	assert.Equal(t, "bar2", p.values[1])
 
 	// override first pair
 	p.Set("foo", "bar3")
-	if p.Len() != 2 {
-		t.Errorf("expected 2 entries, got length %d", p.Len())
-	} else if p.keys[0] != "foo" {
-		t.Errorf("expected foo, got %s", p.keys[0])
-	} else if p.values[0] != "bar3" {
-		t.Errorf("expected bar, got %s", p.values[0])
-	}
+	assert.Equal(t, 2, p.Len())
+	assert.Equal(t, "foo", p.keys[0])
+	assert.Equal(t, "bar3", p.values[0])
 }
 
 func TestSoapParamsSetMulti(t *testing.T) {
@@ -171,34 +156,27 @@ func TestSoapParamsSetMulti(t *testing.T) {
 		"foo", "bar", "baz",
 	})
 	p.Set("bar", "baz")
-
-	fixt := "foo[0]=foo&foo[1]=bar&foo[2]=baz&bar=baz"
-	if p.Len() != 4 {
-		t.Errorf("expected 4 entries, got length %d", p.Len())
-	} else if result := p.Encode(); result != fixt {
-		t.Errorf("encoded params do not match\nexpected: %s\nactual:   %s\n", fixt, result)
-	}
+	assert.Equal(t, 4, p.Len())
+	assert.Equal(t, "foo[0]=foo&foo[1]=bar&foo[2]=baz&bar=baz", p.Encode())
 }
 
 func TestSoapParamsGet(t *testing.T) {
+	var v string
+	var err error
+
 	p := soapParams{}
-	if v, err := p.Get("foo"); err == nil {
-		t.Errorf("expected error, got %s", v)
-	}
+	v, err = p.Get("foo")
+	assert.Errorf(t, err, "expected error, got %s", v)
 
 	p.Set("foo", "bar")
-	if v, err := p.Get("foo"); err != nil {
-		t.Errorf("unexpected error: %s", err.Error())
-	} else if v != "bar" {
-		t.Errorf("expected bar string, got %s", v)
-	}
+	v, err = p.Get("foo")
+	assert.NoError(t, err)
+	assert.Equal(t, "bar", v)
 
 	p.Set("foo", "bar2")
-	if v, err := p.Get("foo"); err != nil {
-		t.Errorf("unexpected error: %s", err.Error())
-	} else if v != "bar2" {
-		t.Errorf("expected bar2 string, got %s", v)
-	}
+	v, err = p.Get("foo")
+	assert.NoError(t, err)
+	assert.Equal(t, "bar2", v)
 }
 
 func TestSoapParamsEncode(t *testing.T) {
@@ -207,46 +185,35 @@ func TestSoapParamsEncode(t *testing.T) {
 	p.Set("bar", "bar bar")
 	p.Set("baz", "YmFyCg==")
 
-	fixt := "foo=bar%2Bbar&bar=bar+bar&baz=YmFyCg%3D%3D"
-	if enc := p.Encode(); enc != fixt {
-		t.Errorf("encoded params do not match\nexpected: %s\nactual:   %s\n", fixt, enc)
-	}
+	assert.Equal(t, "foo=bar%2Bbar&bar=bar+bar&baz=YmFyCg%3D%3D", p.Encode())
 }
 
 func TestGetSOAPArgs(t *testing.T) {
-	fixture := []byte("<ns1:getStuff>foo</ns1:getStuff>")
-	if o := getSOAPArgs("getStuff", "foo"); !bytes.Equal(o, fixture) {
-		t.Errorf("\nexpected: %s\nactual:   %s\n", fixture, o)
-	}
+	var fixture []byte
+
+	fixture = []byte("<ns1:getStuff>foo</ns1:getStuff>")
+	assert.Equal(t, fixture, getSOAPArgs("getStuff", "foo"))
 
 	fixture = []byte("<ns1:getStuff>foobar</ns1:getStuff>")
-	if o := getSOAPArgs("getStuff", "foo", "bar"); !bytes.Equal(o, fixture) {
-		t.Errorf("\nexpected: %s\nactual:   %s\n", fixture, o)
-	}
-
-	if o := getSOAPArgs("getStuff", []string{"foo", "bar"}...); !bytes.Equal(o, fixture) {
-		t.Errorf("\nexpected: %s\nactual:   %s\n", fixture, o)
-	}
+	assert.Equal(t, fixture, getSOAPArgs("getStuff", "foo", "bar"))
+	assert.Equal(t, fixture, getSOAPArgs("getStuff", []string{"foo", "bar"}...))
 }
 
 func TestGetSOAPArg(t *testing.T) {
 	tests := []struct {
-		testName string
-		name     string
-		input    interface{}
-		fixture  string
+		name    string
+		input   interface{}
+		fixture string
 	}{
-		{"string", "fooBar", "barFoo", `<fooBar xsi:type="xsd:string">barFoo</fooBar>`},
-		{"int", "BooFar", int(1), `<BooFar xsi:type="xsd:integer">1</BooFar>`},
-		{"int32", "BarFoo", int32(1), `<BarFoo xsi:type="xsd:integer">1</BarFoo>`},
-		{"int64", "BaoFor", int64(1), `<BaoFor xsi:type="xsd:integer">1</BaoFor>`},
-		{"array", "barFoo", []string{"bar", "Foo"}, `<barFoo SOAP-ENC:arrayType="xsd:string[2]" xsi:type="ns1:ArrayOfString"><item xsi:type="xsd:string">bar</item><item xsi:type="xsd:string">Foo</item></barFoo>`},
+		{"fooBar", "barFoo", `<fooBar xsi:type="xsd:string">barFoo</fooBar>`},
+		{"BooFar", int(1), `<BooFar xsi:type="xsd:integer">1</BooFar>`},
+		{"BarFoo", int32(1), `<BarFoo xsi:type="xsd:integer">1</BarFoo>`},
+		{"BaoFor", int64(1), `<BaoFor xsi:type="xsd:integer">1</BaoFor>`},
+		{"barFoo", []string{"bar", "Foo"}, `<barFoo SOAP-ENC:arrayType="xsd:string[2]" xsi:type="ns1:ArrayOfString"><item xsi:type="xsd:string">bar</item><item xsi:type="xsd:string">Foo</item></barFoo>`},
 	}
 
 	for _, test := range tests {
-		if output := getSOAPArg(test.name, test.input); output != test.fixture {
-			t.Errorf("getSOAPArg test '%s' failed\nexpected: %s\nactual:   %s\n", test.testName, test.fixture, output)
-		}
+		assert.Equal(t, test.fixture, getSOAPArg(test.name, test.input))
 	}
 }
 
@@ -260,11 +227,8 @@ func TestPadXMLData(t *testing.T) {
 		`<foo bar="baz">`,
 	}
 
-	output := string(padXMLData(data, padding))
 	fixture := `<foo><foo><foo bar="baz"><fooBar xsi:type="xsd:string">barFoo</fooBar></foo></foo></foo>`
-	if output != fixture {
-		t.Errorf("padding not same\nexpected: %s\nactual:   %s\n", fixture, output)
-	}
+	assert.Equal(t, fixture, string(padXMLData(data, padding)))
 }
 
 func TestSoapRequestAddArgument(t *testing.T) {
