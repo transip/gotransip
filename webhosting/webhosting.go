@@ -47,12 +47,12 @@ type MailBox struct {
 // EncodeParams returns MailBox parameters ready to be used for constructing a signature
 func (m MailBox) EncodeParams(prm gotransip.ParamsContainer) {
 	idx := prm.Len()
-	prm.Set(fmt.Sprintf("%d[address]", idx), m.Address)
-	prm.Set(fmt.Sprintf("%d[spamCheckerStrength]", idx), string(m.SpamCheckerStrength))
-	prm.Set(fmt.Sprintf("%d[maxDiskUsage]", idx), fmt.Sprintf("%d", m.MaxDiskUsage))
-	prm.Set(fmt.Sprintf("%d[hasVacationReply]", idx), fmt.Sprintf("%t", m.HasVacationReply))
-	prm.Set(fmt.Sprintf("%d[vacationReplySubject]", idx), m.VacationReplySubject)
-	prm.Set(fmt.Sprintf("%d[vacationReplyMessage]", idx), m.VacationReplyMessage)
+	prm.Add(fmt.Sprintf("%d[address]", idx), m.Address)
+	prm.Add(fmt.Sprintf("%d[spamCheckerStrength]", idx), string(m.SpamCheckerStrength))
+	prm.Add(fmt.Sprintf("%d[maxDiskUsage]", idx), fmt.Sprintf("%d", m.MaxDiskUsage))
+	prm.Add(fmt.Sprintf("%d[hasVacationReply]", idx), fmt.Sprintf("%t", m.HasVacationReply))
+	prm.Add(fmt.Sprintf("%d[vacationReplySubject]", idx), m.VacationReplySubject)
+	prm.Add(fmt.Sprintf("%d[vacationReplyMessage]", idx), m.VacationReplyMessage)
 }
 
 // EncodeArgs returns MailBox XML body ready to be passed in the SOAP call
@@ -88,7 +88,7 @@ type SubDomain struct {
 // EncodeParams returns SubDomain parameters ready to be used for constructing a signature
 func (s SubDomain) EncodeParams(prm gotransip.ParamsContainer) {
 	idx := prm.Len()
-	prm.Set(fmt.Sprintf("%d[name]", idx), s.Name)
+	prm.Add(fmt.Sprintf("%d[name]", idx), s.Name)
 }
 
 // EncodeArgs returns SubDomain XML body ready to be passed in the SOAP call
@@ -121,8 +121,8 @@ type MailForward struct {
 // EncodeParams returns MailForward parameters ready to be used for constructing a signature
 func (m MailForward) EncodeParams(prm gotransip.ParamsContainer) {
 	idx := prm.Len()
-	prm.Set(fmt.Sprintf("%d[name]", idx), m.Name)
-	prm.Set(fmt.Sprintf("%d[targetAddress]", idx), m.TargetAddress)
+	prm.Add(fmt.Sprintf("%d[name]", idx), m.Name)
+	prm.Add(fmt.Sprintf("%d[targetAddress]", idx), m.TargetAddress)
 }
 
 // EncodeArgs returns MailForward XML body ready to be passed in the SOAP call
@@ -144,9 +144,9 @@ type Database struct {
 // EncodeParams returns Database parameters ready to be used for constructing a signature
 func (db Database) EncodeParams(prm gotransip.ParamsContainer) {
 	idx := prm.Len()
-	prm.Set(fmt.Sprintf("%d[name]", idx), db.Name)
-	prm.Set(fmt.Sprintf("%d[username]", idx), db.Username)
-	prm.Set(fmt.Sprintf("%d[maxDiskUsage]", idx), fmt.Sprintf("%d", db.MaxDiskUsage))
+	prm.Add(fmt.Sprintf("%d[name]", idx), db.Name)
+	prm.Add(fmt.Sprintf("%d[username]", idx), db.Username)
+	prm.Add(fmt.Sprintf("%d[maxDiskUsage]", idx), fmt.Sprintf("%d", db.MaxDiskUsage))
 }
 
 // EncodeArgs returns Database XML body ready to be passed in the SOAP call
@@ -174,14 +174,14 @@ type CronJob struct {
 // EncodeParams returns CronJob parameters ready to be used for constructing a signature
 func (c CronJob) EncodeParams(prm gotransip.ParamsContainer) {
 	idx := prm.Len()
-	prm.Set(fmt.Sprintf("%d[name]", idx), c.Name)
-	prm.Set(fmt.Sprintf("%d[url]", idx), c.URL)
-	prm.Set(fmt.Sprintf("%d[email]", idx), c.Email)
-	prm.Set(fmt.Sprintf("%d[minuteTrigger]", idx), c.MinuteTrigger)
-	prm.Set(fmt.Sprintf("%d[hourTrigger]", idx), c.HourTrigger)
-	prm.Set(fmt.Sprintf("%d[dayTrigger]", idx), c.DayTrigger)
-	prm.Set(fmt.Sprintf("%d[monthTrigger]", idx), c.MonthTrigger)
-	prm.Set(fmt.Sprintf("%d[weekdayTrigger]", idx), c.WeekdayTrigger)
+	prm.Add(fmt.Sprintf("%d[name]", idx), c.Name)
+	prm.Add(fmt.Sprintf("%d[url]", idx), c.URL)
+	prm.Add(fmt.Sprintf("%d[email]", idx), c.Email)
+	prm.Add(fmt.Sprintf("%d[minuteTrigger]", idx), c.MinuteTrigger)
+	prm.Add(fmt.Sprintf("%d[hourTrigger]", idx), c.HourTrigger)
+	prm.Add(fmt.Sprintf("%d[dayTrigger]", idx), c.DayTrigger)
+	prm.Add(fmt.Sprintf("%d[monthTrigger]", idx), c.MonthTrigger)
+	prm.Add(fmt.Sprintf("%d[weekdayTrigger]", idx), c.WeekdayTrigger)
 }
 
 // EncodeArgs returns CronJob XML body ready to be passed in the SOAP call
