@@ -235,7 +235,7 @@ type TestParamsEncoder struct {
 	value string
 }
 
-func (t TestParamsEncoder) EncodeParams(prm ParamsContainer) {
+func (t TestParamsEncoder) EncodeParams(prm ParamsContainer, prefix string) {
 	prm.Add("0[key]", t.key)
 	prm.Add("1[value]", t.value)
 }

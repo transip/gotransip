@@ -68,7 +68,7 @@ func (s soapFault) String() string {
 // paramsEncoder allows SoapParams to hook into encoding theirselves, useful when
 // fields consist of complex structs
 type paramsEncoder interface {
-	EncodeParams(ParamsContainer)
+	EncodeParams(ParamsContainer, string)
 	EncodeArgs(string) string
 }
 
@@ -203,7 +203,7 @@ func (sr *SoapRequest) AddArgument(key string, value interface{}) {
 	// check if value implements paramsEncoder
 	if pe, ok := value.(paramsEncoder); ok {
 		sr.args = append(sr.args, pe.EncodeArgs(key))
-		pe.EncodeParams(sr.params)
+		pe.EncodeParams(sr.params, "")
 		return
 	}
 

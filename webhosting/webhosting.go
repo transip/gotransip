@@ -45,14 +45,17 @@ type MailBox struct {
 }
 
 // EncodeParams returns MailBox parameters ready to be used for constructing a signature
-func (m MailBox) EncodeParams(prm gotransip.ParamsContainer) {
-	idx := prm.Len()
-	prm.Add(fmt.Sprintf("%d[address]", idx), m.Address)
-	prm.Add(fmt.Sprintf("%d[spamCheckerStrength]", idx), string(m.SpamCheckerStrength))
-	prm.Add(fmt.Sprintf("%d[maxDiskUsage]", idx), fmt.Sprintf("%d", m.MaxDiskUsage))
-	prm.Add(fmt.Sprintf("%d[hasVacationReply]", idx), m.HasVacationReply)
-	prm.Add(fmt.Sprintf("%d[vacationReplySubject]", idx), m.VacationReplySubject)
-	prm.Add(fmt.Sprintf("%d[vacationReplyMessage]", idx), m.VacationReplyMessage)
+func (m MailBox) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
+	if len(prefix) == 0 {
+		prefix = fmt.Sprintf("%d", prm.Len())
+	}
+
+	prm.Add(fmt.Sprintf("%s[address]", prefix), m.Address)
+	prm.Add(fmt.Sprintf("%s[spamCheckerStrength]", prefix), string(m.SpamCheckerStrength))
+	prm.Add(fmt.Sprintf("%s[maxDiskUsage]", prefix), fmt.Sprintf("%d", m.MaxDiskUsage))
+	prm.Add(fmt.Sprintf("%s[hasVacationReply]", prefix), m.HasVacationReply)
+	prm.Add(fmt.Sprintf("%s[vacationReplySubject]", prefix), m.VacationReplySubject)
+	prm.Add(fmt.Sprintf("%s[vacationReplyMessage]", prefix), m.VacationReplyMessage)
 }
 
 // EncodeArgs returns MailBox XML body ready to be passed in the SOAP call
@@ -86,9 +89,12 @@ type SubDomain struct {
 }
 
 // EncodeParams returns SubDomain parameters ready to be used for constructing a signature
-func (s SubDomain) EncodeParams(prm gotransip.ParamsContainer) {
-	idx := prm.Len()
-	prm.Add(fmt.Sprintf("%d[name]", idx), s.Name)
+func (s SubDomain) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
+	if len(prefix) == 0 {
+		prefix = fmt.Sprintf("%d", prm.Len())
+	}
+
+	prm.Add(fmt.Sprintf("%s[name]", prefix), s.Name)
 }
 
 // EncodeArgs returns SubDomain XML body ready to be passed in the SOAP call
@@ -119,10 +125,13 @@ type MailForward struct {
 }
 
 // EncodeParams returns MailForward parameters ready to be used for constructing a signature
-func (m MailForward) EncodeParams(prm gotransip.ParamsContainer) {
-	idx := prm.Len()
-	prm.Add(fmt.Sprintf("%d[name]", idx), m.Name)
-	prm.Add(fmt.Sprintf("%d[targetAddress]", idx), m.TargetAddress)
+func (m MailForward) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
+	if len(prefix) == 0 {
+		prefix = fmt.Sprintf("%d", prm.Len())
+	}
+
+	prm.Add(fmt.Sprintf("%s[name]", prefix), m.Name)
+	prm.Add(fmt.Sprintf("%s[targetAddress]", prefix), m.TargetAddress)
 }
 
 // EncodeArgs returns MailForward XML body ready to be passed in the SOAP call
@@ -142,11 +151,14 @@ type Database struct {
 }
 
 // EncodeParams returns Database parameters ready to be used for constructing a signature
-func (db Database) EncodeParams(prm gotransip.ParamsContainer) {
-	idx := prm.Len()
-	prm.Add(fmt.Sprintf("%d[name]", idx), db.Name)
-	prm.Add(fmt.Sprintf("%d[username]", idx), db.Username)
-	prm.Add(fmt.Sprintf("%d[maxDiskUsage]", idx), fmt.Sprintf("%d", db.MaxDiskUsage))
+func (db Database) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
+	if len(prefix) == 0 {
+		prefix = fmt.Sprintf("%d", prm.Len())
+	}
+
+	prm.Add(fmt.Sprintf("%s[name]", prefix), db.Name)
+	prm.Add(fmt.Sprintf("%s[username]", prefix), db.Username)
+	prm.Add(fmt.Sprintf("%s[maxDiskUsage]", prefix), fmt.Sprintf("%d", db.MaxDiskUsage))
 }
 
 // EncodeArgs returns Database XML body ready to be passed in the SOAP call
@@ -172,16 +184,19 @@ type CronJob struct {
 }
 
 // EncodeParams returns CronJob parameters ready to be used for constructing a signature
-func (c CronJob) EncodeParams(prm gotransip.ParamsContainer) {
-	idx := prm.Len()
-	prm.Add(fmt.Sprintf("%d[name]", idx), c.Name)
-	prm.Add(fmt.Sprintf("%d[url]", idx), c.URL)
-	prm.Add(fmt.Sprintf("%d[email]", idx), c.Email)
-	prm.Add(fmt.Sprintf("%d[minuteTrigger]", idx), c.MinuteTrigger)
-	prm.Add(fmt.Sprintf("%d[hourTrigger]", idx), c.HourTrigger)
-	prm.Add(fmt.Sprintf("%d[dayTrigger]", idx), c.DayTrigger)
-	prm.Add(fmt.Sprintf("%d[monthTrigger]", idx), c.MonthTrigger)
-	prm.Add(fmt.Sprintf("%d[weekdayTrigger]", idx), c.WeekdayTrigger)
+func (c CronJob) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
+	if len(prefix) == 0 {
+		prefix = fmt.Sprintf("%d", prm.Len())
+	}
+
+	prm.Add(fmt.Sprintf("%s[name]", prefix), c.Name)
+	prm.Add(fmt.Sprintf("%s[url]", prefix), c.URL)
+	prm.Add(fmt.Sprintf("%s[email]", prefix), c.Email)
+	prm.Add(fmt.Sprintf("%s[minuteTrigger]", prefix), c.MinuteTrigger)
+	prm.Add(fmt.Sprintf("%s[hourTrigger]", prefix), c.HourTrigger)
+	prm.Add(fmt.Sprintf("%s[dayTrigger]", prefix), c.DayTrigger)
+	prm.Add(fmt.Sprintf("%s[monthTrigger]", prefix), c.MonthTrigger)
+	prm.Add(fmt.Sprintf("%s[weekdayTrigger]", prefix), c.WeekdayTrigger)
 }
 
 // EncodeArgs returns CronJob XML body ready to be passed in the SOAP call

@@ -38,7 +38,7 @@ func TestDomainEncoding(t *testing.T) {
 	fixtPrm, err := getFixture("testdata/encoding/domain_simple.prm")
 	assert.NoError(t, err)
 	prm := gotransip.TestParamsContainer{}
-	domain.EncodeParams(&prm)
+	domain.EncodeParams(&prm, "")
 	assert.Equal(t, fixtPrm, prm.Prm)
 
 	// dress up domain some more
@@ -94,7 +94,14 @@ func TestDomainEncoding(t *testing.T) {
 	fixtPrm, err = getFixture("testdata/encoding/domain_full.prm")
 	assert.NoError(t, err)
 	prm = gotransip.TestParamsContainer{}
-	domain.EncodeParams(&prm)
+	domain.EncodeParams(&prm, "")
+	assert.Equal(t, fixtPrm, prm.Prm)
+
+	// try again with prefixed parameters
+	fixtPrm, err = getFixture("testdata/encoding/domain_full_prefixed.prm")
+	assert.NoError(t, err)
+	prm = gotransip.TestParamsContainer{}
+	domain.EncodeParams(&prm, "5[domain]")
 	assert.Equal(t, fixtPrm, prm.Prm)
 }
 
@@ -131,7 +138,7 @@ func TestDnsEntriesEncoding(t *testing.T) {
 	assert.Equal(t, fixtArgs, entries.EncodeArgs("dnsEntries"))
 
 	prm := gotransip.TestParamsContainer{}
-	entries.EncodeParams(&prm)
+	entries.EncodeParams(&prm, "")
 	assert.Equal(t, "00[0][name]=www&150[0][expire]=3600&350[0][type]=A&500[0][content]=1.2.3.4&740[1][name]=@&890[1][expire]=86400&1100[1][type]=NS&1270[1][content]=ns0.transip.net", prm.Prm)
 }
 
@@ -171,7 +178,7 @@ func TestNameserversEncoding(t *testing.T) {
 </nameServers>`
 	assert.Equal(t, fixtArgs, nameservers.EncodeArgs("nameServers"))
 	prm := gotransip.TestParamsContainer{}
-	nameservers.EncodeParams(&prm)
+	nameservers.EncodeParams(&prm, "")
 	assert.Equal(t, "00[0][hostname]=ns0.transip.net&310[0][ipv4]=195.135.195.195&600[0][ipv6]=2a01:7c8:dddd:195::195&960[1][hostname]=ns1.transip.nl&1280[1][ipv4]=195.8.195.195&1560[1][ipv6]=&1710[2][hostname]=ns2.transip.eu&2040[2][ipv4]=&2190[2][ipv6]=2a01:7c8:f:c1f::195", prm.Prm)
 }
 
@@ -197,7 +204,7 @@ func TestBrandingEncoding(t *testing.T) {
 	</branding>`
 	assert.Equal(t, fixtArgs, brand.EncodeArgs("branding"))
 	prm := gotransip.TestParamsContainer{}
-	brand.EncodeParams(&prm)
+	brand.EncodeParams(&prm, "")
 	assert.Equal(t, "00[companyName]=TransIP BV&260[supportEmail]=support@transip.nl&630[companyUrl]=https://transip.nl/&990[termsOfUsageUrl]=https://transip.nl/tou&1430[bannerLine1]=TransIP 1&1710[bannerLine2]=TransIP 2&1990[bannerLine3]=TransIP 3", prm.Prm)
 }
 
@@ -243,6 +250,6 @@ func TestWhoisContactsEncoding(t *testing.T) {
 </contacts>`
 	assert.Equal(t, fixtArgs, whois.EncodeArgs("contacts"))
 	prm := gotransip.TestParamsContainer{}
-	whois.EncodeParams(&prm)
+	whois.EncodeParams(&prm, "")
 	assert.Equal(t, "00[0][type]=registrant&220[0][firstName]=foo&440[0][middleName]=bar&670[0][lastName]=baz&880[0][companyName]=TransIP BV&1190[0][companyKvk]=1234&1440[0][companyType]=BV&1680[0][street]=Schipholweg&1960[0][number]=9B&2150[0][postalCode]=2316XB&2420[0][city]=Leiden&2630[0][phoneNumber]=+31 715241919&2980[0][faxNumber]=+31 715241918&3310[0][email]=support@transip.nl&3650[0][country]=nl", prm.Prm)
 }
