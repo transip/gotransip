@@ -27,7 +27,7 @@ type Domain struct {
 }
 
 // EncodeParams returns Domain parameters ready to be used for constructing a signature
-// the order of parameters being add here has to match the order in the WSDL
+// the order of parameters added here has to match the order in the WSDL
 // as described at http://api.transip.nl/wsdl/?service=DomainService
 func (d Domain) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
 	if len(prefix) == 0 {
@@ -124,7 +124,7 @@ type Nameserver struct {
 type Nameservers []Nameserver
 
 // EncodeParams returns Nameservers parameters ready to be used for constructing a signature
-// the order of parameters being add here has to match the order in the WSDL
+// the order of parameters added here has to match the order in the WSDL
 // as described at http://api.transip.nl/wsdl/?service=DomainService
 func (n Nameservers) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
 	if len(n) == 0 {
@@ -205,7 +205,7 @@ type DNSEntry struct {
 type DNSEntries []DNSEntry
 
 // EncodeParams returns DNSEntries parameters ready to be used for constructing a signature
-// the order of parameters being add here has to match the order in the WSDL
+// the order of parameters added here has to match the order in the WSDL
 // as described at http://api.transip.nl/wsdl/?service=DomainService
 func (d DNSEntries) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
 	if len(d) == 0 {
@@ -279,7 +279,7 @@ type Branding struct {
 }
 
 // EncodeParams returns WhoisContacts parameters ready to be used for constructing a signature
-// the order of parameters being add here has to match the order in the WSDL
+// the order of parameters added here has to match the order in the WSDL
 // as described at http://api.transip.nl/wsdl/?service=DomainService
 func (b Branding) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
 	if len(prefix) == 0 {
@@ -353,7 +353,7 @@ type WhoisContact struct {
 type WhoisContacts []WhoisContact
 
 // EncodeParams returns WhoisContacts parameters ready to be used for constructing a signature
-// the order of parameters being add here has to match the order in the WSDL
+// the order of parameters added here has to match the order in the WSDL
 // as described at http://api.transip.nl/wsdl/?service=DomainService
 func (w WhoisContacts) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
 	if len(w) == 0 {

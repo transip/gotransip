@@ -45,6 +45,8 @@ type MailBox struct {
 }
 
 // EncodeParams returns MailBox parameters ready to be used for constructing a signature
+// the order of parameters added here has to match the order in the WSDL
+// as described at http://api.transip.nl/wsdl/?service=WebhostingService
 func (m MailBox) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
 	if len(prefix) == 0 {
 		prefix = fmt.Sprintf("%d", prm.Len())
@@ -89,6 +91,8 @@ type SubDomain struct {
 }
 
 // EncodeParams returns SubDomain parameters ready to be used for constructing a signature
+// the order of parameters added here has to match the order in the WSDL
+// as described at http://api.transip.nl/wsdl/?service=WebhostingService
 func (s SubDomain) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
 	if len(prefix) == 0 {
 		prefix = fmt.Sprintf("%d", prm.Len())
@@ -125,6 +129,8 @@ type MailForward struct {
 }
 
 // EncodeParams returns MailForward parameters ready to be used for constructing a signature
+// the order of parameters added here has to match the order in the WSDL
+// as described at http://api.transip.nl/wsdl/?service=WebhostingService
 func (m MailForward) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
 	if len(prefix) == 0 {
 		prefix = fmt.Sprintf("%d", prm.Len())
@@ -151,6 +157,8 @@ type Database struct {
 }
 
 // EncodeParams returns Database parameters ready to be used for constructing a signature
+// the order of parameters added here has to match the order in the WSDL
+// as described at http://api.transip.nl/wsdl/?service=WebhostingService
 func (db Database) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
 	if len(prefix) == 0 {
 		prefix = fmt.Sprintf("%d", prm.Len())
@@ -184,6 +192,8 @@ type CronJob struct {
 }
 
 // EncodeParams returns CronJob parameters ready to be used for constructing a signature
+// the order of parameters added here has to match the order in the WSDL
+// as described at http://api.transip.nl/wsdl/?service=WebhostingService
 func (c CronJob) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
 	if len(prefix) == 0 {
 		prefix = fmt.Sprintf("%d", prm.Len())
