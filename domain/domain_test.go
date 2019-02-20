@@ -1,118 +1,101 @@
 package domain
 
 import (
+	"fmt"
+	"io/ioutil"
 	"net"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/transip/gotransip"
 )
 
+func getFixture(filename string) (string, error) {
+	data, err := ioutil.ReadFile(filename)
+	if err != nil {
+		err = fmt.Errorf("could not read fixture from file %s: %s", filename, err.Error())
+	}
+
+	fixt := strings.TrimSpace(string(data))
+
+	return fixt, err
+}
+
 func TestDomainEncoding(t *testing.T) {
+	// start with a simple domain without any complex fields
 	domain := Domain{
-		Name: "example.org",
-		Nameservers: Nameservers{
-			{
-				Hostname:    "ns0.transip.net",
-				IPv4Address: net.IP{195, 135, 195, 195},
-				IPv6Address: net.ParseIP("2a01:7c8:dddd:195::195"),
-			},
-		},
-		Contacts: WhoisContacts{
-			{
-				Type:        "registrant",
-				FirstName:   "foo",
-				MiddleName:  "bar",
-				LastName:    "baz",
-				CompanyName: "TransIP BV",
-				CompanyKvk:  "1234",
-				CompanyType: "BV",
-				Street:      "Schipholweg",
-				Number:      "9B",
-				PostalCode:  "2316XB",
-				City:        "Leiden",
-				PhoneNumber: "+31 715241919",
-				FaxNumber:   "+31 715241918",
-				Email:       "support@transip.nl",
-				Country:     "nl",
-			},
-		},
-		DNSEntries: DNSEntries{
-			{
-				Name:    "www",
-				Content: "1.2.3.4",
-				TTL:     3600,
-				Type:    DNSEntryTypeA,
-			},
-		},
-		Branding: Branding{
-			CompanyName:     "TransIP BV",
-			SupportEmail:    "support@transip.nl",
-			CompanyURL:      "https://transip.nl/",
-			TermsOfUsageURL: "https://transip.nl/tou",
-			BannerLine1:     "TransIP 1",
-			BannerLine2:     "TransIP 2",
-			BannerLine3:     "TransIP 3",
-		},
+		Name:              "example.org",
 		AuthorizationCode: "abcxyz",
 		IsLocked:          true,
 	}
 
-	fixtArgs := `<domain xsi:type="ns1:Domain">
-	<name xsi:type="xsd:string">example.org</name>
-	<authCode xsi:type="xsd:string">abcxyz</authCode>
-	<isLocked xsi:type="xsd:boolean">true</isLocked>
-	<registrationDate xsi:type="xsd:string">0001-01-01</registrationDate>
-	<renewalDate xsi:type="xsd:string">0001-01-01</renewalDate>
-<nameservers SOAP-ENC:arrayType="ns1:Nameserver[1]" xsi:type="ns1:ArrayOfNameserver">
-	<item xsi:type="ns1:Nameserver">
-		<hostname xsi:type="xsd:string">ns0.transip.net</hostname>
-		<ipv4 xsi:type="xsd:string">195.135.195.195</ipv4>
-		<ipv6 xsi:type="xsd:string">2a01:7c8:dddd:195::195</ipv6>
-	</item>
-</nameservers>
-<contacts SOAP-ENC:arrayType="ns1:WhoisContact[1]" xsi:type="ns1:ArrayOfWhoisContact">
-	<item xsi:type="ns1:WhoisContact">
-		<type xsi:type="xsd:string">registrant</type>
-		<firstName xsi:type="xsd:string">foo</firstName>
-		<middleName xsi:type="xsd:string">bar</middleName>
-		<lastName xsi:type="xsd:string">baz</lastName>
-		<companyName xsi:type="xsd:string">TransIP BV</companyName>
-		<companyKvk xsi:type="xsd:string">1234</companyKvk>
-		<companyType xsi:type="xsd:string">BV</companyType>
-		<street xsi:type="xsd:string">Schipholweg</street>
-		<number xsi:type="xsd:string">9B</number>
-		<postalCode xsi:type="xsd:string">2316XB</postalCode>
-		<city xsi:type="xsd:string">Leiden</city>
-		<phoneNumber xsi:type="xsd:string">+31 715241919</phoneNumber>
-		<faxNumber xsi:type="xsd:string">+31 715241918</faxNumber>
-		<email xsi:type="xsd:string">support@transip.nl</email>
-		<country xsi:type="xsd:string">nl</country>
-	</item>
-</contacts>
-<dnsEntries SOAP-ENC:arrayType="ns1:DnsEntry[1]" xsi:type="ns1:ArrayOfDnsEntry">
-	<item xsi:type="ns1:DnsEntry">
-		<name xsi:type="xsd:string">www</name>
-		<expire xsi:type="xsd:int">3600</expire>
-		<type xsi:type="xsd:string">A</type>
-		<content xsi:type="xsd:string">1.2.3.4</content>
-	</item>
-</dnsEntries>
-<branding xsi:type="ns1:DomainBranding">
-		<companyName xsi:type="xsd:string">TransIP BV</companyName>
-		<supportEmail xsi:type="xsd:string">support@transip.nl</supportEmail>
-		<companyUrl xsi:type="xsd:string">https://transip.nl/</companyUrl>
-		<termsOfUsageUrl xsi:type="xsd:string">https://transip.nl/tou</termsOfUsageUrl>
-		<bannerLine1 xsi:type="xsd:string">TransIP 1</bannerLine1>
-		<bannerLine2 xsi:type="xsd:string">TransIP 2</bannerLine2>
-		<bannerLine3 xsi:type="xsd:string">TransIP 3</bannerLine3>
-	</branding>
-</domain>`
+	// read fixture files and compare XML and encoded parameters
+	fixtArgs, err := getFixture("testdata/encoding/domain_simple.xml")
+	assert.NoError(t, err)
 	assert.Equal(t, fixtArgs, domain.EncodeArgs("domain"))
 
+	fixtPrm, err := getFixture("testdata/encoding/domain_simple.prm")
+	assert.NoError(t, err)
 	prm := gotransip.TestParamsContainer{}
 	domain.EncodeParams(&prm)
-	assert.Equal(t, "00[name]=example.org&200[authCode]=abcxyz&410[isLocked]=1&570[registrationDate]=0001-01-01&900[renewalDate]=0001-01-01&1180[nameservers][0][hostname]=ns0.transip.net&1650[nameservers][0][ipv4]=195.135.195.195&2080[nameservers][0][ipv6]=2a01:7c8:dddd:195::195&2580[contacts][0][type]=registrant&2930[contacts][0][firstName]=foo&3260[contacts][0][middleName]=bar&3600[contacts][0][lastName]=baz&3920[contacts][0][companyName]=TransIP BV&4340[contacts][0][companyKvk]=1234&4690[contacts][0][companyType]=BV&5030[contacts][0][street]=Schipholweg&5410[contacts][0][number]=9B&5700[contacts][0][postalCode]=2316XB&6070[contacts][0][city]=Leiden&6380[contacts][0][phoneNumber]=+31 715241919&6830[contacts][0][faxNumber]=+31 715241918&7260[contacts][0][email]=support@transip.nl&7700[contacts][0][country]=nl&8000[dnsEntries][0][name]=www&8300[dnsEntries][0][expire]=3600&8630[dnsEntries][0][type]=A&8910[dnsEntries][0][content]=1.2.3.4&9280[branding][companyName]=TransIP BV&9670[branding][supportEmail]=support@transip.nl&10150[branding][companyUrl]=https://transip.nl/&10630[branding][termsOfUsageUrl]=https://transip.nl/tou&11190[branding][bannerLine1]=TransIP 1&11580[branding][bannerLine2]=TransIP 2&11970[branding][bannerLine3]=TransIP 3", prm.Prm)
+	assert.Equal(t, fixtPrm, prm.Prm)
+
+	// dress up domain some more
+	domain.Nameservers = Nameservers{
+		{
+			Hostname:    "ns0.transip.net",
+			IPv4Address: net.IP{195, 135, 195, 195},
+			IPv6Address: net.ParseIP("2a01:7c8:dddd:195::195"),
+		},
+	}
+	domain.Contacts = WhoisContacts{
+		{
+			Type:        "registrant",
+			FirstName:   "foo",
+			MiddleName:  "bar",
+			LastName:    "baz",
+			CompanyName: "TransIP BV",
+			CompanyKvk:  "1234",
+			CompanyType: "BV",
+			Street:      "Schipholweg",
+			Number:      "9B",
+			PostalCode:  "2316XB",
+			City:        "Leiden",
+			PhoneNumber: "+31 715241919",
+			FaxNumber:   "+31 715241918",
+			Email:       "support@transip.nl",
+			Country:     "nl",
+		},
+	}
+	domain.DNSEntries = DNSEntries{
+		{
+			Name:    "www",
+			Content: "1.2.3.4",
+			TTL:     3600,
+			Type:    DNSEntryTypeA,
+		},
+	}
+	domain.Branding = Branding{
+		CompanyName:     "TransIP BV",
+		SupportEmail:    "support@transip.nl",
+		CompanyURL:      "https://transip.nl/",
+		TermsOfUsageURL: "https://transip.nl/tou",
+		BannerLine1:     "TransIP 1",
+		BannerLine2:     "TransIP 2",
+		BannerLine3:     "TransIP 3",
+	}
+
+	// read fixture files and compare XML and encoded parameters
+	fixtArgs, err = getFixture("testdata/encoding/domain_full.xml")
+	assert.NoError(t, err)
+	assert.Equal(t, fixtArgs, domain.EncodeArgs("domain"))
+
+	fixtPrm, err = getFixture("testdata/encoding/domain_full.prm")
+	assert.NoError(t, err)
+	prm = gotransip.TestParamsContainer{}
+	domain.EncodeParams(&prm)
+	assert.Equal(t, fixtPrm, prm.Prm)
 }
 
 func TestDnsEntriesEncoding(t *testing.T) {

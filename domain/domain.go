@@ -27,14 +27,17 @@ type Domain struct {
 }
 
 // EncodeParams returns Domain parameters ready to be used for constructing a signature
+// the order of parameters being add here has to match the order in the WSDL
+// as described at http://api.transip.nl/wsdl/?service=DomainService
 func (d Domain) EncodeParams(prm gotransip.ParamsContainer) {
 	idx := prm.Len()
 	prm.Add(fmt.Sprintf("%d[name]", idx), d.Name)
-	prm.Add(fmt.Sprintf("%d[authCode]", idx), d.AuthorizationCode)
-	prm.Add(fmt.Sprintf("%d[isLocked]", idx), d.IsLocked)
-	prm.Add(fmt.Sprintf("%d[registrationDate]", idx), d.RegistrationDate.Format("2006-01-02"))
-	prm.Add(fmt.Sprintf("%d[renewalDate]", idx), d.RenewalDate.Format("2006-01-02"))
+
 	// nameservers
+	if len(d.Nameservers) == 0 {
+		prm.Add("anything", nil)
+	}
+
 	for i, e := range d.Nameservers {
 		var ipv4, ipv6 string
 		if e.IPv4Address != nil {
@@ -47,7 +50,12 @@ func (d Domain) EncodeParams(prm gotransip.ParamsContainer) {
 		prm.Add(fmt.Sprintf("%d[nameservers][%d][ipv4]", idx, i), ipv4)
 		prm.Add(fmt.Sprintf("%d[nameservers][%d][ipv6]", idx, i), ipv6)
 	}
+
 	// contacts
+	if len(d.Contacts) == 0 {
+		prm.Add("anything", nil)
+	}
+
 	for i, e := range d.Contacts {
 		prm.Add(fmt.Sprintf("%d[contacts][%d][type]", idx, i), e.Type)
 		prm.Add(fmt.Sprintf("%d[contacts][%d][firstName]", idx, i), e.FirstName)
@@ -65,13 +73,19 @@ func (d Domain) EncodeParams(prm gotransip.ParamsContainer) {
 		prm.Add(fmt.Sprintf("%d[contacts][%d][email]", idx, i), e.Email)
 		prm.Add(fmt.Sprintf("%d[contacts][%d][country]", idx, i), e.Country)
 	}
+
 	// dnsEntries
+	if len(d.DNSEntries) == 0 {
+		prm.Add("anything", nil)
+	}
+
 	for i, e := range d.DNSEntries {
 		prm.Add(fmt.Sprintf("%d[dnsEntries][%d][name]", idx, i), e.Name)
 		prm.Add(fmt.Sprintf("%d[dnsEntries][%d][expire]", idx, i), fmt.Sprintf("%d", e.TTL))
 		prm.Add(fmt.Sprintf("%d[dnsEntries][%d][type]", idx, i), string(e.Type))
 		prm.Add(fmt.Sprintf("%d[dnsEntries][%d][content]", idx, i), e.Content)
 	}
+
 	// branding
 	prm.Add(fmt.Sprintf("%d[branding][companyName]", idx), d.Branding.CompanyName)
 	prm.Add(fmt.Sprintf("%d[branding][supportEmail]", idx), d.Branding.SupportEmail)
@@ -80,24 +94,30 @@ func (d Domain) EncodeParams(prm gotransip.ParamsContainer) {
 	prm.Add(fmt.Sprintf("%d[branding][bannerLine1]", idx), d.Branding.BannerLine1)
 	prm.Add(fmt.Sprintf("%d[branding][bannerLine2]", idx), d.Branding.BannerLine2)
 	prm.Add(fmt.Sprintf("%d[branding][bannerLine3]", idx), d.Branding.BannerLine3)
+
+	prm.Add(fmt.Sprintf("%d[authCode]", idx), d.AuthorizationCode)
+	prm.Add(fmt.Sprintf("%d[isLocked]", idx), d.IsLocked)
+	prm.Add(fmt.Sprintf("%d[registrationDate]", idx), d.RegistrationDate.Format("2006-01-02"))
+	prm.Add(fmt.Sprintf("%d[renewalDate]", idx), d.RenewalDate.Format("2006-01-02"))
 }
 
 // EncodeArgs returns Domain XML body ready to be passed in the SOAP call
 func (d Domain) EncodeArgs(key string) string {
 	output := fmt.Sprintf(`<%s xsi:type="ns1:Domain">
-	<name xsi:type="xsd:string">%s</name>
-	<authCode xsi:type="xsd:string">%s</authCode>
-	<isLocked xsi:type="xsd:boolean">%t</isLocked>
-	<registrationDate xsi:type="xsd:string">%s</registrationDate>
-	<renewalDate xsi:type="xsd:string">%s</renewalDate>`,
-		key, d.Name, d.AuthorizationCode, d.IsLocked,
-		d.RegistrationDate.Format("2006-01-02"), d.RenewalDate.Format("2006-01-02"),
-	) + "\n"
+	<name xsi:type="xsd:string">%s</name>`, key, d.Name) + "\n"
 
 	output += Nameservers(d.Nameservers).EncodeArgs("nameservers") + "\n"
 	output += WhoisContacts(d.Contacts).EncodeArgs("contacts") + "\n"
 	output += DNSEntries(d.DNSEntries).EncodeArgs("dnsEntries") + "\n"
 	output += d.Branding.EncodeArgs("branding") + "\n"
+
+	output += fmt.Sprintf(`	<authCode xsi:type="xsd:string">%s</authCode>
+	<isLocked xsi:type="xsd:boolean">%t</isLocked>
+	<registrationDate xsi:type="xsd:string">%s</registrationDate>
+	<renewalDate xsi:type="xsd:string">%s</renewalDate>`,
+		d.AuthorizationCode, d.IsLocked,
+		d.RegistrationDate.Format("2006-01-02"), d.RenewalDate.Format("2006-01-02"),
+	) + "\n"
 
 	return fmt.Sprintf("%s</%s>", output, key)
 }
@@ -151,6 +171,8 @@ type Nameserver struct {
 type Nameservers []Nameserver
 
 // EncodeParams returns Nameservers parameters ready to be used for constructing a signature
+// the order of parameters being add here has to match the order in the WSDL
+// as described at http://api.transip.nl/wsdl/?service=DomainService
 func (n Nameservers) EncodeParams(prm gotransip.ParamsContainer) {
 	idx := prm.Len()
 	for i, e := range n {
@@ -222,6 +244,8 @@ type DNSEntry struct {
 type DNSEntries []DNSEntry
 
 // EncodeParams returns DNSEntries parameters ready to be used for constructing a signature
+// the order of parameters being add here has to match the order in the WSDL
+// as described at http://api.transip.nl/wsdl/?service=DomainService
 func (d DNSEntries) EncodeParams(prm gotransip.ParamsContainer) {
 	idx := prm.Len()
 	for i, e := range d {
@@ -286,6 +310,8 @@ type Branding struct {
 }
 
 // EncodeParams returns WhoisContacts parameters ready to be used for constructing a signature
+// the order of parameters being add here has to match the order in the WSDL
+// as described at http://api.transip.nl/wsdl/?service=DomainService
 func (b Branding) EncodeParams(prm gotransip.ParamsContainer) {
 	idx := prm.Len()
 	prm.Add(fmt.Sprintf("%d[companyName]", idx), b.CompanyName)
@@ -355,6 +381,8 @@ type WhoisContact struct {
 type WhoisContacts []WhoisContact
 
 // EncodeParams returns WhoisContacts parameters ready to be used for constructing a signature
+// the order of parameters being add here has to match the order in the WSDL
+// as described at http://api.transip.nl/wsdl/?service=DomainService
 func (w WhoisContacts) EncodeParams(prm gotransip.ParamsContainer) {
 	idx := prm.Len()
 	for i, e := range w {
