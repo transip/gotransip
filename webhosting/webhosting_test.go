@@ -29,7 +29,7 @@ func TestMailBoxEncoding(t *testing.T) {
 
 	prm := gotransip.TestParamsContainer{}
 	mailbox.EncodeParams(&prm)
-	assert.Equal(t, "00[address]=info@example.org&280[spamCheckerStrength]=AVERAGE&610[maxDiskUsage]=100&830[hasVacationReply]=true&1100[vacationReplySubject]=out of office&1510[vacationReplyMessage]=I'm out of office, ktnxbye", prm.Prm)
+	assert.Equal(t, "00[address]=info@example.org&280[spamCheckerStrength]=AVERAGE&610[maxDiskUsage]=100&830[hasVacationReply]=1&1070[vacationReplySubject]=out of office&1480[vacationReplyMessage]=I'm out of office, ktnxbye", prm.Prm)
 }
 
 func TestMailForwardEncoding(t *testing.T) {

@@ -148,10 +148,12 @@ func TestSoapParamsEncode(t *testing.T) {
 	p.Add("6", []string{"foo"})
 	p.Add("7", 6)
 	p.Add("8", "86400")
+	p.Add("9", false)
+	p.Add("10", true)
 	p.Add("__method", "foo")
 	p.Add("__service", "bar")
 
-	assert.Equal(t, "0=bar%2Bbar&1=bar%20bar&2=YmFyCg%3D%3D&3=&4[0]=foo&4[1]=bar&&6[0]=foo&7=6&8=86400&__method=foo&__service=bar", p.Encode())
+	assert.Equal(t, "0=bar%2Bbar&1=bar%20bar&2=YmFyCg%3D%3D&3=&4[0]=foo&4[1]=bar&&6[0]=foo&7=6&8=86400&9=&10=1&__method=foo&__service=bar", p.Encode())
 }
 
 func TestGetSOAPArgs(t *testing.T) {
@@ -283,7 +285,10 @@ func TestTestParamsContainer(t *testing.T) {
 	prm := TestParamsContainer{}
 
 	prm.Add("foo", "bar")
+	prm.Add("fob", "")
 	prm.Add("bar", []string{"boo", "far"})
+	prm.Add("baz", true)
+	prm.Add("baf", false)
 
-	assert.Equal(t, "0foo=bar&8bar=[boo far]", prm.Prm)
+	assert.Equal(t, "0foo=bar&8fob=&14bar=[boo far]&30baz=1&38baf=", prm.Prm)
 }

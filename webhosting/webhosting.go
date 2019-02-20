@@ -50,7 +50,7 @@ func (m MailBox) EncodeParams(prm gotransip.ParamsContainer) {
 	prm.Add(fmt.Sprintf("%d[address]", idx), m.Address)
 	prm.Add(fmt.Sprintf("%d[spamCheckerStrength]", idx), string(m.SpamCheckerStrength))
 	prm.Add(fmt.Sprintf("%d[maxDiskUsage]", idx), fmt.Sprintf("%d", m.MaxDiskUsage))
-	prm.Add(fmt.Sprintf("%d[hasVacationReply]", idx), fmt.Sprintf("%t", m.HasVacationReply))
+	prm.Add(fmt.Sprintf("%d[hasVacationReply]", idx), m.HasVacationReply)
 	prm.Add(fmt.Sprintf("%d[vacationReplySubject]", idx), m.VacationReplySubject)
 	prm.Add(fmt.Sprintf("%d[vacationReplyMessage]", idx), m.VacationReplyMessage)
 }

@@ -31,7 +31,7 @@ func (d Domain) EncodeParams(prm gotransip.ParamsContainer) {
 	idx := prm.Len()
 	prm.Add(fmt.Sprintf("%d[name]", idx), d.Name)
 	prm.Add(fmt.Sprintf("%d[authCode]", idx), d.AuthorizationCode)
-	prm.Add(fmt.Sprintf("%d[isLocked]", idx), fmt.Sprintf("%t", d.IsLocked))
+	prm.Add(fmt.Sprintf("%d[isLocked]", idx), d.IsLocked)
 	prm.Add(fmt.Sprintf("%d[registrationDate]", idx), d.RegistrationDate.Format("2006-01-02"))
 	prm.Add(fmt.Sprintf("%d[renewalDate]", idx), d.RenewalDate.Format("2006-01-02"))
 	// nameservers

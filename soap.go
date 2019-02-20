@@ -124,6 +124,7 @@ func (s soapParams) Encode() string {
 			continue
 		}
 
+		// get key for this value
 		key = s.keys[i]
 
 		switch v.(type) {
@@ -143,6 +144,12 @@ func (s soapParams) Encode() string {
 		case int, int8, int16, int32, int64:
 			buf.WriteString(fmt.Sprintf("%s=", key))
 			buf.WriteString(fmt.Sprintf("%d", v))
+		case bool:
+			c := v.(bool)
+			buf.WriteString(fmt.Sprintf("%s=", key))
+			if c {
+				buf.WriteString("1")
+			}
 		default:
 			continue
 		}
@@ -406,11 +413,27 @@ type TestParamsContainer struct {
 // Add just makes sure we use Len(), key and value in the result so it can be
 // tested
 func (t *TestParamsContainer) Add(key string, value interface{}) {
-	var prefix string
+	var suffix string
 	if t.Len() > 0 {
-		prefix = "&"
+		suffix = "&"
 	}
-	t.Prm = t.Prm + prefix + fmt.Sprintf("%d%s=%s", t.Len(), key, value)
+
+	if value != nil {
+		var prm string
+		switch value.(type) {
+		case bool:
+			c := value.(bool)
+			if c {
+				prm = "1"
+			}
+		default:
+			prm = fmt.Sprintf("%s", value)
+		}
+
+		suffix = suffix + fmt.Sprintf("%d%s=%s", t.Len(), key, prm)
+	}
+
+	t.Prm = t.Prm + suffix
 }
 
 // Len returns current length of test data in TestParamsContainer
