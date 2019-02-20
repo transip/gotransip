@@ -85,7 +85,7 @@ AeN9hjadhpK2ql+X9qnmkw==
 	}
 
 	bodyFixt := `<?xml version="1.0" encoding="UTF-8"?>
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="api.transip.nl">
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.transip.nl/soap" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
 	<SOAP-ENV:Body><ns1:getIpForVps><vpsName xsi:type="xsd:string">test</vpsName></ns1:getIpForVps></SOAP-ENV:Body>
 </SOAP-ENV:Envelope>`
 
@@ -256,7 +256,7 @@ func TestSoapRequestAddArgumentParamsEncoder(t *testing.T) {
 	sr.AddArgument("encoder", enc)
 
 	fixtEnv := `<?xml version="1.0" encoding="UTF-8"?>
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="api.transip.nl">
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.transip.nl/soap" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
 	<SOAP-ENV:Body><ns1:handoverVps><encoder><item><key>foo</key><value>bar</value></item></encoder></ns1:handoverVps></SOAP-ENV:Body>
 </SOAP-ENV:Envelope>`
 	assert.Equal(t, fixtEnv, sr.getEnvelope())
@@ -273,7 +273,7 @@ func TestSoapRequestGetEnvelope(t *testing.T) {
 	sr.AddArgument("handoverVps", "test2")
 
 	fixture := `<?xml version="1.0" encoding="UTF-8"?>
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="api.transip.nl">
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.transip.nl/soap" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
 	<SOAP-ENV:Body><ns1:handoverVps><vpsName xsi:type="xsd:string">test</vpsName><handoverVps xsi:type="xsd:string">test2</handoverVps></ns1:handoverVps></SOAP-ENV:Body>
 </SOAP-ENV:Envelope>`
 	assert.Equal(t, fixture, sr.getEnvelope())

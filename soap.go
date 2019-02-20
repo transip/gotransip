@@ -18,7 +18,7 @@ import (
 const (
 	// format for SOAP envelopes
 	soapEnvelopeFixture string = `<?xml version="1.0" encoding="UTF-8"?>
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="%s">
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.transip.nl/soap" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
 	<SOAP-ENV:Body>%s</SOAP-ENV:Body>
 </SOAP-ENV:Envelope>`
 )
@@ -220,7 +220,7 @@ func (sr *SoapRequest) AddArgument(key string, value interface{}) {
 }
 
 func (sr SoapRequest) getEnvelope() string {
-	return fmt.Sprintf(soapEnvelopeFixture, transipAPIHost, getSOAPArgs(sr.Method, sr.args...))
+	return fmt.Sprintf(soapEnvelopeFixture, getSOAPArgs(sr.Method, sr.args...))
 }
 
 type soapClient struct {
