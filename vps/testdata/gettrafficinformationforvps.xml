@@ -18,15 +18,15 @@
 				</item>
 				<item>
 					<key xsi:type="xsd:string">usedInBytes</key>
-					<value xsi:type="xsd:string">2483004356</value>
+					<value xsi:type="xsd:string">248300435</value>
 				</item>
 				<item>
 					<key xsi:type="xsd:string">usedTotalBytes</key>
-					<value xsi:type="xsd:string">4380854877</value>
+					<value xsi:type="xsd:string">438085487</value>
 				</item>
 				<item>
 					<key xsi:type="xsd:string">maxBytes</key>
-					<value xsi:type="xsd:string">1073741824000</value>
+					<value xsi:type="xsd:string">1073741824</value>
 				</item>
 			</return>
 		</ns1:getTrafficInformationForVpsResponse>

@@ -18,15 +18,15 @@
 				</item>
 				<item>
 					<key xsi:type="xsd:string">usedInBytes</key>
-					<value xsi:type="xsd:string">128356924407</value>
+					<value xsi:type="xsd:string">1283569244</value>
 				</item>
 				<item>
 					<key xsi:type="xsd:string">usedTotalBytes</key>
-					<value xsi:type="xsd:string">200639805776</value>
+					<value xsi:type="xsd:string">2006398057</value>
 				</item>
 				<item>
 					<key xsi:type="xsd:string">maxBytes</key>
-					<value xsi:type="xsd:int">16106127360000</value>
+					<value xsi:type="xsd:int">1610612736</value>
 				</item>
 			</return>
 		</ns1:getPooledTrafficInformation>
