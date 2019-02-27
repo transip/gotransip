@@ -261,15 +261,15 @@ func GetPortConfigurations(c gotransip.Client, haipName string) ([]PortConfigura
 		for _, x := range ci.Item {
 			switch x.Key {
 			case "configurationId":
-				pc.ID, _ = strconv.ParseInt(x.Value, 10, 0)
+				pc.ID, _ = strconv.ParseInt(x.Value, 10, 64)
 			case "name":
 				pc.Name = x.Value
 			case "mode":
 				pc.Mode = Mode(x.Value)
 			case "sourcePort":
-				pc.SourcePort, _ = strconv.ParseInt(x.Value, 10, 0)
+				pc.SourcePort, _ = strconv.ParseInt(x.Value, 10, 64)
 			case "targetPort":
-				pc.TargetPort, _ = strconv.ParseInt(x.Value, 10, 0)
+				pc.TargetPort, _ = strconv.ParseInt(x.Value, 10, 64)
 			case "endpointSslMode":
 				pc.EndpointSSLMode = EndpointSSLMode(x.Value)
 			}
