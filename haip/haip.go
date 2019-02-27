@@ -143,7 +143,7 @@ func keyValueXMLToCertificates(k util.KeyValueXML) (certs []Certificate) {
 		for _, x := range ci.Item {
 			switch x.Key {
 			case "id":
-				crt.ID, _ = strconv.ParseInt(x.Value, 10, 0)
+				crt.ID, _ = strconv.ParseInt(x.Value, 10, 64)
 			case "commonName":
 				crt.CommonName = x.Value
 			case "expirationDate":

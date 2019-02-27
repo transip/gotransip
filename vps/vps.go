@@ -129,11 +129,11 @@ func keyValueXMLToTrafficInformation(k util.KeyValueXML) (ti TrafficInformation)
 				ti.End, _ = time.Parse("2006-01-02 15:04:05", x.Value)
 			}
 		case "usedInBytes":
-			ti.Used, _ = strconv.ParseInt(x.Value, 10, 0)
+			ti.Used, _ = strconv.ParseInt(x.Value, 10, 64)
 		case "usedTotalBytes":
-			ti.Total, _ = strconv.ParseInt(x.Value, 10, 0)
+			ti.Total, _ = strconv.ParseInt(x.Value, 10, 64)
 		case "maxBytes":
-			ti.Max, _ = strconv.ParseInt(x.Value, 10, 0)
+			ti.Max, _ = strconv.ParseInt(x.Value, 10, 64)
 		}
 	}
 
