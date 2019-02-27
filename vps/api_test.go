@@ -210,9 +210,9 @@ func TestGetTrafficInformationForVps(t *testing.T) {
 	assert.Equal(t, x, ti.From)
 	y, _ := time.Parse("2006-01-02", "2018-10-01")
 	assert.Equal(t, y, ti.End)
-	assert.Equal(t, int64(248300435), ti.Used)
-	assert.Equal(t, int64(438085487), ti.Total)
-	assert.Equal(t, int64(1073741824), ti.Max)
+	assert.Equal(t, int64(2483004356), ti.Used)
+	assert.Equal(t, int64(4380854877), ti.Total)
+	assert.Equal(t, int64(1073741824000), ti.Max)
 }
 
 func TestGetPooledTrafficInformation(t *testing.T) {
@@ -228,9 +228,9 @@ func TestGetPooledTrafficInformation(t *testing.T) {
 	assert.Equal(t, x, ti.From)
 	y, _ := time.Parse("2006-01-02", "2018-09-01")
 	assert.Equal(t, y, ti.End)
-	assert.Equal(t, int64(1283569244), ti.Used)
-	assert.Equal(t, int64(2006398057), ti.Total)
-	assert.Equal(t, int64(1610612736), ti.Max)
+	assert.Equal(t, int64(128356924407), ti.Used)
+	assert.Equal(t, int64(200639805776), ti.Total)
+	assert.Equal(t, int64(16106127360000), ti.Max)
 }
 
 func TestGetPrivateNetworksByVps(t *testing.T) {
