@@ -85,7 +85,7 @@ AeN9hjadhpK2ql+X9qnmkw==
 	}
 
 	bodyFixt := `<?xml version="1.0" encoding="UTF-8"?>
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="api.transip.nl">
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.transip.nl/soap" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
 	<SOAP-ENV:Body><ns1:getIpForVps><vpsName xsi:type="xsd:string">test</vpsName></ns1:getIpForVps></SOAP-ENV:Body>
 </SOAP-ENV:Envelope>`
 
@@ -148,10 +148,12 @@ func TestSoapParamsEncode(t *testing.T) {
 	p.Add("6", []string{"foo"})
 	p.Add("7", 6)
 	p.Add("8", "86400")
+	p.Add("9", false)
+	p.Add("10", true)
 	p.Add("__method", "foo")
 	p.Add("__service", "bar")
 
-	assert.Equal(t, "0=bar%2Bbar&1=bar%20bar&2=YmFyCg%3D%3D&3=&4[0]=foo&4[1]=bar&&6[0]=foo&7=6&8=86400&__method=foo&__service=bar", p.Encode())
+	assert.Equal(t, "0=bar%2Bbar&1=bar%20bar&2=YmFyCg%3D%3D&3=&4[0]=foo&4[1]=bar&&6[0]=foo&7=6&8=86400&9=&10=1&__method=foo&__service=bar", p.Encode())
 }
 
 func TestGetSOAPArgs(t *testing.T) {
@@ -233,7 +235,7 @@ type TestParamsEncoder struct {
 	value string
 }
 
-func (t TestParamsEncoder) EncodeParams(prm ParamsContainer) {
+func (t TestParamsEncoder) EncodeParams(prm ParamsContainer, prefix string) {
 	prm.Add("0[key]", t.key)
 	prm.Add("1[value]", t.value)
 }
@@ -256,7 +258,7 @@ func TestSoapRequestAddArgumentParamsEncoder(t *testing.T) {
 	sr.AddArgument("encoder", enc)
 
 	fixtEnv := `<?xml version="1.0" encoding="UTF-8"?>
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="api.transip.nl">
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.transip.nl/soap" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
 	<SOAP-ENV:Body><ns1:handoverVps><encoder><item><key>foo</key><value>bar</value></item></encoder></ns1:handoverVps></SOAP-ENV:Body>
 </SOAP-ENV:Envelope>`
 	assert.Equal(t, fixtEnv, sr.getEnvelope())
@@ -273,7 +275,7 @@ func TestSoapRequestGetEnvelope(t *testing.T) {
 	sr.AddArgument("handoverVps", "test2")
 
 	fixture := `<?xml version="1.0" encoding="UTF-8"?>
-<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="api.transip.nl">
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.transip.nl/soap" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
 	<SOAP-ENV:Body><ns1:handoverVps><vpsName xsi:type="xsd:string">test</vpsName><handoverVps xsi:type="xsd:string">test2</handoverVps></ns1:handoverVps></SOAP-ENV:Body>
 </SOAP-ENV:Envelope>`
 	assert.Equal(t, fixture, sr.getEnvelope())
@@ -283,7 +285,10 @@ func TestTestParamsContainer(t *testing.T) {
 	prm := TestParamsContainer{}
 
 	prm.Add("foo", "bar")
+	prm.Add("fob", "")
 	prm.Add("bar", []string{"boo", "far"})
+	prm.Add("baz", true)
+	prm.Add("baf", false)
 
-	assert.Equal(t, "0foo=bar&8bar=[boo far]", prm.Prm)
+	assert.Equal(t, "0foo=bar&8fob=&14bar=[boo far]&30baz=1&38baf=", prm.Prm)
 }

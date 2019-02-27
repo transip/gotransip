@@ -28,8 +28,8 @@ func TestMailBoxEncoding(t *testing.T) {
 	assert.Equal(t, fixtArgs, mailbox.EncodeArgs("mailbox"))
 
 	prm := gotransip.TestParamsContainer{}
-	mailbox.EncodeParams(&prm)
-	assert.Equal(t, "00[address]=info@example.org&280[spamCheckerStrength]=AVERAGE&610[maxDiskUsage]=100&830[hasVacationReply]=true&1100[vacationReplySubject]=out of office&1510[vacationReplyMessage]=I'm out of office, ktnxbye", prm.Prm)
+	mailbox.EncodeParams(&prm, "")
+	assert.Equal(t, "00[address]=info@example.org&280[spamCheckerStrength]=AVERAGE&610[maxDiskUsage]=100&830[hasVacationReply]=1&1070[vacationReplySubject]=out of office&1480[vacationReplyMessage]=I'm out of office, ktnxbye", prm.Prm)
 }
 
 func TestMailForwardEncoding(t *testing.T) {
@@ -45,7 +45,7 @@ func TestMailForwardEncoding(t *testing.T) {
 	assert.Equal(t, fixtArgs, fwd.EncodeArgs("mailForward"))
 
 	prm := gotransip.TestParamsContainer{}
-	fwd.EncodeParams(&prm)
+	fwd.EncodeParams(&prm, "")
 	assert.Equal(t, "00[name]=foobar@example.org&270[targetAddress]=info@example.org", prm.Prm)
 }
 
@@ -64,7 +64,7 @@ func TestDatabaseEncoding(t *testing.T) {
 	assert.Equal(t, fixtArgs, db.EncodeArgs("database"))
 
 	prm := gotransip.TestParamsContainer{}
-	db.EncodeParams(&prm)
+	db.EncodeParams(&prm, "")
 	assert.Equal(t, "00[name]=test&130[username]=foobar&340[maxDiskUsage]=100", prm.Prm)
 }
 
@@ -79,7 +79,7 @@ func TestSubDoimainEncoding(t *testing.T) {
 	assert.Equal(t, fixtArgs, sd.EncodeArgs("subdomain"))
 
 	prm := gotransip.TestParamsContainer{}
-	sd.EncodeParams(&prm)
+	sd.EncodeParams(&prm, "")
 	assert.Equal(t, "00[name]=demo.example.org", prm.Prm)
 }
 
@@ -108,6 +108,6 @@ func TestCronjobEncoding(t *testing.T) {
 	assert.Equal(t, fixtArgs, cron.EncodeArgs("cronjob"))
 
 	prm := gotransip.TestParamsContainer{}
-	cron.EncodeParams(&prm)
+	cron.EncodeParams(&prm, "")
 	assert.Equal(t, "00[name]=test&130[url]=http://example.org/?foobar&490[email]=info@example.org&770[minuteTrigger]=1&980[hourTrigger]=2&1170[dayTrigger]=3&1360[monthTrigger]=4&1570[weekdayTrigger]=5", prm.Prm)
 }
