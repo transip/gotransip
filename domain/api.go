@@ -117,15 +117,19 @@ func GetIsLocked(c gotransip.Client, domainName string) (bool, error) {
 	return v, err
 }
 
-// Register registers a domain name and will automatically create and sign a proposition for it
-func Register(c gotransip.Client, domain Domain) error {
+// Register registers a domain name and will automatically create and sign a
+// proposition for it. It returns the TransIP proposition number or an error
+// when registering the domain fails
+func Register(c gotransip.Client, domain Domain) (string, error) {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "register",
 	}
 	sr.AddArgument("domain", domain)
 
-	return c.Call(sr, nil)
+	var v string
+	err := c.Call(sr, &v)
+	return v, err
 }
 
 // Cancel cancels a domain name, will automatically create and sign a cancellation document
@@ -140,8 +144,9 @@ func Cancel(c gotransip.Client, domainName string, endTime gotransip.Cancellatio
 	return c.Call(sr, nil)
 }
 
-// TransferWithOwnerChange transfers a domain with changing the owner
-func TransferWithOwnerChange(c gotransip.Client, domain, authCode string) error {
+// TransferWithOwnerChange transfers a domain with changing the owner. It returns
+// the TransIP proposition number or an error when transferring the domain fails
+func TransferWithOwnerChange(c gotransip.Client, domain, authCode string) (string, error) {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "transferWithOwnerChange",
@@ -149,11 +154,15 @@ func TransferWithOwnerChange(c gotransip.Client, domain, authCode string) error 
 	sr.AddArgument("domain", domain)
 	sr.AddArgument("authCode", authCode)
 
-	return c.Call(sr, nil)
+	var v string
+	err := c.Call(sr, &v)
+	return v, err
 }
 
-// TransferWithoutOwnerChange transfers a domain without changing the owner
-func TransferWithoutOwnerChange(c gotransip.Client, domain, authCode string) error {
+// TransferWithoutOwnerChange transfers a domain without changing the owner. It
+// returns  the TransIP proposition number or an error when transferring the domain
+// fails
+func TransferWithoutOwnerChange(c gotransip.Client, domain, authCode string) (string, error) {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "transferWithoutOwnerChange",
@@ -161,7 +170,9 @@ func TransferWithoutOwnerChange(c gotransip.Client, domain, authCode string) err
 	sr.AddArgument("domain", domain)
 	sr.AddArgument("authCode", authCode)
 
-	return c.Call(sr, nil)
+	var v string
+	err := c.Call(sr, &v)
+	return v, err
 }
 
 // SetNameservers starts a nameserver change for this domain, will replace all
