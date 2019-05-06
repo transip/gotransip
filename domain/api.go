@@ -212,6 +212,7 @@ func UnsetLock(c gotransip.Client, domainName string) error {
 
 // SetDNSEntries sets the DnsEntries for this Domain, will replace all existing
 // dns entries with the new entries
+// NOTE: this function has been deprecated in favor of dns.SetDNSEntries
 func SetDNSEntries(c gotransip.Client, domainName string, dnsEntries DNSEntries) error {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
