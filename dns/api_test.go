@@ -13,7 +13,7 @@ func TestGetDNSSecEntries(t *testing.T) {
 	err = c.FixtureFromFile("testdata/getdnssecentries.xml")
 	assert.NoError(t, err)
 
-	dns, err := GetDnsSecEntries(c, "example.org")
+	dns, err := GetDNSSecEntries(c, "example.org")
 	assert.NoError(t, err)
 	assert.IsType(t, KeyEntries{}, dns)
 	assert.Equal(t, 2, len(dns))
