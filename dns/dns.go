@@ -10,43 +10,43 @@ const (
 	serviceName string = "DnsService"
 )
 
-// DNSEntryType represents the possible types of DNS entries
-type DNSEntryType string
+// EntryType represents the possible types of DNS entries
+type EntryType string
 
 var (
-	// DNSEntryTypeA represents an A-record
-	DNSEntryTypeA DNSEntryType = "A"
-	// DNSEntryTypeAAAA represents an AAAA-record
-	DNSEntryTypeAAAA DNSEntryType = "AAAA"
-	// DNSEntryTypeCNAME represents a CNAME-record
-	DNSEntryTypeCNAME DNSEntryType = "CNAME"
-	// DNSEntryTypeMX represents an MX-record
-	DNSEntryTypeMX DNSEntryType = "MX"
-	// DNSEntryTypeNS represents an NS-record
-	DNSEntryTypeNS DNSEntryType = "NS"
-	// DNSEntryTypeTXT represents a TXT-record
-	DNSEntryTypeTXT DNSEntryType = "TXT"
-	// DNSEntryTypeSRV represents an SRV-record
-	DNSEntryTypeSRV DNSEntryType = "SRV"
+	// EntryTypeA represents an A-record
+	EntryTypeA EntryType = "A"
+	// EntryTypeAAAA represents an AAAA-record
+	EntryTypeAAAA EntryType = "AAAA"
+	// EntryTypeCNAME represents a CNAME-record
+	EntryTypeCNAME EntryType = "CNAME"
+	// EntryTypeMX represents an MX-record
+	EntryTypeMX EntryType = "MX"
+	// EntryTypeNS represents an NS-record
+	EntryTypeNS EntryType = "NS"
+	// EntryTypeTXT represents a TXT-record
+	EntryTypeTXT EntryType = "TXT"
+	// EntryTypeSRV represents an SRV-record
+	EntryTypeSRV EntryType = "SRV"
 )
 
-// DNSEntry represents a Transip_DnsEntry object as described at
+// Entry represents a Transip_DnsEntry object as described at
 // https://api.transip.nl/docs/transip.nl/class-Transip_DnsEntry.html
-type DNSEntry struct {
-	Name    string       `xml:"name"`
-	TTL     int64        `xml:"expire"`
-	Type    DNSEntryType `xml:"type"`
-	Content string       `xml:"content"`
+type Entry struct {
+	Name    string    `xml:"name"`
+	TTL     int64     `xml:"expire"`
+	Type    EntryType `xml:"type"`
+	Content string    `xml:"content"`
 }
 
-// DNSEntries is just an array of DNSEntry
+// Entries is just an array of Entry
 // basically only here so it can implement paramsEncoder
-type DNSEntries []DNSEntry
+type Entries []Entry
 
-// EncodeParams returns DNSEntries parameters ready to be used for constructing a signature
+// EncodeParams returns Entries parameters ready to be used for constructing a signature
 // the order of parameters added here has to match the order in the WSDL
 // as described at http://api.transip.nl/wsdl/?service=DomainService
-func (d DNSEntries) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
+func (d Entries) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
 	if len(d) == 0 {
 		prm.Add("anything", nil)
 		return
@@ -64,8 +64,8 @@ func (d DNSEntries) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
 	}
 }
 
-// EncodeArgs returns DNSEntries XML body ready to be passed in the SOAP call
-func (d DNSEntries) EncodeArgs(key string) string {
+// EncodeArgs returns Entries XML body ready to be passed in the SOAP call
+func (d Entries) EncodeArgs(key string) string {
 	output := fmt.Sprintf(`<%s SOAP-ENC:arrayType="ns1:DnsEntry[%d]" xsi:type="ns1:ArrayOfDnsEntry">`, key, len(d)) + "\n"
 	for _, e := range d {
 		output += fmt.Sprintf(`	<item xsi:type="ns1:DnsEntry">
@@ -79,66 +79,66 @@ func (d DNSEntries) EncodeArgs(key string) string {
 	return fmt.Sprintf("%s</%s>", output, key)
 }
 
-// DNSSecAlgorithm represents the possible types of DNSSec algorithms
-type DNSSecAlgorithm int
+// KeyAlgorithm represents the possible types of DNSSec algorithms
+type KeyAlgorithm int
 
 const (
-	// DNSSecAlgorithmDSA represents DSA
-	DNSSecAlgorithmDSA DNSSecAlgorithm = iota + 3
+	// KeyAlgorithmDSA represents DSA
+	KeyAlgorithmDSA KeyAlgorithm = iota + 3
 	_
-	// DNSSecAlgorithmRSASHA1 represents RSASHA1
-	DNSSecAlgorithmRSASHA1
-	// DNSSecAlgorithmDSANSEC3SHA1 represents DSANSEC3SHA1
-	DNSSecAlgorithmDSANSEC3SHA1
-	// DNSSecAlgorithmRSASHA1NSEC3SHA1 represents RSASHA1NSEC3SHA1
-	DNSSecAlgorithmRSASHA1NSEC3SHA1
-	// DNSSecAlgorithmRSASHA256 represents RSASHA256
-	DNSSecAlgorithmRSASHA256
-	// DNSSecAlgorithmRSASHA512 represents RSASHA512
-	DNSSecAlgorithmRSASHA512 DNSSecAlgorithm = iota + 4
+	// KeyAlgorithmRSASHA1 represents RSASHA1
+	KeyAlgorithmRSASHA1
+	// KeyAlgorithmDSANSEC3SHA1 represents DSANSEC3SHA1
+	KeyAlgorithmDSANSEC3SHA1
+	// KeyAlgorithmRSASHA1NSEC3SHA1 represents RSASHA1NSEC3SHA1
+	KeyAlgorithmRSASHA1NSEC3SHA1
+	// KeyAlgorithmRSASHA256 represents RSASHA256
+	KeyAlgorithmRSASHA256
+	// KeyAlgorithmRSASHA512 represents RSASHA512
+	KeyAlgorithmRSASHA512 KeyAlgorithm = iota + 4
 	_
-	// DNSSecAlgorithmECCGOST represents ECCGOST
-	DNSSecAlgorithmECCGOST
-	// DNSSecAlgorithmECDSAP256SHA256 represents ECDSAP256SHA256
-	DNSSecAlgorithmECDSAP256SHA256
-	// DNSSecAlgorithmECDSAP384SHA384 represents ECDSAP384SHA384
-	DNSSecAlgorithmECDSAP384SHA384
-	// DNSSecAlgorithmED25519 represents ED25519
-	DNSSecAlgorithmED25519
-	// DNSSecAlgorithmED448 represents ED448
-	DNSSecAlgorithmED448
+	// KeyAlgorithmECCGOST represents ECCGOST
+	KeyAlgorithmECCGOST
+	// KeyAlgorithmECDSAP256SHA256 represents ECDSAP256SHA256
+	KeyAlgorithmECDSAP256SHA256
+	// KeyAlgorithmECDSAP384SHA384 represents ECDSAP384SHA384
+	KeyAlgorithmECDSAP384SHA384
+	// KeyAlgorithmED25519 represents ED25519
+	KeyAlgorithmED25519
+	// KeyAlgorithmED448 represents ED448
+	KeyAlgorithmED448
 )
 
-// DNSSecFlag represents the possible types of DNSSec flags
-type DNSSecFlag int
+// KeyFlag represents the possible types of DNSSec flags
+type KeyFlag int
 
 const (
-	// DNSSecFlagNone means no flag is set
-	DNSSecFlagNone DNSSecFlag = 0
-	// DNSSecFlagZSK means this is a Zone Signing Key
-	DNSSecFlagZSK DNSSecFlag = 256
-	// DNSSecFlagKSK means this is a Key Signing Key
-	DNSSecFlagKSK DNSSecFlag = 257
+	// KeyFlagNone means no flag is set
+	KeyFlagNone KeyFlag = 0
+	// KeyFlagZSK means this is a Zone Signing Key
+	KeyFlagZSK KeyFlag = 256
+	// KeyFlagKSK means this is a Key Signing Key
+	KeyFlagKSK KeyFlag = 257
 )
 
-// DNSSecEntry represents a Transip_DnsSecEntry object as described at
+// KeyEntry represents a Transip_DnsSecEntry object as described at
 // https://api.transip.nl/docs/transip.nl/class-Transip_DnsSecEntry.html
-type DNSSecEntry struct {
-	KeyTag    int             `xml:"keyTag"`
-	Flags     DNSSecFlag      `xml:"flags"`
-	Algorithm DNSSecAlgorithm `xml:"algorithm"`
-	PublicKey string          `xml:"publicKey"`
+type KeyEntry struct {
+	KeyTag    int          `xml:"keyTag"`
+	Flags     KeyFlag      `xml:"flags"`
+	Algorithm KeyAlgorithm `xml:"algorithm"`
+	PublicKey string       `xml:"publicKey"`
 }
 
-// DNSSecEntry is just an array of DNSSecEntries
+// KeyEntries is just an array of KeyEntry
 // basically only here so it can implement paramsEncoder
-type DNSSecEntries []DNSSecEntry
+type KeyEntries []KeyEntry
 
-// EncodeParams returns DNSSecEntries parameters ready to be used for constructing
+// EncodeParams returns KeyEntries parameters ready to be used for constructing
 // a signature
 // the order of parameters added here has to match the order in the WSDL as
 // described at http://api.transip.nl/wsdl/?service=DnsService
-func (d DNSSecEntries) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
+func (d KeyEntries) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
 	if len(d) == 0 {
 		prm.Add("anything", nil)
 		return
@@ -156,8 +156,8 @@ func (d DNSSecEntries) EncodeParams(prm gotransip.ParamsContainer, prefix string
 	}
 }
 
-// EncodeArgs returns DNSEntries XML body ready to be passed in the SOAP call
-func (d DNSSecEntries) EncodeArgs(key string) string {
+// EncodeArgs returns Entries XML body ready to be passed in the SOAP call
+func (d KeyEntries) EncodeArgs(key string) string {
 	output := fmt.Sprintf(`<%s SOAP-ENC:arrayType="ns1:DnsSecEntry[%d]" xsi:type="ns1:ArrayOfDnsSecEntry">`, key, len(d)) + "\n"
 	for _, e := range d {
 		output += fmt.Sprintf(`	<item xsi:type="ns1:DnsSecEntry">

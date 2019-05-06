@@ -7,39 +7,39 @@ import (
 	"github.com/transip/gotransip"
 )
 
-func TestDNSSecAlgorithms(t *testing.T) {
-	assert.Equal(t, 3, int(DNSSecAlgorithmDSA))
-	assert.Equal(t, 5, int(DNSSecAlgorithmRSASHA1))
-	assert.Equal(t, 6, int(DNSSecAlgorithmDSANSEC3SHA1))
-	assert.Equal(t, 7, int(DNSSecAlgorithmRSASHA1NSEC3SHA1))
-	assert.Equal(t, 8, int(DNSSecAlgorithmRSASHA256))
-	assert.Equal(t, 10, int(DNSSecAlgorithmRSASHA512))
-	assert.Equal(t, 12, int(DNSSecAlgorithmECCGOST))
-	assert.Equal(t, 13, int(DNSSecAlgorithmECDSAP256SHA256))
-	assert.Equal(t, 14, int(DNSSecAlgorithmECDSAP384SHA384))
-	assert.Equal(t, 15, int(DNSSecAlgorithmED25519))
-	assert.Equal(t, 16, int(DNSSecAlgorithmED448))
+func TestKeyAlgorithms(t *testing.T) {
+	assert.Equal(t, 3, int(KeyAlgorithmDSA))
+	assert.Equal(t, 5, int(KeyAlgorithmRSASHA1))
+	assert.Equal(t, 6, int(KeyAlgorithmDSANSEC3SHA1))
+	assert.Equal(t, 7, int(KeyAlgorithmRSASHA1NSEC3SHA1))
+	assert.Equal(t, 8, int(KeyAlgorithmRSASHA256))
+	assert.Equal(t, 10, int(KeyAlgorithmRSASHA512))
+	assert.Equal(t, 12, int(KeyAlgorithmECCGOST))
+	assert.Equal(t, 13, int(KeyAlgorithmECDSAP256SHA256))
+	assert.Equal(t, 14, int(KeyAlgorithmECDSAP384SHA384))
+	assert.Equal(t, 15, int(KeyAlgorithmED25519))
+	assert.Equal(t, 16, int(KeyAlgorithmED448))
 }
 
-func TestDNSSecFlags(t *testing.T) {
-	assert.Equal(t, 0, int(DNSSecFlagNone))
-	assert.Equal(t, 256, int(DNSSecFlagZSK))
-	assert.Equal(t, 257, int(DNSSecFlagKSK))
+func TestKeyFlags(t *testing.T) {
+	assert.Equal(t, 0, int(KeyFlagNone))
+	assert.Equal(t, 256, int(KeyFlagZSK))
+	assert.Equal(t, 257, int(KeyFlagKSK))
 }
 
 func TestDnsEntriesEncoding(t *testing.T) {
-	entries := DNSEntries{
+	entries := Entries{
 		{
 			Name:    "www",
 			Content: "1.2.3.4",
 			TTL:     3600,
-			Type:    DNSEntryTypeA,
+			Type:    EntryTypeA,
 		},
 		{
 			Name:    "@",
 			Content: "ns0.transip.net",
 			TTL:     86400,
-			Type:    DNSEntryTypeNS,
+			Type:    EntryTypeNS,
 		},
 	}
 
@@ -65,17 +65,17 @@ func TestDnsEntriesEncoding(t *testing.T) {
 }
 
 func TestDnsSecEntriesEncoding(t *testing.T) {
-	entries := DNSSecEntries{
+	entries := KeyEntries{
 		{
 			KeyTag:    1337,
-			Flags:     DNSSecFlagKSK,
-			Algorithm: DNSSecAlgorithmRSASHA512,
+			Flags:     KeyFlagKSK,
+			Algorithm: KeyAlgorithmRSASHA512,
 			PublicKey: "emFpcmFvcHUzdm9...cGhvYWwK",
 		},
 		{
 			KeyTag:    12,
-			Flags:     DNSSecFlagZSK,
-			Algorithm: DNSSecAlgorithmECDSAP384SHA384,
+			Flags:     KeyFlagZSK,
+			Algorithm: KeyAlgorithmECDSAP384SHA384,
 			PublicKey: "dWl4YWl4MHBoZWV...ZXhpZTAK",
 		},
 	}
