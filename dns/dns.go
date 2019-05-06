@@ -10,6 +10,7 @@ const (
 	serviceName string = "DnsService"
 )
 
+// DNSEntryType represents the possible types of DNS entries
 type DNSEntryType string
 
 var (
@@ -78,30 +79,46 @@ func (d DNSEntries) EncodeArgs(key string) string {
 	return fmt.Sprintf("%s</%s>", output, key)
 }
 
+// DNSSecAlgorithm represents the possible types of DNSSec algorithms
 type DNSSecAlgorithm int
 
 const (
+	// DNSSecAlgorithmDSA represents DSA
 	DNSSecAlgorithmDSA DNSSecAlgorithm = iota + 3
 	_
+	// DNSSecAlgorithmRSASHA1 represents RSASHA1
 	DNSSecAlgorithmRSASHA1
+	// DNSSecAlgorithmDSANSEC3SHA1 represents DSANSEC3SHA1
 	DNSSecAlgorithmDSANSEC3SHA1
+	// DNSSecAlgorithmRSASHA1NSEC3SHA1 represents RSASHA1NSEC3SHA1
 	DNSSecAlgorithmRSASHA1NSEC3SHA1
+	// DNSSecAlgorithmRSASHA256 represents RSASHA256
 	DNSSecAlgorithmRSASHA256
+	// DNSSecAlgorithmRSASHA512 represents RSASHA512
 	DNSSecAlgorithmRSASHA512 DNSSecAlgorithm = iota + 4
 	_
+	// DNSSecAlgorithmECCGOST represents ECCGOST
 	DNSSecAlgorithmECCGOST
+	// DNSSecAlgorithmECDSAP256SHA256 represents ECDSAP256SHA256
 	DNSSecAlgorithmECDSAP256SHA256
+	// DNSSecAlgorithmECDSAP384SHA384 represents ECDSAP384SHA384
 	DNSSecAlgorithmECDSAP384SHA384
+	// DNSSecAlgorithmED25519 represents ED25519
 	DNSSecAlgorithmED25519
+	// DNSSecAlgorithmED448 represents ED448
 	DNSSecAlgorithmED448
 )
 
+// DNSSecFlag represents the possible types of DNSSec flags
 type DNSSecFlag int
 
 const (
+	// DNSSecFlagNone means no flag is set
 	DNSSecFlagNone DNSSecFlag = 0
-	DNSSecFlagZSK  DNSSecFlag = 256
-	DNSSecFlagKSK  DNSSecFlag = 257
+	// DNSSecFlagZSK means this is a Zone Signing Key
+	DNSSecFlagZSK DNSSecFlag = 256
+	// DNSSecFlagKSK means this is a Key Signing Key
+	DNSSecFlagKSK DNSSecFlag = 257
 )
 
 // DNSSecEntry represents a Transip_DnsSecEntry object as described at
