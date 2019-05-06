@@ -253,3 +253,15 @@ func TestGetCurrentDomainAction(t *testing.T) {
 	assert.Equal(t, "test message", act.Message)
 	assert.Equal(t, "test", act.Name)
 }
+
+func TestRequestAuthCode(t *testing.T) {
+	var err error
+	c := gotransip.FakeSOAPClient{}
+	err = c.FixtureFromFile("testdata/requestauthcode.xml")
+	assert.NoError(t, err)
+
+	code, err := RequestAuthCode(c, "example.org")
+	assert.NoError(t, err)
+	assert.IsType(t, "", code)
+	assert.Equal(t, "are0AeThe7er1Uyoo1aifowoMilohnae", code)
+}

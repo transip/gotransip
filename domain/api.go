@@ -312,3 +312,16 @@ func CancelDomainAction(c gotransip.Client, domain string) error {
 
 	return c.Call(sr, nil)
 }
+
+// RequestAuthCode requests the authcode at the registry
+func RequestAuthCode(c gotransip.Client, domainName string) (string, error) {
+	sr := gotransip.SoapRequest{
+		Service: serviceName,
+		Method:  "requestAuthCode",
+	}
+	sr.AddArgument("domain", domainName)
+
+	var v string
+	err := c.Call(sr, &v)
+	return v, err
+}
