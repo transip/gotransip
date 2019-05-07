@@ -214,7 +214,7 @@ func UnsetLock(c gotransip.Client, domainName string) error {
 // dns entries with the new entries
 func SetDNSEntries(c gotransip.Client, domainName string, dnsEntries DNSEntries) error {
 	sr := gotransip.SoapRequest{
-		Service: serviceName,
+		Service: dnsServiceName,
 		Method:  "setDnsEntries",
 	}
 	sr.AddArgument("domainName", domainName)
