@@ -212,8 +212,6 @@ func UnsetLock(c gotransip.Client, domainName string) error {
 
 // SetDNSEntries sets the DnsEntries for this Domain, will replace all existing
 // dns entries with the new entries
-//
-// Deprecated: Use dns.SetDNSEntries instead.
 func SetDNSEntries(c gotransip.Client, domainName string, dnsEntries DNSEntries) error {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
@@ -337,4 +335,55 @@ func RequestAuthCode(c gotransip.Client, domainName string) (string, error) {
 	var v string
 	err := c.Call(sr, &v)
 	return v, err
+}
+
+// CanEditDNSSec checks if the DNSSec entries of a domain can be updated.
+func CanEditDNSSec(c gotransip.Client, domainName string) (bool, error) {
+	sr := gotransip.SoapRequest{
+		Service: dnsServiceName,
+		Method:  "canEditDnsSec",
+	}
+	sr.AddArgument("domainName", domainName)
+
+	var v bool
+	err := c.Call(sr, &v)
+	return v, err
+}
+
+// GetDNSSecEntries returns DNSSec entries for given domain name
+func GetDNSSecEntries(c gotransip.Client, domainName string) (DNSSecEntries, error) {
+	sr := gotransip.SoapRequest{
+		Service: dnsServiceName,
+		Method:  "getDnsSecEntries",
+	}
+	sr.AddArgument("domainName", domainName)
+
+	var v struct {
+		V DNSSecEntries `xml:"item"`
+	}
+	err := c.Call(sr, &v)
+	return v.V, err
+}
+
+// SetDNSSecEntries sets new DNSSec entries for a domain, replacing the current ones.
+func SetDNSSecEntries(c gotransip.Client, domainName string, dnssecKeyEntrySet DNSSecEntries) error {
+	sr := gotransip.SoapRequest{
+		Service: dnsServiceName,
+		Method:  "setDnsSecEntries",
+	}
+	sr.AddArgument("domainName", domainName)
+	sr.AddArgument("dnssecKeyEntrySet", dnssecKeyEntrySet)
+
+	return c.Call(sr, nil)
+}
+
+// RemoveAllDNSSecEntries removes all the DNSSec entries from a domain.
+func RemoveAllDNSSecEntries(c gotransip.Client, domainName string) error {
+	sr := gotransip.SoapRequest{
+		Service: dnsServiceName,
+		Method:  "removeAllDnsSecEntries",
+	}
+	sr.AddArgument("domainName", domainName)
+
+	return c.Call(sr, nil)
 }

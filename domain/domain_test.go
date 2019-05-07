@@ -253,3 +253,51 @@ func TestWhoisContactsEncoding(t *testing.T) {
 	whois.EncodeParams(&prm, "")
 	assert.Equal(t, "00[0][type]=registrant&220[0][firstName]=foo&440[0][middleName]=bar&670[0][lastName]=baz&880[0][companyName]=TransIP BV&1190[0][companyKvk]=1234&1440[0][companyType]=BV&1680[0][street]=Schipholweg&1960[0][number]=9B&2150[0][postalCode]=2316XB&2420[0][city]=Leiden&2630[0][phoneNumber]=+31 715241919&2980[0][faxNumber]=+31 715241918&3310[0][email]=support@transip.nl&3650[0][country]=nl", prm.Prm)
 }
+
+func TestDNSSecAlgorithms(t *testing.T) {
+	assert.Equal(t, 3, int(DNSSecAlgorithmDSA))
+	assert.Equal(t, 5, int(DNSSecAlgorithmRSASHA1))
+	assert.Equal(t, 6, int(DNSSecAlgorithmDSANSEC3SHA1))
+	assert.Equal(t, 7, int(DNSSecAlgorithmRSASHA1NSEC3SHA1))
+	assert.Equal(t, 8, int(DNSSecAlgorithmRSASHA256))
+	assert.Equal(t, 10, int(DNSSecAlgorithmRSASHA512))
+	assert.Equal(t, 12, int(DNSSecAlgorithmECCGOST))
+	assert.Equal(t, 13, int(DNSSecAlgorithmECDSAP256SHA256))
+	assert.Equal(t, 14, int(DNSSecAlgorithmECDSAP384SHA384))
+	assert.Equal(t, 15, int(DNSSecAlgorithmED25519))
+	assert.Equal(t, 16, int(DNSSecAlgorithmED448))
+}
+
+func TestDNSSecFlags(t *testing.T) {
+	assert.Equal(t, 0, int(DNSSecFlagNone))
+	assert.Equal(t, 256, int(DNSSecFlagZSK))
+	assert.Equal(t, 257, int(DNSSecFlagKSK))
+}
+
+func TestDNSSecEntriesEncoding(t *testing.T) {
+	entries := DNSSecEntries{
+		{
+			KeyTag:    1337,
+			Flags:     DNSSecFlagKSK,
+			Algorithm: DNSSecAlgorithmRSASHA512,
+			PublicKey: "emFpcmFvcHUzdm9...cGhvYWwK",
+		},
+		{
+			KeyTag:    12,
+			Flags:     DNSSecFlagZSK,
+			Algorithm: DNSSecAlgorithmECDSAP384SHA384,
+			PublicKey: "dWl4YWl4MHBoZWV...ZXhpZTAK",
+		},
+	}
+
+	fixtArgs, err := getFixture("testdata/encoding/dnssecentries.xml")
+	assert.NoError(t, err)
+	assert.Equal(t, fixtArgs, entries.EncodeArgs("dnsSecEntries"))
+
+	// test EncodeParams
+	fixtPrm, err := getFixture("testdata/encoding/dnssecentries.prm")
+	assert.NoError(t, err)
+	prm := gotransip.TestParamsContainer{}
+	entries.EncodeParams(&prm, "")
+	assert.Equal(t, fixtPrm, prm.Prm)
+}
