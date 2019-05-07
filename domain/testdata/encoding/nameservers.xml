@@ -1,0 +1,17 @@
+<nameServers SOAP-ENC:arrayType="ns1:Nameserver[3]" xsi:type="ns1:ArrayOfNameserver">
+	<item xsi:type="ns1:Nameserver">
+		<hostname xsi:type="xsd:string">ns0.transip.net</hostname>
+		<ipv4 xsi:type="xsd:string">195.135.195.195</ipv4>
+		<ipv6 xsi:type="xsd:string">2a01:7c8:dddd:195::195</ipv6>
+	</item>
+	<item xsi:type="ns1:Nameserver">
+		<hostname xsi:type="xsd:string">ns1.transip.nl</hostname>
+		<ipv4 xsi:type="xsd:string">195.8.195.195</ipv4>
+		<ipv6 xsi:type="xsd:string"></ipv6>
+	</item>
+	<item xsi:type="ns1:Nameserver">
+		<hostname xsi:type="xsd:string">ns2.transip.eu</hostname>
+		<ipv4 xsi:type="xsd:string"></ipv4>
+		<ipv6 xsi:type="xsd:string">2a01:7c8:f:c1f::195</ipv6>
+	</item>
+</nameServers>

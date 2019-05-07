@@ -1,0 +1,14 @@
+<dnsEntries SOAP-ENC:arrayType="ns1:DnsEntry[2]" xsi:type="ns1:ArrayOfDnsEntry">
+	<item xsi:type="ns1:DnsEntry">
+		<name xsi:type="xsd:string">www</name>
+		<expire xsi:type="xsd:int">3600</expire>
+		<type xsi:type="xsd:string">A</type>
+		<content xsi:type="xsd:string">1.2.3.4</content>
+	</item>
+	<item xsi:type="ns1:DnsEntry">
+		<name xsi:type="xsd:string">@</name>
+		<expire xsi:type="xsd:int">86400</expire>
+		<type xsi:type="xsd:string">NS</type>
+		<content xsi:type="xsd:string">ns0.transip.net</content>
+	</item>
+</dnsEntries>
