@@ -391,14 +391,14 @@ func (b Branding) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
 // EncodeArgs returns Branding XML body ready to be passed in the SOAP call
 func (b Branding) EncodeArgs(key string) string {
 	return fmt.Sprintf(`<branding xsi:type="ns1:DomainBranding">
-		<companyName xsi:type="xsd:string">%s</companyName>
-		<supportEmail xsi:type="xsd:string">%s</supportEmail>
-		<companyUrl xsi:type="xsd:string">%s</companyUrl>
-		<termsOfUsageUrl xsi:type="xsd:string">%s</termsOfUsageUrl>
-		<bannerLine1 xsi:type="xsd:string">%s</bannerLine1>
-		<bannerLine2 xsi:type="xsd:string">%s</bannerLine2>
-		<bannerLine3 xsi:type="xsd:string">%s</bannerLine3>
-	</branding>`, b.CompanyName, b.SupportEmail, b.CompanyURL, b.TermsOfUsageURL, b.BannerLine1, b.BannerLine2, b.BannerLine3)
+    <companyName xsi:type="xsd:string">%s</companyName>
+    <supportEmail xsi:type="xsd:string">%s</supportEmail>
+    <companyUrl xsi:type="xsd:string">%s</companyUrl>
+    <termsOfUsageUrl xsi:type="xsd:string">%s</termsOfUsageUrl>
+    <bannerLine1 xsi:type="xsd:string">%s</bannerLine1>
+    <bannerLine2 xsi:type="xsd:string">%s</bannerLine2>
+    <bannerLine3 xsi:type="xsd:string">%s</bannerLine3>
+</branding>`, b.CompanyName, b.SupportEmail, b.CompanyURL, b.TermsOfUsageURL, b.BannerLine1, b.BannerLine2, b.BannerLine3)
 }
 
 // Action reflects the available actions to perform on a domain
