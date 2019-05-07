@@ -268,4 +268,16 @@ func TestDNSSecEntriesEncoding(t *testing.T) {
 	prm := gotransip.TestParamsContainer{}
 	entries.EncodeParams(&prm, "")
 	assert.Equal(t, fixtPrm, prm.Prm)
+
+	// test EncodeParams with prefix
+	fixtPrm, err = getFixture("testdata/encoding/dnssecentries_prefixed.prm")
+	assert.NoError(t, err)
+	prm = gotransip.TestParamsContainer{}
+	entries.EncodeParams(&prm, "test")
+	assert.Equal(t, fixtPrm, prm.Prm)
+
+	// test EncodeParams on empty set
+	prm = gotransip.TestParamsContainer{}
+	DNSSecEntries{}.EncodeParams(&prm, "")
+	assert.Equal(t, "", prm.Prm)
 }
