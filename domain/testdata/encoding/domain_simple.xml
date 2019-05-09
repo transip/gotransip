@@ -7,14 +7,14 @@
 <dnsEntries SOAP-ENC:arrayType="ns1:DnsEntry[0]" xsi:type="ns1:ArrayOfDnsEntry">
 </dnsEntries>
 <branding xsi:type="ns1:DomainBranding">
-		<companyName xsi:type="xsd:string"></companyName>
-		<supportEmail xsi:type="xsd:string"></supportEmail>
-		<companyUrl xsi:type="xsd:string"></companyUrl>
-		<termsOfUsageUrl xsi:type="xsd:string"></termsOfUsageUrl>
-		<bannerLine1 xsi:type="xsd:string"></bannerLine1>
-		<bannerLine2 xsi:type="xsd:string"></bannerLine2>
-		<bannerLine3 xsi:type="xsd:string"></bannerLine3>
-	</branding>
+    <companyName xsi:type="xsd:string"></companyName>
+    <supportEmail xsi:type="xsd:string"></supportEmail>
+    <companyUrl xsi:type="xsd:string"></companyUrl>
+    <termsOfUsageUrl xsi:type="xsd:string"></termsOfUsageUrl>
+    <bannerLine1 xsi:type="xsd:string"></bannerLine1>
+    <bannerLine2 xsi:type="xsd:string"></bannerLine2>
+    <bannerLine3 xsi:type="xsd:string"></bannerLine3>
+</branding>
 	<authCode xsi:type="xsd:string">abcxyz</authCode>
 	<isLocked xsi:type="xsd:boolean">true</isLocked>
 	<registrationDate xsi:type="xsd:string">0001-01-01</registrationDate>
