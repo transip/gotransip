@@ -337,6 +337,20 @@ func RequestAuthCode(c gotransip.Client, domainName string) (string, error) {
 	return v, err
 }
 
+// Handover a Domain to another TransIP User. Please be aware that this will NOT
+// change the owner contact information at the registry. If you want to change
+// the domain owner at the registry, then you should execute a 'SetOwner'.
+func Handover(c gotransip.Client, domainName, targetAccountName string) error {
+	sr := gotransip.SoapRequest{
+		Service: serviceName,
+		Method:  "handover",
+	}
+	sr.AddArgument("domainName", domainName)
+	sr.AddArgument("targetAccountname", targetAccountName)
+
+	return c.Call(sr, nil)
+}
+
 // CanEditDNSSec checks if the DNSSec entries of a domain can be updated.
 func CanEditDNSSec(c gotransip.Client, domainName string) (bool, error) {
 	sr := gotransip.SoapRequest{
