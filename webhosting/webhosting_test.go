@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/transip/gotransip"
+	"github.com/transip/gotransip/v5"
 )
 
 func TestMailBoxEncoding(t *testing.T) {
