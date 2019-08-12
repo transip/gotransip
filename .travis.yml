@@ -1,10 +1,15 @@
 language: go
 
 go:
-  - "1.10"
+  - "1.11"
+  - "1.x"
+
+env:
+  global:
+    - GO111MODULE=on
 
 before_install:
-  - go get -u golang.org/x/lint/golint
+  - GO111MODULE=off go get -u golang.org/x/lint/golint
   - echo $PATH
   - find $GOPATH/bin
 
