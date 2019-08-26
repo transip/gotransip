@@ -173,6 +173,96 @@ func TestGetCancellableAddonsForVps(t *testing.T) {
 	assert.Equal(t, "vpsAddon-1-extra-ip-address", lst[1].Name)
 }
 
+func TestOrderVps(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/ordervps.xml")
+	assert.NoError(t, err)
+
+	err = OrderVps(c, "vps-bladevps-x1", nil, "centos65", "test")
+	assert.NoError(t, err)
+}
+
+func TestOrderVpsInAvailabilityZone(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/ordervpsinavailabilityzone.xml")
+	assert.NoError(t, err)
+
+	err = OrderVpsInAvailabilityZone(c, "vps-bladevps-x1", nil, "centos65", "test", "ams0")
+	assert.NoError(t, err)
+}
+
+func TestCloneVps(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/clonevps.xml")
+	assert.NoError(t, err)
+
+	err = CloneVps(c, "test-vps")
+	assert.NoError(t, err)
+}
+
+func TestCloneVpsToAvailabilityZone(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/clonevpstoavailabilityzone.xml")
+	assert.NoError(t, err)
+
+	err = CloneVpsToAvailabilityZone(c, "test-vps", "ams0")
+	assert.NoError(t, err)
+}
+
+func TestOrderAddon(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/orderaddon.xml")
+	assert.NoError(t, err)
+
+	err = OrderAddon(c, "test-vps", []string{"vpsAddon-extra-memory"})
+	assert.NoError(t, err)
+}
+
+func TestOrderPrivateNetwork(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/orderprivatenetwork.xml")
+	assert.NoError(t, err)
+
+	err = OrderPrivateNetwork(c)
+	assert.NoError(t, err)
+}
+
+func TestUpgradeVps(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/upgradevps.xml")
+	assert.NoError(t, err)
+
+	err = UpgradeVps(c, "test-vps", "vps-bladevps-x4")
+	assert.NoError(t, err)
+}
+
+func TestCancelVps(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/cancelvps.xml")
+	assert.NoError(t, err)
+
+	err = CancelVps(c, "test-vps", gotransip.CancellationTimeImmediately)
+	assert.NoError(t, err)
+}
+
+func TestCancelAddon(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/canceladdon.xml")
+	assert.NoError(t, err)
+
+	err = CancelAddon(c, "test-vps", "vpsAddon-extra-memory")
+	assert.NoError(t, err)
+}
+
+func TestCancelPrivateNetwork(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/cancelprivatenetwork.xml")
+	assert.NoError(t, err)
+
+	err = CancelPrivateNetwork(c, "test-privatenetwork", gotransip.CancellationTimeEnd)
+	assert.NoError(t, err)
+}
+
 func TestGetIpsForVps(t *testing.T) {
 	var err error
 
@@ -203,6 +293,24 @@ func TestGetOperatingSystems(t *testing.T) {
 	assert.Equal(t, "Gentoo", lst[0].Description)
 	assert.Equal(t, true, lst[0].IsPreinstallableImage)
 	assert.Equal(t, "centos65", lst[1].Name)
+}
+
+func TestAddVpsToPrivateNetwork(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/addvpstoprivatenetwork.xml")
+	assert.NoError(t, err)
+
+	err = AddVpsToPrivateNetwork(c, "test-vps", "test-privatenetwork")
+	assert.NoError(t, err)
+}
+
+func TestRemoveVpsFromPrivateNetwork(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/removevpsfromprivatenetwork.xml")
+	assert.NoError(t, err)
+
+	err = RemoveVpsFromPrivateNetwork(c, "test-vps", "test-privatenetwork")
+	assert.NoError(t, err)
 }
 
 func TestGetTrafficInformationForVps(t *testing.T) {
@@ -240,6 +348,78 @@ func TestGetPooledTrafficInformation(t *testing.T) {
 	assert.Equal(t, int64(128356924407), ti.Used)
 	assert.Equal(t, int64(200639805776), ti.Total)
 	assert.Equal(t, int64(16106127360000), ti.Max)
+}
+
+func TestStart(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/start.xml")
+	assert.NoError(t, err)
+
+	err = Start(c, "test-vps")
+	assert.NoError(t, err)
+}
+
+func TestStop(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/stop.xml")
+	assert.NoError(t, err)
+
+	err = Stop(c, "test-vps")
+	assert.NoError(t, err)
+}
+
+func TestReset(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/reset.xml")
+	assert.NoError(t, err)
+
+	err = Reset(c, "test-vps")
+	assert.NoError(t, err)
+}
+
+func TestCreateSnapshot(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/createsnapshot.xml")
+	assert.NoError(t, err)
+
+	err = CreateSnapshot(c, "test-vps", "test-snapshot")
+	assert.NoError(t, err)
+}
+
+func TestRevertSnapshot(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/revertsnapshot.xml")
+	assert.NoError(t, err)
+
+	err = RevertSnapshot(c, "test-vps", "test-snapshot")
+	assert.NoError(t, err)
+}
+
+func TestRevertSnapshotToOtherVps(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/revertsnapshottoothervps.xml")
+	assert.NoError(t, err)
+
+	err = RevertSnapshotToOtherVps(c, "test-vps", "test-snapshot", "test-vps2")
+	assert.NoError(t, err)
+}
+
+func TestRemoveSnapshot(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/removesnapshot.xml")
+	assert.NoError(t, err)
+
+	err = RemoveSnapshot(c, "test-vps", "test-snapshot")
+	assert.NoError(t, err)
+}
+
+func TestRevertVpsBackup(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/revertvpsbackup.xml")
+	assert.NoError(t, err)
+
+	err = RevertVpsBackup(c, "test-vps", 1234)
+	assert.NoError(t, err)
 }
 
 func TestGetPrivateNetworksByVps(t *testing.T) {
@@ -344,4 +524,49 @@ func TestGetVpsBackupsByVps(t *testing.T) {
 	assert.Equal(t, "Ubuntu 18.04 LTS", lst[0].OperatingSystem)
 	assert.Equal(t, "ams0", lst[0].AvailabilityZone)
 	assert.Equal(t, int64(7039319), lst[1].ID)
+}
+
+func TestInstallOperatingSystem(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/installoperatingsystem.xml")
+	assert.NoError(t, err)
+
+	err = InstallOperatingSystem(c, "test-vps", "centos65", "test")
+	assert.NoError(t, err)
+}
+
+func TestInstallOperatingSystemUnattended(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/installoperatingsystemunattended.xml")
+	assert.NoError(t, err)
+
+	err = InstallOperatingSystemUnattended(c, "test-vps", "centos65", "cHJlc2VlZAo=")
+	assert.NoError(t, err)
+}
+
+func TestAddIpv6ToVps(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/addipv6tovps.xml")
+	assert.NoError(t, err)
+
+	err = AddIpv6ToVps(c, "test-vps", net.ParseIP("fe80::f00/64"))
+	assert.NoError(t, err)
+}
+
+func TestUpdatePtrRecord(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/updateptrrecord.xml")
+	assert.NoError(t, err)
+
+	err = UpdatePtrRecord(c, net.IP{127, 0, 0, 1}, "ptr.not.set")
+	assert.NoError(t, err)
+}
+
+func TestHandoverVps(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/handovervps.xml")
+	assert.NoError(t, err)
+
+	err = HandoverVps(c, "test-vps", "customer")
+	assert.NoError(t, err)
 }
