@@ -57,6 +57,15 @@ func TestGetAllPrivateNetworks(t *testing.T) {
 	assert.Equal(t, "example-privatenetwork2", lst[1].Name)
 }
 
+func TestSetCustomerLock(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setcustomerlock.xml")
+	assert.NoError(t, err)
+
+	err = SetCustomerLock(c, "test-vps", true)
+	assert.NoError(t, err)
+}
+
 func TestGetAvailableAvailabilityZones(t *testing.T) {
 	var err error
 
