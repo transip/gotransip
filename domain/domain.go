@@ -190,6 +190,12 @@ var (
 	DNSEntryTypeTXT DNSEntryType = "TXT"
 	// DNSEntryTypeSRV represents an SRV-record
 	DNSEntryTypeSRV DNSEntryType = "SRV"
+	// DNSEntryTypeSSHFP represents an SSHFP-record
+	DNSEntryTypeSSHFP DNSEntryType = "SSHFP"
+	// DNSEntryTypeTLSA represents a TLSA-record
+	DNSEntryTypeTLSA DNSEntryType = "TLSA"
+	// DNSEntryTypeCAA represents a CAA-record
+	DNSEntryTypeCAA DNSEntryType = "CAA"
 )
 
 // DNSEntry represents a Transip_DnsEntry object as described at
