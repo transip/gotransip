@@ -13,39 +13,45 @@ import (
 func TestParseSoapResponse(t *testing.T) {
 	var data []byte
 	var err error
-	err = parseSoapResponse([]byte("foo"), nil, 0, nil)
+	err = parseSoapResponse([]byte("foo"), "test", nil, 0, nil)
 	assert.Error(t, err)
 
 	// try parsing soap fault
 	data = []byte(`<?xml version="1.0" encoding="UTF-8"?>
 <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Body><SOAP-ENV:Fault><faultcode>123</faultcode><faultstring>Test Soap Fault</faultstring></SOAP-ENV:Fault></SOAP-ENV:Body></SOAP-ENV:Envelope>`)
-	err = parseSoapResponse(data, nil, 0, nil)
+	err = parseSoapResponse(data, "test", nil, 0, nil)
 	assert.Error(t, err)
 	assert.Equal(t, "SOAP Fault 123: Test Soap Fault", err.Error())
 
 	// try parsing empty result with HTTP 200
-	data = []byte(`<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.transip.nl/soap" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><SOAP-ENV:Body><ns1:test><return></return></ns1:test></SOAP-ENV:Body></SOAP-ENV:Envelope>`)
-	err = parseSoapResponse(data, nil, 200, nil)
+	data = []byte(`<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.transip.nl/soap" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><SOAP-ENV:Body><ns1:testResponse><return></return></ns1:testResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>`)
+	err = parseSoapResponse(data, "test", nil, 200, nil)
 	assert.NoError(t, err)
 
+	// try parsing result with different response handle
+	err = parseSoapResponse(data, "test2", nil, 200, nil)
+	if assert.Error(t, err) {
+		assert.Equal(t, "expected <ns1:test2Response prefix", err.Error())
+	}
+
 	// try parsing simple struct
-	data = []byte(`<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.transip.nl/soap" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><SOAP-ENV:Body><ns1:test><return><key>foo</key><value>bar</value></return></ns1:test></SOAP-ENV:Body></SOAP-ENV:Envelope>`)
+	data = []byte(`<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.transip.nl/soap" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><SOAP-ENV:Body><ns1:testResponse><return><key>foo</key><value>bar</value></return></ns1:testResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>`)
 	var v struct {
 		K string `xml:"key"`
 		V string `xml:"value"`
 	}
 
-	err = parseSoapResponse(data, nil, 200, &v)
+	err = parseSoapResponse(data, "test", nil, 200, &v)
 	assert.NoError(t, err)
 	assert.Equal(t, "foo", v.K)
 	assert.Equal(t, "bar", v.V)
 
 	// try parsing simple struct that requires padding
-	data = []byte(`<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.transip.nl/soap" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><SOAP-ENV:Body><ns1:test><return>foobar</return></ns1:test></SOAP-ENV:Body></SOAP-ENV:Envelope>`)
+	data = []byte(`<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.transip.nl/soap" xmlns:ns2="http://xml.apache.org/xml-soap" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"><SOAP-ENV:Body><ns1:testResponse><return>foobar</return></ns1:testResponse></SOAP-ENV:Body></SOAP-ENV:Envelope>`)
 	var w struct {
 		Item string `xml:"item"`
 	}
-	err = parseSoapResponse(data, []string{"item"}, 0, &w)
+	err = parseSoapResponse(data, "test", []string{"item"}, 0, &w)
 	assert.NoError(t, err)
 	assert.Equal(t, "foobar", w.Item)
 }

@@ -6,7 +6,7 @@
 	xmlns:ns2="http://xml.apache.org/xml-soap"
 	xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
 	<SOAP-ENV:Body>
-		<ns1:getPooledTrafficInformation>
+		<ns1:getPooledTrafficInformationResponse>
 			<return xsi:type="ns2:Map">
 				<item>
 					<key xsi:type="xsd:string">startDate</key>
@@ -29,6 +29,6 @@
 					<value xsi:type="xsd:int">16106127360000</value>
 				</item>
 			</return>
-		</ns1:getPooledTrafficInformation>
+		</ns1:getPooledTrafficInformationResponse>
 	</SOAP-ENV:Body>
 </SOAP-ENV:Envelope>

@@ -89,13 +89,13 @@ func TestFakeSOAPClientCall(t *testing.T) {
 	c := FakeSOAPClient{
 		fixture: []byte(`<SOAP-ENV:Envelope>
 	<SOAP-ENV:Body>
-		<ns1:test>
+		<ns1:testResponse>
 			<return>
 				<item>
 					<key>foo</key>
 				</item>
 			</return>
-		</ns1:test>
+		</ns1:testResponse>
 	</SOAP-ENV:Body>
 </SOAP-ENV:Envelope>`),
 	}
@@ -106,7 +106,7 @@ func TestFakeSOAPClientCall(t *testing.T) {
 		} `xml:"item"`
 	}
 
-	err := c.Call(SoapRequest{}, &v)
+	err := c.Call(SoapRequest{Method: "test"}, &v)
 	assert.NoError(t, err)
 	assert.Equal(t, "foo", v.Item.Key)
 }
