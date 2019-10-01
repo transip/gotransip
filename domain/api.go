@@ -416,3 +416,65 @@ func RemoveAllDNSSecEntries(c gotransip.Client, domainName string) error {
 
 	return c.Call(sr, nil)
 }
+
+// GetDefaultDNSEntries returns a list of the default DNS Entries for the
+// currently authenticated API user
+func GetDefaultDNSEntries(c gotransip.Client) (DNSEntries, error) {
+	sr := gotransip.SoapRequest{
+		Service: serviceName,
+		Method:  "getDefaultDnsEntries",
+	}
+
+	var v struct {
+		V DNSEntries `xml:"item"`
+	}
+	err := c.Call(sr, &v)
+	return v.V, err
+}
+
+// GetDefaultDNSEntriesByDomainName returns a list of the default DNS Entries for
+// the given domain name
+func GetDefaultDNSEntriesByDomainName(c gotransip.Client, domainName string) (DNSEntries, error) {
+	sr := gotransip.SoapRequest{
+		Service: serviceName,
+		Method:  "getDefaultDnsEntriesByDomainName",
+	}
+	sr.AddArgument("domainName", domainName)
+
+	var v struct {
+		V DNSEntries `xml:"item"`
+	}
+	err := c.Call(sr, &v)
+	return v.V, err
+}
+
+// GetDefaultNameservers returns a list of the default list of nameservers for
+// the currently authenticated API User
+func GetDefaultNameservers(c gotransip.Client) (Nameservers, error) {
+	sr := gotransip.SoapRequest{
+		Service: serviceName,
+		Method:  "getDefaultNameservers",
+	}
+
+	var v struct {
+		V Nameservers `xml:"item"`
+	}
+	err := c.Call(sr, &v)
+	return v.V, err
+}
+
+// GetDefaultNameserversByDomainName returns a list of the default list of
+// nameservers for the given domain name
+func GetDefaultNameserversByDomainName(c gotransip.Client, domainName string) (Nameservers, error) {
+	sr := gotransip.SoapRequest{
+		Service: serviceName,
+		Method:  "getDefaultNameserversByDomainName",
+	}
+	sr.AddArgument("domainName", domainName)
+
+	var v struct {
+		V Nameservers `xml:"item"`
+	}
+	err := c.Call(sr, &v)
+	return v.V, err
+}
