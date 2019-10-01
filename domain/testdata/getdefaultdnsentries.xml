@@ -1,0 +1,25 @@
+<SOAP-ENV:Envelope
+  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:ns1="http://www.transip.nl/soap"
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+  <SOAP-ENV:Body>
+    <ns1:getDefaultDnsEntriesResponse>
+      <return SOAP-ENC:arrayType="ns1:DnsEntry[2]" xsi:type="ns1:ArrayOfDnsEntry">
+        <item xsi:type="ns1:DnsEntry">
+          <name xsi:type="xsd:string">@</name>
+          <expire xsi:type="xsd:int">86400</expire>
+          <type xsi:type="xsd:string">A</type>
+          <content xsi:type="xsd:string">1.2.3.4</content>
+        </item>
+        <item xsi:type="ns1:DnsEntry">
+          <name xsi:type="xsd:string">@</name>
+          <expire xsi:type="xsd:int">86400</expire>
+          <type xsi:type="xsd:string">AAAA</type>
+          <content xsi:type="xsd:string">fe80::1</content>
+        </item>
+      </return>
+    </ns1:getDefaultDnsEntriesResponse>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

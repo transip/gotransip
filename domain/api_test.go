@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip"
 )
 
@@ -284,4 +285,72 @@ func TestGetDNSSecEntries(t *testing.T) {
 	assert.Equal(t, DNSSecFlagZSK, dns[1].Flags)
 	assert.Equal(t, DNSSecAlgorithmECDSAP384SHA384, dns[1].Algorithm)
 	assert.Equal(t, "dWl4YWl4MHBoZWVtN3lhcGhhaWIwYWhsYWVqMW9odzB1YThYaTFoYUJhaHBvOWhhZXNhaDJBaGQ4b2s4VGhvU2hhaWozc2hhaDluYWljYWljN2lvaG83aW9YZWRvb2w0YWhXYWl0bzNYZWlQaGFlNWVpZ2VpcGVlZzdhZXhpZTAK", dns[1].PublicKey)
+}
+
+func TestGetDefaultDNSEntries(t *testing.T) {
+	var err error
+	c := gotransip.FakeSOAPClient{}
+	err = c.FixtureFromFile("testdata/getdefaultdnsentries.xml")
+	assert.NoError(t, err)
+
+	entries, err := GetDefaultDNSEntries(c)
+	require.NoError(t, err)
+	assert.IsType(t, DNSEntries{}, entries)
+	assert.Equal(t, 2, len(entries))
+	assert.Equal(t, "1.2.3.4", entries[0].Content)
+	assert.Equal(t, int64(86400), entries[0].TTL)
+	assert.Equal(t, "@", entries[0].Name)
+	assert.Equal(t, DNSEntryTypeA, entries[0].Type)
+	assert.Equal(t, "fe80::1", entries[1].Content)
+}
+
+func TestGetDefaultDNSEntriesByDomainName(t *testing.T) {
+	var err error
+	c := gotransip.FakeSOAPClient{}
+	err = c.FixtureFromFile("testdata/getdefaultdnsentriesbydomainname.xml")
+	assert.NoError(t, err)
+
+	entries, err := GetDefaultDNSEntriesByDomainName(c, "example.org")
+	require.NoError(t, err)
+	assert.IsType(t, DNSEntries{}, entries)
+	assert.Equal(t, 2, len(entries))
+	assert.Equal(t, "1.2.3.4", entries[0].Content)
+	assert.Equal(t, int64(86400), entries[0].TTL)
+	assert.Equal(t, "@", entries[0].Name)
+	assert.Equal(t, DNSEntryTypeA, entries[0].Type)
+	assert.Equal(t, "fe80::1", entries[1].Content)
+}
+
+func TestGetDefaultNameservers(t *testing.T) {
+	var err error
+	c := gotransip.FakeSOAPClient{}
+	err = c.FixtureFromFile("testdata/getdefaultnameservers.xml")
+	assert.NoError(t, err)
+
+	ns, err := GetDefaultNameservers(c)
+	require.NoError(t, err)
+	assert.IsType(t, Nameservers{}, ns)
+	assert.Equal(t, 3, len(ns))
+	assert.Equal(t, "ns0.transip.net", ns[0].Hostname)
+	assert.Equal(t, net.ParseIP("195.135.195.195"), ns[0].IPv4Address)
+	assert.Equal(t, net.ParseIP("2a01:7c8:dddd:195::195"), ns[0].IPv6Address)
+	assert.Equal(t, "ns1.transip.nl", ns[1].Hostname)
+	assert.Equal(t, "ns2.transip.eu", ns[2].Hostname)
+}
+
+func TestGetDefaultNameserversByDomainName(t *testing.T) {
+	var err error
+	c := gotransip.FakeSOAPClient{}
+	err = c.FixtureFromFile("testdata/getdefaultnameserversbydomainname.xml")
+	assert.NoError(t, err)
+
+	ns, err := GetDefaultNameserversByDomainName(c, "example.org")
+	require.NoError(t, err)
+	assert.IsType(t, Nameservers{}, ns)
+	assert.Equal(t, 3, len(ns))
+	assert.Equal(t, "ns0.transip.net", ns[0].Hostname)
+	assert.Equal(t, net.ParseIP("195.135.195.195"), ns[0].IPv4Address)
+	assert.Equal(t, net.ParseIP("2a01:7c8:dddd:195::195"), ns[0].IPv6Address)
+	assert.Equal(t, "ns1.transip.nl", ns[1].Hostname)
+	assert.Equal(t, "ns2.transip.eu", ns[2].Hostname)
 }
