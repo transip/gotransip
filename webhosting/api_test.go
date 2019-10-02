@@ -97,3 +97,185 @@ func TestGetWebhostingDomainNames(t *testing.T) {
 	assert.Equal(t, "example.org", lst[0])
 	assert.Equal(t, "example.com", lst[1])
 }
+
+func TestCancel(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/cancel.xml")
+	require.NoError(t, err)
+
+	err = Cancel(c, "example.org", gotransip.CancellationTimeImmediately)
+	require.NoError(t, err)
+}
+
+func TestCreateCronjob(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/createcronjob.xml")
+	require.NoError(t, err)
+
+	err = CreateCronjob(c, "example.org", CronJob{Name: "refresh-twitter"})
+	require.NoError(t, err)
+}
+
+func TestCreateDatabase(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/createdatabase.xml")
+	require.NoError(t, err)
+
+	err = CreateDatabase(c, "example.org", Database{Name: "example_org_db"})
+	require.NoError(t, err)
+}
+
+func TestCreateMailBox(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/createmailbox.xml")
+	require.NoError(t, err)
+
+	err = CreateMailBox(c, "example.org", MailBox{Address: "info@example.org"})
+	require.NoError(t, err)
+}
+
+func TestCreateMailForward(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/createmailforward.xml")
+	require.NoError(t, err)
+
+	err = CreateMailForward(c, "example.org", MailForward{
+		Name:          "info@example.org",
+		TargetAddress: "devnull@example.org",
+	})
+	require.NoError(t, err)
+}
+
+func TestCreateSubdomain(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/createsubdomain.xml")
+	require.NoError(t, err)
+
+	err = CreateSubdomain(c, "example.org", SubDomain{Name: "ftp.example.org"})
+	require.NoError(t, err)
+}
+
+func TestDeleteCronjob(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/deletecronjob.xml")
+	require.NoError(t, err)
+
+	err = DeleteCronjob(c, "example.org", CronJob{Name: "refresh-twitter"})
+	require.NoError(t, err)
+}
+
+func TestDeleteDatabase(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/deletedatabase.xml")
+	require.NoError(t, err)
+
+	err = DeleteDatabase(c, "example.org", Database{Name: "example_org_db"})
+	require.NoError(t, err)
+}
+
+func TestDeleteMailBox(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/deletemailbox.xml")
+	require.NoError(t, err)
+
+	err = DeleteMailBox(c, "example.org", MailBox{Address: "info@example.org"})
+	require.NoError(t, err)
+}
+
+func TestDeleteMailForward(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/deletemailforward.xml")
+	require.NoError(t, err)
+
+	err = DeleteMailForward(c, "example.org", MailForward{Name: "info@example.org"})
+	require.NoError(t, err)
+}
+
+func TestDeleteSubdomain(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/deletesubdomain.xml")
+	require.NoError(t, err)
+
+	err = DeleteSubdomain(c, "example.org", SubDomain{Name: "ftp.example.org"})
+	require.NoError(t, err)
+}
+
+func TestModifyDatabase(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/modifydatabase.xml")
+	require.NoError(t, err)
+
+	err = ModifyDatabase(c, "example.org", Database{
+		Name:         "example_org_db",
+		MaxDiskUsage: 1000,
+	})
+	require.NoError(t, err)
+}
+
+func TestModifyMailBox(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/modifymailbox.xml")
+	require.NoError(t, err)
+
+	err = ModifyMailBox(c, "example.org", MailBox{
+		Address:      "info@example.org",
+		MaxDiskUsage: 1000,
+	})
+	require.NoError(t, err)
+}
+
+func TestModifyMailForward(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/modifymailforward.xml")
+	require.NoError(t, err)
+
+	err = ModifyMailForward(c, "example.org", MailForward{
+		Name: "info@example.org", TargetAddress: "support@example.org",
+	})
+	require.NoError(t, err)
+}
+
+func TestOrder(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/order.xml")
+	require.NoError(t, err)
+
+	err = Order(c, "example.org", "webhosting-small")
+	require.NoError(t, err)
+}
+
+func TestSetDatabasePassword(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setdatabasepassword.xml")
+	require.NoError(t, err)
+
+	err = SetDatabasePassword(c, "example.org", Database{Name: "example_org_db"}, "s3cr3t")
+	require.NoError(t, err)
+}
+
+func TestSetFtpPassword(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setftppassword.xml")
+	require.NoError(t, err)
+
+	err = SetFtpPassword(c, "example.org", "s3cr3t")
+	require.NoError(t, err)
+}
+
+func TestSetMailBoxPassword(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setmailboxpassword.xml")
+	require.NoError(t, err)
+
+	err = SetMailBoxPassword(c, "example.org", MailBox{Address: "info@example.org"}, "s3cr3t")
+	require.NoError(t, err)
+}
+
+func TestUpgrade(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/upgrade.xml")
+	require.NoError(t, err)
+
+	err = Upgrade(c, "example.org", "webhosting-large")
+	require.NoError(t, err)
+}
