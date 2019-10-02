@@ -27,6 +27,23 @@ func TestGetCertificatesByHaip(t *testing.T) {
 	assert.Equal(t, int64(485554), lst[1].ID)
 }
 
+func TestGetAvailableCertificatesByHaip(t *testing.T) {
+	var err error
+	c := gotransip.FakeSOAPClient{}
+	err = c.FixtureFromFile("testdata/getavailablecertificatesbyhaip.xml")
+	require.NoError(t, err)
+
+	lst, err := GetAvailableCertificatesByHaip(c, "example-haip")
+	require.NoError(t, err)
+	require.Equal(t, 2, len(lst))
+	assert.IsType(t, []Certificate{}, lst)
+	assert.Equal(t, "example.com", lst[0].CommonName)
+	x, _ := time.Parse("2006-01-02 15:04:05", "2019-11-21 20:07:33")
+	assert.Equal(t, x, lst[0].ExpirationDate)
+	assert.Equal(t, int64(487739), lst[0].ID)
+	assert.Equal(t, int64(495554), lst[1].ID)
+}
+
 func TestGetHaip(t *testing.T) {
 	var err error
 	c := gotransip.FakeSOAPClient{}
