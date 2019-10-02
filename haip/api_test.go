@@ -94,3 +94,141 @@ func TestGetPtrForHaip(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "haip.example.net", ptr)
 }
+
+func TestAddCertificateToHaip(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/addcertificatetohaip.xml")
+	require.NoError(t, err)
+
+	err = AddCertificateToHaip(c, "transip-haip", 1234)
+	require.NoError(t, err)
+
+	err = AddCertificateFromHaip(c, "transip-haip", 1234)
+	require.NoError(t, err)
+}
+
+func TestAddPortConfiguration(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/addportconfiguration.xml")
+	require.NoError(t, err)
+
+	err = AddPortConfiguration(c, "transip-haip", PortConfiguration{Name: "http"})
+	require.NoError(t, err)
+}
+
+func TestCancelHaip(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/cancelhaip.xml")
+	require.NoError(t, err)
+
+	err = CancelHaip(c, "transip-haip", gotransip.CancellationTimeImmediately)
+	require.NoError(t, err)
+}
+
+func TestDeleteCertificateFromHaip(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/deletecertificatefromhaip.xml")
+	require.NoError(t, err)
+
+	err = DeleteCertificateFromHaip(c, "transip-haip", 1234)
+	require.NoError(t, err)
+}
+
+func TestDeletePortConfiguration(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/deleteportconfiguration.xml")
+	require.NoError(t, err)
+
+	err = DeletePortConfiguration(c, "transip-haip", 1234)
+	require.NoError(t, err)
+}
+
+func TestSetBalancingMode(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setbalancingmode.xml")
+	require.NoError(t, err)
+
+	err = SetBalancingMode(c, "transip-haip", BalancingModeSource, "")
+	require.NoError(t, err)
+}
+
+func TestSetDefaultPortConfiguration(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setdefaultportconfiguration.xml")
+	require.NoError(t, err)
+
+	err = SetDefaultPortConfiguration(c, "transip-haip")
+	require.NoError(t, err)
+}
+
+func TestSetHaipDescription(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/sethaipdescription.xml")
+	require.NoError(t, err)
+
+	err = SetHaipDescription(c, "transip-haip", "My Highly Available IP Address")
+	require.NoError(t, err)
+}
+
+func TestSetHaipVpses(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/sethaipvpses.xml")
+	require.NoError(t, err)
+
+	err = SetHaipVpses(c, "transip-haip", []string{"transip-vps", "transip-vps2", "transip-vps3"})
+	require.NoError(t, err)
+}
+
+func TestSetHTTPHealthCheck(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/sethttphealthcheck.xml")
+	require.NoError(t, err)
+
+	err = SetHTTPHealthCheck(c, "transip-haip", "/healthz", 8080)
+	require.NoError(t, err)
+}
+
+func TestSetIPSetup(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setipsetup.xml")
+	require.NoError(t, err)
+
+	err = SetIPSetup(c, "transip-haip", IPSetupIPv4To6)
+	require.NoError(t, err)
+}
+
+func TestSetPtrForHaip(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setptrforhaip.xml")
+	require.NoError(t, err)
+
+	err = SetPtrForHaip(c, "transip-haip", "www.example.org")
+	require.NoError(t, err)
+}
+
+func TestSetTCPHealthCheck(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/settcphealthcheck.xml")
+	require.NoError(t, err)
+
+	err = SetTCPHealthCheck(c, "transip-haip")
+	require.NoError(t, err)
+}
+
+func TestStartHaipLetsEncryptCertificateIssue(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/starthaipletsencryptcertificateissue.xml")
+	require.NoError(t, err)
+
+	err = StartHaipLetsEncryptCertificateIssue(c, "transip-haip", "www.example.org")
+	require.NoError(t, err)
+}
+
+func TestUpdatePortConfiguration(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/updateportconfiguration.xml")
+	require.NoError(t, err)
+
+	err = UpdatePortConfiguration(c, "transip-haip", PortConfiguration{Name: "http", TargetPort: 8080})
+	require.NoError(t, err)
+}
