@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip"
 )
 
@@ -13,11 +14,11 @@ func TestGetCertificatesByHaip(t *testing.T) {
 	var err error
 	c := gotransip.FakeSOAPClient{}
 	err = c.FixtureFromFile("testdata/getcertificatesbyhaip.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	lst, err := GetCertificatesByHaip(c, "example-haip")
-	assert.NoError(t, err)
-	assert.Equal(t, 2, len(lst))
+	require.NoError(t, err)
+	require.Equal(t, 2, len(lst))
 	assert.IsType(t, []Certificate{}, lst)
 	assert.Equal(t, "example.org", lst[0].CommonName)
 	x, _ := time.Parse("2006-01-02 15:04:05", "2018-11-21 20:07:33")
@@ -30,10 +31,10 @@ func TestGetHaip(t *testing.T) {
 	var err error
 	c := gotransip.FakeSOAPClient{}
 	err = c.FixtureFromFile("testdata/gethaip.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	h, err := GetHaip(c, "example-haip")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.IsType(t, Haip{}, h)
 	assert.Equal(t, "example-haip", h.Name)
 	assert.Equal(t, StatusActive, h.Status)
@@ -54,11 +55,11 @@ func TestGetHaips(t *testing.T) {
 	var err error
 	c := gotransip.FakeSOAPClient{}
 	err = c.FixtureFromFile("testdata/gethaips.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	lst, err := GetHaips(c)
-	assert.NoError(t, err)
-	assert.Equal(t, 2, len(lst))
+	require.NoError(t, err)
+	require.Equal(t, 2, len(lst))
 	assert.IsType(t, []Haip{}, lst)
 	assert.Equal(t, "example-haip", lst[0].Name)
 	assert.Equal(t, "example-haip2", lst[1].Name)
@@ -68,11 +69,11 @@ func TestGetPortConfigurations(t *testing.T) {
 	var err error
 	c := gotransip.FakeSOAPClient{}
 	err = c.FixtureFromFile("testdata/getportconfigurations.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	lst, err := GetPortConfigurations(c, "example-haip")
-	assert.NoError(t, err)
-	assert.Equal(t, 2, len(lst))
+	require.NoError(t, err)
+	require.Equal(t, 2, len(lst))
 	assert.IsType(t, []PortConfiguration{}, lst)
 	assert.Equal(t, EndpointSSLModeOff, lst[0].EndpointSSLMode)
 	assert.Equal(t, int64(4740), lst[0].ID)
@@ -87,9 +88,9 @@ func TestGetPtrForHaip(t *testing.T) {
 	var err error
 	c := gotransip.FakeSOAPClient{}
 	err = c.FixtureFromFile("testdata/getptrforhaip.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	ptr, err := GetPtrForHaip(c, "example-haip")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, "haip.example.net", ptr)
 }
