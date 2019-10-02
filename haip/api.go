@@ -156,8 +156,8 @@ func GetAvailableCertificatesByHaip(c gotransip.Client, haipName string) ([]Cert
 	return keyValueXMLToCertificates(h), nil
 }
 
-// AddCertificateFromHaip adds a certificate to given HA-IP
-func AddCertificateFromHaip(c gotransip.Client, haipName string, certificateID int64) error {
+// AddCertificateToHaip adds a certificate to given HA-IP
+func AddCertificateToHaip(c gotransip.Client, haipName string, certificateID int64) error {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "addCertificateToHaip",
@@ -166,6 +166,12 @@ func AddCertificateFromHaip(c gotransip.Client, haipName string, certificateID i
 	sr.AddArgument("certificateId", fmt.Sprintf("%d", certificateID))
 
 	return c.Call(sr, nil)
+}
+
+// AddCertificateFromHaip adds a certificate to given HA-IP
+// Deprecated: use AddCertificateToHaip instead
+func AddCertificateFromHaip(c gotransip.Client, haipName string, certificateID int64) error {
+	return AddCertificateToHaip(c, haipName, certificateID)
 }
 
 // DeleteCertificateFromHaip removes a certificate from given HA-IP
