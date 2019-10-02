@@ -63,3 +63,55 @@ func TestGetReverseDNS(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "example.org", ptr)
 }
+
+func TestCreateIPAddress(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/createipaddress.xml")
+	require.NoError(t, err)
+
+	err = CreateIPAddress(c, net.IP{1, 2, 3, 4}, "example.org")
+	require.NoError(t, err)
+}
+
+func TestDeleteIPAddress(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/deleteipaddress.xml")
+	require.NoError(t, err)
+
+	err = DeleteIPAddress(c, net.IP{1, 2, 3, 4})
+	require.NoError(t, err)
+}
+
+func TestRequestAccess(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/requestaccess.xml")
+	require.NoError(t, err)
+
+	visitors, err := RequestAccess(c, "2019-10-02 13:06:56", 180, []string{"John Doe", "Jane Doe"}, "555-1234")
+	require.NoError(t, err)
+	require.Equal(t, 2, len(visitors))
+	assert.IsType(t, []DatacenterVisitor{}, visitors)
+	assert.Equal(t, "John Doe", visitors[0].Name)
+	assert.Equal(t, "1234", visitors[0].ReservationNumber)
+	assert.Equal(t, "5678", visitors[0].AccessCode)
+	assert.Equal(t, true, visitors[0].HasBeenRegisteredBefore)
+	assert.Equal(t, "Jane Doe", visitors[1].Name)
+}
+
+func TestRequestRemoteHands(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/requestremotehands.xml")
+	require.NoError(t, err)
+
+	err = RequestRemoteHands(c, "transip", "John Doe", "555-1234", 15, "press reset button")
+	require.NoError(t, err)
+}
+
+func TestSetReverseDNS(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setreversedns.xml")
+	require.NoError(t, err)
+
+	err = SetReverseDNS(c, net.IP{1, 2, 3, 4}, "example.org")
+	require.NoError(t, err)
+}
