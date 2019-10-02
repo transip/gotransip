@@ -109,14 +109,20 @@ func SetTCPHealthCheck(c gotransip.Client, haipName string) error {
 }
 
 // GetStatusReport returns status report for given HA-IP
-func GetStatusReport(c gotransip.Client, haipName string) error {
+func GetStatusReport(c gotransip.Client, haipName string) (StatusReport, error) {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "getStatusReport",
 	}
 	sr.AddArgument("haipName", haipName)
 
-	return c.Call(sr, nil)
+	var v statusXMLOuter
+	err := c.Call(sr, &v)
+	if err != nil {
+		return StatusReport{}, err
+	}
+
+	return parseStatusReportBody(v)
 }
 
 // GetCertificatesByHaip returns all certificates attached given HA-IP
