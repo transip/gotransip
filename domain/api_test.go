@@ -445,7 +445,7 @@ func TestSetContacts(t *testing.T) {
 	err := c.FixtureFromFile("testdata/setcontacts.xml")
 	require.NoError(t, err)
 
-	err = SetContacts(c, "example.org", []WhoisContact{WhoisContact{FirstName: "John", LastName: "Doe"}})
+	err = SetContacts(c, "example.org", []WhoisContact{{FirstName: "John", LastName: "Doe"}})
 	require.NoError(t, err)
 }
 
@@ -455,7 +455,7 @@ func TestSetDNSEntries(t *testing.T) {
 	require.NoError(t, err)
 
 	err = SetDNSEntries(c, "example.org", []DNSEntry{
-		DNSEntry{Type: DNSEntryTypeA, Name: "www"},
+		{Type: DNSEntryTypeA, Name: "www"},
 	})
 	require.NoError(t, err)
 }
@@ -466,7 +466,7 @@ func TestSetDNSSecEntries(t *testing.T) {
 	require.NoError(t, err)
 
 	err = SetDNSSecEntries(c, "example.org", []DNSSecEntry{
-		DNSSecEntry{PublicKey: "s3cr3t"},
+		{PublicKey: "s3cr3t"},
 	})
 	require.NoError(t, err)
 }
@@ -486,7 +486,7 @@ func TestSetNameservers(t *testing.T) {
 	require.NoError(t, err)
 
 	err = SetNameservers(c, "example.org", []Nameserver{
-		Nameserver{Hostname: "ns1.transip.nl"},
+		{Hostname: "ns1.transip.nl"},
 	})
 	require.NoError(t, err)
 }
