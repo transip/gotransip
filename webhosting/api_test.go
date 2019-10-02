@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip"
 )
 
@@ -11,11 +12,11 @@ func TestGetAvailablePackages(t *testing.T) {
 	var err error
 	c := gotransip.FakeSOAPClient{}
 	err = c.FixtureFromFile("testdata/getavailablepackages.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	lst, err := GetAvailablePackages(c)
-	assert.NoError(t, err)
-	assert.Equal(t, 2, len(lst))
+	require.NoError(t, err)
+	require.Equal(t, 2, len(lst))
 	assert.IsType(t, []Package{}, lst)
 	assert.Equal(t, "New Webhosting S", lst[0].Description)
 	assert.Equal(t, "webhosting-small", lst[0].Name)
@@ -28,11 +29,11 @@ func TestGetAvailableUpgrades(t *testing.T) {
 	var err error
 	c := gotransip.FakeSOAPClient{}
 	err = c.FixtureFromFile("testdata/getavailableupgrades.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	lst, err := GetAvailableUpgrades(c, "example.org")
-	assert.NoError(t, err)
-	assert.Equal(t, 2, len(lst))
+	require.NoError(t, err)
+	require.Equal(t, 2, len(lst))
 	assert.IsType(t, []Package{}, lst)
 	assert.Equal(t, "New Webhosting XL", lst[0].Description)
 	assert.Equal(t, "webhosting-extra-large", lst[0].Name)
@@ -45,10 +46,10 @@ func TestGetInfo(t *testing.T) {
 	var err error
 	c := gotransip.FakeSOAPClient{}
 	err = c.FixtureFromFile("testdata/getinfo.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	h, err := GetInfo(c, "example.org")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.IsType(t, Host{}, h)
 	assert.Equal(t, 2, len(h.CronJobs))
 	assert.Equal(t, "3", h.CronJobs[0].DayTrigger)
@@ -59,24 +60,26 @@ func TestGetInfo(t *testing.T) {
 	assert.Equal(t, "test", h.CronJobs[0].Name)
 	assert.Equal(t, "http://example.org/?foobar", h.CronJobs[0].URL)
 	assert.Equal(t, "*", h.CronJobs[0].WeekdayTrigger)
-	assert.Equal(t, 2, len(h.Database))
+	require.Equal(t, 2, len(h.Database))
 	assert.Equal(t, 100, h.Database[0].MaxDiskUsage)
 	assert.Equal(t, "example_org_db", h.Database[0].Name)
 	assert.Equal(t, "foobar", h.Database[0].Username)
+	assert.Equal(t, "example_org_test", h.Database[1].Name)
 	assert.Equal(t, "example.org", h.DomainName)
-	assert.Equal(t, 2, len(h.MailBoxes))
+	require.Equal(t, 2, len(h.MailBoxes))
 	assert.Equal(t, "info@example.org", h.MailBoxes[0].Address)
 	assert.Equal(t, true, h.MailBoxes[0].HasVacationReply)
 	assert.Equal(t, 1, h.MailBoxes[0].MaxDiskUsage)
 	assert.Equal(t, SpamCheckStrengthAverage, h.MailBoxes[0].SpamCheckerStrength)
 	assert.Equal(t, "I'm on holiday", h.MailBoxes[0].VacationReplyMessage)
 	assert.Equal(t, "Out of office", h.MailBoxes[0].VacationReplySubject)
-	assert.Equal(t, 2, len(h.MailForward))
+	assert.Equal(t, "support@example.org", h.MailBoxes[1].Address)
+	require.Equal(t, 2, len(h.MailForward))
 	assert.Equal(t, "foobar@example.org", h.MailForward[0].Name)
 	assert.Equal(t, "info@example.org", h.MailForward[0].TargetAddress)
 	assert.Equal(t, "barfoo@example.org", h.MailForward[1].Name)
 	assert.Equal(t, "foobar@example.org", h.MailForward[1].TargetAddress)
-	assert.Equal(t, 2, len(h.SubDomains))
+	require.Equal(t, 2, len(h.SubDomains))
 	assert.IsType(t, []SubDomain{}, h.SubDomains)
 	assert.Equal(t, "demo.example.org", h.SubDomains[0].Name)
 	assert.Equal(t, "beta.example.org", h.SubDomains[1].Name)
@@ -86,11 +89,11 @@ func TestGetWebhostingDomainNames(t *testing.T) {
 	var err error
 	c := gotransip.FakeSOAPClient{}
 	err = c.FixtureFromFile("testdata/getwebhostingdomainnames.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	lst, err := GetWebhostingDomainNames(c)
-	assert.NoError(t, err)
-	assert.Equal(t, 2, len(lst))
+	require.NoError(t, err)
+	require.Equal(t, 2, len(lst))
 	assert.Equal(t, "example.org", lst[0])
 	assert.Equal(t, "example.com", lst[1])
 }
