@@ -146,7 +146,7 @@ func Cancel(c gotransip.Client, domainName string, endTime gotransip.Cancellatio
 
 // TransferWithOwnerChange transfers a domain with changing the owner. It returns
 // the TransIP proposition number or an error when transferring the domain fails
-func TransferWithOwnerChange(c gotransip.Client, domain, authCode string) (string, error) {
+func TransferWithOwnerChange(c gotransip.Client, domain Domain, authCode string) (string, error) {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "transferWithOwnerChange",
@@ -162,7 +162,7 @@ func TransferWithOwnerChange(c gotransip.Client, domain, authCode string) (strin
 // TransferWithoutOwnerChange transfers a domain without changing the owner. It
 // returns  the TransIP proposition number or an error when transferring the domain
 // fails
-func TransferWithoutOwnerChange(c gotransip.Client, domain, authCode string) (string, error) {
+func TransferWithoutOwnerChange(c gotransip.Client, domain Domain, authCode string) (string, error) {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "transferWithoutOwnerChange",
@@ -224,7 +224,7 @@ func SetDNSEntries(c gotransip.Client, domainName string, dnsEntries DNSEntries)
 }
 
 // SetOwner starts an owner change of a domain
-func SetOwner(c gotransip.Client, domainName, registrantWhoisContact WhoisContact) error {
+func SetOwner(c gotransip.Client, domainName string, registrantWhoisContact WhoisContact) error {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "setOwner",
@@ -238,7 +238,7 @@ func SetOwner(c gotransip.Client, domainName, registrantWhoisContact WhoisContac
 }
 
 // SetContacts starts a contact change of a domain, this will replace all existing contacts
-func SetContacts(c gotransip.Client, domainName, contacts WhoisContacts) error {
+func SetContacts(c gotransip.Client, domainName string, contacts WhoisContacts) error {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "setContacts",
@@ -314,7 +314,7 @@ func RetryTransferWithDifferentAuthCode(c gotransip.Client, domain Domain, newAu
 }
 
 // CancelDomainAction cancels a failed domain action
-func CancelDomainAction(c gotransip.Client, domain string) error {
+func CancelDomainAction(c gotransip.Client, domain Domain) error {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "cancelDomainAction",
@@ -358,7 +358,7 @@ func Handover(c gotransip.Client, domainName, targetAccountName string) error {
 func HandoverWithAuthCode(c gotransip.Client, domainName, authCode string) error {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
-		Method:  "handover",
+		Method:  "handoverWithAuthCode",
 	}
 	sr.AddArgument("domainName", domainName)
 	sr.AddArgument("authCode", authCode)
