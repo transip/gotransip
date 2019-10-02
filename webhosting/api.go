@@ -125,7 +125,7 @@ func CreateCronjob(c gotransip.Client, domainName string, cronjob CronJob) error
 }
 
 // DeleteCronjob deletes a cronjob from a webhosting package.
-func DeleteCronjob(c gotransip.Client, domainName, cronjob CronJob) error {
+func DeleteCronjob(c gotransip.Client, domainName string, cronjob CronJob) error {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "deleteCronjob",
