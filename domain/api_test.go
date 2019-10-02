@@ -356,3 +356,175 @@ func TestGetDefaultNameserversByDomainName(t *testing.T) {
 	assert.Equal(t, "ns1.transip.nl", ns[1].Hostname)
 	assert.Equal(t, "ns2.transip.eu", ns[2].Hostname)
 }
+
+func TestCancel(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/cancel.xml")
+	require.NoError(t, err)
+
+	err = Cancel(c, "example.org", gotransip.CancellationTimeImmediately)
+	require.NoError(t, err)
+}
+
+func TestCancelDomainAction(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/canceldomainaction.xml")
+	require.NoError(t, err)
+
+	err = CancelDomainAction(c, Domain{Name: "example.org"})
+	require.NoError(t, err)
+}
+
+func TestCanEditDNSSec(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/caneditdnssec.xml")
+	require.NoError(t, err)
+
+	can, err := CanEditDNSSec(c, "example.org")
+	require.NoError(t, err)
+	assert.Equal(t, true, can)
+}
+
+func TestHandover(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/handover.xml")
+	require.NoError(t, err)
+
+	err = Handover(c, "example.org", "not-my-account")
+	require.NoError(t, err)
+}
+
+func TestHandoverWithAuthCode(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/handoverwithauthcode.xml")
+	require.NoError(t, err)
+
+	err = HandoverWithAuthCode(c, "example.org", "s3cr3t")
+	require.NoError(t, err)
+}
+
+func TestRegister(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/register.xml")
+	require.NoError(t, err)
+
+	prop, err := Register(c, Domain{Name: "example.org"})
+	require.NoError(t, err)
+	assert.Equal(t, "1234-5678", prop)
+}
+
+func TestRemoveAllDNSSecEntries(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/removealldnssecentries.xml")
+	require.NoError(t, err)
+
+	err = RemoveAllDNSSecEntries(c, "example.org")
+	require.NoError(t, err)
+}
+
+func TestRetryCurrentDomainActionWithNewData(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/retrycurrentdomainactionwithnewdata.xml")
+	require.NoError(t, err)
+
+	err = RetryCurrentDomainActionWithNewData(c, Domain{Name: "example.org"})
+	require.NoError(t, err)
+}
+
+func TestRetryTransferWithDifferentAuthCode(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/retrytransferwithdifferentauthcode.xml")
+	require.NoError(t, err)
+
+	err = RetryTransferWithDifferentAuthCode(c, Domain{Name: "example.org"}, "s3cr3t")
+	require.NoError(t, err)
+}
+
+func TestSetContacts(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setcontacts.xml")
+	require.NoError(t, err)
+
+	err = SetContacts(c, "example.org", []WhoisContact{WhoisContact{FirstName: "John", LastName: "Doe"}})
+	require.NoError(t, err)
+}
+
+func TestSetDNSEntries(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setdnsentries.xml")
+	require.NoError(t, err)
+
+	err = SetDNSEntries(c, "example.org", []DNSEntry{
+		DNSEntry{Type: DNSEntryTypeA, Name: "www"},
+	})
+	require.NoError(t, err)
+}
+
+func TestSetDNSSecEntries(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setdnssecentries.xml")
+	require.NoError(t, err)
+
+	err = SetDNSSecEntries(c, "example.org", []DNSSecEntry{
+		DNSSecEntry{PublicKey: "s3cr3t"},
+	})
+	require.NoError(t, err)
+}
+
+func TestSetLock(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setlock.xml")
+	require.NoError(t, err)
+
+	err = SetLock(c, "example.org")
+	require.NoError(t, err)
+}
+
+func TestSetNameservers(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setnameservers.xml")
+	require.NoError(t, err)
+
+	err = SetNameservers(c, "example.org", []Nameserver{
+		Nameserver{Hostname: "ns1.transip.nl"},
+	})
+	require.NoError(t, err)
+}
+
+func TestSetOwner(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/setowner.xml")
+	require.NoError(t, err)
+
+	err = SetOwner(c, "example.org", WhoisContact{FirstName: "John", LastName: "Doe"})
+	require.NoError(t, err)
+}
+
+func TestTransferWithoutOwnerChange(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/transferwithoutownerchange.xml")
+	require.NoError(t, err)
+
+	prop, err := TransferWithoutOwnerChange(c, Domain{Name: "example.org"}, "s3cr3t")
+	require.NoError(t, err)
+	assert.Equal(t, "5678-9012", prop)
+}
+
+func TestTransferWithOwnerChange(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/transferwithownerchange.xml")
+	require.NoError(t, err)
+
+	prop, err := TransferWithOwnerChange(c, Domain{Name: "example.org"}, "s3cr3t")
+	require.NoError(t, err)
+	assert.Equal(t, "3456-7890", prop)
+}
+
+func TestUnsetLock(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/unsetlock.xml")
+	require.NoError(t, err)
+
+	err = UnsetLock(c, "example.org")
+	require.NoError(t, err)
+}
