@@ -169,6 +169,7 @@ func AddCertificateToHaip(c gotransip.Client, haipName string, certificateID int
 }
 
 // AddCertificateFromHaip adds a certificate to given HA-IP
+//
 // Deprecated: use AddCertificateToHaip instead
 func AddCertificateFromHaip(c gotransip.Client, haipName string, certificateID int64) error {
 	return AddCertificateToHaip(c, haipName, certificateID)
