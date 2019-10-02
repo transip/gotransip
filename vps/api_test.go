@@ -19,7 +19,7 @@ func TestGetActiveAddonsForVps(t *testing.T) {
 
 	lst, err := GetActiveAddonsForVps(c, "example-vps")
 	require.NoError(t, err)
-	require.Equal(t, 3, len(lst))
+	require.Equal(t, 2, len(lst))
 	assert.IsType(t, []Product{}, lst)
 	assert.Equal(t, "100 GB extra SSD", lst[0].Description)
 	assert.Equal(t, "vpsAddon-100-gb-extra-harddisk", lst[0].Name)
