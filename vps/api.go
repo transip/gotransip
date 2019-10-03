@@ -605,7 +605,7 @@ func ConvertVpsBackupToSnapshot(c gotransip.Client, vpsName, description string,
 	}
 	sr.AddArgument("vpsName", vpsName)
 	sr.AddArgument("description", description)
-	sr.AddArgument("vpsBackupID", fmt.Sprintf("%d", vpsBackupID))
+	sr.AddArgument("vpsBackupId", fmt.Sprintf("%d", vpsBackupID))
 
 	return c.Call(sr, nil)
 }
