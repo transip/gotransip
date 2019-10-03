@@ -109,14 +109,20 @@ func SetTCPHealthCheck(c gotransip.Client, haipName string) error {
 }
 
 // GetStatusReport returns status report for given HA-IP
-func GetStatusReport(c gotransip.Client, haipName string) error {
+func GetStatusReport(c gotransip.Client, haipName string) (StatusReport, error) {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "getStatusReport",
 	}
 	sr.AddArgument("haipName", haipName)
 
-	return c.Call(sr, nil)
+	var v statusXMLOuter
+	err := c.Call(sr, &v)
+	if err != nil {
+		return StatusReport{}, err
+	}
+
+	return parseStatusReportBody(v)
 }
 
 // GetCertificatesByHaip returns all certificates attached given HA-IP
@@ -156,8 +162,8 @@ func GetAvailableCertificatesByHaip(c gotransip.Client, haipName string) ([]Cert
 	return keyValueXMLToCertificates(h), nil
 }
 
-// AddCertificateFromHaip adds a certificate to given HA-IP
-func AddCertificateFromHaip(c gotransip.Client, haipName string, certificateID int64) error {
+// AddCertificateToHaip adds a certificate to given HA-IP
+func AddCertificateToHaip(c gotransip.Client, haipName string, certificateID int64) error {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "addCertificateToHaip",
@@ -166,6 +172,13 @@ func AddCertificateFromHaip(c gotransip.Client, haipName string, certificateID i
 	sr.AddArgument("certificateId", fmt.Sprintf("%d", certificateID))
 
 	return c.Call(sr, nil)
+}
+
+// AddCertificateFromHaip adds a certificate to given HA-IP
+//
+// Deprecated: use AddCertificateToHaip instead
+func AddCertificateFromHaip(c gotransip.Client, haipName string, certificateID int64) error {
+	return AddCertificateToHaip(c, haipName, certificateID)
 }
 
 // DeleteCertificateFromHaip removes a certificate from given HA-IP

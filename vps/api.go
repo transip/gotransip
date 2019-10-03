@@ -536,7 +536,7 @@ func GetAllIps(c gotransip.Client) ([]net.IP, error) {
 	return v.V, err
 }
 
-// AddIpv6ToVps adds IpV6 address to Vps
+// AddIpv6ToVps adds an IPv6 address to given Vps
 func AddIpv6ToVps(c gotransip.Client, vpsName string, ipv6Address net.IP) error {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
