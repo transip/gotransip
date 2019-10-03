@@ -571,3 +571,12 @@ func TestHandoverVps(t *testing.T) {
 	err = HandoverVps(c, "test-vps", "customer")
 	require.NoError(t, err)
 }
+
+func TestConvertVpsBackupToSnapshot(t *testing.T) {
+	c := gotransip.FakeSOAPClient{}
+	err := c.FixtureFromFile("testdata/convertvpsbackuptosnapshot.xml")
+	require.NoError(t, err)
+
+	err = ConvertVpsBackupToSnapshot(c, "test-vps", "pretty good state", 1234)
+	require.NoError(t, err)
+}
