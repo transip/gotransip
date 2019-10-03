@@ -597,8 +597,8 @@ func GetAvailableAvailabilityZones(c gotransip.Client) ([]AvailabilityZone, erro
 	return v.V, err
 }
 
-// ConvertBackupToSnapshot converts a backup to a separate snapshot for a VPS
-func ConvertBackupToSnapshot(c gotransip.Client, vpsName, description string, vpsBackupID int64) error {
+// ConvertVpsBackupToSnapshot converts a backup to a separate snapshot for a VPS
+func ConvertVpsBackupToSnapshot(c gotransip.Client, vpsName, description string, vpsBackupID int64) error {
 	sr := gotransip.SoapRequest{
 		Service: serviceName,
 		Method:  "convertVpsBackupToSnapshot",
