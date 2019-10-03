@@ -1,0 +1,25 @@
+<SOAP-ENV:Envelope
+  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:ns1="http://www.transip.nl/soap"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+  SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+  <SOAP-ENV:Body>
+    <ns1:requestAccessResponse>
+      <return SOAP-ENC:arrayType="ns1:DatacenterVisitor[2]" xsi:type="ns1:ArrayOfDatacenterVisitor">
+        <item xsi:type="ns1:DatacenterVisitor">
+          <name xsi:type="xsd:string">John Doe</name>
+          <reservationNumber xsi:type="xsd:string">1234</reservationNumber>
+          <accessCode xsi:type="xsd:string">5678</accessCode>
+          <hasBeenRegisteredBefore xsi:type="xsd:boolean">true</hasBeenRegisteredBefore>
+        </item>
+        <item xsi:type="ns1:DatacenterVisitor">
+          <name xsi:type="xsd:string">Jane Doe</name>
+          <reservationNumber xsi:type="xsd:string">1234</reservationNumber>
+          <accessCode xsi:type="xsd:string">9876</accessCode>
+          <hasBeenRegisteredBefore xsi:type="xsd:boolean">false</hasBeenRegisteredBefore>
+        </item>
+      </return>
+    </ns1:requestAccessResponse>
+  </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>

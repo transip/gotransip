@@ -303,7 +303,7 @@ func (s soapClient) httpReqForSoapRequest(req SoapRequest) (*http.Request, error
 	return httpReq, nil
 }
 
-func parseSoapResponse(data []byte, padding []string, statusCode int, result interface{}) error {
+func parseSoapResponse(data []byte, method string, padding []string, statusCode int, result interface{}) error {
 	// try to decode the resulting XML
 	var env soapEnvelope
 	if err := xml.Unmarshal(data, &env); err != nil {
@@ -320,6 +320,15 @@ func parseSoapResponse(data []byte, padding []string, statusCode int, result int
 	// was a SOAP fault and if it was: return it as an error
 	if len(fault.Code) > 0 {
 		return errors.New(fault.String())
+	}
+
+	// response body should be enclosed in <ns1:XXXResponse></ns1:XXXResponse> elements,
+	// where XXX is the SOAP method that was called, so we should check if we got
+	// valid response data
+	// this check is kind of lame, string matching, but the alternative is creating
+	// structs for each possible response type
+	if !strings.HasPrefix(strings.TrimSpace(string(env.Body.Contents)), fmt.Sprintf("<ns1:%sResponse", method)) {
+		return fmt.Errorf("expected <ns1:%sResponse prefix", method)
 	}
 
 	// try to decode into soapResponse
@@ -372,7 +381,7 @@ func (s *soapClient) call(req SoapRequest, result interface{}) error {
 	}
 
 	// parse SOAP response into given result interface
-	return parseSoapResponse(b, req.Padding, resp.StatusCode, result)
+	return parseSoapResponse(b, req.Method, req.Padding, resp.StatusCode, result)
 }
 
 // apply given padding around the XML data fed into this function

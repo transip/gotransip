@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip"
 )
 
@@ -32,11 +33,11 @@ func TestDomainEncoding(t *testing.T) {
 
 	// read fixture files and compare XML and encoded parameters
 	fixtArgs, err := getFixture("testdata/encoding/domain_simple.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, fixtArgs, domain.EncodeArgs("domain"))
 
 	fixtPrm, err := getFixture("testdata/encoding/domain_simple.prm")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	prm := gotransip.TestParamsContainer{}
 	domain.EncodeParams(&prm, "")
 	assert.Equal(t, fixtPrm, prm.Prm)
@@ -88,18 +89,18 @@ func TestDomainEncoding(t *testing.T) {
 
 	// read fixture files and compare XML and encoded parameters
 	fixtArgs, err = getFixture("testdata/encoding/domain_full.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, fixtArgs, domain.EncodeArgs("domain"))
 
 	fixtPrm, err = getFixture("testdata/encoding/domain_full.prm")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	prm = gotransip.TestParamsContainer{}
 	domain.EncodeParams(&prm, "")
 	assert.Equal(t, fixtPrm, prm.Prm)
 
 	// try again with prefixed parameters
 	fixtPrm, err = getFixture("testdata/encoding/domain_full_prefixed.prm")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	prm = gotransip.TestParamsContainer{}
 	domain.EncodeParams(&prm, "5[domain]")
 	assert.Equal(t, fixtPrm, prm.Prm)
@@ -123,12 +124,12 @@ func TestDnsEntriesEncoding(t *testing.T) {
 
 	// test EncodeArgs
 	fixtArgs, err := getFixture("testdata/encoding/dnsentries.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, fixtArgs, entries.EncodeArgs("dnsEntries"))
 
 	// test EncodeParams
 	fixtPrm, err := getFixture("testdata/encoding/dnsentries.prm")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	prm := gotransip.TestParamsContainer{}
 	entries.EncodeParams(&prm, "")
 	assert.Equal(t, fixtPrm, prm.Prm)
@@ -153,12 +154,12 @@ func TestNameserversEncoding(t *testing.T) {
 
 	// test EncodeArgs
 	fixtArgs, err := getFixture("testdata/encoding/nameservers.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, fixtArgs, nameservers.EncodeArgs("nameServers"))
 
 	// test EncodeParams
 	fixtPrm, err := getFixture("testdata/encoding/nameservers.prm")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	prm := gotransip.TestParamsContainer{}
 	nameservers.EncodeParams(&prm, "")
 	assert.Equal(t, fixtPrm, prm.Prm)
@@ -177,12 +178,12 @@ func TestBrandingEncoding(t *testing.T) {
 
 	// test EncodeArgs
 	fixtArgs, err := getFixture("testdata/encoding/branding.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, fixtArgs, brand.EncodeArgs("branding"))
 
 	// test EncodeParams
 	fixtPrm, err := getFixture("testdata/encoding/branding.prm")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	prm := gotransip.TestParamsContainer{}
 	brand.EncodeParams(&prm, "")
 	assert.Equal(t, fixtPrm, prm.Prm)
@@ -211,12 +212,12 @@ func TestWhoisContactsEncoding(t *testing.T) {
 
 	// test EncodeArgs
 	fixtArgs, err := getFixture("testdata/encoding/whoiscontacts.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, fixtArgs, whois.EncodeArgs("contacts"))
 
 	// test EncodeParams
 	fixtPrm, err := getFixture("testdata/encoding/whoiscontacts.prm")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	prm := gotransip.TestParamsContainer{}
 	whois.EncodeParams(&prm, "")
 	assert.Equal(t, fixtPrm, prm.Prm)
@@ -259,19 +260,19 @@ func TestDNSSecEntriesEncoding(t *testing.T) {
 	}
 
 	fixtArgs, err := getFixture("testdata/encoding/dnssecentries.xml")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, fixtArgs, entries.EncodeArgs("dnsSecEntries"))
 
 	// test EncodeParams
 	fixtPrm, err := getFixture("testdata/encoding/dnssecentries.prm")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	prm := gotransip.TestParamsContainer{}
 	entries.EncodeParams(&prm, "")
 	assert.Equal(t, fixtPrm, prm.Prm)
 
 	// test EncodeParams with prefix
 	fixtPrm, err = getFixture("testdata/encoding/dnssecentries_prefixed.prm")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	prm = gotransip.TestParamsContainer{}
 	entries.EncodeParams(&prm, "test")
 	assert.Equal(t, fixtPrm, prm.Prm)

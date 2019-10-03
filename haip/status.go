@@ -102,13 +102,8 @@ func parseStatusReportLb(name, ipVersion string, kv []statusKV) (lb statusReport
 	return
 }
 
-func parseStatusReportBody(data []byte) (StatusReport, error) {
+func parseStatusReportBody(v statusXMLOuter) (StatusReport, error) {
 	sr := StatusReport{}
-
-	var v statusXMLOuter
-	if err := xml.Unmarshal(data, &v); err != nil {
-		return sr, err
-	}
 
 	// start going over statusXMLOuter body to parse each port configuration
 	// these port configurations each have a key/value pair with the vpsName and

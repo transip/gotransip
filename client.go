@@ -115,5 +115,5 @@ func (f *FakeSOAPClient) FixtureFromFile(file string) (err error) {
 // Call doesn't do anything except fill the XML unmarshalled result
 func (f FakeSOAPClient) Call(req SoapRequest, result interface{}) error {
 	// this fake client just parses given fixture as if it was a SOAP response
-	return parseSoapResponse(f.fixture, req.Padding, 200, result)
+	return parseSoapResponse(f.fixture, req.Method, req.Padding, 200, result)
 }

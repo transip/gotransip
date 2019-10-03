@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNewSOAPClient(t *testing.T) {
@@ -16,23 +17,20 @@ func TestNewSOAPClient(t *testing.T) {
 
 	// empty ClientConfig should raise error about missing AccountName
 	_, err = NewSOAPClient(cc)
-	if assert.Error(t, err) {
-		assert.Equal(t, errors.New("AccountName is required"), err)
-	}
+	require.Error(t, err)
+	assert.Equal(t, errors.New("AccountName is required"), err)
 
 	cc.AccountName = "foobar"
 	// ClientConfig with only AccountName set should raise error about private keys
 	_, err = NewSOAPClient(cc)
-	if assert.Error(t, err) {
-		assert.Equal(t, errors.New("PrivateKeyPath or PrivateKeyBody is required"), err)
-	}
+	require.Error(t, err)
+	assert.Equal(t, errors.New("PrivateKeyPath or PrivateKeyBody is required"), err)
 
 	cc.PrivateKeyPath = "/file/not/found"
 	// ClientConfig with PrivateKeyPath set to nonexisting file should raise error
 	_, err = NewSOAPClient(cc)
-	if assert.Error(t, err) {
-		assert.Regexp(t, regexp.MustCompile("^could not open private key"), err.Error())
-	}
+	require.Error(t, err)
+	assert.Regexp(t, regexp.MustCompile("^could not open private key"), err.Error())
 
 	// ClientConfig with PrivateKeyPath that does exist but is unreadable should raise
 	// error
@@ -44,9 +42,8 @@ func TestNewSOAPClient(t *testing.T) {
 
 	cc.PrivateKeyPath = tmpFile.Name()
 	_, err = NewSOAPClient(cc)
-	if assert.Error(t, err) {
-		assert.Regexp(t, regexp.MustCompile("permission denied"), err.Error())
-	}
+	require.Error(t, err)
+	assert.Regexp(t, regexp.MustCompile("permission denied"), err.Error())
 
 	os.Remove(tmpFile.Name())
 	cc.PrivateKeyPath = ""
@@ -89,13 +86,13 @@ func TestFakeSOAPClientCall(t *testing.T) {
 	c := FakeSOAPClient{
 		fixture: []byte(`<SOAP-ENV:Envelope>
 	<SOAP-ENV:Body>
-		<ns1:test>
+		<ns1:testResponse>
 			<return>
 				<item>
 					<key>foo</key>
 				</item>
 			</return>
-		</ns1:test>
+		</ns1:testResponse>
 	</SOAP-ENV:Body>
 </SOAP-ENV:Envelope>`),
 	}
@@ -106,8 +103,8 @@ func TestFakeSOAPClientCall(t *testing.T) {
 		} `xml:"item"`
 	}
 
-	err := c.Call(SoapRequest{}, &v)
-	assert.NoError(t, err)
+	err := c.Call(SoapRequest{Method: "test"}, &v)
+	require.NoError(t, err)
 	assert.Equal(t, "foo", v.Item.Key)
 }
 
@@ -115,11 +112,11 @@ func TestFakeSOAPClientFixtureFromFile(t *testing.T) {
 	var err error
 	c := FakeSOAPClient{}
 	err = c.FixtureFromFile("testdata/thisfiledoesnotexist")
-	assert.Error(t, err)
+	require.Error(t, err)
 	assert.Contains(t, err.Error(), "no such file or directory")
 	assert.Equal(t, []byte(nil), c.fixture)
 
 	err = c.FixtureFromFile("testdata/fakesoapclientfixturefromfile")
-	assert.NoError(t, err)
+	require.NoError(t, err)
 	assert.Equal(t, []byte("testfoobar\n"), c.fixture)
 }
