@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"github.com/transip/gotransip"
+	"github.com/transip/gotransip/v5"
 )
 
 // This file holds all DomainService methods directly ported from TransIP API

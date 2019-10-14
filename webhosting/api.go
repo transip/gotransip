@@ -1,6 +1,6 @@
 package webhosting
 
-import "github.com/transip/gotransip"
+import "github.com/transip/gotransip/v5"
 
 // This file holds all WebhostingService methods directly ported from TransIP API
 

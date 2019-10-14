@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/transip/gotransip"
-	"github.com/transip/gotransip/util"
+	"github.com/transip/gotransip/v5"
+	"github.com/transip/gotransip/v5/util"
 )
 
 // This file holds all HaipService methods directly ported from TransIP API
