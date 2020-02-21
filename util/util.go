@@ -1,37 +1,19 @@
 package util
 
 import (
-	"encoding/xml"
-	"time"
+	"strconv"
 )
 
-// KeyValueXML resembles the complex struct for getting key/value pairs from XML
-type KeyValueXML struct {
-	Cont []struct {
-		Item []struct {
-			Key   string `xml:"key"`
-			Value string `xml:"value"`
-		} `xml:"item"`
-	} `xml:"item"`
+func Atoi(in string) (int, error) {
+	return strconv.Atoi(in)
 }
 
-// XMLTime is a custom type to decode XML values to time.Time directly
-type XMLTime struct {
-	time.Time
-}
-
-// UnmarshalXML is implemented to be able act as custom XML type
-// it tries to parse time from given elements value
-func (x *XMLTime) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
-	var v string
-	if err := d.DecodeElement(&v, &start); err != nil {
-		return err
+// Contains is a case insenstive match, finding needle in a haystack
+func Contains(haystack []int, needle int) bool {
+	for _, a := range haystack {
+		if a == needle {
+			return true
+		}
 	}
-
-	if p, _ := time.Parse("2006-01-02 15:04:05", v); !p.IsZero() {
-		*x = XMLTime{p}
-	} else if p, _ := time.Parse("2006-01-02", v); !p.IsZero() {
-		*x = XMLTime{p}
-	}
-	return nil
+	return false
 }

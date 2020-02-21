@@ -1,119 +1,154 @@
 package gotransip
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/transip/gotransip/v6/authenticator"
+	"github.com/transip/gotransip/v6/jwt"
+	"github.com/transip/gotransip/v6/rest"
+	"github.com/transip/gotransip/v6/rest/request"
+	"github.com/transip/gotransip/v6/rest/response"
 	"io/ioutil"
+	"net/http"
 	"os"
 )
 
-const (
-	transipAPIHost      = "api.transip.nl"
-	transipAPINamespace = "http://www.transip.nl/soap"
-)
-
-// APIMode specifies in which mode the API is used. Currently this is only
-// supports either readonly or readwrite
-type APIMode string
-
-var (
-	// APIModeReadOnly specifies that no changes can be made from API calls
-	APIModeReadOnly APIMode = "readonly"
-	// APIModeReadWrite specifies that changes can be made from API calls
-	APIModeReadWrite APIMode = "readwrite"
-)
-
-// ClientConfig is a tool to easily create a new Client object
-type ClientConfig struct {
-	AccountName    string
-	PrivateKeyPath string
-	PrivateKeyBody []byte
-	Mode           APIMode
+// Client manages communication with the TransIP API
+// In most cases there should be only one, shared, Client.
+type Client struct {
+	// Client configuration file, allows you to:
+	// - setting a custom useragent
+	// - enable test mode
+	// - use the demo token
+	// - enable debugging
+	config ClientConfiguration
+	// provides you the possibility to specify timeouts
+	context context.Context
+	// authenticator wraps all authentication logic
+	authenticator authenticator.Authenticator
 }
 
-// Client is the interface which all clients should implement
-type Client interface {
-	Call(SoapRequest, interface{}) error // execute request on client
+type Service struct {
+	Client *Client
 }
 
-// SOAPClient represents a TransIP API SOAP client, implementing the Client
-// interface
-type SOAPClient struct {
-	soapClient soapClient
-}
+// NewClient creates a new API client.
+// optionally you could put a custom http.Client in the configuration struct
+// to allow for advanced features such as caching.
+func NewClient(config ClientConfiguration) (Client, error) {
+	if config.HTTPClient == nil {
+		config.HTTPClient = http.DefaultClient
+	}
+	var privateKeyBody []byte
+	var token jwt.Token
 
-// Call performs given SOAP request and fills the response into result
-func (c SOAPClient) Call(req SoapRequest, result interface{}) error {
-	return c.soapClient.call(req, result)
-}
-
-// NewSOAPClient returns a new SOAPClient object for given config
-// ClientConfig's PrivateKeyPath will override potentially given PrivateKeyBody
-func NewSOAPClient(c ClientConfig) (SOAPClient, error) {
 	// check account name
-	if len(c.AccountName) == 0 {
-		return SOAPClient{}, errors.New("AccountName is required")
+	if len(config.AccountName) == 0 && len(config.Token) == 0 {
+		return Client{}, errors.New("AccountName is required")
 	}
 
-	// check if private key was given in any form
-	if len(c.PrivateKeyPath) == 0 && len(c.PrivateKeyBody) == 0 {
-		return SOAPClient{}, errors.New("PrivateKeyPath or PrivateKeyBody is required")
+	// check if token or private key is set
+	if len(config.Token) == 0 && len(config.PrivateKeyPath) == 0 {
+		return Client{}, errors.New("PrivateKeyPath, Token or PrivateKeyBody is required")
 	}
 
 	// if PrivateKeyPath was set, this will override any given PrivateKeyBody
-	if len(c.PrivateKeyPath) > 0 {
+	if len(config.PrivateKeyPath) > 0 {
 		// try to open private key and read contents
-		if _, err := os.Stat(c.PrivateKeyPath); err != nil {
-			return SOAPClient{}, fmt.Errorf("could not open private key: %s", err.Error())
+		if _, err := os.Stat(config.PrivateKeyPath); err != nil {
+			return Client{}, fmt.Errorf("Could not open private key: %s", err.Error())
 		}
 
 		// read private key so we can pass the body to the soapClient
 		var err error
-		c.PrivateKeyBody, err = ioutil.ReadFile(c.PrivateKeyPath)
+		privateKeyBody, err = ioutil.ReadFile(config.PrivateKeyPath)
 		if err != nil {
-			return SOAPClient{}, err
+			return Client{}, err
+		}
+	}
+
+	if len(config.Token) > 0 {
+		var err error
+		token, err = jwt.New(config.Token)
+
+		if err != nil {
+			return Client{}, err
 		}
 	}
 
 	// default to APIMode read/write
-	if len(c.Mode) == 0 {
-		c.Mode = APIModeReadWrite
+	if len(config.Mode) == 0 {
+		config.Mode = APIModeReadWrite
 	}
 
-	// create soapClient and pass it to a new Client pointer
-	sc := soapClient{
-		Login:      c.AccountName,
-		Mode:       c.Mode,
-		PrivateKey: c.PrivateKeyBody,
+	// set basePath by default
+	if len(config.URL) == 0 {
+		config.URL = basePath
 	}
 
-	return SOAPClient{
-		soapClient: sc,
+	return Client{
+		authenticator: authenticator.Authenticator{PrivateKeyBody: privateKeyBody, Token: token, HTTPClient: config.HTTPClient},
+		config:        config,
 	}, nil
 }
 
-// FakeSOAPClient is a client doing nothing except implementing the gotransip.Client
-// interface
-// you can however set a fixture XML body which Call will try to Unmarshal into
-// result
-// useful for testing
-type FakeSOAPClient struct {
-	fixture []byte // preset this fixture so Call can use it to Unmarshal
-}
-
-// FixtureFromFile reads file and sets content as FakeSOAPClient's fixture
-func (f *FakeSOAPClient) FixtureFromFile(file string) (err error) {
-	// read fixture file
-	f.fixture, err = ioutil.ReadFile(file)
+// This method is used by all rest client methods, thus: 'get','post','put','delete'
+// It uses the authenticator to get a token, either statically provided by the user or requested from the authentication server
+// Then decodes the json response to a supplied interface
+func (c *Client) call(method rest.RestMethod, request request.RestRequest, result interface{}) error {
+	token, err := c.authenticator.GetToken()
 	if err != nil {
-		err = fmt.Errorf("could not read fixture from file %s: %s", file, err.Error())
+		return fmt.Errorf("could not get token from authenticator %s", err.Error())
+	}
+	httpRequest, err := request.GetHttpRequest(c.config.URL, method.Method)
+	if err != nil {
+		return fmt.Errorf("error during request creation %s", err.Error())
 	}
 
-	return
+	httpRequest.Header.Add("Authorization", token.GetAuthenticationHeaderValue())
+	client := c.config.HTTPClient
+	fmt.Println(httpRequest.URL)
+	httpResponse, err := client.Do(httpRequest)
+	if err != nil {
+		return fmt.Errorf("request error:\n%s", err.Error())
+	}
+
+	defer httpResponse.Body.Close()
+
+	// read entire httpResponse body
+	b, err := ioutil.ReadAll(httpResponse.Body)
+	if err != nil {
+		return err
+	}
+
+	restResponse := response.RestResponse{
+		Body:       b,
+		StatusCode: httpResponse.StatusCode,
+		Method:     method,
+	}
+
+	return restResponse.ParseResponse(&result)
 }
 
-// Call doesn't do anything except fill the XML unmarshalled result
-func (f FakeSOAPClient) Call(req SoapRequest, result interface{}) error {
-	// this fake client just parses given fixture as if it was a SOAP response
-	return parseSoapResponse(f.fixture, req.Method, req.Padding, 200, result)
+// ChangeBasePath changes base path to allow switching to mocks
+func (c *Client) ChangeBasePath(path string) {
+	c.config.URL = path
+}
+
+// Allow modification of underlying config for alternate implementations and testing
+// Caution: modifying the configuration while live can cause data races and potentially unwanted behavior
+func (c *Client) GetConfig() ClientConfiguration {
+	return c.config
+}
+
+// Allow modification of underlying config for alternate implementations and testing
+// Caution: modifying the configuration while live can cause data races and potentially unwanted behavior
+func (c *Client) GetAuthenticator() authenticator.Authenticator {
+	return c.authenticator
+}
+
+// This method that executes a http Get request
+func (c *Client) Get(request request.RestRequest, response interface{}) error {
+	return c.call(rest.GetRestMethod, request, response)
 }

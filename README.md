@@ -7,35 +7,55 @@ This is the Go client for the [TransIP API](https://api.transip.nl/). To use it 
 
 ## Example usage
 To print a list of your account's VPSes:
-```golang
+```go
 package main
 
 import (
   "fmt"
+  "golang.org/x/net/context"
 
-  "github.com/transip/gotransip/v5"
-  "github.com/transip/gotransip/v5/vps"
+  "github.com/transip/gotransip/v6"
+  "github.com/transip/gotransip/v6/vps"
+  "github.com/transip/gotransip/v6/vps/privatenetwork"
 )
 
 func main() {
   // create new TransIP API SOAP client
-  c, err := gotransip.NewSOAPClient(gotransip.ClientConfig{
-    AccountName: "accountname",
-    PrivateKeyPath:  "/path/to/api/private.key"
+  c, err := gotransip.NewRestClient(gotransip.ClientConfig{
+    AccountName: "accountName",
+    PrivateKeyPath:  "/path/to/api/private.key",
   })
   if err != nil {
     panic(err.Error())
   }
 
-  // get list of VPSes
-  list, err := vps.GetVpses(c)
+  ctx := context.Background()
+
+  // get vpss of VPSes
+  vpss, err := vps.ListAll(sess, ctx)
+  if err != nil {
+    panic(err.Error())
+  }
+
+  // get vpss of private networks
+  pnlist, err := privatenetwork.ListAll(sess, ctx)
   if err != nil {
     panic(err.Error())
   }
 
   // print name and description for each VPS
-  for _, v := range list {
-    fmt.Printf("vps: %s (%s)\n", v.Name, v.Description)
+  for _, vps := range vpss {
+    fmt.Printf("vps: %s (%s)\n", vps.Name, vps.Description)
+  }
+
+  err = vps.Order(c, ctx, &vps.OrderVps{
+  	Description: "my-unique-description",
+    ProductName: "vps-bladevps-x8",
+    Base64InstallText: "",
+  })
+
+  if err != nil {
+    panic(err.Error())
   }
 }
 ```

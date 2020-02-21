@@ -1,0 +1,25 @@
+image: docker.transip.us/transip/golang:latest
+stages:
+  - lint
+  - test
+
+lint:golint:
+  stage: lint
+  script:
+    - ci/lint.sh
+  tags:
+    - k8s
+
+lint:vet:
+  stage: lint
+  script:
+    - go vet ./...
+  tags:
+    - k8s
+
+test:go:
+  stage: test
+  script:
+    - ci/test.sh
+  tags:
+    - k8s
