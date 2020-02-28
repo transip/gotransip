@@ -13,7 +13,7 @@ import (
 	_context "context"
 	"github.com/antihax/optional"
 	"github.com/transip/gotransip/v6"
-	"github.com/transip/gotransip/v6/inline_objects"
+	"github.com/transip/gotransip/v6/inlineobjects"
 	_ioutil "io/ioutil"
 	_nethttp "net/http"
 	_neturl "net/url"
@@ -72,7 +72,7 @@ func (a *HaipRepository) AddLetsEncryptCertificateToHAIP(haipName string, localV
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject24.IsSet() {
-		localVarOptionalInlineObject24, localVarOptionalInlineObject24ok := localVarOptionals.InlineObject24.Value().(inline_objects.InlineObject24)
+		localVarOptionalInlineObject24, localVarOptionalInlineObject24ok := localVarOptionals.InlineObject24.Value().(inlineobjects.InlineObject24)
 		if !localVarOptionalInlineObject24ok {
 			return nil, reportError("inlineObject24 should be InlineObject24")
 		}
@@ -155,7 +155,7 @@ func (a *HaipRepository) CancelAHAIP(haipName string, localVarOptionals *CancelA
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject23.IsSet() {
-		localVarOptionalInlineObject23, localVarOptionalInlineObject23ok := localVarOptionals.InlineObject23.Value().(inline_objects.InlineObject23)
+		localVarOptionalInlineObject23, localVarOptionalInlineObject23ok := localVarOptionals.InlineObject23.Value().(inlineobjects.InlineObject23)
 		if !localVarOptionalInlineObject23ok {
 			return nil, reportError("inlineObject23 should be InlineObject23")
 		}
@@ -238,7 +238,7 @@ func (a *HaipRepository) CreateAPortConfiguration(haipName string, localVarOptio
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject26.IsSet() {
-		localVarOptionalInlineObject26, localVarOptionalInlineObject26ok := localVarOptionals.InlineObject26.Value().(inline_objects.InlineObject26)
+		localVarOptionalInlineObject26, localVarOptionalInlineObject26ok := localVarOptionals.InlineObject26.Value().(inlineobjects.InlineObject26)
 		if !localVarOptionalInlineObject26ok {
 			return nil, reportError("inlineObject26 should be InlineObject26")
 		}
@@ -416,14 +416,14 @@ The result contains a report per attached IP address, IP version, port and load 
  * @param haipName The HA-IP name
 @return InlineResponse20028
 */
-func (a *HaipRepository) GetAFullStatusReportForAHAIP(haipName string) (inline_objects.InlineResponse20028, *_nethttp.Response, error) {
+func (a *HaipRepository) GetAFullStatusReportForAHAIP(haipName string) (inlineobjects.InlineResponse20028, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20028
+		localVarReturnValue  inlineobjects.InlineResponse20028
 	)
 
 	// create path and map variables
@@ -473,7 +473,7 @@ func (a *HaipRepository) GetAFullStatusReportForAHAIP(haipName string) (inline_o
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20028
+			var v inlineobjects.InlineResponse20028
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -504,14 +504,14 @@ Get information about a specific HA-IP such as the IP(s) it&#39;s currently assi
  * @param haipName The HA-IP name
 @return InlineResponse20024
 */
-func (a *HaipRepository) GetHAIPInfo(haipName string) (inline_objects.InlineResponse20024, *_nethttp.Response, error) {
+func (a *HaipRepository) GetHAIPInfo(haipName string) (inlineobjects.InlineResponse20024, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20024
+		localVarReturnValue  inlineobjects.InlineResponse20024
 	)
 
 	// create path and map variables
@@ -561,7 +561,7 @@ func (a *HaipRepository) GetHAIPInfo(haipName string) (inline_objects.InlineResp
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20024
+			var v inlineobjects.InlineResponse20024
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -593,14 +593,14 @@ This method will return information about a specific port configuration.
  * @param portConfigurationId The port configuration Id
 @return InlineResponse20027
 */
-func (a *HaipRepository) GetInfoAboutASpecificPortConfiguration(haipName string, portConfigurationId float32) (inline_objects.InlineResponse20027, *_nethttp.Response, error) {
+func (a *HaipRepository) GetInfoAboutASpecificPortConfiguration(haipName string, portConfigurationId float32) (inlineobjects.InlineResponse20027, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20027
+		localVarReturnValue  inlineobjects.InlineResponse20027
 	)
 
 	// create path and map variables
@@ -652,7 +652,7 @@ func (a *HaipRepository) GetInfoAboutASpecificPortConfiguration(haipName string,
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20027
+			var v inlineobjects.InlineResponse20027
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -683,14 +683,14 @@ List the SSL certificates that are currently used by this HA-IP.  Ssl certificat
  * @param haipName The HA-IP name
 @return InlineResponse20020
 */
-func (a *HaipRepository) ListAllHAIPCertificates(haipName string) (inline_objects.InlineResponse20020, *_nethttp.Response, error) {
+func (a *HaipRepository) ListAllHAIPCertificates(haipName string) (inlineobjects.InlineResponse20020, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20020
+		localVarReturnValue  inlineobjects.InlineResponse20020
 	)
 
 	// create path and map variables
@@ -740,7 +740,7 @@ func (a *HaipRepository) ListAllHAIPCertificates(haipName string) (inline_object
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20020
+			var v inlineobjects.InlineResponse20020
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -858,14 +858,14 @@ Lists all HA-IPs currently registered in your account.  By looping through the e
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return InlineResponse20023
 */
-func (a *HaipRepository) ListAllHAIPs(ctx _context.Context) (inline_objects.InlineResponse20023, *_nethttp.Response, error) {
+func (a *HaipRepository) ListAllHAIPs(ctx _context.Context) (inlineobjects.InlineResponse20023, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20023
+		localVarReturnValue  inlineobjects.InlineResponse20023
 	)
 
 	// create path and map variables
@@ -913,7 +913,7 @@ func (a *HaipRepository) ListAllHAIPs(ctx _context.Context) (inline_objects.Inli
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20023
+			var v inlineobjects.InlineResponse20023
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -943,14 +943,14 @@ This method will return a list of currently attached IP addresses.
  * @param haipName The HA-IP name
 @return InlineResponse20025
 */
-func (a *HaipRepository) ListAllIPsAttachedToAHAIP(haipName string) (inline_objects.InlineResponse20025, *_nethttp.Response, error) {
+func (a *HaipRepository) ListAllIPsAttachedToAHAIP(haipName string) (inlineobjects.InlineResponse20025, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20025
+		localVarReturnValue  inlineobjects.InlineResponse20025
 	)
 
 	// create path and map variables
@@ -1000,7 +1000,7 @@ func (a *HaipRepository) ListAllIPsAttachedToAHAIP(haipName string) (inline_obje
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20025
+			var v inlineobjects.InlineResponse20025
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1070,7 +1070,7 @@ func (a *HaipRepository) OrderANewHAIP(localVarOptionals *OrderANewHAIPOpts) (*_
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject21.IsSet() {
-		localVarOptionalInlineObject21, localVarOptionalInlineObject21ok := localVarOptionals.InlineObject21.Value().(inline_objects.InlineObject21)
+		localVarOptionalInlineObject21, localVarOptionalInlineObject21ok := localVarOptionals.InlineObject21.Value().(inlineobjects.InlineObject21)
 		if !localVarOptionalInlineObject21ok {
 			return nil, reportError("inlineObject21 should be InlineObject21")
 		}
@@ -1223,7 +1223,7 @@ func (a *HaipRepository) SetHAIPAttachedIPAddresses(haipName string, localVarOpt
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject25.IsSet() {
-		localVarOptionalInlineObject25, localVarOptionalInlineObject25ok := localVarOptionals.InlineObject25.Value().(inline_objects.InlineObject25)
+		localVarOptionalInlineObject25, localVarOptionalInlineObject25ok := localVarOptionals.InlineObject25.Value().(inlineobjects.InlineObject25)
 		if !localVarOptionalInlineObject25ok {
 			return nil, reportError("inlineObject25 should be InlineObject25")
 		}
@@ -1306,7 +1306,7 @@ func (a *HaipRepository) UpdateAHAIP(haipName string, localVarOptionals *UpdateA
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject22.IsSet() {
-		localVarOptionalInlineObject22, localVarOptionalInlineObject22ok := localVarOptionals.InlineObject22.Value().(inline_objects.InlineObject22)
+		localVarOptionalInlineObject22, localVarOptionalInlineObject22ok := localVarOptionals.InlineObject22.Value().(inlineobjects.InlineObject22)
 		if !localVarOptionalInlineObject22ok {
 			return nil, reportError("inlineObject22 should be InlineObject22")
 		}
@@ -1392,7 +1392,7 @@ func (a *HaipRepository) UpdateAPortConfiguration(haipName string, portConfigura
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject27.IsSet() {
-		localVarOptionalInlineObject27, localVarOptionalInlineObject27ok := localVarOptionals.InlineObject27.Value().(inline_objects.InlineObject27)
+		localVarOptionalInlineObject27, localVarOptionalInlineObject27ok := localVarOptionals.InlineObject27.Value().(inlineobjects.InlineObject27)
 		if !localVarOptionalInlineObject27ok {
 			return nil, reportError("inlineObject27 should be InlineObject27")
 		}

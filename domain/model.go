@@ -2,7 +2,7 @@ package domain
 
 import "net"
 
-// Response object with a list of Domains in it
+// DomainsResponse object contains a list of Domains in it
 // used to unpack the rest response and return the encapsulated Domains
 // this is just used internal for unpacking, this should not be exported
 // we want to return Domain objects not a DomainsResponse
@@ -10,7 +10,7 @@ type DomainsResponse struct {
 	Domains []Domain `json:"domains"`
 }
 
-type DomainResponse struct {
+type domainResponse struct {
 	// The auth code of the domain.
 	AuthCode    string       `json:"authCode,omitempty"`
 	Contacts    []Contact    `json:"contacts,omitempty"`
@@ -51,7 +51,7 @@ type Contact struct {
 type Contacts struct {
 }
 
-type ContactsResponse struct {
+type contactsResponse struct {
 	Contacts []Contact `json:"contacts"`
 }
 

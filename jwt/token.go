@@ -9,34 +9,39 @@ import (
 	"time"
 )
 
+// Token is the jwt that will be used by the client in the Authorization header
+// to send in every request to the api server, every request except for the auth request
+// which is used to request a new token
+//
+// for more information see: https://jwt.io/
 type Token struct {
 	ExpiryDate int64
 	RawToken   string
 }
 
-// Returns true when the token expiry date is met
+// Expired returns true when the token expiry date is reached
 func (t *Token) Expired() bool {
 	return time.Now().Unix() > t.ExpiryDate
 }
 
-// returns the authentication header value value including the Bearer prefix
+// GetAuthenticationHeaderValue returns the authentication header value value
+// including the Bearer prefix
 func (t *Token) GetAuthenticationHeaderValue() string {
 	return fmt.Sprintf("Bearer %s", t.RawToken)
 }
 
-type TokenRequest struct {
-	Login          string `json:"login:omitempty"`
-	Nonce          string `json:"nonce:omitempty"`
-	ReadOnly       string `json:"read_only:omitempty"`
-	ExpirationTime int64  `json:"expiration_time:omitempty"`
-	Label          string `json:"label:omitempty"`
-	Global_key     string `json:"global_key:omitempty"`
-}
-
-type TokenBody struct {
+// tokenPayload is used to unpack the payload from the jwt
+type tokenPayload struct {
+	// This ExpirationTime is a 64 bit epoch that will be put into the token struct
+	// that will later be used to validate if the token is expired or not
+	// once expired we need to request a new token
 	ExpirationTime int64 `json:"exp"`
 }
 
+// New expects a raw token as string
+// It will try to decode it and return an error on error
+// Once decoded it will retrieve the expiry date and
+// return a Token struct with the RawToken and ExpiryDate set
 func New(token string) (Token, error) {
 	if len(token) == 0 {
 		return Token{}, errors.New("No token given, a token should be set")
@@ -52,7 +57,7 @@ func New(token string) (Token, error) {
 		return Token{}, errors.New("Could not decode token, invalid base64")
 	}
 
-	var tokenRequest TokenBody
+	var tokenRequest tokenPayload
 	err = json.Unmarshal(jsonBody, &tokenRequest)
 	if err != nil {
 		return Token{}, errors.New("Could not read token body, invalid json")

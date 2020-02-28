@@ -1,4 +1,4 @@
-package inline_objects
+package inlineobjects
 
 import (
 	"github.com/transip/gotransip/v6/colocation"
@@ -6,7 +6,6 @@ import (
 	"github.com/transip/gotransip/v6/haip"
 	"github.com/transip/gotransip/v6/invoice"
 	"github.com/transip/gotransip/v6/ipaddress"
-	"github.com/transip/gotransip/v6/product"
 	"github.com/transip/gotransip/v6/vps"
 	"github.com/transip/gotransip/v6/vps/firewall"
 	"github.com/transip/gotransip/v6/vps/privatenetwork"
@@ -234,7 +233,7 @@ type InlineObject45 struct {
 	ShouldStartVps bool `json:"shouldStartVps,omitempty"`
 }
 
-// InlineObject41 struct for InlineObject41
+// FirewallResponse struct for InlineObject41
 type FirewallResponse struct {
 	VpsFirewall firewall.Firewall `json:"vpsFirewall,omitempty"`
 }
@@ -369,7 +368,7 @@ type InlineResponse20052VncData struct {
 	Password string `json:"password,omitempty"`
 	// Websocket path including the token
 	Path string `json:"path,omitempty"`
-	// Token to identify the VPS to connect to (changes dynamically)
+	// token to identify the VPS to connect to (changes dynamically)
 	Token string `json:"token,omitempty"`
 	// Complete websocket URL
 	Url string `json:"url,omitempty"`
@@ -489,7 +488,7 @@ type InlineObject50 struct {
 	Types string `json:"types,omitempty"`
 }
 
-// InlineObject15 struct for InlineObject15
+// DnsEntriesResponse struct for InlineObject15
 type DnsEntriesResponse struct {
 	DnsEntries []domain.DnsEntry `json:"dnsEntries,omitempty"`
 }
@@ -597,7 +596,7 @@ type InlineResponse20031 struct {
 	InvoiceItems []invoice.InvoiceItem `json:"invoiceItems,omitempty"`
 }
 
-// InlineObject7 struct for InlineObject7
+// RemoteHandsResponse struct for InlineObject7
 type RemoteHandsResponse struct {
 	RemoteHands colocation.RemoteHands `json:"remoteHands,omitempty"`
 }
@@ -696,11 +695,6 @@ type InlineObject29 struct {
 // InlineResponse20016 struct for InlineResponse20016
 type InlineResponse20016 struct {
 	Contacts []map[string]interface{} `json:"contacts,omitempty"`
-}
-
-// InlineResponse20038 struct for InlineResponse20038
-type ProductElementsResponse struct {
-	ProductElements []product.ProductElement `json:"productElements,omitempty"`
 }
 
 // InlineResponse20037 struct for InlineResponse20037

@@ -2,7 +2,9 @@ package gotransip
 
 import (
 	"errors"
+	"github.com/transip/gotransip/v6/authenticator"
 	"github.com/transip/gotransip/v6/domain"
+	"github.com/transip/gotransip/v6/product"
 	"github.com/transip/gotransip/v6/rest"
 	"github.com/transip/gotransip/v6/rest/request"
 	"io/ioutil"
@@ -18,7 +20,6 @@ import (
 
 func TestNewClient(t *testing.T) {
 	var cc ClientConfiguration
-	realToken := "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImN3MiFSbDU2eDNoUnkjelM4YmdOIn0.eyJpc3MiOiJhcGkudHJhbnNpcC5ubCIsImF1ZCI6ImFwaS50cmFuc2lwLm5sIiwianRpIjoiY3cyIVJsNTZ4M2hSeSN6UzhiZ04iLCJpYXQiOjE1ODIyMDE1NTAsIm5iZiI6MTU4MjIwMTU1MCwiZXhwIjoyMTE4NzQ1NTUwLCJjaWQiOiI2MDQ0OSIsInJvIjpmYWxzZSwiZ2siOmZhbHNlLCJrdiI6dHJ1ZX0.fYBWV4O5WPXxGuWG-vcrFWqmRHBm9yp0PHiYh_oAWxWxCaZX2Rf6WJfc13AxEeZ67-lY0TA2kSaOCp0PggBb_MGj73t4cH8gdwDJzANVxkiPL1Saqiw2NgZ3IHASJnisUWNnZp8HnrhLLe5ficvb1D9WOUOItmFC2ZgfGObNhlL2y-AMNLT4X7oNgrNTGm-mespo0jD_qH9dK5_evSzS3K8o03gu6p19jxfsnIh8TIVRvNdluYC2wo4qDl5EW5BEZ8OSuJ121ncOT1oRpzXB0cVZ9e5_UVAEr9X3f26_Eomg52-PjrgcRJ_jPIUYbrlo06KjjX2h0fzMr21ZE023Gw"
 	var err error
 
 	// empty ClientConfig should raise error about missing AccountName
@@ -26,8 +27,8 @@ func TestNewClient(t *testing.T) {
 	require.Error(t, err)
 	assert.Equal(t, errors.New("AccountName is required"), err)
 
-	// ... unless a Token is provided
-	cc.Token = realToken
+	// ... unless a token is provided
+	cc.Token = authenticator.DemoToken
 	_, err = NewClient(cc)
 	require.NoError(t, err, "No error when correct token is provided")
 	cc.Token = ""
@@ -36,7 +37,7 @@ func TestNewClient(t *testing.T) {
 	// ClientConfig with only AccountName set should raise error about private keys
 	_, err = NewClient(cc)
 	require.Error(t, err)
-	assert.Equal(t, errors.New("PrivateKeyPath, Token or PrivateKeyBody is required"), err)
+	assert.Equal(t, errors.New("PrivateKeyPath, token or PrivateKeyBody is required"), err)
 
 	cc.PrivateKeyPath = "/file/not/found"
 	// ClientConfig with PrivateKeyPath set to nonexisting file should raise error
@@ -69,11 +70,11 @@ func TestNewClient(t *testing.T) {
 	assert.NoError(t, err)
 
 	cc.PrivateKeyPath = tmpFile.Name()
-	client, err := NewClient(cc)
-	authenticator := client.GetAuthenticator()
+	client, err := newClient(cc)
+	clientAuthenticator := client.GetAuthenticator()
 	config := client.GetConfig()
 	assert.NoError(t, err)
-	assert.Equal(t, pkBody, authenticator.PrivateKeyBody)
+	assert.Equal(t, pkBody, clientAuthenticator.PrivateKeyBody)
 
 	// Also, with no mode set, it should default to APIModeReadWrite
 	assert.Equal(t, APIModeReadWrite, config.Mode)
@@ -84,9 +85,9 @@ func TestNewClient(t *testing.T) {
 
 	// override API mode to APIModeReadOnly
 	cc.Mode = APIModeReadOnly
-	cc.Token = realToken
-	client, err = NewClient(cc)
-	authenticator = client.GetAuthenticator()
+	cc.Token = authenticator.DemoToken
+	client, err = newClient(cc)
+	clientAuthenticator = client.GetAuthenticator()
 	config = client.GetConfig()
 	assert.NoError(t, err)
 	assert.Equal(t, APIModeReadOnly, config.Mode)
@@ -95,11 +96,11 @@ func TestNewClient(t *testing.T) {
 func TestClientCallReturnsObject(t *testing.T) {
 	server := getMockServer(t)
 	clientConfig := ClientConfiguration{
-		Token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImN3MiFSbDU2eDNoUnkjelM4YmdOIn0.eyJpc3MiOiJhcGkudHJhbnNpcC5ubCIsImF1ZCI6ImFwaS50cmFuc2lwLm5sIiwianRpIjoiY3cyIVJsNTZ4M2hSeSN6UzhiZ04iLCJpYXQiOjE1ODIyMDE1NTAsIm5iZiI6MTU4MjIwMTU1MCwiZXhwIjoyMTE4NzQ1NTUwLCJjaWQiOiI2MDQ0OSIsInJvIjpmYWxzZSwiZ2siOmZhbHNlLCJrdiI6dHJ1ZX0.fYBWV4O5WPXxGuWG-vcrFWqmRHBm9yp0PHiYh_oAWxWxCaZX2Rf6WJfc13AxEeZ67-lY0TA2kSaOCp0PggBb_MGj73t4cH8gdwDJzANVxkiPL1Saqiw2NgZ3IHASJnisUWNnZp8HnrhLLe5ficvb1D9WOUOItmFC2ZgfGObNhlL2y-AMNLT4X7oNgrNTGm-mespo0jD_qH9dK5_evSzS3K8o03gu6p19jxfsnIh8TIVRvNdluYC2wo4qDl5EW5BEZ8OSuJ121ncOT1oRpzXB0cVZ9e5_UVAEr9X3f26_Eomg52-PjrgcRJ_jPIUYbrlo06KjjX2h0fzMr21ZE023Gw",
+		Token: authenticator.DemoToken,
 		URL:   server.URL,
 	}
 
-	client, err := NewClient(clientConfig)
+	client, err := newClient(clientConfig)
 	require.NoError(t, err)
 
 	request := request.RestRequest{Endpoint: "/domains"}
@@ -114,18 +115,18 @@ func TestClientCallReturnsObject(t *testing.T) {
 // Test if we can connect to the api server using the demo token
 func TestClientCallToApiServer(t *testing.T) {
 	clientConfig := ClientConfiguration{
-		Token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImN3MiFSbDU2eDNoUnkjelM4YmdOIn0.eyJpc3MiOiJhcGkudHJhbnNpcC5ubCIsImF1ZCI6ImFwaS50cmFuc2lwLm5sIiwianRpIjoiY3cyIVJsNTZ4M2hSeSN6UzhiZ04iLCJpYXQiOjE1ODIyMDE1NTAsIm5iZiI6MTU4MjIwMTU1MCwiZXhwIjoyMTE4NzQ1NTUwLCJjaWQiOiI2MDQ0OSIsInJvIjpmYWxzZSwiZ2siOmZhbHNlLCJrdiI6dHJ1ZX0.fYBWV4O5WPXxGuWG-vcrFWqmRHBm9yp0PHiYh_oAWxWxCaZX2Rf6WJfc13AxEeZ67-lY0TA2kSaOCp0PggBb_MGj73t4cH8gdwDJzANVxkiPL1Saqiw2NgZ3IHASJnisUWNnZp8HnrhLLe5ficvb1D9WOUOItmFC2ZgfGObNhlL2y-AMNLT4X7oNgrNTGm-mespo0jD_qH9dK5_evSzS3K8o03gu6p19jxfsnIh8TIVRvNdluYC2wo4qDl5EW5BEZ8OSuJ121ncOT1oRpzXB0cVZ9e5_UVAEr9X3f26_Eomg52-PjrgcRJ_jPIUYbrlo06KjjX2h0fzMr21ZE023Gw",
+		Token: authenticator.DemoToken,
 	}
 
 	client, err := NewClient(clientConfig)
 	require.NoError(t, err)
 
-	request := request.RestRequest{Endpoint: "/domains"}
-	var domainsResponse domain.DomainsResponse
+	request := request.RestRequest{Endpoint: "/products"}
+	var responseObject product.ProductsResponse
 
-	err = client.call(rest.GetRestMethod, request, &domainsResponse)
+	err = client.Get(request, &responseObject)
 	require.NoError(t, err)
-	assert.Equal(t, len(domainsResponse.Domains), 5)
+	assert.Equal(t,  6, len(responseObject.Products.Vps))
 }
 
 func getMockServer(t *testing.T) *httptest.Server {

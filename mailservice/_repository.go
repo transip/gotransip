@@ -3,7 +3,7 @@ package mailservice
 import (
 	_context "context"
 	"github.com/transip/gotransip/v6"
-	"github.com/transip/gotransip/v6/inline_objects"
+	"github.com/transip/gotransip/v6/inlineobjects"
 	_ioutil "io/ioutil"
 	_nethttp "net/http"
 	_neturl "net/url"
@@ -58,7 +58,7 @@ func (a *MailServiceRepository) AddMailServiceDNSEntriesToDomains(localVarOption
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject28.IsSet() {
-		localVarOptionalInlineObject28, localVarOptionalInlineObject28ok := localVarOptionals.InlineObject28.Value().(inline_objects.InlineObject28)
+		localVarOptionalInlineObject28, localVarOptionalInlineObject28ok := localVarOptionals.InlineObject28.Value().(inlineobjects.InlineObject28)
 		if !localVarOptionalInlineObject28ok {
 			return nil, reportError("inlineObject28 should be InlineObject28")
 		}
@@ -98,14 +98,14 @@ You’re able to gather detailed information regarding mail service usage and cr
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return InlineResponse20033
 */
-func (a *MailServiceRepository) GetMailServiceInformation(ctx _context.Context) (inline_objects.InlineResponse20033, *_nethttp.Response, error) {
+func (a *MailServiceRepository) GetMailServiceInformation(ctx _context.Context) (inlineobjects.InlineResponse20033, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20033
+		localVarReturnValue  inlineobjects.InlineResponse20033
 	)
 
 	// create path and map variables
@@ -153,7 +153,7 @@ func (a *MailServiceRepository) GetMailServiceInformation(ctx _context.Context) 
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20033
+			var v inlineobjects.InlineResponse20033
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

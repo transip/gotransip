@@ -1,6 +1,6 @@
 package firewall
 
-// VpsFirewall struct for VpsFirewall
+// Firewall struct for the Vps Firewall
 type Firewall struct {
 	// Whether the firewall is enabled for this VPS
 	IsEnabled bool `json:"isEnabled"`
@@ -8,7 +8,7 @@ type Firewall struct {
 	RuleSet []FirewallRule `json:"ruleSet"`
 }
 
-// VpsFirewallRule struct for VpsFirewallRule
+// FirewallRule struct for a VpsFirewallRule
 type FirewallRule struct {
 	// The rule name
 	Description string `json:"description,omitempty"`

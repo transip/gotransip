@@ -12,6 +12,8 @@ const (
 	contentType = "application/json"
 )
 
+// RestRequest will be used by all repositories and the client
+// in order to transform a request with endpoint to a http request with method, url and optional body
 type RestRequest struct {
 	Endpoint   string
 	Parameters url.Values
@@ -23,7 +25,8 @@ func (r *RestRequest) GetBody() ([]byte, error) {
 	return json.Marshal(r.Body)
 }
 
-// Get body io.Reader
+// GetBodyReader returns an io.Reader for the json marshalled body of this request
+// this will be used by the writer used in the client
 func (r *RestRequest) GetBodyReader() (io.Reader, error) {
 	if r.Body == nil {
 		return nil, nil
@@ -38,10 +41,10 @@ func (r *RestRequest) GetBodyReader() (io.Reader, error) {
 	return bytes.NewReader(body), nil
 }
 
-// GetHttpRequest generates and returns a http.Request object
+// GetHTTPRequest generates and returns a http.Request object
 // It does this with the RestRequest struct and the basePath and method,
 // that are provided by the client itself
-func (r *RestRequest) GetHttpRequest(basePath string, method string) (*http.Request, error) {
+func (r *RestRequest) GetHTTPRequest(basePath string, method string) (*http.Request, error) {
 	url := basePath + r.Endpoint
 	bodyReader, err := r.GetBodyReader()
 	if err != nil {

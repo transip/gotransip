@@ -3,7 +3,6 @@ package request
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/transip/gotransip/v6/vps"
 	"io/ioutil"
 	"net/url"
 	"testing"
@@ -18,16 +17,16 @@ func TestRequestMarshalling(t *testing.T) {
 }
 
 func TestHttpRequestForRestRequest(t *testing.T) {
-	order := vps.VpsOrder{
-		AvailabilityZone: "ams",
-		OperatingSystem:  "ubuntu-18.04",
-		ProductName:      "vps-bladevps-x1",
-	}
+	order := struct {
+		AvailabilityZone string `json:"availabilityZone"`
+		OperatingSystem  string `json:"operatingSystem"`
+		ProductName      string `json:"productName"`
+	}{AvailabilityZone: "ams", OperatingSystem: "ubuntu-18.04", ProductName: "vps-bladevps-x1",}
 
 	values := url.Values{"test": []string{"1"}}
 
 	request := RestRequest{Endpoint: "/vps", Parameters: values, Body: order}
-	httpRequest, err := request.GetHttpRequest("https://example.com", "POST")
+	httpRequest, err := request.GetHTTPRequest("https://example.com", "POST")
 	assert.NoError(t, err)
 	assert.Equal(t, "POST", httpRequest.Method)
 	assert.Equal(t, "test=1", httpRequest.URL.RawQuery)
@@ -37,12 +36,12 @@ func TestHttpRequestForRestRequest(t *testing.T) {
 	assert.Equal(t, int64(91), httpRequest.ContentLength)
 
 	body, err := ioutil.ReadAll(httpRequest.Body)
-	assert.Equal(t, string(body), "{\"availabilityZone\":\"ams\",\"operatingSystem\":\"ubuntu-18.04\",\"productName\":\"vps-bladevps-x1\"}")
+	assert.Equal(t, "{\"availabilityZone\":\"ams\",\"operatingSystem\":\"ubuntu-18.04\",\"productName\":\"vps-bladevps-x1\"}", string(body))
 }
 
 func TestHttpRequestForEmptyGetRestRequest(t *testing.T) {
 	request := RestRequest{Endpoint: "/domains"}
-	httpRequest, err := request.GetHttpRequest("https://example.com", "GET")
+	httpRequest, err := request.GetHTTPRequest("https://example.com", "GET")
 	assert.NoError(t, err)
 	assert.Equal(t, "GET", httpRequest.Method)
 	assert.Equal(t, "https://example.com/domains", httpRequest.URL.String())
@@ -52,11 +51,11 @@ func TestHttpRequestForEmptyGetRestRequest(t *testing.T) {
 }
 
 func TestBodyReader(t *testing.T) {
-	order := vps.VpsOrder{
-		AvailabilityZone: "ams",
-		OperatingSystem:  "ubuntu-18.04",
-		ProductName:      "vps-bladevps-x1",
-	}
+	order := struct {
+		AvailabilityZone string `json:"availabilityZone"`
+		OperatingSystem  string `json:"operatingSystem"`
+		ProductName      string `json:"productName"`
+	}{AvailabilityZone: "ams", OperatingSystem: "ubuntu-18.04", ProductName: "vps-bladevps-x1",}
 
 	request := RestRequest{Endpoint: "/vps", Body: order}
 
@@ -65,7 +64,7 @@ func TestBodyReader(t *testing.T) {
 
 	body, err := ioutil.ReadAll(reader)
 	require.NoError(t, err)
-	assert.Equal(t, string(body), "{\"availabilityZone\":\"ams\",\"operatingSystem\":\"ubuntu-18.04\",\"productName\":\"vps-bladevps-x1\"}")
+	assert.Equal(t, "{\"availabilityZone\":\"ams\",\"operatingSystem\":\"ubuntu-18.04\",\"productName\":\"vps-bladevps-x1\"}", string(body))
 }
 
 func TestEmptyReaderReturnsNil(t *testing.T) {

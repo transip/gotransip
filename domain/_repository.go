@@ -13,7 +13,7 @@ import (
 	_context "context"
 	"github.com/antihax/optional"
 	"github.com/transip/gotransip/v6"
-	"github.com/transip/gotransip/v6/inline_objects"
+	"github.com/transip/gotransip/v6/inlineobjects"
 	_ioutil "io/ioutil"
 	_nethttp "net/http"
 	_neturl "net/url"
@@ -77,7 +77,7 @@ func (a *DomainRepository) AddANewSingleDNSEntryToADomain(ctx _context.Context, 
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject16.IsSet() {
-		localVarOptionalInlineObject16, localVarOptionalInlineObject16ok := localVarOptionals.InlineObject16.Value().(inline_objects.InlineObject16)
+		localVarOptionalInlineObject16, localVarOptionalInlineObject16ok := localVarOptionals.InlineObject16.Value().(inlineobjects.InlineObject16)
 		if !localVarOptionalInlineObject16ok {
 			return nil, gotransip.reportError("inlineObject16 should be InlineObject16")
 		}
@@ -160,7 +160,7 @@ func (a *DomainRepository) CancelADomain(ctx _context.Context, domainName string
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject11.IsSet() {
-		localVarOptionalInlineObject11, localVarOptionalInlineObject11ok := localVarOptionals.InlineObject11.Value().(inline_objects.InlineObject11)
+		localVarOptionalInlineObject11, localVarOptionalInlineObject11ok := localVarOptionals.InlineObject11.Value().(inlineobjects.InlineObject11)
 		if !localVarOptionalInlineObject11ok {
 			return nil, gotransip.reportError("inlineObject11 should be InlineObject11")
 		}
@@ -268,14 +268,14 @@ This method allows you to check the availability for a domain name.
  * @param domainName Domain name
 @return InlineResponse20011
 */
-func (a *DomainRepository) CheckAvailabilityForADomainName(ctx _context.Context, domainName string) (inline_objects.InlineResponse20011, *_nethttp.Response, error) {
+func (a *DomainRepository) CheckAvailabilityForADomainName(ctx _context.Context, domainName string) (inlineobjects.InlineResponse20011, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20011
+		localVarReturnValue  inlineobjects.InlineResponse20011
 	)
 
 	// create path and map variables
@@ -325,7 +325,7 @@ func (a *DomainRepository) CheckAvailabilityForADomainName(ctx _context.Context,
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20011
+			var v inlineobjects.InlineResponse20011
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -361,14 +361,14 @@ Check the availability for multiple domain names.
  * @param "InlineObject8" (optional.Interface of InlineObject8) -
 @return InlineResponse20010
 */
-func (a *DomainRepository) CheckTheAvailabilityForMultipleDomainNames(ctx _context.Context, localVarOptionals *CheckTheAvailabilityForMultipleDomainNamesOpts) (inline_objects.InlineResponse20010, *_nethttp.Response, error) {
+func (a *DomainRepository) CheckTheAvailabilityForMultipleDomainNames(ctx _context.Context, localVarOptionals *CheckTheAvailabilityForMultipleDomainNamesOpts) (inlineobjects.InlineResponse20010, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20010
+		localVarReturnValue  inlineobjects.InlineResponse20010
 	)
 
 	// create path and map variables
@@ -396,7 +396,7 @@ func (a *DomainRepository) CheckTheAvailabilityForMultipleDomainNames(ctx _conte
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject8.IsSet() {
-		localVarOptionalInlineObject8, localVarOptionalInlineObject8ok := localVarOptionals.InlineObject8.Value().(inline_objects.InlineObject8)
+		localVarOptionalInlineObject8, localVarOptionalInlineObject8ok := localVarOptionals.InlineObject8.Value().(inlineobjects.InlineObject8)
 		if !localVarOptionalInlineObject8ok {
 			return localVarReturnValue, nil, gotransip.reportError("inlineObject8 should be InlineObject8")
 		}
@@ -425,7 +425,7 @@ func (a *DomainRepository) CheckTheAvailabilityForMultipleDomainNames(ctx _conte
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20010
+			var v inlineobjects.InlineResponse20010
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -455,14 +455,14 @@ Domain actions are kept track of by TransIP. Domain actions include, for example
  * @param domainName Domain name
 @return InlineResponse20014
 */
-func (a *DomainRepository) GetCurrentDomainAction(ctx _context.Context, domainName string) (inline_objects.InlineResponse20014, *_nethttp.Response, error) {
+func (a *DomainRepository) GetCurrentDomainAction(ctx _context.Context, domainName string) (inlineobjects.InlineResponse20014, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20014
+		localVarReturnValue  inlineobjects.InlineResponse20014
 	)
 
 	// create path and map variables
@@ -512,7 +512,7 @@ func (a *DomainRepository) GetCurrentDomainAction(ctx _context.Context, domainNa
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20014
+			var v inlineobjects.InlineResponse20014
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -543,14 +543,14 @@ Get domain branding information for a given domain name.  Please note this API c
  * @param domainName Domain name
 @return InlineResponse20015
 */
-func (a *DomainRepository) GetDomainBranding(ctx _context.Context, domainName string) (inline_objects.InlineResponse20015, *_nethttp.Response, error) {
+func (a *DomainRepository) GetDomainBranding(ctx _context.Context, domainName string) (inlineobjects.InlineResponse20015, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20015
+		localVarReturnValue  inlineobjects.InlineResponse20015
 	)
 
 	// create path and map variables
@@ -600,7 +600,7 @@ func (a *DomainRepository) GetDomainBranding(ctx _context.Context, domainName st
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20015
+			var v inlineobjects.InlineResponse20015
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -631,14 +631,14 @@ Get information about a specific TLD. General details such as price, renewal pri
  * @param tld Top Level Domain.
 @return InlineResponse20040
 */
-func (a *DomainRepository) GetInfoForATLD(ctx _context.Context, tld string) (inline_objects.InlineResponse20040, *_nethttp.Response, error) {
+func (a *DomainRepository) GetInfoForATLD(ctx _context.Context, tld string) (inlineobjects.InlineResponse20040, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20040
+		localVarReturnValue  inlineobjects.InlineResponse20040
 	)
 
 	// create path and map variables
@@ -688,7 +688,7 @@ func (a *DomainRepository) GetInfoForATLD(ctx _context.Context, tld string) (inl
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20040
+			var v inlineobjects.InlineResponse20040
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -719,14 +719,14 @@ Retrieves a single SSL certificate by id.
  * @param certificateId The id of the SSL certificate
 @return InlineResponse20021
 */
-func (a *DomainRepository) GetSSLCertificateById(ctx _context.Context, domainName string, certificateId float32) (inline_objects.InlineResponse20021, *_nethttp.Response, error) {
+func (a *DomainRepository) GetSSLCertificateById(ctx _context.Context, domainName string, certificateId float32) (inlineobjects.InlineResponse20021, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20021
+		localVarReturnValue  inlineobjects.InlineResponse20021
 	)
 
 	// create path and map variables
@@ -778,7 +778,7 @@ func (a *DomainRepository) GetSSLCertificateById(ctx _context.Context, domainNam
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20021
+			var v inlineobjects.InlineResponse20021
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -809,14 +809,14 @@ This method will return the WHOIS information for a domain name.
  * @param domainName Domain name
 @return InlineResponse20022
 */
-func (a *DomainRepository) GetWHOISInformationForADomainName(ctx _context.Context, domainName string) (inline_objects.InlineResponse20022, *_nethttp.Response, error) {
+func (a *DomainRepository) GetWHOISInformationForADomainName(ctx _context.Context, domainName string) (inlineobjects.InlineResponse20022, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20022
+		localVarReturnValue  inlineobjects.InlineResponse20022
 	)
 
 	// create path and map variables
@@ -866,7 +866,7 @@ func (a *DomainRepository) GetWHOISInformationForADomainName(ctx _context.Contex
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20022
+			var v inlineobjects.InlineResponse20022
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -897,14 +897,14 @@ Returns a list of all contacts for a domain. One or multiple of the following co
  * @param domainName Domain name
 @return InlineResponse20016
 */
-func (a *DomainRepository) ListAllContactsForADomain(ctx _context.Context, domainName string) (inline_objects.InlineResponse20016, *_nethttp.Response, error) {
+func (a *DomainRepository) ListAllContactsForADomain(ctx _context.Context, domainName string) (inlineobjects.InlineResponse20016, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20016
+		localVarReturnValue  inlineobjects.InlineResponse20016
 	)
 
 	// create path and map variables
@@ -954,7 +954,7 @@ func (a *DomainRepository) ListAllContactsForADomain(ctx _context.Context, domai
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20016
+			var v inlineobjects.InlineResponse20016
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -985,14 +985,14 @@ List all DNS entries for a domain
  * @param domainName Domain name
 @return InlineResponse20017
 */
-func (a *DomainRepository) ListAllDNSEntriesForADomain(ctx _context.Context, domainName string) (inline_objects.InlineResponse20017, *_nethttp.Response, error) {
+func (a *DomainRepository) ListAllDNSEntriesForADomain(ctx _context.Context, domainName string) (inlineobjects.InlineResponse20017, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20017
+		localVarReturnValue  inlineobjects.InlineResponse20017
 	)
 
 	// create path and map variables
@@ -1042,7 +1042,7 @@ func (a *DomainRepository) ListAllDNSEntriesForADomain(ctx _context.Context, dom
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20017
+			var v inlineobjects.InlineResponse20017
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1079,14 +1079,14 @@ This API call allows you to list all domain names in your TransIP account.  Shou
  * @param "Body" (optional.String) -  Tags to filter by, separated by a comma.
 @return InlineResponse20012
 */
-func (a *DomainRepository) ListAllDomains(ctx _context.Context, localVarOptionals *ListAllDomainsOpts) (inline_objects.InlineResponse20012, *_nethttp.Response, error) {
+func (a *DomainRepository) ListAllDomains(ctx _context.Context, localVarOptionals *ListAllDomainsOpts) (inlineobjects.InlineResponse20012, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20012
+		localVarReturnValue  inlineobjects.InlineResponse20012
 	)
 
 	// create path and map variables
@@ -1139,7 +1139,7 @@ func (a *DomainRepository) ListAllDomains(ctx _context.Context, localVarOptional
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20012
+			var v inlineobjects.InlineResponse20012
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1169,14 +1169,14 @@ Retrieves a list of all SSL certificates for a domain.
  * @param domainName Domain name
 @return InlineResponse20020
 */
-func (a *DomainRepository) ListAllSSLCertificates(ctx _context.Context, domainName string) (inline_objects.InlineResponse20020, *_nethttp.Response, error) {
+func (a *DomainRepository) ListAllSSLCertificates(ctx _context.Context, domainName string) (inlineobjects.InlineResponse20020, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20020
+		localVarReturnValue  inlineobjects.InlineResponse20020
 	)
 
 	// create path and map variables
@@ -1226,7 +1226,7 @@ func (a *DomainRepository) ListAllSSLCertificates(ctx _context.Context, domainNa
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20020
+			var v inlineobjects.InlineResponse20020
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1256,14 +1256,14 @@ This method will return a list of all available TLDs currently offered by TransI
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return InlineResponse20039
 */
-func (a *DomainRepository) ListAllTLDs(ctx _context.Context) (inline_objects.InlineResponse20039, *_nethttp.Response, error) {
+func (a *DomainRepository) ListAllTLDs(ctx _context.Context) (inlineobjects.InlineResponse20039, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20039
+		localVarReturnValue  inlineobjects.InlineResponse20039
 	)
 
 	// create path and map variables
@@ -1311,7 +1311,7 @@ func (a *DomainRepository) ListAllTLDs(ctx _context.Context) (inline_objects.Inl
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20039
+			var v inlineobjects.InlineResponse20039
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1341,14 +1341,14 @@ This API call lists all DNSSEC entries for a domain once set.  This includes the
  * @param domainName Domain name
 @return InlineResponse20018
 */
-func (a *DomainRepository) ListDNSSECEntries(ctx _context.Context, domainName string) (inline_objects.InlineResponse20018, *_nethttp.Response, error) {
+func (a *DomainRepository) ListDNSSECEntries(ctx _context.Context, domainName string) (inlineobjects.InlineResponse20018, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20018
+		localVarReturnValue  inlineobjects.InlineResponse20018
 	)
 
 	// create path and map variables
@@ -1398,7 +1398,7 @@ func (a *DomainRepository) ListDNSSECEntries(ctx _context.Context, domainName st
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20018
+			var v inlineobjects.InlineResponse20018
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1429,14 +1429,14 @@ This method will list all nameservers currently set for a domain.
  * @param domainName Domain name
 @return InlineResponse20019
 */
-func (a *DomainRepository) ListNameserversForADomain(ctx _context.Context, domainName string) (inline_objects.InlineResponse20019, *_nethttp.Response, error) {
+func (a *DomainRepository) ListNameserversForADomain(ctx _context.Context, domainName string) (inlineobjects.InlineResponse20019, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20019
+		localVarReturnValue  inlineobjects.InlineResponse20019
 	)
 
 	// create path and map variables
@@ -1486,7 +1486,7 @@ func (a *DomainRepository) ListNameserversForADomain(ctx _context.Context, domai
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20019
+			var v inlineobjects.InlineResponse20019
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1623,7 +1623,7 @@ func (a *DomainRepository) RemoveADNSEntryFromADomain(ctx _context.Context, doma
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject17.IsSet() {
-		localVarOptionalInlineObject17, localVarOptionalInlineObject17ok := localVarOptionals.InlineObject17.Value().(inline_objects.InlineObject17)
+		localVarOptionalInlineObject17, localVarOptionalInlineObject17ok := localVarOptionals.InlineObject17.Value().(inlineobjects.InlineObject17)
 		if !localVarOptionalInlineObject17ok {
 			return nil, gotransip.reportError("inlineObject17 should be InlineObject17")
 		}
@@ -1664,14 +1664,14 @@ Show information about a specific domain name.
  * @param domainName Domain name
 @return InlineResponse20013
 */
-func (a *DomainRepository) RetrieveAnExistingDomain(ctx _context.Context, domainName string) (inline_objects.InlineResponse20013, *_nethttp.Response, error) {
+func (a *DomainRepository) RetrieveAnExistingDomain(ctx _context.Context, domainName string) (inlineobjects.InlineResponse20013, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20013
+		localVarReturnValue  inlineobjects.InlineResponse20013
 	)
 
 	// create path and map variables
@@ -1721,7 +1721,7 @@ func (a *DomainRepository) RetrieveAnExistingDomain(ctx _context.Context, domain
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20013
+			var v inlineobjects.InlineResponse20013
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -1794,7 +1794,7 @@ func (a *DomainRepository) RetryDomainAction(ctx _context.Context, domainName st
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject12.IsSet() {
-		localVarOptionalInlineObject12, localVarOptionalInlineObject12ok := localVarOptionals.InlineObject12.Value().(inline_objects.InlineObject12)
+		localVarOptionalInlineObject12, localVarOptionalInlineObject12ok := localVarOptionals.InlineObject12.Value().(inlineobjects.InlineObject12)
 		if !localVarOptionalInlineObject12ok {
 			return nil, gotransip.reportError("inlineObject12 should be InlineObject12")
 		}
@@ -1874,7 +1874,7 @@ func (a *DomainRepository) TransferADomain(ctx _context.Context, localVarOptiona
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject9.IsSet() {
-		localVarOptionalInlineObject9, localVarOptionalInlineObject9ok := localVarOptionals.InlineObject9.Value().(inline_objects.InlineObject9)
+		localVarOptionalInlineObject9, localVarOptionalInlineObject9ok := localVarOptionals.InlineObject9.Value().(inlineobjects.InlineObject9)
 		if !localVarOptionalInlineObject9ok {
 			return nil, gotransip.reportError("inlineObject9 should be InlineObject9")
 		}
@@ -1957,7 +1957,7 @@ func (a *DomainRepository) UpdateADomain(ctx _context.Context, domainName string
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject10.IsSet() {
-		localVarOptionalInlineObject10, localVarOptionalInlineObject10ok := localVarOptionals.InlineObject10.Value().(inline_objects.InlineObject10)
+		localVarOptionalInlineObject10, localVarOptionalInlineObject10ok := localVarOptionals.InlineObject10.Value().(inlineobjects.InlineObject10)
 		if !localVarOptionalInlineObject10ok {
 			return nil, gotransip.reportError("inlineObject10 should be InlineObject10")
 		}
@@ -2040,7 +2040,7 @@ func (a *DomainRepository) UpdateAllDNSEntriesForADomain(ctx _context.Context, d
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject15.IsSet() {
-		localVarOptionalInlineObject15, localVarOptionalInlineObject15ok := localVarOptionals.InlineObject15.Value().(inline_objects.InlineObject15)
+		localVarOptionalInlineObject15, localVarOptionalInlineObject15ok := localVarOptionals.InlineObject15.Value().(inlineobjects.InlineObject15)
 		if !localVarOptionalInlineObject15ok {
 			return nil, gotransip.reportError("inlineObject15 should be InlineObject15")
 		}
@@ -2123,7 +2123,7 @@ func (a *DomainRepository) UpdateAllDNSSECEntries(ctx _context.Context, domainNa
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject19.IsSet() {
-		localVarOptionalInlineObject19, localVarOptionalInlineObject19ok := localVarOptionals.InlineObject19.Value().(inline_objects.InlineObject19)
+		localVarOptionalInlineObject19, localVarOptionalInlineObject19ok := localVarOptionals.InlineObject19.Value().(inlineobjects.InlineObject19)
 		if !localVarOptionalInlineObject19ok {
 			return nil, gotransip.reportError("inlineObject19 should be InlineObject19")
 		}
@@ -2206,7 +2206,7 @@ func (a *DomainRepository) UpdateContactsForADomain(ctx _context.Context, domain
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject14.IsSet() {
-		localVarOptionalInlineObject14, localVarOptionalInlineObject14ok := localVarOptionals.InlineObject14.Value().(inline_objects.InlineObject14)
+		localVarOptionalInlineObject14, localVarOptionalInlineObject14ok := localVarOptionals.InlineObject14.Value().(inlineobjects.InlineObject14)
 		if !localVarOptionalInlineObject14ok {
 			return nil, gotransip.reportError("inlineObject14 should be InlineObject14")
 		}
@@ -2289,7 +2289,7 @@ func (a *DomainRepository) UpdateDomainBranding(ctx _context.Context, domainName
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject13.IsSet() {
-		localVarOptionalInlineObject13, localVarOptionalInlineObject13ok := localVarOptionals.InlineObject13.Value().(inline_objects.InlineObject13)
+		localVarOptionalInlineObject13, localVarOptionalInlineObject13ok := localVarOptionals.InlineObject13.Value().(inlineobjects.InlineObject13)
 		if !localVarOptionalInlineObject13ok {
 			return nil, gotransip.reportError("inlineObject13 should be InlineObject13")
 		}
@@ -2372,7 +2372,7 @@ func (a *DomainRepository) UpdateNameserversForADomain(ctx _context.Context, dom
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject20.IsSet() {
-		localVarOptionalInlineObject20, localVarOptionalInlineObject20ok := localVarOptionals.InlineObject20.Value().(inline_objects.InlineObject20)
+		localVarOptionalInlineObject20, localVarOptionalInlineObject20ok := localVarOptionals.InlineObject20.Value().(inlineobjects.InlineObject20)
 		if !localVarOptionalInlineObject20ok {
 			return nil, gotransip.reportError("inlineObject20 should be InlineObject20")
 		}
@@ -2455,7 +2455,7 @@ func (a *DomainRepository) UpdateSingleDNSEntry(ctx _context.Context, domainName
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject18.IsSet() {
-		localVarOptionalInlineObject18, localVarOptionalInlineObject18ok := localVarOptionals.InlineObject18.Value().(inline_objects.InlineObject18)
+		localVarOptionalInlineObject18, localVarOptionalInlineObject18ok := localVarOptionals.InlineObject18.Value().(inlineobjects.InlineObject18)
 		if !localVarOptionalInlineObject18ok {
 			return nil, gotransip.reportError("inlineObject18 should be InlineObject18")
 		}

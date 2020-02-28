@@ -12,7 +12,7 @@ package invoice
 import (
 	_context "context"
 	"github.com/transip/gotransip/v6"
-	"github.com/transip/gotransip/v6/inline_objects"
+	"github.com/transip/gotransip/v6/inlineobjects"
 	_ioutil "io/ioutil"
 	_nethttp "net/http"
 	_neturl "net/url"
@@ -206,14 +206,14 @@ Each invoice consists of one or multiple invoice items, detailing what specific 
  * @param invoiceNumber The Invoice number
 @return InlineResponse20031
 */
-func (a *InvoiceRepository) GetInvoiceItemsByInvoiceNumber(ctx _context.Context, invoiceNumber string) (inline_objects.InlineResponse20031, *_nethttp.Response, error) {
+func (a *InvoiceRepository) GetInvoiceItemsByInvoiceNumber(ctx _context.Context, invoiceNumber string) (inlineobjects.InlineResponse20031, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20031
+		localVarReturnValue  inlineobjects.InlineResponse20031
 	)
 
 	// create path and map variables
@@ -263,7 +263,7 @@ func (a *InvoiceRepository) GetInvoiceItemsByInvoiceNumber(ctx _context.Context,
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20031
+			var v inlineobjects.InlineResponse20031
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -294,14 +294,14 @@ Retrieve the PDF data of an invoice with the given invoice number.  The response
  * @param invoiceNumber The Invoice number
 @return InlineResponse20032
 */
-func (a *InvoiceRepository) GetInvoicePdf(ctx _context.Context, invoiceNumber string) (inline_objects.InlineResponse20032, *_nethttp.Response, error) {
+func (a *InvoiceRepository) GetInvoicePdf(ctx _context.Context, invoiceNumber string) (inlineobjects.InlineResponse20032, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20032
+		localVarReturnValue  inlineobjects.InlineResponse20032
 	)
 
 	// create path and map variables
@@ -351,7 +351,7 @@ func (a *InvoiceRepository) GetInvoicePdf(ctx _context.Context, invoiceNumber st
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20032
+			var v inlineobjects.InlineResponse20032
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

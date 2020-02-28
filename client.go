@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/transip/gotransip/v6/authenticator"
 	"github.com/transip/gotransip/v6/jwt"
+	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
 	"github.com/transip/gotransip/v6/rest/request"
 	"github.com/transip/gotransip/v6/rest/response"
@@ -14,10 +15,10 @@ import (
 	"os"
 )
 
-// Client manages communication with the TransIP API
-// In most cases there should be only one, shared, Client.
-type Client struct {
-	// Client configuration file, allows you to:
+// client manages communication with the TransIP API
+// In most cases there should be only one, shared, client.
+type client struct {
+	// client configuration file, allows you to:
 	// - setting a custom useragent
 	// - enable test mode
 	// - use the demo token
@@ -29,14 +30,19 @@ type Client struct {
 	authenticator authenticator.Authenticator
 }
 
-type Service struct {
-	Client *Client
+// NewClient creates a new API client.
+// optionally you could put a custom http.client in the configuration struct
+// to allow for advanced features such as caching.
+func NewClient(config ClientConfiguration) (repository.Client, error) {
+	client, err := newClient(config)
+
+	return &client, err
 }
 
-// NewClient creates a new API client.
-// optionally you could put a custom http.Client in the configuration struct
-// to allow for advanced features such as caching.
-func NewClient(config ClientConfiguration) (Client, error) {
+// newClient method is used internally for testing,
+// the NewClient method is exported as it follows the repository.Client interface
+// which is so that we don't have to bind to this specific implementation
+func newClient(config ClientConfiguration) (client, error) {
 	if config.HTTPClient == nil {
 		config.HTTPClient = http.DefaultClient
 	}
@@ -45,26 +51,26 @@ func NewClient(config ClientConfiguration) (Client, error) {
 
 	// check account name
 	if len(config.AccountName) == 0 && len(config.Token) == 0 {
-		return Client{}, errors.New("AccountName is required")
+		return client{}, errors.New("AccountName is required")
 	}
 
 	// check if token or private key is set
 	if len(config.Token) == 0 && len(config.PrivateKeyPath) == 0 {
-		return Client{}, errors.New("PrivateKeyPath, Token or PrivateKeyBody is required")
+		return client{}, errors.New("PrivateKeyPath, token or PrivateKeyBody is required")
 	}
 
 	// if PrivateKeyPath was set, this will override any given PrivateKeyBody
 	if len(config.PrivateKeyPath) > 0 {
 		// try to open private key and read contents
 		if _, err := os.Stat(config.PrivateKeyPath); err != nil {
-			return Client{}, fmt.Errorf("Could not open private key: %s", err.Error())
+			return client{}, fmt.Errorf("Could not open private key: %s", err.Error())
 		}
 
 		// read private key so we can pass the body to the soapClient
 		var err error
 		privateKeyBody, err = ioutil.ReadFile(config.PrivateKeyPath)
 		if err != nil {
-			return Client{}, err
+			return client{}, err
 		}
 	}
 
@@ -73,7 +79,7 @@ func NewClient(config ClientConfiguration) (Client, error) {
 		token, err = jwt.New(config.Token)
 
 		if err != nil {
-			return Client{}, err
+			return client{}, err
 		}
 	}
 
@@ -87,7 +93,7 @@ func NewClient(config ClientConfiguration) (Client, error) {
 		config.URL = basePath
 	}
 
-	return Client{
+	return client{
 		authenticator: authenticator.Authenticator{PrivateKeyBody: privateKeyBody, Token: token, HTTPClient: config.HTTPClient},
 		config:        config,
 	}, nil
@@ -96,12 +102,12 @@ func NewClient(config ClientConfiguration) (Client, error) {
 // This method is used by all rest client methods, thus: 'get','post','put','delete'
 // It uses the authenticator to get a token, either statically provided by the user or requested from the authentication server
 // Then decodes the json response to a supplied interface
-func (c *Client) call(method rest.RestMethod, request request.RestRequest, result interface{}) error {
+func (c *client) call(method rest.RestMethod, request request.RestRequest, result interface{}) error {
 	token, err := c.authenticator.GetToken()
 	if err != nil {
 		return fmt.Errorf("could not get token from authenticator %s", err.Error())
 	}
-	httpRequest, err := request.GetHttpRequest(c.config.URL, method.Method)
+	httpRequest, err := request.GetHTTPRequest(c.config.URL, method.Method)
 	if err != nil {
 		return fmt.Errorf("error during request creation %s", err.Error())
 	}
@@ -132,23 +138,42 @@ func (c *Client) call(method rest.RestMethod, request request.RestRequest, resul
 }
 
 // ChangeBasePath changes base path to allow switching to mocks
-func (c *Client) ChangeBasePath(path string) {
+func (c *client) ChangeBasePath(path string) {
 	c.config.URL = path
 }
 
 // Allow modification of underlying config for alternate implementations and testing
 // Caution: modifying the configuration while live can cause data races and potentially unwanted behavior
-func (c *Client) GetConfig() ClientConfiguration {
+func (c *client) GetConfig() ClientConfiguration {
 	return c.config
 }
 
 // Allow modification of underlying config for alternate implementations and testing
 // Caution: modifying the configuration while live can cause data races and potentially unwanted behavior
-func (c *Client) GetAuthenticator() authenticator.Authenticator {
+func (c *client) GetAuthenticator() authenticator.Authenticator {
 	return c.authenticator
 }
 
 // This method that executes a http Get request
-func (c *Client) Get(request request.RestRequest, response interface{}) error {
+func (c *client) Get(request request.RestRequest, response interface{}) error {
 	return c.call(rest.GetRestMethod, request, response)
 }
+
+// This method that executes a http Post request
+// It expects no response, that is why it does not return one
+func (c *client) Post(request request.RestRequest) error {
+	return c.call(rest.GetRestMethod, request, nil)
+}
+
+// This method that executes a http Put request
+// It expects no response, that is why it does not return one
+func (c *client) Put(request request.RestRequest) error {
+	return c.call(rest.GetRestMethod, request, nil)
+}
+
+// This method that executes a http Delete request
+// It expects no response, that is why it does not return one
+func (c *client) Delete(request request.RestRequest) error {
+	return c.call(rest.GetRestMethod, request, nil)
+}
+

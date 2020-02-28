@@ -3,7 +3,7 @@ package availabilityzone
 import (
 	_context "context"
 	"github.com/transip/gotransip/v6"
-	"github.com/transip/gotransip/v6/inline_objects"
+	"github.com/transip/gotransip/v6/inlineobjects"
 	_ioutil "io/ioutil"
 	_nethttp "net/http"
 	_neturl "net/url"
@@ -23,14 +23,14 @@ Lists the available AvailabilityZones.
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return InlineResponse2001
 */
-func (a *AvailabilityZoneRepository) ListAvailableAvailabilityZones(ctx _context.Context) (inline_objects.InlineResponse2001, *_nethttp.Response, error) {
+func (a *AvailabilityZoneRepository) ListAvailableAvailabilityZones(ctx _context.Context) (inlineobjects.InlineResponse2001, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse2001
+		localVarReturnValue  inlineobjects.InlineResponse2001
 	)
 
 	// create path and map variables
@@ -78,7 +78,7 @@ func (a *AvailabilityZoneRepository) ListAvailableAvailabilityZones(ctx _context
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse2001
+			var v inlineobjects.InlineResponse2001
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()

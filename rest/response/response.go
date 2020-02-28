@@ -7,20 +7,24 @@ import (
 	"github.com/transip/gotransip/v6/rest"
 )
 
-// Every error returned by the api contains an error key with the message
+// RestException is used to unpack every error returned by the api contains
 type RestException struct {
+	// Message contains the error from the api as string
 	Message string `json:"error"`
 }
 
-// A typical rest response will contain a body, status code and the method
-// which the response corresponds to
+// RestResponse will contain a body (which can be empty), status code and the RestMethod
+// this struct will be used to decode a response from the api server
 type RestResponse struct {
 	Body       []byte
 	StatusCode int
 	Method     rest.RestMethod
 }
 
-func (r *RestResponse) ParseResponse(result interface{}) error {
+// ParseResponse will convert a RestResponse struct to the given interface
+// on error it will pass this back
+// when the rest response has no body it will return without filling the dest variable
+func (r *RestResponse) ParseResponse(dest interface{}) error {
 	// do response error checking
 	if !r.Method.StatusCodeIsCorrect(r.StatusCode) {
 		// there is no response content so we also don't need to parse it
@@ -41,5 +45,5 @@ func (r *RestResponse) ParseResponse(result interface{}) error {
 		return nil
 	}
 
-	return json.Unmarshal(r.Body, &result)
+	return json.Unmarshal(r.Body, &dest)
 }

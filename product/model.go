@@ -1,5 +1,14 @@
 package product
 
+// ProductsResponse object for when calling /products
+// used to unpack the rest response and return the encapsulated Products
+// this is just used internally for unpacking, this should not be exported
+// we want to return Products object not a ProductsResponse
+type ProductsResponse struct {
+	// Products contains all products as described in struct Products
+	Products Products `json:"products"`
+}
+
 // Products struct for Products
 type Products struct {
 	// A list of big storage products
@@ -30,6 +39,14 @@ type Product struct {
 	Price int64 `json:"price,omitempty"`
 	// The recurring price for the product in cents
 	RecurringPrice int64 `json:"recurringPrice,omitempty"`
+}
+
+// ProductElementsResponse object contains a list of ProductElements in it
+// used to unpack the rest response and return the encapsulated ProductElements
+// this is just used internal for unpacking, this should not be exported
+// we want to return ProductElement objects not a ProductElementsResponse
+type ProductElementsResponse struct {
+	ProductElements []ProductElement `json:"productElements,omitempty"`
 }
 
 // ProductElement struct for ProductElement

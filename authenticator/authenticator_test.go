@@ -67,10 +67,10 @@ func TestAuthenticationErrorIsReturned(t *testing.T) {
 
 func TestNonceIsNotStatic(t *testing.T) {
 	authenticator := Authenticator{}
-	previousNonce := authenticator.GetNonce()
+	previousNonce := authenticator.getNonce()
 
 	for i := 0; i < 100; i++ {
-		nonce := authenticator.GetNonce()
+		nonce := authenticator.getNonce()
 		assert.NotEqual(t, nonce, previousNonce)
 		previousNonce = nonce
 	}
@@ -88,8 +88,8 @@ func getMockServer(t *testing.T) *httptest.Server {
 		assert.Equal(t, req.Header.Get("Content-Type"), "application/json")
 		// check if the request is a POST request
 		assert.Equal(t, req.Method, "POST")
-		// send a token as response
-		rw.Write([]byte(`{"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImN3MiFSbDU2eDNoUnkjelM4YmdOIn0.eyJpc3MiOiJhcGkudHJhbnNpcC5ubCIsImF1ZCI6ImFwaS50cmFuc2lwLm5sIiwianRpIjoiY3cyIVJsNTZ4M2hSeSN6UzhiZ04iLCJpYXQiOjE1ODIyMDE1NTAsIm5iZiI6MTU4MjIwMTU1MCwiZXhwIjoyMTE4NzQ1NTUwLCJjaWQiOiI2MDQ0OSIsInJvIjpmYWxzZSwiZ2siOmZhbHNlLCJrdiI6dHJ1ZX0.fYBWV4O5WPXxGuWG-vcrFWqmRHBm9yp0PHiYh_oAWxWxCaZX2Rf6WJfc13AxEeZ67-lY0TA2kSaOCp0PggBb_MGj73t4cH8gdwDJzANVxkiPL1Saqiw2NgZ3IHASJnisUWNnZp8HnrhLLe5ficvb1D9WOUOItmFC2ZgfGObNhlL2y-AMNLT4X7oNgrNTGm-mespo0jD_qH9dK5_evSzS3K8o03gu6p19jxfsnIh8TIVRvNdluYC2wo4qDl5EW5BEZ8OSuJ121ncOT1oRpzXB0cVZ9e5_UVAEr9X3f26_Eomg52-PjrgcRJ_jPIUYbrlo06KjjX2h0fzMr21ZE023Gw"}`))
+		// send a Token as response
+		rw.Write([]byte(`{"Token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImN3MiFSbDU2eDNoUnkjelM4YmdOIn0.eyJpc3MiOiJhcGkudHJhbnNpcC5ubCIsImF1ZCI6ImFwaS50cmFuc2lwLm5sIiwianRpIjoiY3cyIVJsNTZ4M2hSeSN6UzhiZ04iLCJpYXQiOjE1ODIyMDE1NTAsIm5iZiI6MTU4MjIwMTU1MCwiZXhwIjoyMTE4NzQ1NTUwLCJjaWQiOiI2MDQ0OSIsInJvIjpmYWxzZSwiZ2siOmZhbHNlLCJrdiI6dHJ1ZX0.fYBWV4O5WPXxGuWG-vcrFWqmRHBm9yp0PHiYh_oAWxWxCaZX2Rf6WJfc13AxEeZ67-lY0TA2kSaOCp0PggBb_MGj73t4cH8gdwDJzANVxkiPL1Saqiw2NgZ3IHASJnisUWNnZp8HnrhLLe5ficvb1D9WOUOItmFC2ZgfGObNhlL2y-AMNLT4X7oNgrNTGm-mespo0jD_qH9dK5_evSzS3K8o03gu6p19jxfsnIh8TIVRvNdluYC2wo4qDl5EW5BEZ8OSuJ121ncOT1oRpzXB0cVZ9e5_UVAEr9X3f26_Eomg52-PjrgcRJ_jPIUYbrlo06KjjX2h0fzMr21ZE023Gw"}`))
 	}))
 }
 
@@ -101,7 +101,7 @@ func getFailedMockServer(t *testing.T) *httptest.Server {
 		assert.NotEmpty(t, req.Header.Get("Signature"), "Signature not set")
 		// respond with a 409 error
 		rw.WriteHeader(409)
-		// send a token as response
+		// send a Token as response
 		rw.Write([]byte(`{"error":"Authentication failed, API is not enabled for customer"}`))
 	}))
 }

@@ -2,7 +2,7 @@ package vps
 
 import "github.com/transip/gotransip/v6/product"
 
-// Response object with a Vps in it
+// VpsResponse object with a Vps in it
 // used to unpack the rest response and return the encapsulated Vps object
 // this is just used internal for unpacking, this should not be exported
 // we want to return a Vps object not a VpsResponse
@@ -48,7 +48,7 @@ type Vps struct {
 	Status string `json:"status,omitempty"`
 }
 
-// VpsVncData struct for VpsVncData
+// VncData struct for VpsVncData
 type VncData struct {
 	// Location of the VNC Proxy
 	Host string `json:"host,omitempty"`
@@ -56,7 +56,7 @@ type VncData struct {
 	Password string `json:"password,omitempty"`
 	// Websocket path including the token
 	Path string `json:"path,omitempty"`
-	// Token to identify the VPS to connect to (changes dynamically)
+	// token to identify the VPS to connect to (changes dynamically)
 	Token string `json:"token,omitempty"`
 	// Complete websocket URL
 	Url string `json:"url,omitempty"`

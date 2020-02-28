@@ -1,11 +1,14 @@
 package haip
 
 import (
-	"github.com/transip/gotransip/v6/ipaddress"
 	"net"
 )
 
-type Haips struct {
+// HaipsResponse object contains a list of Haips in it
+// used to unpack the rest response and return the encapsulated Haips
+// this is just used internal for unpacking, this should not be exported
+// we want to return Haip objects not a HaipsResponse
+type HaipsResponse struct {
 	// list of HA-IPs
 	Haips []Haip `json:"haips,omitempty"`
 }
@@ -110,7 +113,11 @@ type PortConfiguration struct {
 	TargetPort uint16 `json:"targetPort"`
 }
 
+// HaipIpAddressesResponse object contains a list of IpAddresses in it
+// used to unpack the rest response and return the encapsulated net.IPs
+// this is just used internal for unpacking, this should not be exported
+// we want to return net.IP objects not a HaipIpAddressesResponse
 type HaipIpAddressesResponse struct {
 	// Set of IP addresses to attach, replaces the current set of IP addresses
-	IpAddresses []ipaddress.IpAddress `json:"ipAddresses,omitempty"`
+	IpAddresses []net.IP `json:"ipAddresses,omitempty"`
 }

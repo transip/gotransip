@@ -1,14 +1,22 @@
 package invoice
 
+// InvoicesResponse object contains a list of Invoices in it
+// used to unpack the rest response and return the encapsulated Invoices
+// this is just used internal for unpacking, this should not be exported
+// we want to return Invoice objects not a InvoicesResponse
 type InvoicesResponse struct {
 	Invoices []Invoice `json:"invoices,omitempty"`
 }
 
+// InvoiceResponse object contains a Invoice in it
+// used to unpack the rest response and return the encapsulated Invoice
+// this is just used internal for unpacking, this should not be exported
+// we want to return a Invoice object not a InvoiceResponse
 type InvoiceResponse struct {
 	Invoice Invoice `json:"invoice,omitempty"`
 }
 
-// InlineResponse20030Invoice struct for InlineResponse20030Invoice
+// Invoice struct for a invoice
 type Invoice struct {
 	// Invoice creation date
 	CreationDate string `json:"creationDate"`

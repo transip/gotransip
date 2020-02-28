@@ -4,7 +4,7 @@ import (
 	_context "context"
 	"github.com/antihax/optional"
 	"github.com/transip/gotransip/v6"
-	"github.com/transip/gotransip/v6/inline_objects"
+	"github.com/transip/gotransip/v6/inlineobjects"
 	_ioutil "io/ioutil"
 	_nethttp "net/http"
 	_neturl "net/url"
@@ -68,7 +68,7 @@ func (a *ColocationRepository) CreateANewIPAddressForAColocation(ctx _context.Co
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject5.IsSet() {
-		localVarOptionalInlineObject5, localVarOptionalInlineObject5ok := localVarOptionals.InlineObject5.Value().(inline_objects.InlineObject5)
+		localVarOptionalInlineObject5, localVarOptionalInlineObject5ok := localVarOptionals.InlineObject5.Value().(inlineobjects.InlineObject5)
 		if !localVarOptionalInlineObject5ok {
 			return nil, openapi.reportError("inlineObject5 should be InlineObject5")
 		}
@@ -151,7 +151,7 @@ func (a *ColocationRepository) CreateARemotehandsRequest(ctx _context.Context, c
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject7.IsSet() {
-		localVarOptionalInlineObject7, localVarOptionalInlineObject7ok := localVarOptionals.InlineObject7.Value().(inline_objects.InlineObject7)
+		localVarOptionalInlineObject7, localVarOptionalInlineObject7ok := localVarOptionals.InlineObject7.Value().(inlineobjects.InlineObject7)
 		if !localVarOptionalInlineObject7ok {
 			return nil, openapi.reportError("inlineObject7 should be InlineObject7")
 		}
@@ -262,14 +262,14 @@ Get a information about a specific colocation.
  * @param colocationName Colocation name
 @return InlineResponse2007
 */
-func (a *ColocationRepository) GetColocation(ctx _context.Context, colocationName string) (inline_objects.InlineResponse2007, *_nethttp.Response, error) {
+func (a *ColocationRepository) GetColocation(ctx _context.Context, colocationName string) (inlineobjects.InlineResponse2007, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse2007
+		localVarReturnValue  inlineobjects.InlineResponse2007
 	)
 
 	// create path and map variables
@@ -319,7 +319,7 @@ func (a *ColocationRepository) GetColocation(ctx _context.Context, colocationNam
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse2007
+			var v inlineobjects.InlineResponse2007
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -351,14 +351,14 @@ Get IP addresses information for a specific colocation and IP address.  The addr
  * @param ipAddress Colocation IP address
 @return InlineResponse2009
 */
-func (a *ColocationRepository) GetIPAddressesForAColocation(ctx _context.Context, colocationName string, ipAddress string) (inline_objects.InlineResponse2009, *_nethttp.Response, error) {
+func (a *ColocationRepository) GetIPAddressesForAColocation(ctx _context.Context, colocationName string, ipAddress string) (inlineobjects.InlineResponse2009, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse2009
+		localVarReturnValue  inlineobjects.InlineResponse2009
 	)
 
 	// create path and map variables
@@ -410,7 +410,7 @@ func (a *ColocationRepository) GetIPAddressesForAColocation(ctx _context.Context
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse2009
+			var v inlineobjects.InlineResponse2009
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -440,14 +440,14 @@ Gets a list of colocations currently registered in your account. For every coloc
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return InlineResponse2006
 */
-func (a *ColocationRepository) ListAllColocations(ctx _context.Context) (inline_objects.InlineResponse2006, *_nethttp.Response, error) {
+func (a *ColocationRepository) ListAllColocations(ctx _context.Context) (inlineobjects.InlineResponse2006, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse2006
+		localVarReturnValue  inlineobjects.InlineResponse2006
 	)
 
 	// create path and map variables
@@ -495,7 +495,7 @@ func (a *ColocationRepository) ListAllColocations(ctx _context.Context) (inline_
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse2006
+			var v inlineobjects.InlineResponse2006
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -525,14 +525,14 @@ List IP addresses based on the colocation they’re assigned to. The address its
  * @param colocationName Colocation name
 @return InlineResponse2008
 */
-func (a *ColocationRepository) ListIPAddressesForAColocation(ctx _context.Context, colocationName string) (inline_objects.InlineResponse2008, *_nethttp.Response, error) {
+func (a *ColocationRepository) ListIPAddressesForAColocation(ctx _context.Context, colocationName string) (inlineobjects.InlineResponse2008, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse2008
+		localVarReturnValue  inlineobjects.InlineResponse2008
 	)
 
 	// create path and map variables
@@ -582,7 +582,7 @@ func (a *ColocationRepository) ListIPAddressesForAColocation(ctx _context.Contex
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse2008
+			var v inlineobjects.InlineResponse2008
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -658,7 +658,7 @@ func (a *ColocationRepository) SetReverseDNSForAnIPAddress(ctx _context.Context,
 	}
 	// body params
 	if localVarOptionals != nil && localVarOptionals.InlineObject6.IsSet() {
-		localVarOptionalInlineObject6, localVarOptionalInlineObject6ok := localVarOptionals.InlineObject6.Value().(inline_objects.InlineObject6)
+		localVarOptionalInlineObject6, localVarOptionalInlineObject6ok := localVarOptionals.InlineObject6.Value().(inlineobjects.InlineObject6)
 		if !localVarOptionalInlineObject6ok {
 			return nil, openapi.reportError("inlineObject6 should be InlineObject6")
 		}

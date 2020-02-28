@@ -12,7 +12,7 @@ package product
 import (
 	_context "context"
 	"github.com/transip/gotransip/v6"
-	"github.com/transip/gotransip/v6/inline_objects"
+	"github.com/transip/gotransip/v6/inlineobjects"
 	_ioutil "io/ioutil"
 	_nethttp "net/http"
 	_neturl "net/url"
@@ -33,14 +33,14 @@ This endpoint returns a list of products with their name, description and price.
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 @return InlineResponse20037
 */
-func (a *ProductRepository) GetAll(ctx _context.Context) (inline_objects.InlineResponse20037, *_nethttp.Response, error) {
+func (a *ProductRepository) GetAll(ctx _context.Context) (inlineobjects.InlineResponse20037, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20037
+		localVarReturnValue  inlineobjects.InlineResponse20037
 	)
 
 	// create path and map variables
@@ -88,7 +88,7 @@ func (a *ProductRepository) GetAll(ctx _context.Context) (inline_objects.InlineR
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20037
+			var v inlineobjects.InlineResponse20037
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
@@ -118,14 +118,14 @@ Get the specifications for a product.  This will list all the different elements
  * @param productName Product
 @return InlineResponse20038
 */
-func (a *ProductRepository) GetSpecificationsForProduct(ctx _context.Context, productName string) (inline_objects.InlineResponse20038, *_nethttp.Response, error) {
+func (a *ProductRepository) GetSpecificationsForProduct(ctx _context.Context, productName string) (inlineobjects.InlineResponse20038, *_nethttp.Response, error) {
 	var (
 		localVarHTTPMethod   = _nethttp.MethodGet
 		localVarPostBody     interface{}
 		localVarFormFileName string
 		localVarFileName     string
 		localVarFileBytes    []byte
-		localVarReturnValue  inline_objects.InlineResponse20038
+		localVarReturnValue  inlineobjects.InlineResponse20038
 	)
 
 	// create path and map variables
@@ -175,7 +175,7 @@ func (a *ProductRepository) GetSpecificationsForProduct(ctx _context.Context, pr
 			error: localVarHTTPResponse.Status,
 		}
 		if localVarHTTPResponse.StatusCode == 200 {
-			var v inline_objects.InlineResponse20038
+			var v inlineobjects.InlineResponse20038
 			err = a.client.Decode(&v, localVarBody, localVarHTTPResponse.Header.Get("Content-Type"))
 			if err != nil {
 				newErr.error = err.Error()
