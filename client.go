@@ -12,7 +12,6 @@ import (
 	"github.com/transip/gotransip/v6/rest/response"
 	"io/ioutil"
 	"net/http"
-	"os"
 )
 
 // client manages communication with the TransIP API
@@ -27,6 +26,9 @@ type client struct {
 	// provides you the possibility to specify timeouts
 	context context.Context
 	// authenticator wraps all authentication logic
+	// - checking if the token is not expired yet
+	// - creating an authentication request
+	// - requesting and setting a new token
 	authenticator authenticator.Authenticator
 }
 
@@ -34,15 +36,14 @@ type client struct {
 // optionally you could put a custom http.client in the configuration struct
 // to allow for advanced features such as caching.
 func NewClient(config ClientConfiguration) (repository.Client, error) {
-	client, err := newClient(config)
-
-	return &client, err
+	return newClient(config)
 }
 
 // newClient method is used internally for testing,
 // the NewClient method is exported as it follows the repository.Client interface
 // which is so that we don't have to bind to this specific implementation
-func newClient(config ClientConfiguration) (client, error) {
+// todo: change to pointer
+func newClient(config ClientConfiguration) (*client, error) {
 	if config.HTTPClient == nil {
 		config.HTTPClient = http.DefaultClient
 	}
@@ -51,26 +52,20 @@ func newClient(config ClientConfiguration) (client, error) {
 
 	// check account name
 	if len(config.AccountName) == 0 && len(config.Token) == 0 {
-		return client{}, errors.New("AccountName is required")
+		return &client{}, errors.New("AccountName is required")
 	}
 
 	// check if token or private key is set
-	if len(config.Token) == 0 && len(config.PrivateKeyPath) == 0 {
-		return client{}, errors.New("PrivateKeyPath, token or PrivateKeyBody is required")
+	if len(config.Token) == 0 && config.PrivateKeyReader == nil {
+		return &client{}, errors.New("PrivateKeyReader, token or PrivateKeyReader is required")
 	}
 
-	// if PrivateKeyPath was set, this will override any given PrivateKeyBody
-	if len(config.PrivateKeyPath) > 0 {
-		// try to open private key and read contents
-		if _, err := os.Stat(config.PrivateKeyPath); err != nil {
-			return client{}, fmt.Errorf("Could not open private key: %s", err.Error())
-		}
-
-		// read private key so we can pass the body to the soapClient
+	if config.PrivateKeyReader != nil {
 		var err error
-		privateKeyBody, err = ioutil.ReadFile(config.PrivateKeyPath)
+		privateKeyBody, err = ioutil.ReadAll(config.PrivateKeyReader)
+
 		if err != nil {
-			return client{}, err
+			return &client{}, fmt.Errorf("error while reading private key: %s", err.Error())
 		}
 	}
 
@@ -79,7 +74,7 @@ func newClient(config ClientConfiguration) (client, error) {
 		token, err = jwt.New(config.Token)
 
 		if err != nil {
-			return client{}, err
+			return &client{}, err
 		}
 	}
 
@@ -93,8 +88,8 @@ func newClient(config ClientConfiguration) (client, error) {
 		config.URL = basePath
 	}
 
-	return client{
-		authenticator: authenticator.Authenticator{PrivateKeyBody: privateKeyBody, Token: token, HTTPClient: config.HTTPClient},
+	return &client{
+		authenticator: &authenticator.TransipAuthenticator{PrivateKeyBody: privateKeyBody, Token: token, HTTPClient: config.HTTPClient},
 		config:        config,
 	}, nil
 }
@@ -155,25 +150,25 @@ func (c *client) GetAuthenticator() authenticator.Authenticator {
 }
 
 // This method that executes a http Get request
-func (c *client) Get(request request.RestRequest, response interface{}) error {
-	return c.call(rest.GetRestMethod, request, response)
+func (c *client) Get(request request.RestRequest, responseObject interface{}) error {
+	return c.call(rest.GetRestMethod, request, responseObject)
 }
 
 // This method that executes a http Post request
 // It expects no response, that is why it does not return one
 func (c *client) Post(request request.RestRequest) error {
-	return c.call(rest.GetRestMethod, request, nil)
+	return c.call(rest.PostRestMethod, request, nil)
 }
 
 // This method that executes a http Put request
 // It expects no response, that is why it does not return one
 func (c *client) Put(request request.RestRequest) error {
-	return c.call(rest.GetRestMethod, request, nil)
+	return c.call(rest.PutRestMethod, request, nil)
 }
 
 // This method that executes a http Delete request
 // It expects no response, that is why it does not return one
 func (c *client) Delete(request request.RestRequest) error {
-	return c.call(rest.GetRestMethod, request, nil)
+	return c.call(rest.DeleteRestMethod, request, nil)
 }
 

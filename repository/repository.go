@@ -6,14 +6,18 @@ import (
 
 // Client interface, this is the client interface as far as other packages should care about
 type Client interface {
-	Get(request request.RestRequest, response interface{}) error
+	// Executes a GET rest request and returns the response into the destination struct
+	Get(request request.RestRequest, dest interface{}) error
+	// Executes a PUT request, not expecting any response from the api server
 	Put(request request.RestRequest) error
+	// Executes a POST request, not expecting any response from the api server
 	Post(request request.RestRequest) error
+	// Executes a DELETE request, not expecting any response from the api server
 	Delete(request request.RestRequest) error
 }
 
 // RestRepository is the struct which is going to be used by all other repositories in the gotransip package
 type RestRepository struct {
-	// we have a client that adheres to the client interface
+	// we have a client that follows the client interface
 	Client Client
 }

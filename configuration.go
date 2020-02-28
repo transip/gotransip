@@ -1,6 +1,7 @@
 package gotransip
 
 import (
+	"io"
 	"net/http"
 )
 
@@ -23,12 +24,12 @@ var (
 
 // ClientConfiguration stores the configuration of the API client
 type ClientConfiguration struct {
-	AccountName    string
-	URL            string
-	PrivateKeyPath string
-	Token          string
-	DemoMode       bool
-	TestMode       bool
-	HTTPClient     *http.Client
-	Mode           APIMode
+	AccountName      string
+	URL              string
+	PrivateKeyReader io.Reader
+	Token            string
+	DemoMode         bool
+	TestMode         bool
+	HTTPClient       *http.Client
+	Mode             APIMode
 }

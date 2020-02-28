@@ -24,9 +24,14 @@ const (
 	DemoToken string = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImN3MiFSbDU2eDNoUnkjelM4YmdOIn0.eyJpc3MiOiJhcGkudHJhbnNpcC5ubCIsImF1ZCI6ImFwaS50cmFuc2lwLm5sIiwianRpIjoiY3cyIVJsNTZ4M2hSeSN6UzhiZ04iLCJpYXQiOjE1ODIyMDE1NTAsIm5iZiI6MTU4MjIwMTU1MCwiZXhwIjoyMTE4NzQ1NTUwLCJjaWQiOiI2MDQ0OSIsInJvIjpmYWxzZSwiZ2siOmZhbHNlLCJrdiI6dHJ1ZX0.fYBWV4O5WPXxGuWG-vcrFWqmRHBm9yp0PHiYh_oAWxWxCaZX2Rf6WJfc13AxEeZ67-lY0TA2kSaOCp0PggBb_MGj73t4cH8gdwDJzANVxkiPL1Saqiw2NgZ3IHASJnisUWNnZp8HnrhLLe5ficvb1D9WOUOItmFC2ZgfGObNhlL2y-AMNLT4X7oNgrNTGm-mespo0jD_qH9dK5_evSzS3K8o03gu6p19jxfsnIh8TIVRvNdluYC2wo4qDl5EW5BEZ8OSuJ121ncOT1oRpzXB0cVZ9e5_UVAEr9X3f26_Eomg52-PjrgcRJ_jPIUYbrlo06KjjX2h0fzMr21ZE023Gw"
 )
 
+type Authenticator interface {
+	GetToken() (jwt.Token, error)
+	GetPrivateKeyBody() []byte
+}
+
 // Authenticator is used to store,retrieve and request new tokens during every request
 // it checks the expiry date of a Token and if it is expired it will request a new one
-type Authenticator struct {
+type TransipAuthenticator struct {
 	// this contains a []byte representation of the the private key of the customer
 	// this key will be used to sign a new Token request
 	PrivateKeyBody []byte
@@ -68,7 +73,7 @@ type AuthRequest struct {
 // on error it passes this back
 // todo: implement Token caching to filesystem
 // todo: error on no private key and a expired Token
-func (a *Authenticator) GetToken() (jwt.Token, error) {
+func (a *TransipAuthenticator) GetToken() (jwt.Token, error) {
 	if a.Token.Expired() {
 		var err error
 		a.Token, err = a.RequestNewToken()
@@ -84,7 +89,7 @@ func (a *Authenticator) GetToken() (jwt.Token, error) {
 // RequestNewToken will request a new Token using the http client
 // creating a new AuthRequest, converting it to json and sending that to the api auth url
 // on error it will pass this back
-func (a *Authenticator) RequestNewToken() (jwt.Token, error) {
+func (a *TransipAuthenticator) RequestNewToken() (jwt.Token, error) {
 	restRequest := a.getAuthRequest()
 	getMethod := rest.PostRestMethod
 
@@ -137,7 +142,7 @@ type tokenResponse struct {
 
 // getNonce returns a random 16 character length string nonce
 // each time it is called
-func (a *Authenticator) getNonce() string {
+func (a *TransipAuthenticator) getNonce() string {
 	randomBytes := make([]byte, 8)
 	rand.Read(randomBytes)
 
@@ -146,7 +151,7 @@ func (a *Authenticator) getNonce() string {
 }
 
 // getAuthRequest returns a rest.RestRequest filled with a new AuthRequest
-func (a *Authenticator) getAuthRequest() request.RestRequest {
+func (a *TransipAuthenticator) getAuthRequest() request.RestRequest {
 	labelPostFix := time.Now().Unix()
 
 	authRequest := AuthRequest{
@@ -162,4 +167,10 @@ func (a *Authenticator) getAuthRequest() request.RestRequest {
 		Endpoint: "/auth",
 		Body:     authRequest,
 	}
+}
+
+// GetPrivateKeyBody returns the private key body so we can
+// todo: remove this and test in a different way, no need to get this from the outside
+func (a *TransipAuthenticator) GetPrivateKeyBody() []byte {
+	return a.PrivateKeyBody
 }

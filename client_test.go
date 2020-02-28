@@ -1,18 +1,17 @@
 package gotransip
 
 import (
+	"bytes"
 	"errors"
 	"github.com/transip/gotransip/v6/authenticator"
 	"github.com/transip/gotransip/v6/domain"
 	"github.com/transip/gotransip/v6/product"
 	"github.com/transip/gotransip/v6/rest"
 	"github.com/transip/gotransip/v6/rest/request"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"regexp"
 	"testing"
+	"testing/iotest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -37,51 +36,30 @@ func TestNewClient(t *testing.T) {
 	// ClientConfig with only AccountName set should raise error about private keys
 	_, err = NewClient(cc)
 	require.Error(t, err)
-	assert.Equal(t, errors.New("PrivateKeyPath, token or PrivateKeyBody is required"), err)
+	assert.Equal(t, errors.New("PrivateKeyReader, token or PrivateKeyReader is required"), err)
 
-	cc.PrivateKeyPath = "/file/not/found"
-	// ClientConfig with PrivateKeyPath set to nonexisting file should raise error
+	cc.PrivateKeyReader = iotest.TimeoutReader(bytes.NewReader([]byte{0,1}))
 	_, err = NewClient(cc)
 	require.Error(t, err)
-	assert.Regexp(t, regexp.MustCompile("^Could not open private key"), err.Error())
+	assert.Equal(t, errors.New("error while reading private key: timeout"), err)
 
-	// ClientConfig with PrivateKeyPath that does exist but is unreadable should raise
-	// error
-	// prepare tmpfile
-	tmpFile, err := ioutil.TempFile("", "gotransip")
-	assert.NoError(t, err)
-	err = os.Chmod(tmpFile.Name(), 0000)
-	assert.NoError(t, err)
+	cc.PrivateKeyReader = nil
 
-	cc.PrivateKeyPath = tmpFile.Name()
-	_, err = NewClient(cc)
-	require.Error(t, err)
-	assert.Regexp(t, regexp.MustCompile("permission denied"), err.Error())
-
-	os.Remove(tmpFile.Name())
-	cc.PrivateKeyPath = ""
-
-	// Override PrivateKeyBody with PrivateKeyPath
+	// Override PrivateKeyBody with PrivateKeyReader
 	pkBody := []byte{2, 3, 4, 5}
-	// prepare tmpfile
-	tmpFile, err = ioutil.TempFile("", "gotransip")
-	assert.NoError(t, err)
-	err = ioutil.WriteFile(tmpFile.Name(), []byte(pkBody), 0)
-	assert.NoError(t, err)
 
-	cc.PrivateKeyPath = tmpFile.Name()
+	cc.PrivateKeyReader = bytes.NewReader(pkBody)
 	client, err := newClient(cc)
 	clientAuthenticator := client.GetAuthenticator()
 	config := client.GetConfig()
 	assert.NoError(t, err)
-	assert.Equal(t, pkBody, clientAuthenticator.PrivateKeyBody)
+	assert.Equal(t, pkBody, clientAuthenticator.GetPrivateKeyBody())
 
 	// Also, with no mode set, it should default to APIModeReadWrite
 	assert.Equal(t, APIModeReadWrite, config.Mode)
 	// Check if the base path is set by default
 	assert.Equal(t, "https://api.transip.nl/v6", config.URL)
-	os.Remove(tmpFile.Name())
-	cc.PrivateKeyPath = ""
+	cc.PrivateKeyReader = nil
 
 	// override API mode to APIModeReadOnly
 	cc.Mode = APIModeReadOnly

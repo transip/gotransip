@@ -24,6 +24,7 @@ type RestResponse struct {
 // ParseResponse will convert a RestResponse struct to the given interface
 // on error it will pass this back
 // when the rest response has no body it will return without filling the dest variable
+// todo: look into specific types of errors
 func (r *RestResponse) ParseResponse(dest interface{}) error {
 	// do response error checking
 	if !r.Method.StatusCodeIsCorrect(r.StatusCode) {
@@ -35,6 +36,8 @@ func (r *RestResponse) ParseResponse(dest interface{}) error {
 		var errorResponse RestException
 		err := json.Unmarshal(r.Body, &errorResponse)
 		if err != nil {
+			// todo: look into error wrapping, nested errors
+			// todo: add http status code
 			return fmt.Errorf("response error could not be decoded, response = %s", string(r.Body))
 		}
 

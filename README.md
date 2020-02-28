@@ -12,6 +12,7 @@ package main
 
 import (
   "fmt"
+  "os"
   "golang.org/x/net/context"
 
   "github.com/transip/gotransip/v6"
@@ -21,15 +22,17 @@ import (
 
 func main() {
   // create new TransIP API SOAP client
-  c, err := gotransip.NewRestClient(gotransip.ClientConfig{
+  file, err := os.Open("/path/to/api/private.key")
+  if err != nil {
+    panic(err.Error())
+  }
+  c, err := gotransip.NewClient(gotransip.ClientConfiguration{
     AccountName: "accountName",
-    PrivateKeyPath:  "/path/to/api/private.key",
+    PrivateKeyReader: file,
   })
   if err != nil {
     panic(err.Error())
   }
-
-  ctx := context.Background()
 
   // get vpss of VPSes
   vpss, err := vps.ListAll(sess, ctx)
@@ -48,7 +51,7 @@ func main() {
     fmt.Printf("vps: %s (%s)\n", vps.Name, vps.Description)
   }
 
-  err = vps.Order(c, ctx, &vps.OrderVps{
+  err = vps.Order(c, &vps.OrderVps{
   	Description: "my-unique-description",
     ProductName: "vps-bladevps-x8",
     Base64InstallText: "",

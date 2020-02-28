@@ -20,6 +20,7 @@ type Token struct {
 }
 
 // Expired returns true when the token expiry date is reached
+// todo: race cond check +1h
 func (t *Token) Expired() bool {
 	return time.Now().Unix() > t.ExpiryDate
 }

@@ -8,13 +8,16 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"sync"
 	"testing"
 	"time"
 )
 
+const amountOfNoncesToGet = 10
+
 func TestAuthenticatorGetToken(t *testing.T) {
 	token := jwt.Token{ExpiryDate: time.Now().Unix() + 3600, RawToken: "123"}
-	authenticator := Authenticator{
+	authenticator := TransipAuthenticator{
 		Token:    token,
 		BasePath: "https://api.transip.nl",
 	}
@@ -30,7 +33,7 @@ func TestRequestANewToken(t *testing.T) {
 	key, err := ioutil.ReadFile("../testdata/signature.key")
 	require.NoError(t, err)
 
-	authenticator := Authenticator{
+	authenticator := TransipAuthenticator{
 		PrivateKeyBody: key,
 		BasePath:       server.URL,
 		Login:          "test-user",
@@ -51,7 +54,7 @@ func TestAuthenticationErrorIsReturned(t *testing.T) {
 	key, err := ioutil.ReadFile("../testdata/signature.key")
 	require.NoError(t, err)
 
-	authenticator := Authenticator{
+	authenticator := TransipAuthenticator{
 		PrivateKeyBody: key,
 		BasePath:       server.URL,
 		Login:          "test-user",
@@ -66,14 +69,63 @@ func TestAuthenticationErrorIsReturned(t *testing.T) {
 }
 
 func TestNonceIsNotStatic(t *testing.T) {
-	authenticator := Authenticator{}
-	previousNonce := authenticator.getNonce()
+	nonces := getNoncesFromAuthenticator()
 
-	for i := 0; i < 100; i++ {
-		nonce := authenticator.getNonce()
-		assert.NotEqual(t, nonce, previousNonce)
-		previousNonce = nonce
+	for idx, nonce := range nonces {
+		for jdx, previousNonce := range nonces {
+			if idx == jdx {
+				continue
+			}
+			require.NotEqual(t, nonce, previousNonce, "duplicate nonce found")
+		}
 	}
+}
+
+func TestIfGetNonceIsThreadSafe(t *testing.T) {
+	const amountOfThreadSafeNonceThreads = 100
+	var nonces [amountOfThreadSafeNonceThreads][amountOfNoncesToGet]string
+	var wg sync.WaitGroup
+
+	// get a list of nonces N=amountOfThreadSafeNonceThreads times
+	for i := 0; i < amountOfThreadSafeNonceThreads; i++ {
+		wg.Add(1)
+		go func(idx int) {
+			nonces[idx] = getNoncesFromAuthenticator()
+
+			defer wg.Done()
+		}(i)
+	}
+
+	wg.Wait()
+	var combinedNonces [amountOfThreadSafeNonceThreads*amountOfNoncesToGet]string
+	counter := 0
+	for i := 0; i < amountOfThreadSafeNonceThreads; i++ {
+		for _,nonce := range nonces[i] {
+			combinedNonces[counter] = nonce
+			counter++
+		}
+	}
+
+	for i, nonce := range combinedNonces {
+		for j, previousNonce := range combinedNonces {
+			if i == j {
+				continue
+			}
+
+			require.NotEqual(t, nonce, previousNonce, "duplicate nonce found")
+		}
+	}
+}
+
+func getNoncesFromAuthenticator() [amountOfNoncesToGet]string {
+	authenticator := TransipAuthenticator{}
+	var nonces [amountOfNoncesToGet]string
+
+	for i := 0; i < amountOfNoncesToGet; i++ {
+		nonces[i] = authenticator.getNonce()
+	}
+
+	return nonces
 }
 
 func getMockServer(t *testing.T) *httptest.Server {
