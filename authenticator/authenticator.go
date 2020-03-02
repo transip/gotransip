@@ -24,12 +24,13 @@ const (
 	DemoToken string = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImN3MiFSbDU2eDNoUnkjelM4YmdOIn0.eyJpc3MiOiJhcGkudHJhbnNpcC5ubCIsImF1ZCI6ImFwaS50cmFuc2lwLm5sIiwianRpIjoiY3cyIVJsNTZ4M2hSeSN6UzhiZ04iLCJpYXQiOjE1ODIyMDE1NTAsIm5iZiI6MTU4MjIwMTU1MCwiZXhwIjoyMTE4NzQ1NTUwLCJjaWQiOiI2MDQ0OSIsInJvIjpmYWxzZSwiZ2siOmZhbHNlLCJrdiI6dHJ1ZX0.fYBWV4O5WPXxGuWG-vcrFWqmRHBm9yp0PHiYh_oAWxWxCaZX2Rf6WJfc13AxEeZ67-lY0TA2kSaOCp0PggBb_MGj73t4cH8gdwDJzANVxkiPL1Saqiw2NgZ3IHASJnisUWNnZp8HnrhLLe5ficvb1D9WOUOItmFC2ZgfGObNhlL2y-AMNLT4X7oNgrNTGm-mespo0jD_qH9dK5_evSzS3K8o03gu6p19jxfsnIh8TIVRvNdluYC2wo4qDl5EW5BEZ8OSuJ121ncOT1oRpzXB0cVZ9e5_UVAEr9X3f26_Eomg52-PjrgcRJ_jPIUYbrlo06KjjX2h0fzMr21ZE023Gw"
 )
 
+// Authenticator is used by the client to retrieve a token to use as authentication mechanism in its requests
 type Authenticator interface {
 	GetToken() (jwt.Token, error)
 	GetPrivateKeyBody() []byte
 }
 
-// Authenticator is used to store,retrieve and request new tokens during every request
+// TransipAuthenticator is used to store,retrieve and request new tokens during every request
 // it checks the expiry date of a Token and if it is expired it will request a new one
 type TransipAuthenticator struct {
 	// this contains a []byte representation of the the private key of the customer
@@ -41,6 +42,7 @@ type TransipAuthenticator struct {
 	// this is the http client to do auth requests with
 	HTTPClient *http.Client
 	// this would be the auth path, thus where we will get new tokens from
+	// todo: add a test to check if this is actually set
 	BasePath string
 	// this would be the acount name of customer
 	Login string
@@ -71,12 +73,12 @@ type AuthRequest struct {
 // GetToken will return the current Token if it is not expired
 // if it is expired it will try to request a new Token, set and return that
 // on error it passes this back
-// todo: implement Token caching to filesystem
+// todo: implement Token caching to io.Writer/Reader/Closer
 // todo: error on no private key and a expired Token
 func (a *TransipAuthenticator) GetToken() (jwt.Token, error) {
 	if a.Token.Expired() {
 		var err error
-		a.Token, err = a.RequestNewToken()
+		a.Token, err = a.requestNewToken()
 
 		if err != nil {
 			return jwt.Token{}, err
@@ -86,10 +88,10 @@ func (a *TransipAuthenticator) GetToken() (jwt.Token, error) {
 	return a.Token, nil
 }
 
-// RequestNewToken will request a new Token using the http client
+// requestNewToken will request a new Token using the http client
 // creating a new AuthRequest, converting it to json and sending that to the api auth url
 // on error it will pass this back
-func (a *TransipAuthenticator) RequestNewToken() (jwt.Token, error) {
+func (a *TransipAuthenticator) requestNewToken() (jwt.Token, error) {
 	restRequest := a.getAuthRequest()
 	getMethod := rest.PostRestMethod
 

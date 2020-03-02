@@ -19,10 +19,13 @@ type Token struct {
 	RawToken   string
 }
 
+// Define a hard expiration skew in seconds
+// so we will retrieve a new token way before the moment of expiration
+const expirationSkew = 1800
+
 // Expired returns true when the token expiry date is reached
-// todo: race cond check +1h
 func (t *Token) Expired() bool {
-	return time.Now().Unix() > t.ExpiryDate
+	return time.Now().Unix()+expirationSkew > t.ExpiryDate
 }
 
 // GetAuthenticationHeaderValue returns the authentication header value value

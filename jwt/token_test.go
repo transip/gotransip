@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"testing"
+	"time"
 )
 
 func TestNewToken(t *testing.T) {
@@ -26,4 +27,14 @@ func TestNewToken(t *testing.T) {
 func TestGetAuthenticationHeaderValue(t *testing.T) {
 	token := Token{RawToken: "test"}
 	assert.Equal(t, "Bearer test", token.GetAuthenticationHeaderValue())
+}
+
+func TestTokenIsExpired(t *testing.T) {
+	expiredToken := Token{ExpiryDate: time.Now().Unix() - 3600}
+	assert.Equal(t, true, expiredToken.Expired(), "token is not expired when it should be")
+}
+
+func TestTokenIsExpiredWithSkew(t *testing.T) {
+	expiredToken := Token{ExpiryDate: time.Now().Unix() + 60}
+	assert.Equal(t, true, expiredToken.Expired(), "token is not expired when it should be")
 }

@@ -38,7 +38,7 @@ func TestNewClient(t *testing.T) {
 	require.Error(t, err)
 	assert.Equal(t, errors.New("PrivateKeyReader, token or PrivateKeyReader is required"), err)
 
-	cc.PrivateKeyReader = iotest.TimeoutReader(bytes.NewReader([]byte{0,1}))
+	cc.PrivateKeyReader = iotest.TimeoutReader(bytes.NewReader([]byte{0, 1}))
 	_, err = NewClient(cc)
 	require.Error(t, err)
 	assert.Equal(t, errors.New("error while reading private key: timeout"), err)
@@ -47,8 +47,8 @@ func TestNewClient(t *testing.T) {
 
 	// Override PrivateKeyBody with PrivateKeyReader
 	pkBody := []byte{2, 3, 4, 5}
-
 	cc.PrivateKeyReader = bytes.NewReader(pkBody)
+
 	client, err := newClient(cc)
 	clientAuthenticator := client.GetAuthenticator()
 	config := client.GetConfig()
@@ -73,18 +73,14 @@ func TestNewClient(t *testing.T) {
 
 func TestClientCallReturnsObject(t *testing.T) {
 	server := getMockServer(t)
-	clientConfig := ClientConfiguration{
-		Token: authenticator.DemoToken,
-		URL:   server.URL,
-	}
-
+	clientConfig := ClientConfiguration{Token: authenticator.DemoToken, URL: server.URL}
 	client, err := newClient(clientConfig)
 	require.NoError(t, err)
 
-	request := request.RestRequest{Endpoint: "/domains"}
+	restRequest := request.RestRequest{Endpoint: "/domains"}
 	var domainsResponse domain.DomainsResponse
 
-	err = client.call(rest.GetRestMethod, request, &domainsResponse)
+	err = client.call(rest.GetRestMethod, restRequest, &domainsResponse)
 	require.NoError(t, err)
 	require.Equal(t, 1, len(domainsResponse.Domains))
 	assert.Equal(t, "test.nl", domainsResponse.Domains[0].Name)
@@ -104,7 +100,7 @@ func TestClientCallToApiServer(t *testing.T) {
 
 	err = client.Get(request, &responseObject)
 	require.NoError(t, err)
-	assert.Equal(t,  6, len(responseObject.Products.Vps))
+	assert.Equal(t, 6, len(responseObject.Products.Vps))
 }
 
 func getMockServer(t *testing.T) *httptest.Server {

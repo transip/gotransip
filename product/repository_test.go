@@ -28,7 +28,7 @@ func TestRepository_GetAll(t *testing.T) {
 func TestProductRepository_GetSpecificationsForProduct(t *testing.T) {
 	repo := getRepository(t)
 
-	all, err := repo.GetSpecificationsForProduct(Product{Name:"vps-bladevps-x4"})
+	all, err := repo.GetSpecificationsForProduct(Product{Name: "vps-bladevps-x4"})
 	require.NoError(t, err)
 
 	require.Equal(t, 7, len(all))

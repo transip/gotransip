@@ -21,7 +21,7 @@ func TestHttpRequestForRestRequest(t *testing.T) {
 		AvailabilityZone string `json:"availabilityZone"`
 		OperatingSystem  string `json:"operatingSystem"`
 		ProductName      string `json:"productName"`
-	}{AvailabilityZone: "ams", OperatingSystem: "ubuntu-18.04", ProductName: "vps-bladevps-x1",}
+	}{AvailabilityZone: "ams", OperatingSystem: "ubuntu-18.04", ProductName: "vps-bladevps-x1"}
 
 	values := url.Values{"test": []string{"1"}}
 
@@ -55,7 +55,7 @@ func TestBodyReader(t *testing.T) {
 		AvailabilityZone string `json:"availabilityZone"`
 		OperatingSystem  string `json:"operatingSystem"`
 		ProductName      string `json:"productName"`
-	}{AvailabilityZone: "ams", OperatingSystem: "ubuntu-18.04", ProductName: "vps-bladevps-x1",}
+	}{AvailabilityZone: "ams", OperatingSystem: "ubuntu-18.04", ProductName: "vps-bladevps-x1"}
 
 	request := RestRequest{Endpoint: "/vps", Body: order}
 

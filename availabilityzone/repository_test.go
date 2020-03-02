@@ -26,8 +26,8 @@ const errorResponse = `{"error":"errortest"}`
 func getMockServer(t *testing.T, url string, method string, statusCode int, response string) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		assert.Equal(t, req.URL.String(), url) // check if right url is called
-		assert.Equal(t, req.Method, method) // check if the right request method is used
-		rw.WriteHeader(statusCode) // respond with given status code
+		assert.Equal(t, req.Method, method)    // check if the right request method is used
+		rw.WriteHeader(statusCode)             // respond with given status code
 		rw.Write([]byte(response))
 	}))
 }
@@ -38,8 +38,8 @@ func getRepository(t *testing.T, responseStatusCode int, response string) (Repos
 	client, err := gotransip.NewClient(config)
 	require.NoError(t, err)
 
-	// return tearDown method with which the user can close the test server
-	tearDown := func () {
+	// return tearDown method with which we will close the test server after the test
+	tearDown := func() {
 		server.Close()
 	}
 

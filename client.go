@@ -109,7 +109,6 @@ func (c *client) call(method rest.RestMethod, request request.RestRequest, resul
 
 	httpRequest.Header.Add("Authorization", token.GetAuthenticationHeaderValue())
 	client := c.config.HTTPClient
-	fmt.Println(httpRequest.URL)
 	httpResponse, err := client.Do(httpRequest)
 	if err != nil {
 		return fmt.Errorf("request error:\n%s", err.Error())
@@ -171,4 +170,3 @@ func (c *client) Put(request request.RestRequest) error {
 func (c *client) Delete(request request.RestRequest) error {
 	return c.call(rest.DeleteRestMethod, request, nil)
 }
-

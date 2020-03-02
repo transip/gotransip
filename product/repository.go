@@ -13,7 +13,7 @@ type Repository repository.RestRepository
 // GetAll returns Products with a list Product per product group in it
 func (r *Repository) GetAll() (Products, error) {
 	var response ProductsResponse
-	productsRequest := request.RestRequest{Endpoint: "/products",}
+	productsRequest := request.RestRequest{Endpoint: "/products"}
 	err := r.Client.Get(productsRequest, &response)
 
 	return response.Products, err

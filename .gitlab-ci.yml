@@ -17,6 +17,13 @@ lint:vet:
   tags:
     - k8s
 
+lint:modtidy:
+  stage: lint
+  script:
+    - ci/tidy.sh
+  tags:
+    - k8s
+
 test:go:
   stage: test
   script:
