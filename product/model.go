@@ -36,9 +36,9 @@ type Product struct {
 	// Name of the product
 	Name string `json:"name,omitempty"`
 	// Price in cents
-	Price int64 `json:"price,omitempty"`
+	Price int `json:"price,omitempty"`
 	// The recurring price for the product in cents
-	RecurringPrice int64 `json:"recurringPrice,omitempty"`
+	RecurringPrice int `json:"recurringPrice,omitempty"`
 }
 
 // ProductElementsResponse object contains a list of ProductElements in it

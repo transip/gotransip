@@ -7,15 +7,12 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6/rest"
 	"testing"
+	"time"
 )
 
 func TestResponseParsing(t *testing.T) {
 	responseBody := []byte(`{"name": "test"}`)
-	restResponse := RestResponse{
-		Body:       responseBody,
-		StatusCode: 200,
-		Method:     rest.GetRestMethod,
-	}
+	restResponse := RestResponse{Body: responseBody, StatusCode: 200, Method: rest.GetRestMethod}
 
 	var responseObject struct {
 		Name string `json:"name"`
@@ -31,11 +28,7 @@ func TestErrorResponse(t *testing.T) {
 	data, err := json.Marshal(error)
 	assert.NoError(t, err)
 
-	restResponse := RestResponse{
-		Body:       data,
-		StatusCode: 406,
-		Method:     rest.GetRestMethod,
-	}
+	restResponse := RestResponse{Body: data, StatusCode: 406, Method: rest.GetRestMethod}
 
 	err = restResponse.ParseResponse(nil)
 	require.Error(t, err)
@@ -48,10 +41,7 @@ func TestErrorResponse(t *testing.T) {
 }
 
 func TestEmptyResponse(t *testing.T) {
-	restResponse := RestResponse{
-		StatusCode: 201,
-		Method:     rest.PostRestMethod,
-	}
+	restResponse := RestResponse{StatusCode: 201, Method: rest.PostRestMethod}
 
 	err := restResponse.ParseResponse(nil)
 	require.NoError(t, err)
@@ -66,4 +56,32 @@ func TestEmptyErrorResponse(t *testing.T) {
 	err := restResponse.ParseResponse(nil)
 	require.Error(t, err)
 	assert.Equal(t, errors.New("error response without body from api server status code '500'"), err)
+}
+
+func TestResponseDateParsing(t *testing.T) {
+	responseBody := []byte(`{"date": "2020-01-02"}`)
+	restResponse := RestResponse{Body: responseBody, StatusCode: 200, Method: rest.GetRestMethod}
+
+	var responseObject struct {
+		Date Date `json:"date"`
+	}
+
+	err := restResponse.ParseResponse(&responseObject)
+	assert.NoError(t, err)
+	assert.Equal(t, 2020, responseObject.Date.Year())
+	assert.Equal(t, time.Month(1), responseObject.Date.Month())
+	assert.Equal(t, 2, responseObject.Date.Day())
+}
+
+func TestResponseTimeParsing(t *testing.T) {
+	responseBody := []byte(`{"cancellationDate": "2020-01-02 12:13:37"}`)
+	restResponse := RestResponse{Body: responseBody, StatusCode: 200, Method: rest.GetRestMethod}
+
+	var responseObject struct {
+		Date Time `json:"cancellationDate"`
+	}
+
+	err := restResponse.ParseResponse(&responseObject)
+	assert.NoError(t, err)
+	assert.Equal(t, "2020-01-02 12:13:37 +0000 UTC", responseObject.Date.String())
 }

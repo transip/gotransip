@@ -11,7 +11,7 @@ type Repository repository.RestRepository
 
 // GetAll returns a list of AvailabilityZones
 func (r *Repository) GetAll() ([]AvailabilityZone, error) {
-	var response AvailabilityZonesResponse
+	var response availabilityZonesResponse
 	avRequest := request.RestRequest{Endpoint: "/availability-zones"}
 	err := r.Client.Get(avRequest, &response)
 

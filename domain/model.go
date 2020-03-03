@@ -250,9 +250,9 @@ type Tld struct {
 	// The name of this TLD, including the starting dot. E.g. .nl or .com.
 	Name string `json:"name"`
 	// Price of the TLD in cents
-	Price uint64 `json:"price,omitempty"`
+	Price int `json:"price,omitempty"`
 	// Price for renewing the TLD in cents
-	RecurringPrice uint64 `json:"recurringPrice,omitempty"`
+	RecurringPrice int `json:"recurringPrice,omitempty"`
 	// Length in months of each registration or renewal period.
 	RegistrationPeriodLength uint64 `json:"registrationPeriodLength,omitempty"`
 }

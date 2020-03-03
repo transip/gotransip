@@ -1,83 +1,84 @@
 package invoice
 
-// InvoicesResponse object contains a list of Invoices in it
+import (
+	"github.com/transip/gotransip/v6/rest/response"
+)
+
+// invoicesResponse object contains a list of Invoices in it
 // used to unpack the rest response and return the encapsulated Invoices
 // this is just used internal for unpacking, this should not be exported
-// we want to return Invoice objects not a InvoicesResponse
-type InvoicesResponse struct {
-	Invoices []Invoice `json:"invoices,omitempty"`
+// we want to return Invoice objects not a invoicesResponse
+type invoicesResponse struct {
+	Invoices []Invoice `json:"invoices"`
 }
 
-// InvoiceResponse object contains a Invoice in it
+// invoiceResponse object contains a Invoice in it
 // used to unpack the rest response and return the encapsulated Invoice
 // this is just used internal for unpacking, this should not be exported
-// we want to return a Invoice object not a InvoiceResponse
-type InvoiceResponse struct {
-	Invoice Invoice `json:"invoice,omitempty"`
+// we want to return a Invoice object not a invoiceResponse
+type invoiceResponse struct {
+	Invoice Invoice `json:"invoice"`
+}
+
+// invoiceItemsResponse object contains a list of InvoiceItems in it
+// used to unpack the rest response and return the encapsulated InvoiceItems
+// this is just used internal for unpacking, this should not be exported
+// we want to return InvoiceItem objects not a invoicesItemsResponse
+type invoiceItemsResponse struct {
+	// array of invoice items
+	InvoiceItems []InvoiceItem `json:"invoiceItems"`
 }
 
 // Invoice struct for a invoice
 type Invoice struct {
 	// Invoice creation date
-	CreationDate string `json:"creationDate"`
+	CreationDate response.Date `json:"creationDate"`
 	// Currency used for this invoice
 	Currency string `json:"currency"`
 	// Invoice deadline
-	DueDate string `json:"dueDate"`
+	DueDate response.Date `json:"dueDate"`
 	// Invoice number
 	InvoiceNumber string `json:"invoiceNumber"`
 	// Invoice status
 	InvoiceStatus string `json:"invoiceStatus"`
 	// Invoice paid date
-	PayDate string `json:"payDate"`
+	PayDate response.Date `json:"payDate"`
 	// Invoice total (displayed in cents)
-	TotalAmount float32 `json:"totalAmount"`
+	TotalAmount int `json:"totalAmount"`
 	// Invoice total including VAT (displayed in cents)
-	TotalAmountInclVat float32 `json:"totalAmountInclVat"`
+	TotalAmountInclVat int `json:"totalAmountInclVat"`
 }
 
 // InvoiceItem struct for InvoiceItem
 type InvoiceItem struct {
 	// Date when the order line item was up for invoicing
-	Date string `json:"date"`
+	Date response.Date `json:"date"`
 	// Product description
 	Description string `json:"description"`
 	// Applied discounts
-	Discounts []map[string]interface{} `json:"discounts"`
+	Discounts []InvoiceItemDiscount `json:"discounts"`
 	// Payment is recurring
 	IsRecurring bool `json:"isRecurring"`
 	// Price excluding VAT (displayed in cents)
-	Price float32 `json:"price"`
+	Price int `json:"price"`
 	// Price including VAT (displayed in cents)
-	PriceInclVat float32 `json:"priceInclVat"`
+	PriceInclVat int `json:"priceInclVat"`
 	// Product name
 	Product string `json:"product"`
 	// Quantity
-	Quantity float32 `json:"quantity"`
+	Quantity int `json:"quantity"`
 	// Amount of VAT charged
-	Vat float32 `json:"vat"`
+	Vat int `json:"vat"`
 	// Percentage used to calculate the VAT
-	VatPercentage float32 `json:"vatPercentage"`
+	VatPercentage int `json:"vatPercentage"`
 }
 
 // InvoiceItemDiscount struct for InvoiceItemDiscount
 type InvoiceItemDiscount struct {
 	// Discounted amount (in cents)
-	Amount float32 `json:"amount"`
+	Amount int `json:"amount"`
 	// Applied discount description
 	Description string `json:"description"`
-}
-
-// InvoiceItems struct for InvoiceItems
-type InvoiceItems struct {
-	// array of invoice items
-	InvoiceItems []InvoiceItem `json:"invoiceItems"`
-}
-
-// Invoices struct for Invoices
-type Invoices struct {
-	// list of invoices
-	Invoices []Invoice `json:"invoices"`
 }
 
 // Pdf struct for Pdf

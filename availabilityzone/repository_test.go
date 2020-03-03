@@ -11,22 +11,15 @@ import (
 	"testing"
 )
 
-const apiResponse = `{
-  "availabilityZones": [
-    {
-      "name": "ams0",
-      "country": "nl",
-      "isDefault": true
-    }
-  ]
-}
-`
-const errorResponse = `{"error":"errortest"}`
+const (
+	apiResponse   = `{ "availabilityZones": [ { "name": "ams0", "country": "nl", "isDefault": true } ] }`
+	errorResponse = `{ "error": "errortest" }`
+)
 
 func getMockServer(t *testing.T, url string, method string, statusCode int, response string) *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		assert.Equal(t, req.URL.String(), url) // check if right url is called
-		assert.Equal(t, req.Method, method)    // check if the right request method is used
+		assert.Equal(t, url, req.URL.String()) // check if right url is called
+		assert.Equal(t, method, req.Method)    // check if the right request method is used
 		rw.WriteHeader(statusCode)             // respond with given status code
 		rw.Write([]byte(response))
 	}))
@@ -38,7 +31,7 @@ func getRepository(t *testing.T, responseStatusCode int, response string) (Repos
 	client, err := gotransip.NewClient(config)
 	require.NoError(t, err)
 
-	// return tearDown method with which we will close the test server after the test
+	// return tearDown method with which will close the test server after the test
 	tearDown := func() {
 		server.Close()
 	}
@@ -63,7 +56,8 @@ func TestRepository_GetAllError(t *testing.T) {
 	repo, tearDown := getRepository(t, 406, errorResponse)
 	defer tearDown()
 
-	_, err := repo.GetAll()
+	obj, err := repo.GetAll()
 	require.Error(t, err)
+	assert.Nil(t, obj)
 	assert.Equal(t, errors.New("errortest"), err)
 }

@@ -1,10 +1,10 @@
 package availabilityzone
 
-// AvailabilityZonesResponse object with a list of AvailabilityZones in it
+// availabilityZonesResponse object with a list of AvailabilityZones in it
 // used to unpack the rest response and return the encapsulated AvailabilityZone objects
 // this is just used internal for unpacking, this should not be exported
-// we want to return a AvailabilityZones object not a AvailabilityZonesResponse
-type AvailabilityZonesResponse struct {
+// we want to return a AvailabilityZones object not a availabilityZonesResponse
+type availabilityZonesResponse struct {
 	AvailabilityZones []AvailabilityZone `json:"availabilityZones"`
 }
 

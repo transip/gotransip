@@ -10,13 +10,12 @@ import (
 // do a simple ping and retrieve pong from the server
 type Repository repository.RestRepository
 
-// Test will execute a test and respond with an error if the test failed
+// Test will execute an api test and respond with an error if the test failed
 func (r *Repository) Test() error {
 	var testResponse ApiTest
 	restRequest := request.RestRequest{Endpoint: "/api-test"}
 
-	err := r.Client.Get(restRequest, &testResponse)
-	if err != nil {
+	if err := r.Client.Get(restRequest, &testResponse); err != nil {
 		return err
 	}
 

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/transip/gotransip/v6/rest"
+	"time"
 )
 
 // RestException is used to unpack every error returned by the api contains
@@ -19,6 +20,44 @@ type RestResponse struct {
 	Body       []byte
 	StatusCode int
 	Method     rest.RestMethod
+}
+
+// Time is defined because the transip api server does not return a rfc 3339 time string
+// and golang requires this, so we need to do manual time parsing, by defining our own time struct
+// encapsulating time.Time
+type Time struct {
+	// Time item containing the actual parsed time object
+	time.Time
+}
+
+// Date is defined because the transip api server returns date strings, not parsed by golang by default
+// so we need to do manual time parsing, by defining our own date struct
+// encapsulating time.Time
+type Date struct {
+	// Time item containing the actual parsed time object
+	time.Time
+}
+
+// UnmarshalJSON parses datetime strings returned by the transip api
+func (tt *Time) UnmarshalJSON(input []byte) error {
+	newTime, err := time.Parse("\"2006-01-02 15:04:05\"", string(input))
+	if err != nil {
+		return err
+	}
+
+	tt.Time = newTime
+	return nil
+}
+
+// UnmarshalJSON parses date strings returned by the transip api
+func (tt *Date) UnmarshalJSON(input []byte) error {
+	newTime, err := time.Parse("\"2006-01-02\"", string(input))
+	if err != nil {
+		return err
+	}
+
+	tt.Time = newTime
+	return nil
 }
 
 // ParseResponse will convert a RestResponse struct to the given interface
