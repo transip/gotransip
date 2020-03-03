@@ -1030,8 +1030,8 @@ type OrderANewHAIPOpts struct {
 }
 
 /*
-OrderANewHAIP Order a new HA-IP
-Order a HA-IP. After assigning the HA-IP to an IP (which can be done through the API as well) all incoming TCP traffic will be routed to the specified IP addresses (only transip VPS IPs are allowed).  ::: warning  &lt;i class&#x3D;\&quot;fa fa-warning\&quot;&gt;&lt;/i&gt; **Warning**: This API call will create an invoice!
+OrderANewHAIP Register a new HA-IP
+Register a HA-IP. After assigning the HA-IP to an IP (which can be done through the API as well) all incoming TCP traffic will be routed to the specified IP addresses (only transip VPS IPs are allowed).  ::: warning  &lt;i class&#x3D;\&quot;fa fa-warning\&quot;&gt;&lt;/i&gt; **Warning**: This API call will create an invoice!
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param optional nil or *OrderANewHAIPOpts - Optional Parameters:
  * @param "InlineObject21" (optional.Interface of InlineObject21) -

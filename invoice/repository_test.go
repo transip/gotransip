@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6"
-	"github.com/transip/gotransip/v6/authenticator"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -77,7 +76,7 @@ func getMockServer(t *testing.T, url string, method string, statusCode int, resp
 
 func getRepository(t *testing.T, url string, responseStatusCode int, response string) (Repository, func()) {
 	server := getMockServer(t, url, "GET", responseStatusCode, response)
-	config := gotransip.ClientConfiguration{Token: authenticator.DemoToken, URL: server.URL}
+	config := gotransip.ClientConfiguration{DemoMode: true, URL: server.URL}
 	client, err := gotransip.NewClient(config)
 	require.NoError(t, err)
 
@@ -117,9 +116,9 @@ func TestRepository_GetByInvoiceNumber(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, invoiceNumber, invoice.InvoiceNumber)
-	assert.Equal(t, "2020-01-01 00:00:00 +0000 UTC", invoice.CreationDate.String())
-	assert.Equal(t, "2020-01-01 00:00:00 +0000 UTC", invoice.PayDate.String())
-	assert.Equal(t, "2020-02-01 00:00:00 +0000 UTC", invoice.DueDate.String())
+	assert.Equal(t, "2020-01-01 00:00:00 +0100 CET", invoice.CreationDate.String())
+	assert.Equal(t, "2020-01-01 00:00:00 +0100 CET", invoice.PayDate.String())
+	assert.Equal(t, "2020-02-01 00:00:00 +0100 CET", invoice.DueDate.String())
 	assert.Equal(t, "waitsforpayment", invoice.InvoiceStatus)
 	assert.Equal(t, "EUR", invoice.Currency)
 	assert.Equal(t, 1000, invoice.TotalAmount)
@@ -149,7 +148,7 @@ func TestRepository_GetInvoiceItems(t *testing.T) {
 	assert.Equal(t, "Big Storage Disk 2000 GB", all[0].Product)
 	assert.Equal(t, "Big Storage Disk 2000 GB (example-bigstorage)", all[0].Description)
 	assert.Equal(t, false, all[0].IsRecurring)
-	assert.Equal(t, "2020-01-01 00:00:00 +0000 UTC", all[0].Date.String())
+	assert.Equal(t, "2020-01-01 00:00:00 +0100 CET", all[0].Date.String())
 	assert.Equal(t, 1, all[0].Quantity)
 	assert.Equal(t, 1000, all[0].Price)
 	assert.Equal(t, 1210, all[0].PriceInclVat)

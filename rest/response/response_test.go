@@ -83,5 +83,5 @@ func TestResponseTimeParsing(t *testing.T) {
 
 	err := restResponse.ParseResponse(&responseObject)
 	assert.NoError(t, err)
-	assert.Equal(t, "2020-01-02 12:13:37 +0000 UTC", responseObject.Date.String())
+	assert.Equal(t, "2020-01-02 12:13:37 +0100 CET", responseObject.Date.String())
 }

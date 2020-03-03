@@ -50,6 +50,11 @@ func newClient(config ClientConfiguration) (*client, error) {
 	var privateKeyBody []byte
 	var token jwt.Token
 
+	// copy demo token from authenticator on demo mode
+	if config.DemoMode {
+		config.Token = authenticator.DemoToken
+	}
+
 	// check account name
 	if len(config.AccountName) == 0 && len(config.Token) == 0 {
 		return &client{}, errors.New("AccountName is required")

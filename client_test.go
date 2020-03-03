@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"github.com/transip/gotransip/v6/authenticator"
-	"github.com/transip/gotransip/v6/domain"
 	"github.com/transip/gotransip/v6/product"
 	"github.com/transip/gotransip/v6/rest"
 	"github.com/transip/gotransip/v6/rest/request"
@@ -32,6 +31,13 @@ func TestNewClient(t *testing.T) {
 	require.NoError(t, err, "No error when correct token is provided")
 	cc.Token = ""
 
+	// no error should be thrown when enabling demo mode
+	cc.DemoMode = true
+	client, err := newClient(cc)
+	require.NoError(t, err, "No error should be thrown upon enabling demo mode")
+	assert.Equal(t, authenticator.DemoToken, client.GetConfig().Token, "Token should be demo token")
+	cc.DemoMode = false
+
 	cc.AccountName = "foobar"
 	// ClientConfig with only AccountName set should raise error about private keys
 	_, err = NewClient(cc)
@@ -49,7 +55,7 @@ func TestNewClient(t *testing.T) {
 	pkBody := []byte{2, 3, 4, 5}
 	cc.PrivateKeyReader = bytes.NewReader(pkBody)
 
-	client, err := newClient(cc)
+	client, err = newClient(cc)
 	clientAuthenticator := client.GetAuthenticator()
 	config := client.GetConfig()
 	assert.NoError(t, err)
@@ -78,7 +84,12 @@ func TestClientCallReturnsObject(t *testing.T) {
 	require.NoError(t, err)
 
 	restRequest := request.RestRequest{Endpoint: "/domains"}
-	var domainsResponse domain.DomainsResponse
+	type domainResponse struct {
+		Name string `json:"name"`
+	}
+	var domainsResponse struct {
+		Domains []domainResponse `json:"domains"`
+	}
 
 	err = client.call(rest.GetRestMethod, restRequest, &domainsResponse)
 	require.NoError(t, err)

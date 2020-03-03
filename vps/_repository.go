@@ -3360,8 +3360,8 @@ type OrderANewPrivateNetworkOpts struct {
 }
 
 /*
-OrderANewPrivateNetwork Order a new private network
-Order a new private network. After ordering a private network you’re able to attach it to a VPS t o make use of the private network.  ::: warning  &lt;i class&#x3D;\&quot;fa fa-warning\&quot;&gt;&lt;/i&gt; **Warning**: This API call will create an invoice!
+OrderANewPrivateNetwork Register a new private network
+Register a new private network. After ordering a private network you’re able to attach it to a VPS t o make use of the private network.  ::: warning  &lt;i class&#x3D;\&quot;fa fa-warning\&quot;&gt;&lt;/i&gt; **Warning**: This API call will create an invoice!
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param optional nil or *OrderANewPrivateNetworkOpts - Optional Parameters:
  * @param "InlineObject31" (optional.Interface of InlineObject31) -
@@ -3440,7 +3440,7 @@ type OrderAddonsForAVPSOpts struct {
 }
 
 /*
-OrderAddonsForAVPS Order addons for a VPS
+OrderAddonsForAVPS Register addons for a VPS
 In order to extend a specific VPS with add-ons, use this API call.  The type of add-ons that can be ordered range from extra IP addresses to hardware add-ons such as an extra core or additional SSD disk space.  ::: warning  &lt;i class&#x3D;\&quot;fa fa-warning\&quot;&gt;&lt;/i&gt; **Warning**: This API call will create a new invoice for the specified add-on(s)
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param vpsName VPS name

@@ -205,14 +205,6 @@ type InlineResponse20021 struct {
 	Certificate InlineResponse20021Certificate `json:"certificate,omitempty"`
 }
 
-// InlineObject12 struct for InlineObject12
-type InlineObject12 struct {
-	AuthCode    string              `json:"authCode,omitempty"`
-	Contacts    []domain.Contact    `json:"contacts,omitempty"`
-	DnsEntries  []domain.DnsEntry   `json:"dnsEntries,omitempty"`
-	Nameservers []domain.Nameserver `json:"nameservers,omitempty"`
-}
-
 // InlineResponse20046 struct for InlineResponse20046
 type InlineResponse20046 struct {
 	OperatingSystems []map[string]interface{} `json:"operatingSystems,omitempty"`
@@ -611,11 +603,6 @@ type InlineResponse20050 struct {
 	Upgrades []map[string]interface{} `json:"upgrades,omitempty"`
 }
 
-// InlineObject13 struct for InlineObject13
-type InlineObject13 struct {
-	Branding InlineResponse20015Branding `json:"branding,omitempty"`
-}
-
 // InlineResponse20040Tld struct for InlineResponse20040Tld
 type InlineResponse20040Tld struct {
 	// Number of days a domain needs to be canceled before the renewal date.
@@ -726,11 +713,6 @@ type InlineResponse2004 struct {
 	Backups []map[string]interface{} `json:"backups,omitempty"`
 }
 
-// InlineResponse20015 struct for InlineResponse20015
-type InlineResponse20015 struct {
-	Branding InlineResponse20015Branding `json:"branding,omitempty"`
-}
-
 // InlineObject27 struct for InlineObject27
 type InlineObject27 struct {
 	PortConfiguration InlineResponse20027PortConfiguration `json:"portConfiguration,omitempty"`
@@ -740,24 +722,6 @@ type InlineObject27 struct {
 type InlineObject38 struct {
 	Action             string `json:"action,omitempty"`
 	TargetCustomerName string `json:"targetCustomerName,omitempty"`
-}
-
-// InlineResponse20015Branding struct for InlineResponse20015Branding
-type InlineResponse20015Branding struct {
-	// The first generic bannerLine displayed in whois-branded whois output.
-	BannerLine1 string `json:"bannerLine1"`
-	// The second generic bannerLine displayed in whois-branded whois output.
-	BannerLine2 string `json:"bannerLine2"`
-	// The third generic bannerLine displayed in whois-branded whois output.
-	BannerLine3 string `json:"bannerLine3"`
-	// The company name displayed in transfer-branded e-mails
-	CompanyName string `json:"companyName"`
-	// The company url displayed in transfer-branded e-mails
-	CompanyUrl string `json:"companyUrl"`
-	// The support email used for transfer-branded e-mails
-	SupportEmail string `json:"supportEmail"`
-	// The terms of usage url as displayed in transfer-branded e-mails
-	TermsOfUsageUrl *string `json:"termsOfUsageUrl"`
 }
 
 // InlineResponse20033MailServiceInformation struct for InlineResponse20033MailServiceInformation

@@ -80,8 +80,3 @@ type InvoiceItemDiscount struct {
 	// Applied discount description
 	Description string `json:"description"`
 }
-
-// Pdf struct for Pdf
-type Pdf struct {
-	Content string `json:"pdf"`
-}

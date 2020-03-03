@@ -5,7 +5,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6"
-	"github.com/transip/gotransip/v6/authenticator"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -27,7 +26,7 @@ func getMockServer(t *testing.T, url string, method string, statusCode int, resp
 
 func getRepository(t *testing.T, responseStatusCode int, response string) (Repository, func()) {
 	server := getMockServer(t, "/availability-zones", "GET", responseStatusCode, response)
-	config := gotransip.ClientConfiguration{Token: authenticator.DemoToken, URL: server.URL}
+	config := gotransip.ClientConfiguration{DemoMode: true, URL: server.URL}
 	client, err := gotransip.NewClient(config)
 	require.NoError(t, err)
 

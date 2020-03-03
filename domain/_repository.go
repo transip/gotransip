@@ -1511,8 +1511,8 @@ func (a *DomainRepository) ListNameserversForADomain(ctx _context.Context, domai
 }
 
 /*
-OrderAWhitelabelAccount Order a whitelabel account
-Order a whitelabel account from the API. Note that you do not need to order a whitelabel account for every registered domain name.  Please check the TransIP control panel to view the cost for a whitelabel account.  ::: warning  &lt;i class&#x3D;\&quot;fa fa-warning\&quot;&gt;&lt;/i&gt; **Warning**: This API call will create an invoice!
+OrderAWhitelabelAccount Register a whitelabel account
+Register a whitelabel account from the API. Note that you do not need to order a whitelabel account for every registered domain name.  Please check the TransIP control panel to view the cost for a whitelabel account.  ::: warning  &lt;i class&#x3D;\&quot;fa fa-warning\&quot;&gt;&lt;/i&gt; **Warning**: This API call will create an invoice!
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
 */
 func (a *DomainRepository) OrderAWhitelabelAccount(ctx _context.Context) (*_nethttp.Response, error) {
@@ -1756,7 +1756,7 @@ Domain actions can fail due to wrong information, this method allows you to retr
  * @param ctx _context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  * @param domainName Domain name
  * @param optional nil or *RetryDomainActionOpts - Optional Parameters:
- * @param "InlineObject12" (optional.Interface of InlineObject12) -
+ * @param "Register" (optional.Interface of Register) -
 */
 func (a *DomainRepository) RetryDomainAction(ctx _context.Context, domainName string, localVarOptionals *RetryDomainActionOpts) (*_nethttp.Response, error) {
 	var (
@@ -1796,7 +1796,7 @@ func (a *DomainRepository) RetryDomainAction(ctx _context.Context, domainName st
 	if localVarOptionals != nil && localVarOptionals.InlineObject12.IsSet() {
 		localVarOptionalInlineObject12, localVarOptionalInlineObject12ok := localVarOptionals.InlineObject12.Value().(inlineobjects.InlineObject12)
 		if !localVarOptionalInlineObject12ok {
-			return nil, gotransip.reportError("inlineObject12 should be InlineObject12")
+			return nil, gotransip.reportError("inlineObject12 should be Register")
 		}
 		localVarPostBody = &localVarOptionalInlineObject12
 	}

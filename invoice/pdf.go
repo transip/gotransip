@@ -6,6 +6,13 @@ import (
 	"strings"
 )
 
+// Pdf struct for Pdf
+type Pdf struct {
+	// Content contains a base64 encoded string containing the pdf content
+	// We provide a io.Reader on this struct called GetIoReader
+	Content string `json:"pdf"`
+}
+
 // GetIoReader will return a io.Reader containing the decoded base64 contents of the invoice PDF
 func (p *Pdf) GetIoReader() io.Reader {
 	reader := strings.NewReader(p.Content)
