@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/transip/gotransip/v6/authenticator"
 	"github.com/transip/gotransip/v6/product"
-	"github.com/transip/gotransip/v6/rest"
 	"github.com/transip/gotransip/v6/rest/request"
 	"net/http"
 	"net/http/httptest"
@@ -91,10 +90,21 @@ func TestClientCallReturnsObject(t *testing.T) {
 		Domains []domainResponse `json:"domains"`
 	}
 
-	err = client.call(rest.GetRestMethod, restRequest, &domainsResponse)
+	err = client.Get(restRequest, &domainsResponse)
 	require.NoError(t, err)
 	require.Equal(t, 1, len(domainsResponse.Domains))
 	assert.Equal(t, "test.nl", domainsResponse.Domains[0].Name)
+}
+
+func TestEmptyBodyPostDoesPostWithoutBody(t *testing.T) {
+	server := getPostMockServer(t)
+	clientConfig := ClientConfiguration{Token: authenticator.DemoToken, URL: server.URL}
+	client, err := newClient(clientConfig)
+	require.NoError(t, err)
+
+	restRequest := request.RestRequest{Endpoint: "/test"}
+	err = client.Post(restRequest)
+	require.NoError(t, err)
 }
 
 // Test if we can connect to the api server using the demo token
@@ -112,6 +122,25 @@ func TestClientCallToApiServer(t *testing.T) {
 	err = client.Get(request, &responseObject)
 	require.NoError(t, err)
 	assert.Equal(t, 6, len(responseObject.Products.Vps))
+}
+
+func getPostMockServer(t *testing.T) *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		// check if right url is called
+		assert.Equal(t, req.URL.String(), "/test")
+		// check if the right method is used
+		assert.Equal(t, req.Method, "POST")
+		// check if body is empty
+		assert.Equal(t, int64(0), req.ContentLength)
+		// check if a signature is set
+		assert.NotEmpty(t, req.Header.Get("Authorization"), "Authentication header not set")
+		// check if the request has the right content-type
+		assert.Equal(t, req.Header.Get("Accept"), "application/json")
+		// check if the request has the right content-type
+		assert.Equal(t, req.Header.Get("Content-Type"), "application/json")
+		// respond with 200
+		rw.WriteHeader(200)
+	}))
 }
 
 func getMockServer(t *testing.T) *httptest.Server {

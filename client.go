@@ -175,3 +175,9 @@ func (c *client) Put(request request.RestRequest) error {
 func (c *client) Delete(request request.RestRequest) error {
 	return c.call(rest.DeleteRestMethod, request, nil)
 }
+
+// This method that executes a http Patch request
+// It expects no response, that is why it does not return one
+func (c *client) Patch(request request.RestRequest) error {
+	return c.call(rest.PatchRestMethod, request, nil)
+}

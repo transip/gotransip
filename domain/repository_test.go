@@ -8,6 +8,7 @@ import (
 	"github.com/transip/gotransip/v6"
 	"github.com/transip/gotransip/v6/repository"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -66,6 +67,15 @@ const (
       "faxNumber": "+31 715241919",
       "email": "example@example.com",
       "country": "nl"
+    } ] }`
+	dnsEntriesApiResponse = `{ "dnsEntries": [
+    { "name": "www", "expire": 86400, "type": "A", "content": "127.0.0.1" }
+  ] }`
+	dnsSecEntriesApiResponseRequest = `{ "dnsSecEntries": [ {
+      "keyTag": 67239,
+      "flags": 1,
+      "algorithm": 8,
+      "publicKey": "kljlfkjsdfkjasdklf="
     } ] }`
 )
 
@@ -324,7 +334,7 @@ func TestRepository_GetContacts(t *testing.T) {
 }
 
 func TestRepository_UpdateContacts(t *testing.T) {
-	expectedRequest := `{"contacts":[{"city":"Leiden","companyKvk":"83057825","companyName":"Example B.V.","companyType":"BV","country":"nl","email":"example@example.com","faxNumber":"+31 715241919","firstName":"John","lastName":"Doe","number":"12","phoneNumber":"+31 715241919","postalCode":"1337 XD","street":"Easy street","type":"registrant"}]}`
+	expectedRequest := `{"contacts":[{"type":"registrant","firstName":"John","lastName":"Doe","companyName":"Example B.V.","companyKvk":"83057825","companyType":"BV","street":"Easy street","number":"12","postalCode":"1337 XD","city":"Leiden","phoneNumber":"+31 715241919","faxNumber":"+31 715241919","email":"example@example.com","country":"nl"}]}`
 	server := mockServer{t: t, expectedMethod: "PUT", expectedUrl: "/domains/example.com/contacts", statusCode: 204, expectedRequestBody: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -351,4 +361,314 @@ func TestRepository_UpdateContacts(t *testing.T) {
 
 	err := repo.UpdateContacts("example.com", contacts)
 	require.NoError(t, err)
+}
+
+func TestRepository_GetDnsEntries(t *testing.T) {
+	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/domains/example.com/dns", statusCode: 200, response: dnsEntriesApiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	entries, err := repo.GetDnsEntries("example.com")
+	require.Equal(t, 1, len(entries))
+	require.NoError(t, err)
+	assert.Equal(t, "www", entries[0].Name)
+	assert.Equal(t, uint(86400), entries[0].Expire)
+	assert.Equal(t, "A", entries[0].Type)
+	assert.Equal(t, "127.0.0.1", entries[0].Content)
+
+}
+
+func TestRepository_AddDnsEntry(t *testing.T) {
+	expectedRequest := `{"dnsEntry":{"name":"www","expire":1337,"type":"A","content":"127.0.0.1"}}`
+	server := mockServer{t: t, expectedMethod: "POST", expectedUrl: "/domains/example.com/dns", statusCode: 201, expectedRequestBody: expectedRequest}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	dnsEntry := DnsEntry{Content: "127.0.0.1", Expire: 1337, Name: "www", Type: "A"}
+	err := repo.AddDnsEntry("example.com", dnsEntry)
+	require.NoError(t, err)
+}
+
+func TestRepository_UpdateDnsEntry(t *testing.T) {
+	expectedRequest := `{"dnsEntry":{"name":"www","expire":1337,"type":"A","content":"127.0.0.1"}}`
+	server := mockServer{t: t, expectedMethod: "PATCH", expectedUrl: "/domains/example.com/dns", statusCode: 204, expectedRequestBody: expectedRequest}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	dnsEntry := DnsEntry{Content: "127.0.0.1", Expire: 1337, Name: "www", Type: "A"}
+	err := repo.UpdateDnsEntry("example.com", dnsEntry)
+	require.NoError(t, err)
+}
+
+func TestRepository_ReplaceDnsEntries(t *testing.T) {
+	expectedRequest := `{"dnsEntries":[{"name":"www","expire":1337,"type":"A","content":"127.0.0.1"}]}`
+	server := mockServer{t: t, expectedMethod: "PUT", expectedUrl: "/domains/example.com/dns", statusCode: 204, expectedRequestBody: expectedRequest}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	dnsEntries := []DnsEntry{{Content: "127.0.0.1", Expire: 1337, Name: "www", Type: "A"}}
+	err := repo.ReplaceDnsEntries("example.com", dnsEntries)
+	require.NoError(t, err)
+}
+
+func TestRepository_RemoveDnsEntry(t *testing.T) {
+	expectedRequest := `{"dnsEntry":{"name":"www","expire":1337,"type":"A","content":"127.0.0.1"}}`
+	server := mockServer{t: t, expectedMethod: "DELETE", expectedUrl: "/domains/example.com/dns", statusCode: 204, expectedRequestBody: expectedRequest}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	dnsEntry := DnsEntry{Content: "127.0.0.1", Expire: 1337, Name: "www", Type: "A"}
+	err := repo.RemoveDnsEntry("example.com", dnsEntry)
+	require.NoError(t, err)
+}
+
+func TestRepository_GetDnsSecEntries(t *testing.T) {
+	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/domains/example.com/dnssec", statusCode: 200, response: dnsSecEntriesApiResponseRequest}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	entries, err := repo.GetDnsSecEntries("example.com")
+	require.NoError(t, err)
+	require.Equal(t, 1, len(entries))
+
+	assert.Equal(t, uint(67239), entries[0].KeyTag)
+	assert.Equal(t, uint(1), entries[0].Flags)
+	assert.Equal(t, uint(8), entries[0].Algorithm)
+	assert.Equal(t, "kljlfkjsdfkjasdklf=", entries[0].PublicKey)
+}
+
+func TestRepository_ReplaceDnsSecEntries(t *testing.T) {
+	expectedRequestBody := `{"dnsSecEntries":[{"algorithm":8,"flags":1,"keyTag":67239,"publicKey":"test123"}]}`
+	server := mockServer{t: t, expectedMethod: "PUT", expectedUrl: "/domains/example.com/dnssec", statusCode: 204, expectedRequestBody: expectedRequestBody}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	dnsSecEntries := []DnsSecEntry{{KeyTag: 67239, Flags: 1, Algorithm: 8, PublicKey: "test123"}}
+	err := repo.ReplaceDnsSecEntries("example.com", dnsSecEntries)
+	require.NoError(t, err)
+}
+
+func TestRepository_GetNameservers(t *testing.T) {
+	apiResponse := `{"nameservers":[{"hostname":"ns0.transip.nl","ipv4":"127.0.0.1","ipv6":"2a01::1"}]}`
+	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/domains/example.com/nameservers", statusCode: 200, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	nameservers, err := repo.GetNameservers("example.com")
+	require.NoError(t, err)
+	assert.Equal(t, 1, len(nameservers))
+	assert.Equal(t, "ns0.transip.nl", nameservers[0].Hostname)
+	assert.Equal(t, "127.0.0.1", nameservers[0].Ipv4.String())
+	assert.Equal(t, "2a01::1", nameservers[0].Ipv6.String())
+}
+
+func TestRepository_UpdateNameservers(t *testing.T) {
+	expectedRequest := `{"nameservers":[{"hostname":"ns0.transip.nl","ipv4":"127.0.0.1","ipv6":"2a01::1"}]}`
+	server := mockServer{t: t, expectedMethod: "PUT", expectedUrl: "/domains/example.com/nameservers", statusCode: 204, expectedRequestBody: expectedRequest}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	nameservers := []Nameserver{{
+		Hostname: "ns0.transip.nl",
+		Ipv4:     net.ParseIP("127.0.0.1"),
+		Ipv6:     net.ParseIP("2a01::1"),
+	}}
+	err := repo.UpdateNameservers("example.com", nameservers)
+	require.NoError(t, err)
+}
+
+func TestRepository_GetDomainAction(t *testing.T) {
+	apiResponse := `{"action":{"name":"changeNameservers","message":"success","hasFailed":false}}`
+	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/domains/example.com/actions", statusCode: 200, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	action, err := repo.GetDomainAction("example.com")
+	require.NoError(t, err)
+	assert.Equal(t, "changeNameservers", action.Name)
+	assert.Equal(t, "success", action.Message)
+	assert.Equal(t, false, action.HasFailed)
+
+}
+
+func TestRepository_RetryDomainAction(t *testing.T) {
+	expectedRequest := `{"authCode":"test","dnsEntries":[{"name":"www","expire":86400,"type":"A","content":"127.0.0.1"}],"nameservers":[{"hostname":"ns0.transip.nl","ipv4":"127.0.0.1","ipv6":"2a01::1"}],"contacts":[{"type":"registrant","firstName":"John","lastName":"Doe","companyName":"Example B.V.","companyKvk":"83057825","companyType":"BV","street":"Easy street","number":"12","postalCode":"1337 XD","city":"Leiden","phoneNumber":"+31 715241919","faxNumber":"+31 715241919","email":"example@example.com","country":"nl"}]}`
+	server := mockServer{t: t, expectedMethod: "PATCH", expectedUrl: "/domains/example.com/actions", statusCode: 204, expectedRequestBody: expectedRequest}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	contacts := []WhoisContact{
+		{
+			Type:        "registrant",
+			FirstName:   "John",
+			LastName:    "Doe",
+			CompanyName: "Example B.V.",
+			CompanyKvk:  "83057825",
+			CompanyType: "BV",
+			Street:      "Easy street",
+			Number:      "12",
+			PostalCode:  "1337 XD",
+			City:        "Leiden",
+			PhoneNumber: "+31 715241919",
+			FaxNumber:   "+31 715241919",
+			Email:       "example@example.com",
+			Country:     "nl",
+		},
+	}
+
+	nameservers := []Nameserver{{
+		Hostname: "ns0.transip.nl",
+		Ipv4:     net.ParseIP("127.0.0.1"),
+		Ipv6:     net.ParseIP("2a01::1"),
+	}}
+
+	dnsEntries := []DnsEntry{{Content: "127.0.0.1", Expire: 86400, Name: "www", Type: "A"}}
+
+	err := repo.RetryDomainAction("example.com", "test", dnsEntries, nameservers, contacts)
+	require.NoError(t, err)
+}
+
+func TestRepository_CancelDomainAction(t *testing.T) {
+	server := mockServer{t: t, expectedMethod: "DELETE", expectedUrl: "/domains/example.com/actions", statusCode: 204}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	err := repo.CancelDomainAction("example.com")
+	require.NoError(t, err)
+}
+
+func TestRepository_GetSSLCertificates(t *testing.T) {
+	apiResponse := `{"certificates":[{"certificateId":12358,"commonName":"example.com","expirationDate":"2019-10-24 12:59:59","status":"active"}]}`
+	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/domains/example.com/ssl", statusCode: 200, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	certificates, err := repo.GetSSLCertificates("example.com")
+	require.NoError(t, err)
+	require.Equal(t, 1, len(certificates))
+	assert.Equal(t, uint(12358), certificates[0].CertificateId)
+	assert.Equal(t, "example.com", certificates[0].CommonName)
+	assert.Equal(t, "2019-10-24 12:59:59", certificates[0].ExpirationDate)
+	assert.Equal(t, "active", certificates[0].Status)
+}
+
+func TestRepository_GetSSLCertificateById(t *testing.T) {
+	apiResponse := `{"certificate":{"certificateId":12358,"commonName":"example.com","expirationDate":"2019-10-24 12:59:59","status":"active"}}`
+	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/domains/example.com/ssl/12358", statusCode: 200, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	certificates, err := repo.GetSSLCertificateById("example.com", 12358)
+	require.NoError(t, err)
+	assert.Equal(t, uint(12358), certificates.CertificateId)
+	assert.Equal(t, "example.com", certificates.CommonName)
+	assert.Equal(t, "2019-10-24 12:59:59", certificates.ExpirationDate)
+	assert.Equal(t, "active", certificates.Status)
+}
+
+func TestRepository_GetWHOIS(t *testing.T) {
+	apiResponse := `{"whois":"test123"}`
+	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/domains/example.com/whois", statusCode: 200, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	whoisInfo, err := repo.GetWHOIS("example.com")
+	require.NoError(t, err)
+	assert.Equal(t, "test123", whoisInfo)
+}
+
+func TestRepository_OrderWhitelabel(t *testing.T) {
+	server := mockServer{t: t, expectedMethod: "POST", expectedUrl: "/whitelabel", statusCode: 201}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	err := repo.OrderWhitelabel()
+	require.NoError(t, err)
+}
+
+func TestRepository_GetAvailability(t *testing.T) {
+	apiResponse := `{"availability":{"domainName":"example.com","status":"free","actions":["register"]}}`
+	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/domain-availability/example.com", statusCode: 200, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	availability, err := repo.GetAvailability("example.com")
+	require.NoError(t, err)
+	assert.Equal(t, "example.com", availability.DomainName)
+	assert.Equal(t, "free", availability.Status)
+	assert.Equal(t, []string{"register"}, availability.Actions)
+}
+
+func TestRepository_GetAvailabilityForMultipleDomains(t *testing.T) {
+	apiResponse := `{"availability":[{"domainName":"example.com","status":"free","actions":["register"]}]}`
+	expectedRequest := `{"domainNames":["example.com","example.nl"]}`
+	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/domain-availability", statusCode: 200, expectedRequestBody: expectedRequest, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	availabilityList, err := repo.GetAvailabilityForMultipleDomains([]string{"example.com", "example.nl"})
+	require.NoError(t, err)
+	require.Equal(t, 1, len(availabilityList))
+	assert.Equal(t, "example.com", availabilityList[0].DomainName)
+	assert.Equal(t, "free", availabilityList[0].Status)
+	assert.Equal(t, []string{"register"}, availabilityList[0].Actions)
+}
+
+func TestRepository_GetTLDs(t *testing.T) {
+	apiResponse := `{"tlds":[{"name":".nl","price":399,"recurringPrice":749,"capabilities":["canRegister"],"minLength":2,"maxLength":63,"registrationPeriodLength":12,"cancelTimeFrame":1}]}`
+	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/tlds", statusCode: 200, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	tlds, err := repo.GetTLDs()
+	require.NoError(t, err)
+	require.Equal(t, 1, len(tlds))
+	assert.Equal(t, ".nl", tlds[0].Name)
+	assert.Equal(t, uint(399), tlds[0].Price)
+	assert.Equal(t, uint(749), tlds[0].RecurringPrice)
+	assert.Equal(t, uint(2), tlds[0].MinLength)
+	assert.Equal(t, uint(63), tlds[0].MaxLength)
+	assert.Equal(t, uint(12), tlds[0].RegistrationPeriodLength)
+	assert.Equal(t, uint(1), tlds[0].CancelTimeFrame)
+
+	assert.Equal(t, []string{"canRegister"}, tlds[0].Capabilities)
+}
+
+func TestRepository_GetTldInfo(t *testing.T) {
+	apiResponse := `{"tld":{"name":".nl","price":399,"recurringPrice":749,"capabilities":["canRegister"],"minLength":2,"maxLength":63,"registrationPeriodLength":12,"cancelTimeFrame":1}}`
+	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/tlds/.nl", statusCode: 200, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	tld, err := repo.GetTLDByTLD(".nl")
+	require.NoError(t, err)
+	assert.Equal(t, ".nl", tld.Name)
+	assert.Equal(t, uint(399), tld.Price)
+	assert.Equal(t, uint(749), tld.RecurringPrice)
+	assert.Equal(t, uint(2), tld.MinLength)
+	assert.Equal(t, uint(63), tld.MaxLength)
+	assert.Equal(t, uint(12), tld.RegistrationPeriodLength)
+	assert.Equal(t, uint(1), tld.CancelTimeFrame)
+
+	assert.Equal(t, []string{"canRegister"}, tld.Capabilities)
 }

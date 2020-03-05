@@ -85,3 +85,18 @@ func TestResponseTimeParsing(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "2020-01-02 12:13:37 +0100 CET", responseObject.Date.String())
 }
+
+func TestResponseEmptyTimeParsing(t *testing.T) {
+	responseBody := []byte(`{"cancellationDate": "", "cancellationDatetime": ""}`)
+	restResponse := RestResponse{Body: responseBody, StatusCode: 200, Method: rest.GetRestMethod}
+
+	var responseObject struct {
+		DateTime Time `json:"cancellationDatetime"`
+		Date Date `json:"cancellationDate"`
+	}
+
+	err := restResponse.ParseResponse(&responseObject)
+	assert.NoError(t, err)
+	assert.Equal(t, "0001-01-01 00:00:00 +0000 UTC", responseObject.DateTime.String())
+	assert.Equal(t, "0001-01-01 00:00:00 +0000 UTC", responseObject.Date.String())
+}

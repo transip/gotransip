@@ -34,11 +34,6 @@ type InlineObject11 struct {
 	EndTime string `json:"endTime,omitempty"`
 }
 
-// InlineObject17 struct for InlineObject17
-type InlineObject17 struct {
-	DnsEntry domain.DomainsDomainNameDnsDnsEntry `json:"dnsEntry,omitempty"`
-}
-
 // InlineResponse20017 struct for InlineResponse20017
 type InlineResponse20017 struct {
 	DnsEntries []map[string]interface{} `json:"dnsEntries,omitempty"`
@@ -184,16 +179,6 @@ type InlineObject struct {
 	Size float32 `json:"size,omitempty"`
 }
 
-// InlineResponse20014Action struct for InlineResponse20014Action
-type InlineResponse20014Action struct {
-	// If this action has failed, this field will be true.
-	HasFailed bool `json:"hasFailed,omitempty"`
-	// If this action has failed, this field will contain an descriptive message.
-	Message string `json:"message,omitempty"`
-	// The name of this DomainAction.
-	Name string `json:"name"`
-}
-
 // InlineObject37 struct for InlineObject37
 type InlineObject37 struct {
 	// Cancellation time, either 'end' (default) or 'immediately'
@@ -234,16 +219,6 @@ type FirewallResponse struct {
 type InlineObject2 struct {
 	// Cancellation time, either 'end' or 'immediately'
 	EndTime string `json:"endTime,omitempty"`
-}
-
-// InlineResponse20014 struct for InlineResponse20014
-type InlineResponse20014 struct {
-	Action InlineResponse20014Action `json:"action,omitempty"`
-}
-
-// InlineObject20 struct for InlineObject20
-type InlineObject20 struct {
-	Nameservers []domain.Nameserver `json:"nameservers,omitempty"`
 }
 
 // InlineResponse20022 struct for InlineResponse20022
@@ -480,11 +455,6 @@ type InlineObject50 struct {
 	Types string `json:"types,omitempty"`
 }
 
-// DnsEntriesResponse struct for InlineObject15
-type DnsEntriesResponse struct {
-	DnsEntries []domain.DnsEntry `json:"dnsEntries,omitempty"`
-}
-
 // InlineResponse20011Availability struct for InlineResponse20011Availability
 type InlineResponse20011Availability struct {
 	// List of available actions to perform on this domain. Possible actions are: 'register', 'transfer', 'internalpull' and 'internalpush'
@@ -515,19 +485,9 @@ type InlineResponse2009 struct {
 	IpAddress ipaddress.IpAddress `json:"ipAddress,omitempty"`
 }
 
-// InlineObject16 struct for InlineObject16
-type InlineObject16 struct {
-	DnsEntry domain.DomainsDomainNameDnsDnsEntry `json:"dnsEntry,omitempty"`
-}
-
 // InlineObject47 struct for InlineObject47
 type InlineObject47 struct {
 	TcpMonitor tcpmonitor.TcpMonitor `json:"tcpMonitor,omitempty"`
-}
-
-// InlineObject3 struct for InlineObject3
-type InlineObject3 struct {
-	Action string `json:"action,omitempty"`
 }
 
 // InlineResponse20028 struct for InlineResponse20028

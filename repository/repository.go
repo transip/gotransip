@@ -14,6 +14,8 @@ type Client interface {
 	Post(request request.RestRequest) error
 	// Executes a DELETE request, not expecting any response from the api server
 	Delete(request request.RestRequest) error
+	// Executes a PATCH request, not expecting any response from the api server
+	Patch(restRequest request.RestRequest) error
 }
 
 // RestRepository is the struct which is going to be used by all other repositories in the gotransip package

@@ -18,3 +18,8 @@ func TestStatusCodeMatches(t *testing.T) {
 	assert.Equal(t, false, DeleteRestMethod.StatusCodeIsCorrect(500))
 	assert.Equal(t, true, DeleteRestMethod.StatusCodeIsCorrect(204))
 }
+
+func TestContains(t *testing.T) {
+	assert.True(t, contains([]int{1, 2, 3, 4, 5}, 5))
+	assert.False(t, contains([]int{1, 2, 3, 4, 5}, 10))
+}
