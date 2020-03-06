@@ -1,5 +1,18 @@
 package bigstorage
 
+// Order struct which is used to construct a new order request for a bigstorage
+type Order struct {
+	// The size of the big storage in TB's, use a multitude of 2. The maximum size is 40.
+	Size float32 `json:"size"`
+	// Whether to order offsite backups, omit this to use current value
+	OffsiteBackups bool `json:"offsiteBackups"`
+	// The name of the availabilityZone where the BigStorage should be created. This parameter can not be used in conjunction with vpsName
+	// If a vpsName is provided as well as an availabilityZone, the zone of the vps is leading
+	AvailabilityZone string `json:"availabilityZone,omitempty"`
+	// The name of the VPS to attach the big storage to
+	VpsName string `json:"vpsName"`
+}
+
 // BigStorage struct for BigStorage
 type BigStorage struct {
 	// The availability zone the bigstorage is located in
@@ -32,16 +45,4 @@ type BigStorageBackup struct {
 	Id float32 `json:"id,omitempty"`
 	// Status of the big storage backup ('active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving')
 	Status string `json:"status,omitempty"`
-}
-
-// BigStorageBackups struct for BigStorageBackups
-type BigStorageBackups struct {
-	// array of BigStorageBackup
-	BigStorageBackups []BigStorageBackup `json:"bigStorageBackups"`
-}
-
-// BigStorages struct for BigStorages
-type BigStorages struct {
-	// array of BigStorage
-	BigStorages []BigStorage `json:"bigStorages"`
 }

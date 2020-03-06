@@ -4,7 +4,10 @@ import (
 	"github.com/transip/gotransip/v6/ipaddress"
 	"github.com/transip/gotransip/v6/product"
 	"github.com/transip/gotransip/v6/rest/response"
+	"github.com/transip/gotransip/v6/vps/bigstorage"
 	"github.com/transip/gotransip/v6/vps/firewall"
+	"github.com/transip/gotransip/v6/vps/privatenetwork"
+	"github.com/transip/gotransip/v6/vps/tcpmonitor"
 )
 
 // A backup status is a string and it could be one of the following
@@ -144,6 +147,31 @@ type firewallWrapper struct {
 	Firewall firewall.Firewall `json:"firewall"`
 }
 
+// privateNetworkWrapper struct contains a PrivateNetwork in it,
+// this is solely used for marshalling/unmarshalling
+type privateNetworkWrapper struct {
+	PrivateNetwork privatenetwork.PrivateNetwork `json:"privateNetwork"`
+}
+
+// privateNetworksWrapper struct contains a PrivateNetwork in it,
+// this is solely used for unmarshalling
+type privateNetworksWrapper struct {
+	PrivateNetworks []privatenetwork.PrivateNetwork `json:"privateNetworks"`
+}
+
+// privateNetworkActionWrapper struct is used to attach/detach a vps with a private network,
+// this is solely used for marshalling
+type privateNetworkActionwrapper struct {
+	Action  string `json:"action"`
+	VpsName string `json:"vpsName"`
+}
+
+// privateNetworkOrderRequest struct contains a description in it,
+// this is solely used for ordering a private network and encapsulating the description
+type privateNetworkOrderRequest struct {
+	Description string `json:"description"`
+}
+
 // addIpRequest struct contains an IPAddress in it,
 // this is solely used for marshalling
 type addIpRequest struct {
@@ -169,6 +197,57 @@ type installRequest struct {
 	OperatingSystemName string `json:"operatingSystemName"`
 	Hostname            string `json:"hostname,omitempty"`
 	Base64InstallText   string `json:"base64InstallText,omitempty"`
+}
+
+// bigStorageWrapper struct contains a BigStorage in it,
+// this is solely used for marshalling/unmarshalling
+type bigStorageWrapper struct {
+	BigStorage bigstorage.BigStorage `json:"bigStorage"`
+}
+
+// bigStoragesWrapper struct contains a list of BigStorages in it,
+// this is solely used for unmarshalling
+type bigStoragesWrapper struct {
+	BigStorages []bigstorage.BigStorage `json:"bigStorages"`
+}
+
+// bigStorageUpgradeRequest struct is used upon when upgrading a bigstorage
+// this struct is used for marshalling the request
+type bigStorageUpgradeRequest struct {
+	BigStorageName string `json:"bigStorageName"`
+	Size           uint   `json:"size"`
+	OffsiteBackups bool   `json:"offsiteBackups"`
+}
+
+// bigStorageBackupsWrapper struct contains a list of BigStorageBackups in it,
+// this is solely used for unmarshalling
+type bigStorageBackupsWrapper struct {
+	BigStorageBackups []bigstorage.BigStorageBackup `json:"backups"`
+}
+
+// usageDataDiskWrapper struct contains UsageDataDisk struct in it
+type usageDataDiskWrapper struct {
+	Usage UsageDataDisk `json:"usage"`
+}
+
+// tcpMonitorsWrapper struct is used for unmarshalling a []TcpMonitor list
+type tcpMonitorsWrapper struct {
+	TcpMonitors []tcpmonitor.TcpMonitor `json:"tcpMonitors"`
+}
+
+// tcpMonitorWrapper struct is used for marshalling/unmarshalling the TcpMonitor struct
+type tcpMonitorWrapper struct {
+	TcpMonitor tcpmonitor.TcpMonitor `json:"tcpMonitors"`
+}
+
+// contactsWrapper struct is used for unmarshalling a []MonitoringContact list
+type contactsWrapper struct {
+	Contacts []tcpmonitor.MonitoringContact `json:"contacts"`
+}
+
+// contactWrapper struct is used for marshalling/unmarshalling a MonitoringContact
+type contactWrapper struct {
+	Contact tcpmonitor.MonitoringContact `json:"contact"`
 }
 
 // Vps struct for Vps
@@ -231,6 +310,14 @@ type VpsUsageDataNetwork struct {
 	MbitIn float32 `json:"mbitIn"`
 	// The amount of outbound traffic in Mbps for this usage entry
 	MbitOut float32 `json:"mbitOut"`
+}
+
+// UsagePeriod is struct that can be used to query usage statistics for a certain period
+type UsagePeriod struct {
+	// TimeStart contains a unix timestamp for the start of the period
+	TimeStart int64 `json:"dateTimeStart"`
+	// TimeEnd contains a unix timestamp for the end of the period
+	TimeEnd int64 `json:"dateTimeEnd"`
 }
 
 // UsageDataDisk struct for UsageDataDisk

@@ -428,18 +428,6 @@ type InlineResponse20043Vps struct {
 	Status string `json:"status,omitempty"`
 }
 
-// InlineResponse20034Contact struct for InlineResponse20034Contact
-type InlineResponse20034Contact struct {
-	// Email address of the contact
-	Email string `json:"email"`
-	// Id number of the contact
-	Id float32 `json:"id"`
-	// Name of the contact
-	Name string `json:"name"`
-	// Telephone number of the contact
-	Telephone string `json:"telephone"`
-}
-
 // InlineObject50 struct for InlineObject50
 type InlineObject50 struct {
 	// The end date of the usage statistics
@@ -493,11 +481,6 @@ type InlineResponse20028 struct {
 // InlineResponse20036 struct for InlineResponse20036
 type InlineResponse20036 struct {
 	PrivateNetwork privatenetwork.PrivateNetwork `json:"privateNetwork,omitempty"`
-}
-
-// InlineObject30 struct for InlineObject30
-type InlineObject30 struct {
-	Contact InlineResponse20034Contact `json:"contact,omitempty"`
 }
 
 // InlineResponse20027PortConfiguration struct for InlineResponse20027PortConfiguration
@@ -581,16 +564,6 @@ type InlineResponse20040Tld struct {
 // InlineResponse20027 struct for InlineResponse20027
 type InlineResponse20027 struct {
 	PortConfiguration InlineResponse20027PortConfiguration `json:"portConfiguration,omitempty"`
-}
-
-// InlineResponse20019 struct for InlineResponse20019
-type InlineResponse20019 struct {
-	Nameservers []map[string]interface{} `json:"nameservers,omitempty"`
-}
-
-// InlineResponse20034 struct for InlineResponse20034
-type InlineResponse20034 struct {
-	Contact InlineResponse20034Contact `json:"contact,omitempty"`
 }
 
 // InlineResponse2003BigStorage struct for InlineResponse2003BigStorage
