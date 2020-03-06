@@ -2,8 +2,8 @@ package ipaddress
 
 import "net"
 
-// IpAddress struct for IpAddress
-type IpAddress struct {
+// IPAddress struct for IPAddress
+type IPAddress struct {
 	// The IP address
 	Address net.IP `json:"address,omitempty"`
 	// The TransIP DNS resolvers you can use
@@ -16,8 +16,8 @@ type IpAddress struct {
 	SubnetMask net.IPMask `json:"subnetMask,omitempty"`
 }
 
-// IpAddresses struct for IpAddresses
-type IpAddresses struct {
+// IPAddresses struct for IPAddresses
+type IPAddresses struct {
 	// array of IP Addresses
-	IpAddresses []IpAddress `json:"ipAddresses,omitempty"`
+	IPAddresses []IPAddress `json:"ipAddresses,omitempty"`
 }

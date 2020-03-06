@@ -1,13 +1,131 @@
 package vps
 
-import "github.com/transip/gotransip/v6/product"
+import (
+	"github.com/transip/gotransip/v6/ipaddress"
+	"github.com/transip/gotransip/v6/product"
+)
 
-// VpsResponse object with a Vps in it
-// used to unpack the rest response and return the encapsulated Vps object
-// this is just used internal for unpacking, this should not be exported
-// we want to return a Vps object not a VpsResponse
-type VpsResponse struct {
+// vpsWrapper struct contains a Vps in it,
+// this is solely used for unmarshalling/marshalling
+type vpsWrapper struct {
 	Vps Vps `json:"vps"`
+}
+
+// vpssWrapper struct contains a list of Vpses in it,
+// this is solely used for unmarshalling/marshalling
+type vpssWrapper struct {
+	Vpss []Vps `json:"vpss"`
+}
+
+// vpssOrderWrapper struct contains a list of VpsOrders in it,
+// this is solely used for marshalling
+type vpssOrderWrapper struct {
+	Orders []VpsOrder `json:"vpss"`
+}
+
+// cloneRequest is solely used for marshalling a vpsName and an availabilityZone
+type cloneRequest struct {
+	VpsName          string `json:"vpsName"`
+	AvailabilityZone string `json:"availabilityZone,omitempty"`
+}
+
+// actionWrapper struct contains an action in it,
+// this is solely used for marshalling
+type actionWrapper struct {
+	Action string `json:"action"`
+}
+
+// handoverRequest is used to request a handover, this is solely used for marshalling
+type handoverRequest struct {
+	Action             string `json:"action"`
+	TargetCustomerName string `json:"targetCustomerName"`
+}
+
+// usageWrapper struct contains Usage in it,
+// this is solely used for unmarshalling
+type usageWrapper struct {
+	Usage Usage `json:"usage"`
+}
+
+// vncDataWrapper struct contains VncData in it,
+// this is solely used for unmarshalling
+type vncDataWrapper struct {
+	VncData VncData `json:"vncData"`
+}
+
+// addonsWrapper struct contains a list with Addons in it,
+// this is solely used for unmarshalling
+type addonsWrapper struct {
+	Addons Addons `json:"addons"`
+}
+
+// addonOrderRequest struct contains a list with Addons in it,
+// this is solely used for marshalling
+type addonOrderRequest struct {
+	Addons []string `json:"addons"`
+}
+
+// upgradeRequest struct contains a Product Name in it,
+// this is solely used for marshalling
+type upgradeRequest struct {
+	ProductName string `json:"productName"`
+}
+
+// upgradesWrapper struct contains a list with Products in it,
+// this is solely used for marshalling
+type upgradesWrapper struct {
+	Upgrades []product.Product `json:"upgrades"`
+}
+
+// operatingSystemsWrapper struct contains a list with OperatingSystems in it,
+// this is solely used for marshalling
+type operatingSystemsWrapper struct {
+	OperatingSystems []OperatingSystem `json:"operatingSystems"`
+}
+
+// ipAddressWrapper struct contains an IPAddress in it,
+// this is solely used for unmarshalling
+type ipAddressWrapper struct {
+	IPAddress ipaddress.IPAddress `json:"ipAddress"`
+}
+
+// snapshotWrapper struct contains a Snapshot in it,
+// this is solely used for unmarshalling
+type snapshotWrapper struct {
+	Snapshot Snapshot `json:"snapshot"`
+}
+
+// snapshotWrapper struct contains a list of Snapshots in it,
+// this is solely used for unmarshalling
+type snapshotsWrapper struct {
+	Snapshots []Snapshot `json:"snapshot"`
+}
+
+// addIpRequest struct contains an IPAddress in it,
+// this is solely used for marshalling
+type addIpRequest struct {
+	IPAddress string `json:"ipAddress"`
+}
+
+// createSnapshotRequest is used to marshal a request for creating a snapshot on a vps
+// this is solely used for marshalling
+type createSnapshotRequest struct {
+	Description    string `json:"description"`
+	ShouldStartVps bool   `json:"shouldStartVps"`
+}
+
+// revertSnapshotRequest is used to marshal a request for reverting a snapshot to a vps
+// this is solely used for marshalling
+type revertSnapshotRequest struct {
+	DestinationVpsName string `json:"destinationVpsName"`
+}
+
+// installRequest struct contains a list with OperatingSystems in it,
+// this is solely used for marshalling
+type installRequest struct {
+	OperatingSystemName string `json:"operatingSystemName"`
+	Hostname            string `json:"hostname,omitempty"`
+	Base64InstallText   string `json:"base64InstallText,omitempty"`
 }
 
 // Vps struct for Vps
@@ -72,8 +190,8 @@ type VpsUsageDataNetwork struct {
 	MbitOut float32 `json:"mbitOut"`
 }
 
-// VpsUsageDataDisk struct for VpsUsageDataDisk
-type VpsUsageDataDisk struct {
+// UsageDataDisk struct for UsageDataDisk
+type UsageDataDisk struct {
 	// Date of the entry, by default in UNIX timestamp format
 	Date float32 `json:"date"`
 	// The read IOPS for this entry
@@ -92,34 +210,34 @@ type VpsUsageDataCpu struct {
 
 // VpsOrder struct for VpsOrder
 type VpsOrder struct {
-	// Array with additional addons
-	Addons []string `json:"addons,omitempty"`
-	// The name of the availability zone where the vps should be created
-	AvailabilityZone string `json:"availabilityZone,omitempty"`
-	// Base64 encoded preseed / kickstart instructions, when installing unattended
-	Base64InstallText string `json:"base64InstallText,omitempty"`
-	// The description of the VPS
-	Description string `json:"description,omitempty"`
-	// The name for the host, only needed for installing a preinstallable control panel image
-	Hostname string `json:"hostname,omitempty"`
-	// The name of the operating system to install
-	OperatingSystem string `json:"operatingSystem"`
 	// Name of the product
 	ProductName string `json:"productName"`
+	// The name of the operating system to install
+	OperatingSystem string `json:"operatingSystem"`
+	// The name of the availability zone where the vps should be created
+	AvailabilityZone string `json:"availabilityZone,omitempty"`
+	// Array with additional addons
+	Addons []string `json:"addons,omitempty"`
+	// The name for the host, only needed for installing a preinstallable control panel image
+	Hostname string `json:"hostname,omitempty"`
+	// The description of the VPS
+	Description string `json:"description,omitempty"`
+	// Base64 encoded preseed / kickstart instructions, when installing unattended
+	Base64InstallText string `json:"base64InstallText,omitempty"`
 }
 
 // Addons struct for Addons
 type Addons struct {
 	// A list of non cancellable active addons
-	Active []string `json:"active,omitempty"`
+	Active []product.Product `json:"active,omitempty"`
 	// A list of available addons that you can order
-	Available []string `json:"available,omitempty"`
+	Available []product.Product `json:"available,omitempty"`
 	// A list of addons that you can cancel
-	Cancellable []string `json:"cancellable,omitempty"`
+	Cancellable []product.Product `json:"cancellable,omitempty"`
 }
 
-// VpsBackup struct for VpsBackup
-type VpsBackup struct {
+// Backup struct for Backup
+type Backup struct {
 	// The name of the availability zone the backup is in
 	AvailabilityZone string `json:"availabilityZone,omitempty"`
 	// The backup creation date
@@ -179,7 +297,7 @@ type OperatingSystem struct {
 // Usage struct for Usage
 type Usage struct {
 	Cpu     []VpsUsageDataCpu     `json:"cpu"`
-	Disk    []VpsUsageDataDisk    `json:"disk"`
+	Disk    []UsageDataDisk       `json:"disk"`
 	Network []VpsUsageDataNetwork `json:"network"`
 }
 

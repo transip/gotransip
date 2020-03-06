@@ -130,7 +130,7 @@ type InlineObject33 struct {
 
 // InlineObject6 struct for InlineObject6
 type InlineObject6 struct {
-	IpAddress ipaddress.IpAddress `json:"ipAddress,omitempty"`
+	IpAddress ipaddress.IPAddress `json:"ipAddress,omitempty"`
 }
 
 // InlineResponse20011 struct for InlineResponse20011
@@ -245,7 +245,7 @@ type InlineObject34 struct {
 
 // InlineObject43 struct for InlineObject43
 type InlineObject43 struct {
-	IpAddress ipaddress.IpAddress `json:"ipAddress,omitempty"`
+	IpAddress ipaddress.IPAddress `json:"ipAddress,omitempty"`
 }
 
 // InlineObject28 struct for InlineObject28
@@ -257,11 +257,6 @@ type InlineObject28 struct {
 // InlineObject19 struct for InlineObject19
 type InlineObject19 struct {
 	DnsSecEntries []domain.DnsEntry `json:"dnsSecEntries,omitempty"`
-}
-
-// InlineResponse20044 struct for InlineResponse20044
-type InlineResponse20044 struct {
-	Addons vps.Addons `json:"addons,omitempty"`
 }
 
 // InlineObject35 struct for InlineObject35
@@ -482,7 +477,7 @@ type InlineResponse20044Addons struct {
 
 // InlineResponse2009 struct for InlineResponse2009
 type InlineResponse2009 struct {
-	IpAddress ipaddress.IpAddress `json:"ipAddress,omitempty"`
+	IpAddress ipaddress.IPAddress `json:"ipAddress,omitempty"`
 }
 
 // InlineObject47 struct for InlineObject47
@@ -539,7 +534,7 @@ type InlineResponse20052 struct {
 // InlineResponse20051Usage struct for InlineResponse20051Usage
 type InlineResponse20051Usage struct {
 	Cpu     []vps.VpsUsageDataCpu     `json:"cpu"`
-	Disk    []vps.VpsUsageDataDisk    `json:"disk"`
+	Disk    []vps.UsageDataDisk       `json:"disk"`
 	Network []vps.VpsUsageDataNetwork `json:"network"`
 }
 

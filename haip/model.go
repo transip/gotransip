@@ -113,7 +113,7 @@ type PortConfiguration struct {
 	TargetPort uint16 `json:"targetPort"`
 }
 
-// HaipIpAddressesResponse object contains a list of IpAddresses in it
+// HaipIpAddressesResponse object contains a list of IPAddresses in it
 // used to unpack the rest response and return the encapsulated net.IPs
 // this is just used internal for unpacking, this should not be exported
 // we want to return net.IP objects not a HaipIpAddressesResponse

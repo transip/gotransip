@@ -1,5 +1,17 @@
 package mailservice
 
+// mailServiceInformationWrapper struct contains the MailServiceInformation struct in it,
+// this is solely used for unmarshalling
+type mailServiceInformationWrapper struct {
+	MailServiceInformation MailServiceInformation `json:"mailServiceInformation"`
+}
+
+// domainNamesWrapper struct contains the domainNames in it which will be posted to the api
+// this is solely used for marshalling
+type domainNamesWrapper struct {
+	DomainNames []string `json:"domainNames"`
+}
+
 // MailServiceInformation struct for MailServiceInformation
 type MailServiceInformation struct {
 	// x-transip-mail-auth DNS TXT record Value
