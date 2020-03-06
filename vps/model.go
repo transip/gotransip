@@ -3,6 +3,30 @@ package vps
 import (
 	"github.com/transip/gotransip/v6/ipaddress"
 	"github.com/transip/gotransip/v6/product"
+	"github.com/transip/gotransip/v6/rest/response"
+	"github.com/transip/gotransip/v6/vps/firewall"
+)
+
+// A backup status is a string and it could be one of the following
+// 'active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving'
+type BackupStatus string
+
+// define all of the possible backup statuses
+const (
+	// BackupStatusActive is the status field for a ready to use backup
+	BackupStatusActive BackupStatus = "active"
+	// BackupStatusCreating is the status field for a backup that is still in creation
+	BackupStatusCreating BackupStatus = "creating"
+	// BackupStatusReverting is the status field for a currently used backup for a revert
+	BackupStatusReverting BackupStatus = "reverting"
+	// BackupStatusDeleting is the status field for a backup that is about to be deleted
+	BackupStatusDeleting BackupStatus = "deleting"
+	// BackupStatusPendingDeletion is the status field for a backup that has a pending deletion
+	BackupStatusPendingDeletion BackupStatus = "pendingDeletion"
+	// BackupStatusSyncing is the status field for a backup that is still syncing
+	BackupStatusSyncing BackupStatus = "syncing"
+	// BackupStatusMoving is the status field for a moving backup, this means that the backup is under migration
+	BackupStatusMoving BackupStatus = "moving"
 )
 
 // vpsWrapper struct contains a Vps in it,
@@ -39,6 +63,13 @@ type actionWrapper struct {
 type handoverRequest struct {
 	Action             string `json:"action"`
 	TargetCustomerName string `json:"targetCustomerName"`
+}
+
+// convertBackupRequest is used to request a backup conversion to snapshot,
+// this is solely used for marshalling
+type convertBackupRequest struct {
+	Action              string `json:"action"`
+	SnapshotDescription string `json:"description"`
 }
 
 // usageWrapper struct contains Usage in it,
@@ -99,6 +130,18 @@ type snapshotWrapper struct {
 // this is solely used for unmarshalling
 type snapshotsWrapper struct {
 	Snapshots []Snapshot `json:"snapshot"`
+}
+
+// backupsWrapper struct contains a list of Backups in it,
+// this is solely used for unmarshalling
+type backupsWrapper struct {
+	Backups []Backup `json:"backups"`
+}
+
+// firewallWrapper struct contains a Firewall in it,
+// this is solely used for marshalling/unmarshalling
+type firewallWrapper struct {
+	Firewall firewall.Firewall `json:"firewall"`
 }
 
 // addIpRequest struct contains an IPAddress in it,
@@ -238,18 +281,18 @@ type Addons struct {
 
 // Backup struct for Backup
 type Backup struct {
-	// The name of the availability zone the backup is in
-	AvailabilityZone string `json:"availabilityZone,omitempty"`
-	// The backup creation date
-	DateTimeCreate string `json:"dateTimeCreate"`
-	// The backup disk size in kB
-	DiskSize float32 `json:"diskSize"`
 	// The backup id
 	Id float32 `json:"id"`
+	// Status of the backup ('active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving')
+	Status BackupStatus `json:"status"`
+	// The backup creation date
+	DateTimeCreate response.Time `json:"dateTimeCreate"`
+	// The backup disk size in kB
+	DiskSize uint64 `json:"diskSize"`
 	// The backup operatingSystem
 	OperatingSystem string `json:"operatingSystem"`
-	// Status of the backup ('active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving')
-	Status string `json:"status,omitempty"`
+	// The name of the availability zone the backup is in
+	AvailabilityZone string `json:"availabilityZone"`
 }
 
 // Snapshots struct for Snapshots
