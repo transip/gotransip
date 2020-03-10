@@ -10,7 +10,7 @@ import (
 	"github.com/transip/gotransip/v6/vps/tcpmonitor"
 )
 
-// A backup status is a string and it could be one of the following
+// A backup status is one of the following strings
 // 'active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving'
 type BackupStatus string
 
@@ -30,6 +30,19 @@ const (
 	BackupStatusSyncing BackupStatus = "syncing"
 	// BackupStatusMoving is the status field for a moving backup, this means that the backup is under migration
 	BackupStatusMoving BackupStatus = "moving"
+)
+
+// A backup status is one of the following strings
+// 'cpu', 'disk', 'network'
+type VpsUsageType string
+
+const (
+	// VpsUsageTypeCpu is used to request the cpu usage data of a VPS
+	VpsUsageTypeCpu VpsUsageType = "cpu"
+	// VpsUsageTypeDisk is used to request the disk usage data of a VPS
+	VpsUsageTypeDisk VpsUsageType = "disk"
+	// VpsUsageTypeNetwork is used to request the network usage data of a VPS
+	VpsUsageTypeNetwork VpsUsageType = "network"
 )
 
 // vpsWrapper struct contains a Vps in it,
@@ -215,7 +228,7 @@ type bigStoragesWrapper struct {
 // this struct is used for marshalling the request
 type bigStorageUpgradeRequest struct {
 	BigStorageName string `json:"bigStorageName"`
-	Size           uint   `json:"size"`
+	Size           int    `json:"size"`
 	OffsiteBackups bool   `json:"offsiteBackups"`
 }
 
@@ -252,40 +265,40 @@ type contactWrapper struct {
 
 // Vps struct for Vps
 type Vps struct {
-	// The custom tags added to this VPS
-	Tags []string `json:"tags,omitempty"`
-	// The name of the availability zone the VPS is in
-	AvailabilityZone string `json:"availabilityZone,omitempty"`
-	// The VPS cpu count
-	Cpus float32 `json:"cpus,omitempty"`
-	// The amount of snapshots that is used on this VPS
-	CurrentSnapshots float32 `json:"currentSnapshots,omitempty"`
+	// The unique VPS name
+	Name string `json:"name"`
 	// The name that can be set by customer
 	Description string `json:"description,omitempty"`
+	// The product name
+	ProductName string `json:"productName,omitempty"`
+	// The VPS OperatingSystem
+	OperatingSystem string `json:"operatingSystem,omitempty"`
 	// The VPS disk size in kB
-	DiskSize float32 `json:"diskSize,omitempty"`
+	DiskSize int64 `json:"diskSize,omitempty"`
+	// The VPS memory size in kB
+	MemorySize int64 `json:"memorySize,omitempty"`
+	// The VPS cpu count
+	Cpus int `json:"cpus,omitempty"`
+	// The VPS status, either 'created', 'installing', 'running', 'stopped' or 'paused'
+	Status string `json:"status,omitempty"`
 	// The VPS main ipAddress
 	IpAddress string `json:"ipAddress,omitempty"`
+	// The VPS macaddress
+	MacAddress string `json:"macAddress,omitempty"`
+	// The amount of snapshots that is used on this VPS
+	CurrentSnapshots int `json:"currentSnapshots,omitempty"`
+	// The maximum amount of snapshots for this VPS
+	MaxSnapshots int `json:"maxSnapshots,omitempty"`
+	// Whether or not another process is already doing stuff with this VPS
+	IsLocked bool `json:"isLocked,omitempty"`
 	// If the VPS is administratively blocked
 	IsBlocked bool `json:"isBlocked,omitempty"`
 	// If this VPS is locked by the customer
 	IsCustomerLocked bool `json:"isCustomerLocked,omitempty"`
-	// Whether or not another process is already doing stuff with this VPS
-	IsLocked bool `json:"isLocked,omitempty"`
-	// The VPS macaddress
-	MacAddress string `json:"macAddress,omitempty"`
-	// The maximum amount of snapshots for this VPS
-	MaxSnapshots float32 `json:"maxSnapshots,omitempty"`
-	// The VPS memory size in kB
-	MemorySize float32 `json:"memorySize,omitempty"`
-	// The unique VPS name
-	Name string `json:"name"`
-	// The VPS OperatingSystem
-	OperatingSystem string `json:"operatingSystem,omitempty"`
-	// The product name
-	ProductName string `json:"productName,omitempty"`
-	// The VPS status, either 'created', 'installing', 'running', 'stopped' or 'paused'
-	Status string `json:"status,omitempty"`
+	// The name of the availability zone the VPS is in
+	AvailabilityZone string `json:"availabilityZone,omitempty"`
+	// The custom tags added to this VPS
+	Tags []string `json:"tags,omitempty"`
 }
 
 // VncData struct for VpsVncData
@@ -310,6 +323,12 @@ type VpsUsageDataNetwork struct {
 	MbitIn float32 `json:"mbitIn"`
 	// The amount of outbound traffic in Mbps for this usage entry
 	MbitOut float32 `json:"mbitOut"`
+}
+
+// vpsUsageRequest is used to marshall a usage request struct
+type vpsUsageRequest struct {
+	Types string `json:"types,omitempty"`
+	UsagePeriod
 }
 
 // UsagePeriod is struct that can be used to query usage statistics for a certain period
@@ -375,7 +394,7 @@ type Backup struct {
 	// The backup creation date
 	DateTimeCreate response.Time `json:"dateTimeCreate"`
 	// The backup disk size in kB
-	DiskSize uint64 `json:"diskSize"`
+	DiskSize int64 `json:"diskSize"`
 	// The backup operatingSystem
 	OperatingSystem string `json:"operatingSystem"`
 	// The name of the availability zone the backup is in

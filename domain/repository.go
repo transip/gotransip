@@ -215,7 +215,7 @@ func (r *Repository) GetSSLCertificates(domainName string) ([]SslCertificate, er
 }
 
 // GetSSLCertificateById allows you to get a single SSL certificate by id.
-func (r *Repository) GetSSLCertificateById(domainName string, certificateId uint) (SslCertificate, error) {
+func (r *Repository) GetSSLCertificateById(domainName string, certificateId int64) (SslCertificate, error) {
 	var response certificateWrapper
 	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/ssl/%d", domainName, certificateId)}
 	err := r.Client.Get(restRequest, &response)

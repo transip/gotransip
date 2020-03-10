@@ -12,6 +12,7 @@ import (
 	"github.com/transip/gotransip/v6/vps/privatenetwork"
 	"github.com/transip/gotransip/v6/vps/tcpmonitor"
 	"net"
+	"strings"
 	"time"
 )
 
@@ -125,13 +126,35 @@ func (r *Repository) Cancel(vpsName string, endTime gotransip.CancellationTime) 
 	return r.Client.Delete(restRequest)
 }
 
-// GetUsageData will return a struct with multiple
-func (r *Repository) GetUsageData(vpsName string) (Usage, error) {
+// GetUsage will allow you to request your vps usage for a specified period and usage type
+// for convenience you can also use the GetUsages or GetUsagesLast24Hours
+func (r *Repository) GetUsage(vpsName string, usageTypes []VpsUsageType, period UsagePeriod) (Usage, error) {
 	var response usageWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/usage", vpsName)}
+	var types []string
+	for _, usageType := range usageTypes {
+		types = append(types, string(usageType))
+	}
+	requestBody := vpsUsageRequest{Types: strings.Join(types, ","), UsagePeriod: period}
+	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/usage", vpsName), Body: &requestBody}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Usage, err
+}
+
+// GetUsages
+func (r *Repository) GetUsages(vpsName string, period UsagePeriod) (Usage, error) {
+	return r.GetUsage(
+		vpsName,
+		[]VpsUsageType{VpsUsageTypeCpu, VpsUsageTypeDisk, VpsUsageTypeNetwork},
+		period,
+	)
+}
+
+func (r *Repository) GetUsagesLast24Hours(vpsName string) (Usage, error) {
+	// always define a period body, this way we don't have to depend on the empty body logic on the api server
+	period := UsagePeriod{TimeStart: time.Now().Unix() - 24*3600, TimeEnd: time.Now().Unix()}
+
+	return r.GetUsages(vpsName, period)
 }
 
 // GetVNCData will return VncData about your vps
@@ -307,7 +330,7 @@ func (r *Repository) GetBackups(vpsName string) ([]Backup, error) {
 }
 
 // RevertBackup allows you to revert a backup
-func (r *Repository) RevertBackup(vpsName string, backupId uint) error {
+func (r *Repository) RevertBackup(vpsName string, backupId int64) error {
 	requestBody := actionWrapper{Action: "revert"}
 	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/backups/%d", vpsName, backupId), Body: &requestBody}
 
@@ -315,7 +338,7 @@ func (r *Repository) RevertBackup(vpsName string, backupId uint) error {
 }
 
 // ConvertBackupToSnapshot allows you to convert a backup to a snapshot
-func (r *Repository) ConvertBackupToSnapshot(vpsName string, backupId uint, snapshotDescription string) error {
+func (r *Repository) ConvertBackupToSnapshot(vpsName string, backupId int64, snapshotDescription string) error {
 	requestBody := convertBackupRequest{SnapshotDescription: snapshotDescription, Action: "convert"}
 	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/backups/%d", vpsName, backupId), Body: &requestBody}
 
@@ -427,7 +450,7 @@ func (r *Repository) OrderBigStorage(order bigstorage.Order) error {
 }
 
 // UpgradeBigStorage allows you to upgrade a BigStorage's size or/and to enable off-site backups
-func (r *Repository) UpgradeBigStorage(bigStorageName string, size uint, offsiteBackups bool) error {
+func (r *Repository) UpgradeBigStorage(bigStorageName string, size int, offsiteBackups bool) error {
 	requestBody := bigStorageUpgradeRequest{Size: size, OffsiteBackups: offsiteBackups}
 	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorageName), Body: &requestBody}
 
@@ -482,7 +505,7 @@ func (r *Repository) GetBigStorageBackups(bigStorageName string) ([]bigstorage.B
 }
 
 // RevertBigStorageBackup allows you to revert a bigstorage by bigstorage name and backupId
-func (r *Repository) RevertBigStorageBackup(bigStorageName string, backupId uint) error {
+func (r *Repository) RevertBigStorageBackup(bigStorageName string, backupId int64) error {
 	requestBody := actionWrapper{Action: "revert"}
 	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupId), Body: &requestBody}
 
@@ -570,7 +593,7 @@ func (r *Repository) UpdateContact(contact tcpmonitor.MonitoringContact) error {
 }
 
 // DeleteContact allows you to delete a specific contact by id
-func (r *Repository) DeleteContact(contactId uint) error {
+func (r *Repository) DeleteContact(contactId int64) error {
 	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/monitoring-contacts/%d", contactId)}
 
 	return r.Client.Delete(restRequest)
