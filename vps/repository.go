@@ -128,7 +128,7 @@ func (r *Repository) Cancel(vpsName string, endTime gotransip.CancellationTime) 
 
 // GetUsage will allow you to request your vps usage for a specified period and usage type
 // for convenience you can also use the GetUsages or GetUsagesLast24Hours
-func (r *Repository) GetUsage(vpsName string, usageTypes []VpsUsageType, period UsagePeriod) (Usage, error) {
+func (r *Repository) GetUsageDataByVps(vpsName string, usageTypes []VpsUsageType, period UsagePeriod) (Usage, error) {
 	var response usageWrapper
 	var types []string
 	for _, usageType := range usageTypes {
@@ -142,19 +142,19 @@ func (r *Repository) GetUsage(vpsName string, usageTypes []VpsUsageType, period 
 }
 
 // GetUsages
-func (r *Repository) GetUsages(vpsName string, period UsagePeriod) (Usage, error) {
-	return r.GetUsage(
+func (r *Repository) GetAllUsageDataByVps(vpsName string, period UsagePeriod) (Usage, error) {
+	return r.GetUsageDataByVps(
 		vpsName,
 		[]VpsUsageType{VpsUsageTypeCpu, VpsUsageTypeDisk, VpsUsageTypeNetwork},
 		period,
 	)
 }
 
-func (r *Repository) GetUsagesLast24Hours(vpsName string) (Usage, error) {
+func (r *Repository) GetAllUsageDataByVps24Hours(vpsName string) (Usage, error) {
 	// always define a period body, this way we don't have to depend on the empty body logic on the api server
 	period := UsagePeriod{TimeStart: time.Now().Unix() - 24*3600, TimeEnd: time.Now().Unix()}
 
-	return r.GetUsages(vpsName, period)
+	return r.GetAllUsageDataByVps(vpsName, period)
 }
 
 // GetVNCData will return VncData about your vps
@@ -174,10 +174,10 @@ func (r *Repository) RegenerateVNCToken(vpsName string) error {
 	return r.Client.Patch(restRequest)
 }
 
-// GetAddons returns a struct with cancellable available and active addons in it for the given VPS
+// GetAddons returns a struct with 'cancellable', 'available' and 'active' addons in it for the given VPS
 func (r *Repository) GetAddons(vpsName string) (Addons, error) {
 	var response addonsWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/tcp", vpsName)}
+	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/addons", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Addons, err
@@ -234,7 +234,7 @@ func (r *Repository) InstallOperatingSystem(vpsName string, operatingSystemName 
 
 // GetIPAddresses returns will return all IPv4 and IPv6 addresses attached to the VPS
 func (r *Repository) GetIPAddresses(vpsName string) ([]ipaddress.IPAddress, error) {
-	var response ipaddress.IPAddresses
+	var response ipaddress.IPAddressesWrapper
 	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/ip-addresses", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
@@ -254,7 +254,7 @@ func (r *Repository) GetIPAddressByAddress(vpsName string, address net.IP) (ipad
 // After adding an IPv6 address, you cam set the reverse DNS for this address using the UpdateReverseDNS function
 func (r *Repository) AddIPv6Address(vpsName string, address net.IP) error {
 	requestBody := addIpRequest{IPAddress: address.String()}
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/ip-address", vpsName), Body: &requestBody}
+	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/ip-addresses", vpsName), Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
@@ -262,7 +262,10 @@ func (r *Repository) AddIPv6Address(vpsName string, address net.IP) error {
 // UpdateReverseDNS allows you to update the reverse dns for IPv4 addresses as wal as IPv6 addresses
 func (r *Repository) UpdateReverseDNS(vpsName string, ip ipaddress.IPAddress) error {
 	requestBody := ipAddressWrapper{IPAddress: ip}
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/ip-address", vpsName), Body: &requestBody}
+	restRequest := request.RestRequest{
+		Endpoint: fmt.Sprintf("/vps/%s/ip-addresses/%s", vpsName, ip.Address.String()),
+		Body: &requestBody,
+	}
 
 	return r.Client.Put(restRequest)
 }
@@ -301,14 +304,18 @@ func (r *Repository) CreateSnapshot(vpsName string, description string, shouldSt
 	return r.Client.Post(restRequest)
 }
 
-// RevertSnapshot allows you to revert a snapshot to the source vps of the snapshot
-// Optionally you can set the destinationVps string to revert the vps to a different VPS
-func (r *Repository) RevertSnapshot(vpsName string, snapshotName string, destinationVps string) error {
+// RevertSnapshot allows you to revert a snapshot of a vps,
+// if you want to revert a snapshot to a different vps you can use the RevertSnapshotToOtherVps method
+func (r *Repository) RevertSnapshot(vpsName string, snapshotName string) error {
 	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/snapshots/%s", vpsName, snapshotName)}
 
-	if destinationVps != "" {
-		restRequest.Body = &revertSnapshotRequest{DestinationVpsName: destinationVps}
-	}
+	return r.Client.Patch(restRequest)
+}
+
+// RevertSnapshotToOtherVps allows you to revert a snapshot to a different vps
+func (r *Repository) RevertSnapshotToOtherVps(vpsName string, snapshotName string, destinationVps string) error {
+	requestBody := revertSnapshotRequest{DestinationVpsName: destinationVps}
+	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/snapshots/%s", vpsName, snapshotName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }

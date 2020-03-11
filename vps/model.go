@@ -145,7 +145,7 @@ type snapshotWrapper struct {
 // snapshotWrapper struct contains a list of Snapshots in it,
 // this is solely used for unmarshalling
 type snapshotsWrapper struct {
-	Snapshots []Snapshot `json:"snapshot"`
+	Snapshots []Snapshot `json:"snapshots"`
 }
 
 // backupsWrapper struct contains a list of Backups in it,
@@ -157,7 +157,7 @@ type backupsWrapper struct {
 // firewallWrapper struct contains a Firewall in it,
 // this is solely used for marshalling/unmarshalling
 type firewallWrapper struct {
-	Firewall firewall.Firewall `json:"firewall"`
+	Firewall firewall.Firewall `json:"vpsFirewall"`
 }
 
 // privateNetworkWrapper struct contains a PrivateNetwork in it,
@@ -352,7 +352,7 @@ type UsageDataDisk struct {
 // VpsUsageDataCpu struct for VpsUsageDataCpu
 type VpsUsageDataCpu struct {
 	// Date of the entry, by default in UNIX timestamp format
-	Date float32 `json:"date"`
+	Date int64 `json:"date"`
 	// The percentage of CPU usage for this entry
 	Percentage float32 `json:"percentage"`
 }
@@ -414,7 +414,7 @@ type Snapshot struct {
 	// The snapshot description
 	Description string `json:"description,omitempty"`
 	// The size of the snapshot in kB
-	DiskSize float32 `json:"diskSize,omitempty"`
+	DiskSize int64 `json:"diskSize,omitempty"`
 	// The snapshot name
 	Name string `json:"name,omitempty"`
 	// The snapshot OperatingSystem
@@ -438,7 +438,7 @@ type OperatingSystem struct {
 	// The operating system name
 	Name string `json:"name"`
 	// The monthly price of the operating system in cents
-	Price float32 `json:"price,omitempty"`
+	Price int `json:"price,omitempty"`
 	// The version of the operating system
 	Version string `json:"version,omitempty"`
 }

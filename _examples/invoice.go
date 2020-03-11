@@ -23,7 +23,7 @@ func main() {
 	}
 
 	// Simple loop to print invoices with total amount including vat
-	// Check out the inv structs to learn more about what data you can use
+	// Check out the inv structs to learn more about which data you can use
 	// For more info about the invoices on the api, see: https://api.transip.nl/rest/docs.html#account-invoices
 	for _, inv := range invoices {
 		fmt.Printf("Invoice '%s' with total amount = '%d' \n", inv.InvoiceNumber, inv.TotalAmountInclVat)

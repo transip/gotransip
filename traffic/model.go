@@ -19,11 +19,11 @@ type TrafficInformation struct {
 	// The end date in 'Y-m-d' format
 	EndDate response.Date `json:"endDate"`
 	// The maximum amount of bytes that can be used in this period
-	MaxInBytes uint64 `json:"maxInBytes"`
+	MaxInBytes int64 `json:"maxInBytes"`
 	// The start date in 'Y-m-d' format
 	StartDate response.Date `json:"startDate"`
 	// The usage in bytes for this period
-	UsedInBytes uint64 `json:"usedInBytes"`
+	UsedInBytes int64 `json:"usedInBytes"`
 	// The usage in bytes
-	UsedTotalBytes uint64 `json:"usedTotalBytes"`
+	UsedTotalBytes int64 `json:"usedTotalBytes"`
 }

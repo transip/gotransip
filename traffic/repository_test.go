@@ -69,9 +69,9 @@ func TestRepository_GetTrafficInformationForVps(t *testing.T) {
 
 	assert.Equal(t, "2019-06-22 00:00:00 +0200 CEST", pool.StartDate.String())
 	assert.Equal(t, "2019-07-22 00:00:00 +0200 CEST", pool.EndDate.String())
-	assert.Equal(t, uint64(7860253754), pool.UsedInBytes)
-	assert.Equal(t, uint64(11935325369), pool.UsedTotalBytes)
-	assert.Equal(t, uint64(1073741824000), pool.MaxInBytes)
+	assert.EqualValues(t, 7860253754, pool.UsedInBytes)
+	assert.EqualValues(t, 11935325369, pool.UsedTotalBytes)
+	assert.EqualValues(t, 1073741824000, pool.MaxInBytes)
 }
 
 func TestRepository_GetTrafficPool(t *testing.T) {
@@ -85,7 +85,7 @@ func TestRepository_GetTrafficPool(t *testing.T) {
 
 	assert.Equal(t, "2019-06-22 00:00:00 +0200 CEST", pool.StartDate.String())
 	assert.Equal(t, "2019-07-22 00:00:00 +0200 CEST", pool.EndDate.String())
-	assert.Equal(t, uint64(7860253754), pool.UsedInBytes)
-	assert.Equal(t, uint64(11935325369), pool.UsedTotalBytes)
-	assert.Equal(t, uint64(1073741824000), pool.MaxInBytes)
+	assert.EqualValues(t, 7860253754, pool.UsedInBytes)
+	assert.EqualValues(t, 11935325369, pool.UsedTotalBytes)
+	assert.EqualValues(t, 1073741824000, pool.MaxInBytes)
 }

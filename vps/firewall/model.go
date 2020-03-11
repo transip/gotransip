@@ -19,5 +19,5 @@ type FirewallRule struct {
 	// The start port of this firewall rule
 	StartPort float32 `json:"startPort"`
 	// Whitelisted IP's or ranges that are allowed to connect, empty to allow all
-	Whitelist []map[string]interface{} `json:"whitelist"`
+	Whitelist []string `json:"whitelist"`
 }
