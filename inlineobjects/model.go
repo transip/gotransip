@@ -7,15 +7,12 @@ import (
 	"github.com/transip/gotransip/v6/invoice"
 	"github.com/transip/gotransip/v6/ipaddress"
 	"github.com/transip/gotransip/v6/vps"
-	"github.com/transip/gotransip/v6/vps/firewall"
-	"github.com/transip/gotransip/v6/vps/privatenetwork"
-	"github.com/transip/gotransip/v6/vps/tcpmonitor"
 	"net"
 )
 
 // InlineObject32 struct for InlineObject32
 type InlineObject32 struct {
-	PrivateNetwork privatenetwork.PrivateNetwork `json:"privateNetwork,omitempty"`
+	PrivateNetwork vps.PrivateNetwork `json:"privateNetwork,omitempty"`
 }
 
 // InlineResponse2005 struct for InlineResponse2005
@@ -78,7 +75,7 @@ type InlineResponse20048 struct {
 
 // InlineObject48 struct for InlineObject48
 type InlineObject48 struct {
-	TcpMonitor tcpmonitor.TcpMonitor `json:"tcpMonitor,omitempty"`
+	TcpMonitor vps.TcpMonitor `json:"tcpMonitor,omitempty"`
 }
 
 // InlineResponse2009IpAddress struct for InlineResponse2009IpAddress
@@ -212,7 +209,7 @@ type InlineObject45 struct {
 
 // FirewallResponse struct for InlineObject41
 type FirewallResponse struct {
-	VpsFirewall firewall.Firewall `json:"vpsFirewall,omitempty"`
+	VpsFirewall vps.Firewall `json:"vpsFirewall,omitempty"`
 }
 
 // InlineObject2 struct for InlineObject2
@@ -470,7 +467,7 @@ type InlineResponse2009 struct {
 
 // InlineObject47 struct for InlineObject47
 type InlineObject47 struct {
-	TcpMonitor tcpmonitor.TcpMonitor `json:"tcpMonitor,omitempty"`
+	TcpMonitor vps.TcpMonitor `json:"tcpMonitor,omitempty"`
 }
 
 // InlineResponse20028 struct for InlineResponse20028
@@ -480,7 +477,7 @@ type InlineResponse20028 struct {
 
 // InlineResponse20036 struct for InlineResponse20036
 type InlineResponse20036 struct {
-	PrivateNetwork privatenetwork.PrivateNetwork `json:"privateNetwork,omitempty"`
+	PrivateNetwork vps.PrivateNetwork `json:"privateNetwork,omitempty"`
 }
 
 // InlineResponse20027PortConfiguration struct for InlineResponse20027PortConfiguration

@@ -4,10 +4,6 @@ import (
 	"github.com/transip/gotransip/v6/ipaddress"
 	"github.com/transip/gotransip/v6/product"
 	"github.com/transip/gotransip/v6/rest/response"
-	"github.com/transip/gotransip/v6/vps/bigstorage"
-	"github.com/transip/gotransip/v6/vps/firewall"
-	"github.com/transip/gotransip/v6/vps/privatenetwork"
-	"github.com/transip/gotransip/v6/vps/tcpmonitor"
 )
 
 // A backup status is one of the following strings
@@ -157,19 +153,19 @@ type backupsWrapper struct {
 // firewallWrapper struct contains a Firewall in it,
 // this is solely used for marshalling/unmarshalling
 type firewallWrapper struct {
-	Firewall firewall.Firewall `json:"vpsFirewall"`
+	Firewall Firewall `json:"vpsFirewall"`
 }
 
 // privateNetworkWrapper struct contains a PrivateNetwork in it,
 // this is solely used for marshalling/unmarshalling
 type privateNetworkWrapper struct {
-	PrivateNetwork privatenetwork.PrivateNetwork `json:"privateNetwork"`
+	PrivateNetwork PrivateNetwork `json:"privateNetwork"`
 }
 
 // privateNetworksWrapper struct contains a PrivateNetwork in it,
 // this is solely used for unmarshalling
 type privateNetworksWrapper struct {
-	PrivateNetworks []privatenetwork.PrivateNetwork `json:"privateNetworks"`
+	PrivateNetworks []PrivateNetwork `json:"privateNetworks"`
 }
 
 // privateNetworkActionWrapper struct is used to attach/detach a vps with a private network,
@@ -215,13 +211,13 @@ type installRequest struct {
 // bigStorageWrapper struct contains a BigStorage in it,
 // this is solely used for marshalling/unmarshalling
 type bigStorageWrapper struct {
-	BigStorage bigstorage.BigStorage `json:"bigStorage"`
+	BigStorage BigStorage `json:"bigStorage"`
 }
 
 // bigStoragesWrapper struct contains a list of BigStorages in it,
 // this is solely used for unmarshalling
 type bigStoragesWrapper struct {
-	BigStorages []bigstorage.BigStorage `json:"bigStorages"`
+	BigStorages []BigStorage `json:"bigStorages"`
 }
 
 // bigStorageUpgradeRequest struct is used upon when upgrading a bigstorage
@@ -235,32 +231,32 @@ type bigStorageUpgradeRequest struct {
 // bigStorageBackupsWrapper struct contains a list of BigStorageBackups in it,
 // this is solely used for unmarshalling
 type bigStorageBackupsWrapper struct {
-	BigStorageBackups []bigstorage.BigStorageBackup `json:"backups"`
+	BigStorageBackups []BigStorageBackup `json:"backups"`
 }
 
 // usageDataDiskWrapper struct contains UsageDataDisk struct in it
 type usageDataDiskWrapper struct {
-	Usage UsageDataDisk `json:"usage"`
+	Usage []UsageDataDisk `json:"usage"`
 }
 
 // tcpMonitorsWrapper struct is used for unmarshalling a []TcpMonitor list
 type tcpMonitorsWrapper struct {
-	TcpMonitors []tcpmonitor.TcpMonitor `json:"tcpMonitors"`
+	TcpMonitors []TcpMonitor `json:"tcpMonitors"`
 }
 
 // tcpMonitorWrapper struct is used for marshalling/unmarshalling the TcpMonitor struct
 type tcpMonitorWrapper struct {
-	TcpMonitor tcpmonitor.TcpMonitor `json:"tcpMonitors"`
+	TcpMonitor TcpMonitor `json:"tcpMonitor"`
 }
 
 // contactsWrapper struct is used for unmarshalling a []MonitoringContact list
 type contactsWrapper struct {
-	Contacts []tcpmonitor.MonitoringContact `json:"contacts"`
+	Contacts []MonitoringContact `json:"contacts"`
 }
 
 // contactWrapper struct is used for marshalling/unmarshalling a MonitoringContact
 type contactWrapper struct {
-	Contact tcpmonitor.MonitoringContact `json:"contact"`
+	Contact MonitoringContact `json:"contact"`
 }
 
 // Vps struct for Vps
@@ -342,7 +338,7 @@ type UsagePeriod struct {
 // UsageDataDisk struct for UsageDataDisk
 type UsageDataDisk struct {
 	// Date of the entry, by default in UNIX timestamp format
-	Date float32 `json:"date"`
+	Date int64 `json:"date"`
 	// The read IOPS for this entry
 	IopsRead float32 `json:"iopsRead"`
 	// The write IOPS for this entry
@@ -388,7 +384,7 @@ type Addons struct {
 // Backup struct for Backup
 type Backup struct {
 	// The backup id
-	Id float32 `json:"id"`
+	Id int64 `json:"id"`
 	// Status of the backup ('active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving')
 	Status BackupStatus `json:"status"`
 	// The backup creation date
