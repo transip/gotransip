@@ -228,7 +228,7 @@ func (r *Repository) InstallOperatingSystem(vpsName string, operatingSystemName 
 	return r.Client.Post(restRequest)
 }
 
-// GetIPAddresses returns will return all IPv4 and IPv6 addresses attached to the VPS
+// GetIPAddresses returns all IPv4 and IPv6 addresses attached to the VPS
 func (r *Repository) GetIPAddresses(vpsName string) ([]ipaddress.IPAddress, error) {
 	var response ipaddress.IPAddressesWrapper
 	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/ip-addresses", vpsName)}
@@ -246,10 +246,10 @@ func (r *Repository) GetIPAddressByAddress(vpsName string, address net.IP) (ipad
 	return response.IPAddress, err
 }
 
-// AddIPv6Address allows you to add an ipv6 address to your vps
-// After adding an IPv6 address, you cam set the reverse DNS for this address using the UpdateReverseDNS function
+// AddIPv6Address allows you to add an IPv6 address to your VPS
+// After adding an IPv6 address, you can set the reverse DNS for this address using the UpdateReverseDNS function
 func (r *Repository) AddIPv6Address(vpsName string, address net.IP) error {
-	requestBody := addIpRequest{IPAddress: address.String()}
+	requestBody := addIpRequest{IPAddress: address}
 	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/ip-addresses", vpsName), Body: &requestBody}
 
 	return r.Client.Post(restRequest)
@@ -266,7 +266,7 @@ func (r *Repository) UpdateReverseDNS(vpsName string, ip ipaddress.IPAddress) er
 	return r.Client.Put(restRequest)
 }
 
-// RemoveIPv6Address allows you to remove an ipv6 address from the registered list of IPv6 address within your VPS's `/64` range.
+// RemoveIPv6Address allows you to remove an IPv6 address from the registered list of IPv6 address within your VPS's `/64` range.
 func (r *Repository) RemoveIPv6Address(vpsName string, address net.IP) error {
 	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/ip-addresses/%s", vpsName, address.String())}
 
@@ -316,8 +316,8 @@ func (r *Repository) RevertSnapshotToOtherVps(vpsName string, snapshotName strin
 	return r.Client.Patch(restRequest)
 }
 
-// DeleteSnapshot allows you to remove a snapshot from a given VPS
-func (r *Repository) DeleteSnapshot(vpsName string, snapshotName string) error {
+// RemoveSnapshot allows you to remove a snapshot from a given VPS
+func (r *Repository) RemoveSnapshot(vpsName string, snapshotName string) error {
 	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/snapshots/%s", vpsName, snapshotName)}
 
 	return r.Client.Delete(restRequest)

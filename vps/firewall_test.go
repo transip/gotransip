@@ -3,6 +3,7 @@ package vps
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/transip/gotransip/v6/ipaddress"
 	"net"
 	"testing"
 )
@@ -39,11 +40,11 @@ func TestRepository_UpdateFirewall(t *testing.T) {
 	repo := Repository{Client: *client}
 
 	testWhitelists := []string{"80.69.69.80/32","80.69.69.100/32","2a01:7c8:3:1337::1/128"}
-	whiteListRanges := make([]IPRange, len(testWhitelists))
+	whiteListRanges := make([]ipaddress.IPRange, len(testWhitelists))
 	for idx, ipRange := range testWhitelists {
 		_,ipNet,err := net.ParseCIDR(ipRange)
 		require.NoError(t, err)
-		whiteListRanges[idx] = IPRange{*ipNet}
+		whiteListRanges[idx] = ipaddress.IPRange{*ipNet}
 	}
 
 	firewall := Firewall{

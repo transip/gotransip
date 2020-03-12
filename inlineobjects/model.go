@@ -525,7 +525,7 @@ type InlineResponse20031 struct {
 
 // RemoteHandsResponse struct for InlineObject7
 type RemoteHandsResponse struct {
-	RemoteHands colocation.RemoteHands `json:"remoteHands,omitempty"`
+	RemoteHands colocation.RemoteHandsRequest `json:"remoteHands,omitempty"`
 }
 
 // InlineObject18 struct for InlineObject18

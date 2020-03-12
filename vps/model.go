@@ -4,6 +4,7 @@ import (
 	"github.com/transip/gotransip/v6/ipaddress"
 	"github.com/transip/gotransip/v6/product"
 	"github.com/transip/gotransip/v6/rest/response"
+	"net"
 )
 
 // A backup status is one of the following strings
@@ -184,7 +185,7 @@ type privateNetworkOrderRequest struct {
 // addIpRequest struct contains an IPAddress in it,
 // this is solely used for marshalling
 type addIpRequest struct {
-	IPAddress string `json:"ipAddress"`
+	IPAddress net.IP `json:"ipAddress"`
 }
 
 // createSnapshotRequest is used to marshal a request for creating a snapshot on a vps

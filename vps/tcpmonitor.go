@@ -84,8 +84,8 @@ func (r *Repository) UpdateTCPMonitor(vpsName string, tcpMonitor TcpMonitor) err
 	return r.Client.Put(restRequest)
 }
 
-// DeleteTCPMonitor allows you to remove a tcp monitor for a specific ip address on a specifc VPS
-func (r *Repository) DeleteTCPMonitor(vpsName string, ip net.IP) error {
+// RemoveTCPMonitor allows you to remove a tcp monitor for a specific ip address on a specifc VPS
+func (r *Repository) RemoveTCPMonitor(vpsName string, ip net.IP) error {
 	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors/%s", vpsName, ip.String())}
 
 	return r.Client.Delete(restRequest)

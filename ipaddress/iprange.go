@@ -1,4 +1,4 @@
-package vps
+package ipaddress
 
 import "net"
 

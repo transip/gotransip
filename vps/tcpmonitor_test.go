@@ -92,7 +92,7 @@ func TestRepository_UpdateTCPMonitor(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestRepository_DeleteTCPMonitor(t *testing.T) {
+func TestRepository_RemoveTCPMonitor(t *testing.T) {
 	const apiResponse = ""
 	server := mockServer{t: t, expectedUrl: "/vps/example-vps/tcp-monitors/10.3.37.1", expectedMethod: "DELETE", statusCode: 204, response: apiResponse}
 	client, tearDown := server.getClient()
@@ -100,7 +100,7 @@ func TestRepository_DeleteTCPMonitor(t *testing.T) {
 	repo := Repository{Client: *client}
 
 	ip := net.ParseIP("10.3.37.1")
-	err := repo.DeleteTCPMonitor("example-vps", ip)
+	err := repo.RemoveTCPMonitor("example-vps", ip)
 	require.NoError(t, err)
 }
 

@@ -2,6 +2,7 @@ package vps
 
 import (
 	"fmt"
+	"github.com/transip/gotransip/v6/ipaddress"
 	"github.com/transip/gotransip/v6/rest/request"
 )
 
@@ -24,7 +25,7 @@ type FirewallRule struct {
 	// The protocol `tcp` ,  `udp` or `tcp_udp`
 	Protocol string `json:"protocol"`
 	// Whitelisted IP's or ranges that are allowed to connect, empty to allow all
-	Whitelist []IPRange `json:"whitelist"`
+	Whitelist []ipaddress.IPRange `json:"whitelist"`
 }
 
 // GetFirewall returns the state of the current VPS firewall

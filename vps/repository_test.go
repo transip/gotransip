@@ -651,13 +651,13 @@ func TestRepository_RevertSnapshotToOtherVps(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestRepository_DeleteSnapshot(t *testing.T) {
+func TestRepository_RemoveSnapshot(t *testing.T) {
 	server := mockServer{t: t, expectedUrl: "/vps/example-vps/snapshots/1337", expectedMethod: "DELETE", statusCode: 204}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	err := repo.DeleteSnapshot("example-vps", "1337")
+	err := repo.RemoveSnapshot("example-vps", "1337")
 	require.NoError(t, err)
 }
 
