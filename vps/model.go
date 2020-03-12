@@ -4,10 +4,10 @@ import (
 	"github.com/transip/gotransip/v6/ipaddress"
 	"github.com/transip/gotransip/v6/product"
 	"github.com/transip/gotransip/v6/rest/response"
-	"github.com/transip/gotransip/v6/vps/firewall"
+	"net"
 )
 
-// A backup status is a string and it could be one of the following
+// A backup status is one of the following strings
 // 'active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving'
 type BackupStatus string
 
@@ -27,6 +27,19 @@ const (
 	BackupStatusSyncing BackupStatus = "syncing"
 	// BackupStatusMoving is the status field for a moving backup, this means that the backup is under migration
 	BackupStatusMoving BackupStatus = "moving"
+)
+
+// A backup status is one of the following strings
+// 'cpu', 'disk', 'network'
+type VpsUsageType string
+
+const (
+	// VpsUsageTypeCpu is used to request the cpu usage data of a VPS
+	VpsUsageTypeCpu VpsUsageType = "cpu"
+	// VpsUsageTypeDisk is used to request the disk usage data of a VPS
+	VpsUsageTypeDisk VpsUsageType = "disk"
+	// VpsUsageTypeNetwork is used to request the network usage data of a VPS
+	VpsUsageTypeNetwork VpsUsageType = "network"
 )
 
 // vpsWrapper struct contains a Vps in it,
@@ -129,7 +142,7 @@ type snapshotWrapper struct {
 // snapshotWrapper struct contains a list of Snapshots in it,
 // this is solely used for unmarshalling
 type snapshotsWrapper struct {
-	Snapshots []Snapshot `json:"snapshot"`
+	Snapshots []Snapshot `json:"snapshots"`
 }
 
 // backupsWrapper struct contains a list of Backups in it,
@@ -141,13 +154,38 @@ type backupsWrapper struct {
 // firewallWrapper struct contains a Firewall in it,
 // this is solely used for marshalling/unmarshalling
 type firewallWrapper struct {
-	Firewall firewall.Firewall `json:"firewall"`
+	Firewall Firewall `json:"vpsFirewall"`
+}
+
+// privateNetworkWrapper struct contains a PrivateNetwork in it,
+// this is solely used for marshalling/unmarshalling
+type privateNetworkWrapper struct {
+	PrivateNetwork PrivateNetwork `json:"privateNetwork"`
+}
+
+// privateNetworksWrapper struct contains a PrivateNetwork in it,
+// this is solely used for unmarshalling
+type privateNetworksWrapper struct {
+	PrivateNetworks []PrivateNetwork `json:"privateNetworks"`
+}
+
+// privateNetworkActionWrapper struct is used to attach/detach a vps with a private network,
+// this is solely used for marshalling
+type privateNetworkActionwrapper struct {
+	Action  string `json:"action"`
+	VpsName string `json:"vpsName"`
+}
+
+// privateNetworkOrderRequest struct contains a description in it,
+// this is solely used for ordering a private network and encapsulating the description
+type privateNetworkOrderRequest struct {
+	Description string `json:"description"`
 }
 
 // addIpRequest struct contains an IPAddress in it,
 // this is solely used for marshalling
 type addIpRequest struct {
-	IPAddress string `json:"ipAddress"`
+	IPAddress net.IP `json:"ipAddress"`
 }
 
 // createSnapshotRequest is used to marshal a request for creating a snapshot on a vps
@@ -171,42 +209,93 @@ type installRequest struct {
 	Base64InstallText   string `json:"base64InstallText,omitempty"`
 }
 
+// bigStorageWrapper struct contains a BigStorage in it,
+// this is solely used for marshalling/unmarshalling
+type bigStorageWrapper struct {
+	BigStorage BigStorage `json:"bigStorage"`
+}
+
+// bigStoragesWrapper struct contains a list of BigStorages in it,
+// this is solely used for unmarshalling
+type bigStoragesWrapper struct {
+	BigStorages []BigStorage `json:"bigStorages"`
+}
+
+// bigStorageUpgradeRequest struct is used upon when upgrading a bigstorage
+// this struct is used for marshalling the request
+type bigStorageUpgradeRequest struct {
+	BigStorageName string `json:"bigStorageName"`
+	Size           int    `json:"size"`
+	OffsiteBackups bool   `json:"offsiteBackups"`
+}
+
+// bigStorageBackupsWrapper struct contains a list of BigStorageBackups in it,
+// this is solely used for unmarshalling
+type bigStorageBackupsWrapper struct {
+	BigStorageBackups []BigStorageBackup `json:"backups"`
+}
+
+// usageDataDiskWrapper struct contains UsageDataDisk struct in it
+type usageDataDiskWrapper struct {
+	Usage []UsageDataDisk `json:"usage"`
+}
+
+// tcpMonitorsWrapper struct is used for unmarshalling a []TcpMonitor list
+type tcpMonitorsWrapper struct {
+	TcpMonitors []TcpMonitor `json:"tcpMonitors"`
+}
+
+// tcpMonitorWrapper struct is used for marshalling/unmarshalling the TcpMonitor struct
+type tcpMonitorWrapper struct {
+	TcpMonitor TcpMonitor `json:"tcpMonitor"`
+}
+
+// contactsWrapper struct is used for unmarshalling a []MonitoringContact list
+type contactsWrapper struct {
+	Contacts []MonitoringContact `json:"contacts"`
+}
+
+// contactWrapper struct is used for marshalling/unmarshalling a MonitoringContact
+type contactWrapper struct {
+	Contact MonitoringContact `json:"contact"`
+}
+
 // Vps struct for Vps
 type Vps struct {
-	// The custom tags added to this VPS
-	Tags []string `json:"tags,omitempty"`
-	// The name of the availability zone the VPS is in
-	AvailabilityZone string `json:"availabilityZone,omitempty"`
-	// The VPS cpu count
-	Cpus float32 `json:"cpus,omitempty"`
-	// The amount of snapshots that is used on this VPS
-	CurrentSnapshots float32 `json:"currentSnapshots,omitempty"`
+	// The unique VPS name
+	Name string `json:"name"`
 	// The name that can be set by customer
 	Description string `json:"description,omitempty"`
+	// The product name
+	ProductName string `json:"productName,omitempty"`
+	// The VPS OperatingSystem
+	OperatingSystem string `json:"operatingSystem,omitempty"`
 	// The VPS disk size in kB
-	DiskSize float32 `json:"diskSize,omitempty"`
+	DiskSize int64 `json:"diskSize,omitempty"`
+	// The VPS memory size in kB
+	MemorySize int64 `json:"memorySize,omitempty"`
+	// The VPS cpu count
+	Cpus int `json:"cpus,omitempty"`
+	// The VPS status, either 'created', 'installing', 'running', 'stopped' or 'paused'
+	Status string `json:"status,omitempty"`
 	// The VPS main ipAddress
 	IpAddress string `json:"ipAddress,omitempty"`
+	// The VPS macaddress
+	MacAddress string `json:"macAddress,omitempty"`
+	// The amount of snapshots that is used on this VPS
+	CurrentSnapshots int `json:"currentSnapshots,omitempty"`
+	// The maximum amount of snapshots for this VPS
+	MaxSnapshots int `json:"maxSnapshots,omitempty"`
+	// Whether or not another process is already doing stuff with this VPS
+	IsLocked bool `json:"isLocked,omitempty"`
 	// If the VPS is administratively blocked
 	IsBlocked bool `json:"isBlocked,omitempty"`
 	// If this VPS is locked by the customer
 	IsCustomerLocked bool `json:"isCustomerLocked,omitempty"`
-	// Whether or not another process is already doing stuff with this VPS
-	IsLocked bool `json:"isLocked,omitempty"`
-	// The VPS macaddress
-	MacAddress string `json:"macAddress,omitempty"`
-	// The maximum amount of snapshots for this VPS
-	MaxSnapshots float32 `json:"maxSnapshots,omitempty"`
-	// The VPS memory size in kB
-	MemorySize float32 `json:"memorySize,omitempty"`
-	// The unique VPS name
-	Name string `json:"name"`
-	// The VPS OperatingSystem
-	OperatingSystem string `json:"operatingSystem,omitempty"`
-	// The product name
-	ProductName string `json:"productName,omitempty"`
-	// The VPS status, either 'created', 'installing', 'running', 'stopped' or 'paused'
-	Status string `json:"status,omitempty"`
+	// The name of the availability zone the VPS is in
+	AvailabilityZone string `json:"availabilityZone,omitempty"`
+	// The custom tags added to this VPS
+	Tags []string `json:"tags,omitempty"`
 }
 
 // VncData struct for VpsVncData
@@ -233,10 +322,24 @@ type VpsUsageDataNetwork struct {
 	MbitOut float32 `json:"mbitOut"`
 }
 
+// vpsUsageRequest is used to marshall a usage request struct
+type vpsUsageRequest struct {
+	Types string `json:"types,omitempty"`
+	UsagePeriod
+}
+
+// UsagePeriod is struct that can be used to query usage statistics for a certain period
+type UsagePeriod struct {
+	// TimeStart contains a unix timestamp for the start of the period
+	TimeStart int64 `json:"dateTimeStart"`
+	// TimeEnd contains a unix timestamp for the end of the period
+	TimeEnd int64 `json:"dateTimeEnd"`
+}
+
 // UsageDataDisk struct for UsageDataDisk
 type UsageDataDisk struct {
 	// Date of the entry, by default in UNIX timestamp format
-	Date float32 `json:"date"`
+	Date int64 `json:"date"`
 	// The read IOPS for this entry
 	IopsRead float32 `json:"iopsRead"`
 	// The write IOPS for this entry
@@ -246,7 +349,7 @@ type UsageDataDisk struct {
 // VpsUsageDataCpu struct for VpsUsageDataCpu
 type VpsUsageDataCpu struct {
 	// Date of the entry, by default in UNIX timestamp format
-	Date float32 `json:"date"`
+	Date int64 `json:"date"`
 	// The percentage of CPU usage for this entry
 	Percentage float32 `json:"percentage"`
 }
@@ -282,13 +385,13 @@ type Addons struct {
 // Backup struct for Backup
 type Backup struct {
 	// The backup id
-	Id float32 `json:"id"`
+	Id int64 `json:"id"`
 	// Status of the backup ('active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving')
 	Status BackupStatus `json:"status"`
 	// The backup creation date
 	DateTimeCreate response.Time `json:"dateTimeCreate"`
 	// The backup disk size in kB
-	DiskSize uint64 `json:"diskSize"`
+	DiskSize int64 `json:"diskSize"`
 	// The backup operatingSystem
 	OperatingSystem string `json:"operatingSystem"`
 	// The name of the availability zone the backup is in
@@ -308,7 +411,7 @@ type Snapshot struct {
 	// The snapshot description
 	Description string `json:"description,omitempty"`
 	// The size of the snapshot in kB
-	DiskSize float32 `json:"diskSize,omitempty"`
+	DiskSize int64 `json:"diskSize,omitempty"`
 	// The snapshot name
 	Name string `json:"name,omitempty"`
 	// The snapshot OperatingSystem
@@ -332,7 +435,7 @@ type OperatingSystem struct {
 	// The operating system name
 	Name string `json:"name"`
 	// The monthly price of the operating system in cents
-	Price float32 `json:"price,omitempty"`
+	Price int `json:"price,omitempty"`
 	// The version of the operating system
 	Version string `json:"version,omitempty"`
 }

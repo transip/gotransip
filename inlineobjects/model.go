@@ -7,15 +7,12 @@ import (
 	"github.com/transip/gotransip/v6/invoice"
 	"github.com/transip/gotransip/v6/ipaddress"
 	"github.com/transip/gotransip/v6/vps"
-	"github.com/transip/gotransip/v6/vps/firewall"
-	"github.com/transip/gotransip/v6/vps/privatenetwork"
-	"github.com/transip/gotransip/v6/vps/tcpmonitor"
 	"net"
 )
 
 // InlineObject32 struct for InlineObject32
 type InlineObject32 struct {
-	PrivateNetwork privatenetwork.PrivateNetwork `json:"privateNetwork,omitempty"`
+	PrivateNetwork vps.PrivateNetwork `json:"privateNetwork,omitempty"`
 }
 
 // InlineResponse2005 struct for InlineResponse2005
@@ -78,7 +75,7 @@ type InlineResponse20048 struct {
 
 // InlineObject48 struct for InlineObject48
 type InlineObject48 struct {
-	TcpMonitor tcpmonitor.TcpMonitor `json:"tcpMonitor,omitempty"`
+	TcpMonitor vps.TcpMonitor `json:"tcpMonitor,omitempty"`
 }
 
 // InlineResponse2009IpAddress struct for InlineResponse2009IpAddress
@@ -212,7 +209,7 @@ type InlineObject45 struct {
 
 // FirewallResponse struct for InlineObject41
 type FirewallResponse struct {
-	VpsFirewall firewall.Firewall `json:"vpsFirewall,omitempty"`
+	VpsFirewall vps.Firewall `json:"vpsFirewall,omitempty"`
 }
 
 // InlineObject2 struct for InlineObject2
@@ -428,18 +425,6 @@ type InlineResponse20043Vps struct {
 	Status string `json:"status,omitempty"`
 }
 
-// InlineResponse20034Contact struct for InlineResponse20034Contact
-type InlineResponse20034Contact struct {
-	// Email address of the contact
-	Email string `json:"email"`
-	// Id number of the contact
-	Id float32 `json:"id"`
-	// Name of the contact
-	Name string `json:"name"`
-	// Telephone number of the contact
-	Telephone string `json:"telephone"`
-}
-
 // InlineObject50 struct for InlineObject50
 type InlineObject50 struct {
 	// The end date of the usage statistics
@@ -482,7 +467,7 @@ type InlineResponse2009 struct {
 
 // InlineObject47 struct for InlineObject47
 type InlineObject47 struct {
-	TcpMonitor tcpmonitor.TcpMonitor `json:"tcpMonitor,omitempty"`
+	TcpMonitor vps.TcpMonitor `json:"tcpMonitor,omitempty"`
 }
 
 // InlineResponse20028 struct for InlineResponse20028
@@ -492,12 +477,7 @@ type InlineResponse20028 struct {
 
 // InlineResponse20036 struct for InlineResponse20036
 type InlineResponse20036 struct {
-	PrivateNetwork privatenetwork.PrivateNetwork `json:"privateNetwork,omitempty"`
-}
-
-// InlineObject30 struct for InlineObject30
-type InlineObject30 struct {
-	Contact InlineResponse20034Contact `json:"contact,omitempty"`
+	PrivateNetwork vps.PrivateNetwork `json:"privateNetwork,omitempty"`
 }
 
 // InlineResponse20027PortConfiguration struct for InlineResponse20027PortConfiguration
@@ -545,7 +525,7 @@ type InlineResponse20031 struct {
 
 // RemoteHandsResponse struct for InlineObject7
 type RemoteHandsResponse struct {
-	RemoteHands colocation.RemoteHands `json:"remoteHands,omitempty"`
+	RemoteHands colocation.RemoteHandsRequest `json:"remoteHands,omitempty"`
 }
 
 // InlineObject18 struct for InlineObject18
@@ -581,16 +561,6 @@ type InlineResponse20040Tld struct {
 // InlineResponse20027 struct for InlineResponse20027
 type InlineResponse20027 struct {
 	PortConfiguration InlineResponse20027PortConfiguration `json:"portConfiguration,omitempty"`
-}
-
-// InlineResponse20019 struct for InlineResponse20019
-type InlineResponse20019 struct {
-	Nameservers []map[string]interface{} `json:"nameservers,omitempty"`
-}
-
-// InlineResponse20034 struct for InlineResponse20034
-type InlineResponse20034 struct {
-	Contact InlineResponse20034Contact `json:"contact,omitempty"`
 }
 
 // InlineResponse2003BigStorage struct for InlineResponse2003BigStorage

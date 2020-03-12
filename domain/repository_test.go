@@ -373,7 +373,7 @@ func TestRepository_GetDnsEntries(t *testing.T) {
 	require.Equal(t, 1, len(entries))
 	require.NoError(t, err)
 	assert.Equal(t, "www", entries[0].Name)
-	assert.Equal(t, uint(86400), entries[0].Expire)
+	assert.Equal(t, 86400, entries[0].Expire)
 	assert.Equal(t, "A", entries[0].Type)
 	assert.Equal(t, "127.0.0.1", entries[0].Content)
 
@@ -437,9 +437,9 @@ func TestRepository_GetDnsSecEntries(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(entries))
 
-	assert.Equal(t, uint(67239), entries[0].KeyTag)
-	assert.Equal(t, uint(1), entries[0].Flags)
-	assert.Equal(t, uint(8), entries[0].Algorithm)
+	assert.Equal(t, 67239, entries[0].KeyTag)
+	assert.Equal(t, 1, entries[0].Flags)
+	assert.Equal(t, 8, entries[0].Algorithm)
 	assert.Equal(t, "kljlfkjsdfkjasdklf=", entries[0].PublicKey)
 }
 
@@ -559,7 +559,7 @@ func TestRepository_GetSSLCertificates(t *testing.T) {
 	certificates, err := repo.GetSSLCertificates("example.com")
 	require.NoError(t, err)
 	require.Equal(t, 1, len(certificates))
-	assert.Equal(t, uint(12358), certificates[0].CertificateId)
+	assert.Equal(t, 12358, certificates[0].CertificateId)
 	assert.Equal(t, "example.com", certificates[0].CommonName)
 	assert.Equal(t, "2019-10-24 12:59:59", certificates[0].ExpirationDate)
 	assert.Equal(t, "active", certificates[0].Status)
@@ -574,7 +574,7 @@ func TestRepository_GetSSLCertificateById(t *testing.T) {
 
 	certificates, err := repo.GetSSLCertificateById("example.com", 12358)
 	require.NoError(t, err)
-	assert.Equal(t, uint(12358), certificates.CertificateId)
+	assert.Equal(t, 12358, certificates.CertificateId)
 	assert.Equal(t, "example.com", certificates.CommonName)
 	assert.Equal(t, "2019-10-24 12:59:59", certificates.ExpirationDate)
 	assert.Equal(t, "active", certificates.Status)
@@ -643,12 +643,12 @@ func TestRepository_GetTLDs(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(tlds))
 	assert.Equal(t, ".nl", tlds[0].Name)
-	assert.Equal(t, uint(399), tlds[0].Price)
-	assert.Equal(t, uint(749), tlds[0].RecurringPrice)
-	assert.Equal(t, uint(2), tlds[0].MinLength)
-	assert.Equal(t, uint(63), tlds[0].MaxLength)
-	assert.Equal(t, uint(12), tlds[0].RegistrationPeriodLength)
-	assert.Equal(t, uint(1), tlds[0].CancelTimeFrame)
+	assert.Equal(t, 399, tlds[0].Price)
+	assert.Equal(t, 749, tlds[0].RecurringPrice)
+	assert.Equal(t, 2, tlds[0].MinLength)
+	assert.Equal(t, 63, tlds[0].MaxLength)
+	assert.Equal(t, 12, tlds[0].RegistrationPeriodLength)
+	assert.Equal(t, 1, tlds[0].CancelTimeFrame)
 
 	assert.Equal(t, []string{"canRegister"}, tlds[0].Capabilities)
 }
@@ -663,12 +663,12 @@ func TestRepository_GetTldInfo(t *testing.T) {
 	tld, err := repo.GetTLDByTLD(".nl")
 	require.NoError(t, err)
 	assert.Equal(t, ".nl", tld.Name)
-	assert.Equal(t, uint(399), tld.Price)
-	assert.Equal(t, uint(749), tld.RecurringPrice)
-	assert.Equal(t, uint(2), tld.MinLength)
-	assert.Equal(t, uint(63), tld.MaxLength)
-	assert.Equal(t, uint(12), tld.RegistrationPeriodLength)
-	assert.Equal(t, uint(1), tld.CancelTimeFrame)
+	assert.Equal(t, 399, tld.Price)
+	assert.Equal(t, 749, tld.RecurringPrice)
+	assert.Equal(t, 2, tld.MinLength)
+	assert.Equal(t, 63, tld.MaxLength)
+	assert.Equal(t, 12, tld.RegistrationPeriodLength)
+	assert.Equal(t, 1, tld.CancelTimeFrame)
 
 	assert.Equal(t, []string{"canRegister"}, tld.Capabilities)
 }

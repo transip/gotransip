@@ -128,7 +128,7 @@ type DomainsDomainNameDnsDnsEntry struct {
 	// The content of of the dns entry, for example '10 mail', '127.0.0.1' or 'www'
 	Content string `json:"content"`
 	// The expiration period of the dns entry, in seconds. For example 86400 for a day of expiration
-	Expire uint32 `json:"expire"`
+	Expire int32 `json:"expire"`
 	// The name of the dns entry, for example '@' or 'www'
 	Name string `json:"name"`
 	// The type of dns entry. Possbible types are 'A', 'AAAA', 'CNAME', 'MX', 'NS', 'TXT', 'SRV', 'SSHFP' and 'TLSA'
@@ -160,7 +160,7 @@ type DnsEntry struct {
 	// The name of the dns entry, for example '@' or 'www'
 	Name string `json:"name"`
 	// The expiration period of the dns entry, in seconds. For example 86400 for a day of expiration
-	Expire uint `json:"expire"`
+	Expire int `json:"expire"`
 	// The type of dns entry. Possbible types are 'A', 'AAAA', 'CNAME', 'MX', 'NS', 'TXT', 'SRV', 'SSHFP' and 'TLSA'
 	Type string `json:"type"`
 	// The content of of the dns entry, for example '10 mail', '127.0.0.1' or 'www'
@@ -248,7 +248,7 @@ type Domains struct {
 // SslCertificate struct for SslCertificate
 type SslCertificate struct {
 	// The id of the certificate, can be used to retrieve additional info
-	CertificateId uint `json:"certificateId"`
+	CertificateId int `json:"certificateId"`
 	// The domain name that the SSL certificate is added to. Start with '*.' when the certificate is a wildcard.
 	CommonName string `json:"commonName"`
 	// Expiration date
@@ -302,11 +302,11 @@ type Branding struct {
 // DnsSecEntry struct for DnsSecEntry
 type DnsSecEntry struct {
 	// The algorithm type that is used, click [here](https://www.transip.nl/vragen/461-domeinnaam-nameservers-gebruikt-beveiligen-dnssec/) to see the possible options.
-	Algorithm uint `json:"algorithm"`
+	Algorithm int `json:"algorithm"`
 	// The signing key number, either 256 (Zone Signing Key) or 257 (Key Signing Key)
-	Flags uint `json:"flags"`
+	Flags int `json:"flags"`
 	// A 5-digit key of the Zonesigner
-	KeyTag uint `json:"keyTag"`
+	KeyTag int `json:"keyTag"`
 	// The public key
 	PublicKey string `json:"publicKey"`
 }
@@ -314,21 +314,21 @@ type DnsSecEntry struct {
 // Tld struct for Tld
 type Tld struct {
 	// Number of days a domain needs to be canceled before the renewal date.
-	CancelTimeFrame uint `json:"cancelTimeFrame,omitempty"`
+	CancelTimeFrame int `json:"cancelTimeFrame,omitempty"`
 	// A list of the capabilities that this Tld has (the things that can be done with a domain under this tld). Possible capabilities are: 'requiresAuthCode', 'canRegister', 'canTransferWithOwnerChange', 'canTransferWithoutOwnerChange', 'canSetLock', 'canSetOwner', 'canSetContacts', 'canSetNameservers', 'supportsDnsSec'
 	Capabilities []string `json:"capabilities,omitempty"`
 	// The maximum amount of characters need for registering a domain under this TLD.
-	MaxLength uint `json:"maxLength,omitempty"`
+	MaxLength int `json:"maxLength,omitempty"`
 	// The minimum amount of characters need for registering a domain under this TLD.
-	MinLength uint `json:"minLength,omitempty"`
+	MinLength int `json:"minLength,omitempty"`
 	// The name of this TLD, including the starting dot. E.g. .nl or .com.
 	Name string `json:"name"`
 	// Price of the TLD in cents
-	Price uint `json:"price,omitempty"`
+	Price int `json:"price,omitempty"`
 	// Price for renewing the TLD in cents
-	RecurringPrice uint `json:"recurringPrice,omitempty"`
+	RecurringPrice int `json:"recurringPrice,omitempty"`
 	// Length in months of each registration or renewal period.
-	RegistrationPeriodLength uint `json:"registrationPeriodLength,omitempty"`
+	RegistrationPeriodLength int `json:"registrationPeriodLength,omitempty"`
 }
 
 // Availability struct for Availability
