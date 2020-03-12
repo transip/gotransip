@@ -13,6 +13,22 @@ type HaipsResponse struct {
 	Haips []Haip `json:"haips,omitempty"`
 }
 
+type HaipCertificatesResponse struct {
+	// list of HA-IPs
+	Haips []HaipCertificate `json:"haips,omitempty"`
+}
+
+// haipWrapper struct contains a haip in it,
+// this is solely used for unmarshalling/marshalling
+type haipWrapper struct {
+	Haip Haip `json:"haip"`
+}
+
+type haipOrderWrapper struct {
+	ProductName string `json:"productName"`
+	Description string `json:"description"`
+}
+
 // Haip struct for Haip
 type Haip struct {
 	// The description that can be set by the customer
