@@ -3,7 +3,7 @@ package product
 import (
 	"fmt"
 	"github.com/transip/gotransip/v6/repository"
-	"github.com/transip/gotransip/v6/rest/request"
+	"github.com/transip/gotransip/v6/rest"
 )
 
 // Repository should be used to select the products you want to use in the other repositories
@@ -13,7 +13,7 @@ type Repository repository.RestRepository
 // GetAll returns Products with a list Product per product group in it
 func (r *Repository) GetAll() (Products, error) {
 	var response ProductsResponse
-	productsRequest := request.RestRequest{Endpoint: "/products"}
+	productsRequest := rest.RestRequest{Endpoint: "/products"}
 	err := r.Client.Get(productsRequest, &response)
 
 	return response.Products, err
@@ -22,7 +22,7 @@ func (r *Repository) GetAll() (Products, error) {
 // GetSpecificationsForProduct returns the ProductElements for a given Product
 func (r *Repository) GetSpecificationsForProduct(product Product) ([]ProductElement, error) {
 	var response ProductElementsResponse
-	productRequest := request.RestRequest{Endpoint: fmt.Sprintf("/products/%s/elements", product.Name)}
+	productRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/products/%s/elements", product.Name)}
 	err := r.Client.Get(productRequest, &response)
 
 	return response.ProductElements, err

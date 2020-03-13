@@ -3,7 +3,7 @@ package vps
 import (
 	"github.com/transip/gotransip/v6/ipaddress"
 	"github.com/transip/gotransip/v6/product"
-	"github.com/transip/gotransip/v6/rest/response"
+	"github.com/transip/gotransip/v6/rest"
 	"net"
 )
 
@@ -389,7 +389,7 @@ type Backup struct {
 	// Status of the backup ('active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving')
 	Status BackupStatus `json:"status"`
 	// The backup creation date
-	DateTimeCreate response.Time `json:"dateTimeCreate"`
+	DateTimeCreate rest.Time `json:"dateTimeCreate"`
 	// The backup disk size in kB
 	DiskSize int64 `json:"diskSize"`
 	// The backup operatingSystem

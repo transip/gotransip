@@ -1,18 +1,17 @@
-package response
+package rest
 
 import (
 	"encoding/json"
 	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/transip/gotransip/v6/rest"
 	"testing"
 	"time"
 )
 
 func TestResponseParsing(t *testing.T) {
 	responseBody := []byte(`{"name": "test"}`)
-	restResponse := RestResponse{Body: responseBody, StatusCode: 200, Method: rest.GetRestMethod}
+	restResponse := Response{Body: responseBody, StatusCode: 200, Method: GetMethod}
 
 	var responseObject struct {
 		Name string `json:"name"`
@@ -24,11 +23,11 @@ func TestResponseParsing(t *testing.T) {
 }
 
 func TestErrorResponse(t *testing.T) {
-	error := RestException{Message: "this should be returned"}
+	error := RestError{Message: "this should be returned"}
 	data, err := json.Marshal(error)
 	assert.NoError(t, err)
 
-	restResponse := RestResponse{Body: data, StatusCode: 406, Method: rest.GetRestMethod}
+	restResponse := Response{Body: data, StatusCode: 406, Method: GetMethod}
 
 	err = restResponse.ParseResponse(nil)
 	require.Error(t, err)
@@ -41,16 +40,16 @@ func TestErrorResponse(t *testing.T) {
 }
 
 func TestEmptyResponse(t *testing.T) {
-	restResponse := RestResponse{StatusCode: 201, Method: rest.PostRestMethod}
+	restResponse := Response{StatusCode: 201, Method: PostMethod}
 
 	err := restResponse.ParseResponse(nil)
 	require.NoError(t, err)
 }
 
 func TestEmptyErrorResponse(t *testing.T) {
-	restResponse := RestResponse{
+	restResponse := Response{
 		StatusCode: 500,
-		Method:     rest.PostRestMethod,
+		Method:     PostMethod,
 	}
 
 	err := restResponse.ParseResponse(nil)
@@ -60,7 +59,7 @@ func TestEmptyErrorResponse(t *testing.T) {
 
 func TestResponseDateParsing(t *testing.T) {
 	responseBody := []byte(`{"date": "2020-01-02"}`)
-	restResponse := RestResponse{Body: responseBody, StatusCode: 200, Method: rest.GetRestMethod}
+	restResponse := Response{Body: responseBody, StatusCode: 200, Method: GetMethod}
 
 	var responseObject struct {
 		Date Date `json:"date"`
@@ -75,7 +74,7 @@ func TestResponseDateParsing(t *testing.T) {
 
 func TestResponseTimeParsing(t *testing.T) {
 	responseBody := []byte(`{"cancellationDate": "2020-01-02 12:13:37"}`)
-	restResponse := RestResponse{Body: responseBody, StatusCode: 200, Method: rest.GetRestMethod}
+	restResponse := Response{Body: responseBody, StatusCode: 200, Method: GetMethod}
 
 	var responseObject struct {
 		Date Time `json:"cancellationDate"`
@@ -88,11 +87,11 @@ func TestResponseTimeParsing(t *testing.T) {
 
 func TestResponseEmptyTimeParsing(t *testing.T) {
 	responseBody := []byte(`{"cancellationDate": "", "cancellationDatetime": ""}`)
-	restResponse := RestResponse{Body: responseBody, StatusCode: 200, Method: rest.GetRestMethod}
+	restResponse := Response{Body: responseBody, StatusCode: 200, Method: GetMethod}
 
 	var responseObject struct {
 		DateTime Time `json:"cancellationDatetime"`
-		Date Date `json:"cancellationDate"`
+		Date     Date `json:"cancellationDate"`
 	}
 
 	err := restResponse.ParseResponse(&responseObject)

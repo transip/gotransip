@@ -11,55 +11,59 @@ To print a list of your account's VPSes:
 package main
 
 import (
-  "fmt"
-  "os"
-  "golang.org/x/net/context"
-
-  "github.com/transip/gotransip/v6"
-  "github.com/transip/gotransip/v6/vps"
-  "github.com/transip/gotransip/v6/vps/privatenetwork"
+	"fmt"
+	"github.com/transip/gotransip/v6"
+	"github.com/transip/gotransip/v6/vps"
+	"os"
 )
 
 func main() {
-  // create new TransIP API SOAP client
-  file, err := os.Open("/path/to/api/private.key")
-  if err != nil {
-    panic(err.Error())
-  }
-  c, err := gotransip.NewClient(gotransip.ClientConfiguration{
-    AccountName: "accountName",
-    PrivateKeyReader: file,
-  })
-  if err != nil {
-    panic(err.Error())
-  }
+	// create new TransIP API SOAP client
+	file, err := os.Open("/path/to/api/private.key")
+	if err != nil {
+		panic(err.Error())
+	}
+	client, err := gotransip.NewClient(gotransip.ClientConfiguration{
+		AccountName:      "accountName",
+		PrivateKeyReader: file,
+	})
+	if err != nil {
+		panic(err.Error())
+	}
+	vpsRepo := vps.Repository{client}
 
-  // get vpss of VPSes
-  vpss, err := vps.ListAll(sess, ctx)
-  if err != nil {
-    panic(err.Error())
-  }
+	// get list of VPSes
+	vpss, err := vpsRepo.GetAll()
+	if err != nil {
+		panic(err.Error())
+	}
 
-  // get vpss of private networks
-  pnlist, err := privatenetwork.ListAll(sess, ctx)
-  if err != nil {
-    panic(err.Error())
-  }
+	// get list of private networks
+	pns, err := vpsRepo.GetPrivateNetworks()
+	if err != nil {
+		panic(err.Error())
+	}
 
-  // print name and description for each VPS
-  for _, vps := range vpss {
-    fmt.Printf("vps: %s (%s)\n", vps.Name, vps.Description)
-  }
+	// print name and description for each VPS
+	for _, v := range vpss {
+		fmt.Printf("vps: %s (%s)\n", v.Name, v.Description)
+	}
 
-  err = vps.Order(c, &vps.OrderVps{
-  	Description: "my-unique-description",
-    ProductName: "vps-bladevps-x8",
-    Base64InstallText: "",
-  })
+	// print name and description for each private network
+	for _, pn := range pns {
+		fmt.Printf("privatenetwork: %s (%s)\n", pn.Name, pn.Description)
+	}
 
-  if err != nil {
-    panic(err.Error())
-  }
+	err = vpsRepo.Order(vps.VpsOrder{
+		ProductName:       "vps-bladevps-x8",
+		OperatingSystem:   "ubuntu-18.04",
+		AvailabilityZone:  "ams0",
+		Hostname:          "webserver01",
+		Description:       "my-unique-description",
+	})
+	if err != nil {
+		panic(err.Error())
+	}
 }
 ```
 

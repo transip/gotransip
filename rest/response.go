@@ -1,25 +1,24 @@
-package response
+package rest
 
 import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/transip/gotransip/v6/rest"
 	"time"
 )
 
-// RestException is used to unpack every error returned by the api contains
-type RestException struct {
+// RestError is used to unpack every error returned by the api contains
+type RestError struct {
 	// Message contains the error from the api as string
 	Message string `json:"error"`
 }
 
-// RestResponse will contain a body (which can be empty), status code and the RestMethod
+// Response will contain a body (which can be empty), status code and the Method
 // this struct will be used to decode a response from the api server
-type RestResponse struct {
+type Response struct {
 	Body       []byte
 	StatusCode int
-	Method     rest.RestMethod
+	Method     Method
 }
 
 // Time is defined because the transip api server does not return a rfc 3339 time string
@@ -45,10 +44,10 @@ func (tt *Time) UnmarshalJSON(input []byte) error {
 		return err
 	}
 	// don't parse on empty dates
-	if string(input) == "\"\"" {
+	if string(input) == `""` {
 		return nil
 	}
-	newTime, err := time.ParseInLocation("\"2006-01-02 15:04:05\"", string(input), loc)
+	newTime, err := time.ParseInLocation(`"2006-01-02 15:04:05"`, string(input), loc)
 	if err != nil {
 		return err
 	}
@@ -64,10 +63,10 @@ func (td *Date) UnmarshalJSON(input []byte) error {
 		return err
 	}
 	// don't parse on empty dates
-	if string(input) == "\"\"" {
+	if string(input) == `""` {
 		return nil
 	}
-	newTime, err := time.ParseInLocation("\"2006-01-02\"", string(input), loc)
+	newTime, err := time.ParseInLocation(`"2006-01-02"`, string(input), loc)
 	if err != nil {
 		return err
 	}
@@ -76,19 +75,19 @@ func (td *Date) UnmarshalJSON(input []byte) error {
 	return nil
 }
 
-// ParseResponse will convert a RestResponse struct to the given interface
+// ParseResponse will convert a Response struct to the given interface
 // on error it will pass this back
 // when the rest response has no body it will return without filling the dest variable
 // todo: look into specific types of errors
-func (r *RestResponse) ParseResponse(dest interface{}) error {
+func (r *Response) ParseResponse(dest interface{}) error {
 	// do response error checking
-	if !r.Method.StatusCodeIsCorrect(r.StatusCode) {
+	if !r.Method.StatusCodeOK(r.StatusCode) {
 		// there is no response content so we also don't need to parse it
 		if len(r.Body) == 0 {
 			return fmt.Errorf("error response without body from api server status code '%d'", r.StatusCode)
 		}
 
-		var errorResponse RestException
+		var errorResponse RestError
 		err := json.Unmarshal(r.Body, &errorResponse)
 		if err != nil {
 			// todo: look into error wrapping, nested errors

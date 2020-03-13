@@ -9,7 +9,7 @@ import (
 
 func TestPdf_GetIoReader(t *testing.T) {
 	pdf := Pdf{Content: "dGVzdDEyMw=="}
-	reader := pdf.GetIoReader()
+	reader := pdf.GetReader()
 
 	bytes, err := ioutil.ReadAll(reader)
 	require.NoError(t, err)

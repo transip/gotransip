@@ -3,7 +3,7 @@ package invoice
 import (
 	"fmt"
 	"github.com/transip/gotransip/v6/repository"
-	"github.com/transip/gotransip/v6/rest/request"
+	"github.com/transip/gotransip/v6/rest"
 )
 
 // Repository can be used to get a list of your invoices, invoice subitems (a specific product)
@@ -13,7 +13,7 @@ type Repository repository.RestRepository
 // GetAll returns a list of all invoices attached to your TransIP account
 func (r *Repository) GetAll() ([]Invoice, error) {
 	var response invoicesResponse
-	restRequest := request.RestRequest{Endpoint: "/invoices"}
+	restRequest := rest.RestRequest{Endpoint: "/invoices"}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Invoices, err
@@ -23,7 +23,7 @@ func (r *Repository) GetAll() ([]Invoice, error) {
 // invoiceNumber corresponds to the InvoiceNumber property on a Invoice struct
 func (r *Repository) GetByInvoiceNumber(invoiceNumber string) (Invoice, error) {
 	var response invoiceResponse
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/invoices/%s", invoiceNumber)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/invoices/%s", invoiceNumber)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Invoice, err
@@ -34,7 +34,7 @@ func (r *Repository) GetByInvoiceNumber(invoiceNumber string) (Invoice, error) {
 // invoiceNumber corresponds to the InvoiceNumber property on a Invoice struct
 func (r *Repository) GetInvoiceItems(invoiceNumber string) ([]InvoiceItem, error) {
 	var response invoiceItemsResponse
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/invoices/%s/invoice-items", invoiceNumber)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/invoices/%s/invoice-items", invoiceNumber)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.InvoiceItems, err
@@ -45,7 +45,7 @@ func (r *Repository) GetInvoiceItems(invoiceNumber string) ([]InvoiceItem, error
 // invoiceNumber corresponds to the InvoiceNumber property on a Invoice struct
 func (r *Repository) GetInvoicePdf(invoiceNumber string) (Pdf, error) {
 	var response Pdf
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/invoices/%s/pdf", invoiceNumber)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/invoices/%s/pdf", invoiceNumber)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response, err

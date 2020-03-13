@@ -180,7 +180,7 @@ func TestRepository_GetInvoicePdf(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, 12, len(pdf.Content))
 
-	reader := pdf.GetIoReader()
+	reader := pdf.GetReader()
 
 	bytes, err := ioutil.ReadAll(reader)
 	require.NoError(t, err)

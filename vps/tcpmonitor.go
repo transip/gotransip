@@ -2,7 +2,7 @@ package vps
 
 import (
 	"fmt"
-	"github.com/transip/gotransip/v6/rest/request"
+	"github.com/transip/gotransip/v6/rest"
 	"net"
 )
 
@@ -57,7 +57,7 @@ type MonitoringContact struct {
 // GetTCPMonitors returns an overview of all existing monitors attached to a VPS
 func (r *Repository) GetTCPMonitors(vpsName string) ([]TcpMonitor, error) {
 	var response tcpMonitorsWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors", vpsName)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.TcpMonitors, err
@@ -68,7 +68,7 @@ func (r *Repository) GetTCPMonitors(vpsName string) ([]TcpMonitor, error) {
 // or see the documentation: https://api.transip.nl/rest/docs.html#vps-tcp-monitors-post
 func (r *Repository) CreateTCPMonitor(vpsName string, tcpMonitor TcpMonitor) error {
 	requestBody := tcpMonitorWrapper{TcpMonitor: tcpMonitor}
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors", vpsName), Body: &requestBody}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors", vpsName), Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
@@ -76,7 +76,7 @@ func (r *Repository) CreateTCPMonitor(vpsName string, tcpMonitor TcpMonitor) err
 // UpdateTCPMonitor allows you to update your monitor settings for a given tcp monitored ip
 func (r *Repository) UpdateTCPMonitor(vpsName string, tcpMonitor TcpMonitor) error {
 	requestBody := tcpMonitorWrapper{TcpMonitor: tcpMonitor}
-	restRequest := request.RestRequest{
+	restRequest := rest.RestRequest{
 		Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors/%s", vpsName, tcpMonitor.IPAddress.String()),
 		Body:     &requestBody,
 	}
@@ -86,7 +86,7 @@ func (r *Repository) UpdateTCPMonitor(vpsName string, tcpMonitor TcpMonitor) err
 
 // RemoveTCPMonitor allows you to remove a tcp monitor for a specific ip address on a specifc VPS
 func (r *Repository) RemoveTCPMonitor(vpsName string, ip net.IP) error {
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors/%s", vpsName, ip.String())}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors/%s", vpsName, ip.String())}
 
 	return r.Client.Delete(restRequest)
 }
@@ -94,7 +94,7 @@ func (r *Repository) RemoveTCPMonitor(vpsName string, ip net.IP) error {
 // GetContacts returns a list of all your monitoring contacts
 func (r *Repository) GetContacts() ([]MonitoringContact, error) {
 	var response contactsWrapper
-	restRequest := request.RestRequest{Endpoint: "/monitoring-contacts"}
+	restRequest := rest.RestRequest{Endpoint: "/monitoring-contacts"}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Contacts, err
@@ -102,7 +102,7 @@ func (r *Repository) GetContacts() ([]MonitoringContact, error) {
 
 // CreateContact allows you to add a new contact which could be used by the tcp monitoring
 func (r *Repository) CreateContact(contact MonitoringContact) error {
-	restRequest := request.RestRequest{Endpoint: "/monitoring-contacts", Body: &contact}
+	restRequest := rest.RestRequest{Endpoint: "/monitoring-contacts", Body: &contact}
 
 	return r.Client.Post(restRequest)
 }
@@ -110,14 +110,14 @@ func (r *Repository) CreateContact(contact MonitoringContact) error {
 // UpdateContact updates the specified contact
 func (r *Repository) UpdateContact(contact MonitoringContact) error {
 	requestBody := contactWrapper{Contact: contact}
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/monitoring-contacts/%d", contact.Id), Body: &requestBody}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/monitoring-contacts/%d", contact.Id), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
 
 // RemoveContact allows you to delete a specific contact by id
 func (r *Repository) RemoveContact(contactId int64) error {
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/monitoring-contacts/%d", contactId)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/monitoring-contacts/%d", contactId)}
 
 	return r.Client.Delete(restRequest)
 }

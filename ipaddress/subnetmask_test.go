@@ -9,25 +9,18 @@ import (
 	"testing"
 )
 
-type expect struct {
-	in    []byte
-	out   []byte
-	mask  string
-	error error
-}
-
 func TestSubnetMask_UnmarshalText(t *testing.T) {
 	expects := []expect{
-		{in: []byte("/48"), mask: "ffffffffffff00000000000000000000", error: nil},
-		{in: []byte("/128"), mask: "ffffffffffffffffffffffffffffffff", error: nil},
-		{in: []byte("/1"), mask: "80000000000000000000000000000000", error: nil},
-		{in: []byte("/0"), mask: "00000000000000000000000000000000", error: nil},
-		{in: []byte("48"), mask: "<nil>", error: &net.ParseError{Type: "IP mask", Text: "48"}},
-		{in: []byte("/129"), mask: "<nil>", error: errors.New("Invalid prefixLength provided")},
-		{in: []byte("255.255.255.0"), mask: "00000000000000000000ffffffffff00", error: nil},
-		{in: []byte("255.255.255.d"), mask: "<nil>", error: &net.ParseError{Type: "IP mask", Text: "255.255.255.d"}},
-		{in: []byte("255.0.255.0"), mask: "00000000000000000000ffffff00ff00", error: nil},
-		{in: []byte("255.0.128.0"), mask: "00000000000000000000ffffff008000", error: nil},
+		{in: []byte("/48"), result: "ffffffffffff00000000000000000000", error: nil},
+		{in: []byte("/128"), result: "ffffffffffffffffffffffffffffffff", error: nil},
+		{in: []byte("/1"), result: "80000000000000000000000000000000", error: nil},
+		{in: []byte("/0"), result: "00000000000000000000000000000000", error: nil},
+		{in: []byte("48"), result: "<nil>", error: &net.ParseError{Type: "IP mask", Text: "48"}},
+		{in: []byte("/129"), result: "<nil>", error: errors.New("Invalid prefixLength provided")},
+		{in: []byte("255.255.255.0"), result: "00000000000000000000ffffffffff00", error: nil},
+		{in: []byte("255.255.255.d"), result: "<nil>", error: &net.ParseError{Type: "IP mask", Text: "255.255.255.d"}},
+		{in: []byte("255.0.255.0"), result: "00000000000000000000ffffff00ff00", error: nil},
+		{in: []byte("255.0.128.0"), result: "00000000000000000000ffffff008000", error: nil},
 	}
 
 	for _, expect := range expects {
@@ -35,7 +28,7 @@ func TestSubnetMask_UnmarshalText(t *testing.T) {
 		err := mask.UnmarshalText(expect.in)
 
 		assert.Equal(t, expect.error, err)
-		assert.Equal(t, expect.mask, mask.IPMask.String())
+		assert.Equal(t, expect.result, mask.IPMask.String())
 	}
 }
 

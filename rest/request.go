@@ -1,4 +1,4 @@
-package request
+package rest
 
 import (
 	"bytes"
@@ -20,8 +20,8 @@ type RestRequest struct {
 	Body       interface{}
 }
 
-// GetBody returns the request object as a json
-func (r *RestRequest) GetBody() ([]byte, error) {
+// GetJsonBody returns the request object as a json byte array
+func (r *RestRequest) GetJsonBody() ([]byte, error) {
 	return json.Marshal(r.Body)
 }
 
@@ -33,7 +33,7 @@ func (r *RestRequest) GetBodyReader() (io.Reader, error) {
 	}
 
 	// try to get the marshalled body
-	body, err := r.GetBody()
+	body, err := r.GetJsonBody()
 	if err != nil {
 		return nil, err
 	}

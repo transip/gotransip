@@ -1,7 +1,7 @@
 package traffic
 
 import (
-	"github.com/transip/gotransip/v6/rest/response"
+	"github.com/transip/gotransip/v6/rest"
 )
 
 // Traffic struct for Traffic
@@ -17,11 +17,11 @@ type trafficWrapper struct {
 // TrafficInformation struct for TrafficInformation
 type TrafficInformation struct {
 	// The end date in 'Y-m-d' format
-	EndDate response.Date `json:"endDate"`
+	EndDate rest.Date `json:"endDate"`
 	// The maximum amount of bytes that can be used in this period
 	MaxInBytes int64 `json:"maxInBytes"`
 	// The start date in 'Y-m-d' format
-	StartDate response.Date `json:"startDate"`
+	StartDate rest.Date `json:"startDate"`
 	// The usage in bytes for this period
 	UsedInBytes int64 `json:"usedInBytes"`
 	// The usage in bytes

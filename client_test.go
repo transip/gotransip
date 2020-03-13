@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/transip/gotransip/v6/authenticator"
 	"github.com/transip/gotransip/v6/product"
-	"github.com/transip/gotransip/v6/rest/request"
+	"github.com/transip/gotransip/v6/rest"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -82,7 +82,7 @@ func TestClientCallReturnsObject(t *testing.T) {
 	client, err := newClient(clientConfig)
 	require.NoError(t, err)
 
-	restRequest := request.RestRequest{Endpoint: "/domains"}
+	restRequest := rest.RestRequest{Endpoint: "/domains"}
 	type domainResponse struct {
 		Name string `json:"name"`
 	}
@@ -102,7 +102,7 @@ func TestEmptyBodyPostDoesPostWithoutBody(t *testing.T) {
 	client, err := newClient(clientConfig)
 	require.NoError(t, err)
 
-	restRequest := request.RestRequest{Endpoint: "/test"}
+	restRequest := rest.RestRequest{Endpoint: "/test"}
 	err = client.Post(restRequest)
 	require.NoError(t, err)
 }
@@ -116,7 +116,7 @@ func TestClientCallToApiServer(t *testing.T) {
 	client, err := NewClient(clientConfig)
 	require.NoError(t, err)
 
-	request := request.RestRequest{Endpoint: "/products"}
+	request := rest.RestRequest{Endpoint: "/products"}
 	var responseObject product.ProductsResponse
 
 	err = client.Get(request, &responseObject)

@@ -1,11 +1,10 @@
 package authenticator
 
 import (
+	"errors"
 	"fmt"
 	"github.com/transip/gotransip/v6/jwt"
 	"github.com/transip/gotransip/v6/rest"
-	"github.com/transip/gotransip/v6/rest/request"
-	"github.com/transip/gotransip/v6/rest/response"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -14,14 +13,14 @@ import (
 
 const (
 	// this is the header key we will add the signature to
-	signatureHeader string = "Signature"
+	signatureHeader = "Signature"
 	// this prefix will be used to name tokens we requested
 	// customers are able to see this in their control panel
 	labelPrefix = "gotransip-client"
-	// default a requested Token expires after a day
-	defaultExpirationTime = 86400
+	// a requested Token expires after a day
+	tokenExpirationDuration = time.Hour * 24
 	// DemoToken can be used to test with the api without using your own account
-	DemoToken string = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImN3MiFSbDU2eDNoUnkjelM4YmdOIn0.eyJpc3MiOiJhcGkudHJhbnNpcC5ubCIsImF1ZCI6ImFwaS50cmFuc2lwLm5sIiwianRpIjoiY3cyIVJsNTZ4M2hSeSN6UzhiZ04iLCJpYXQiOjE1ODIyMDE1NTAsIm5iZiI6MTU4MjIwMTU1MCwiZXhwIjoyMTE4NzQ1NTUwLCJjaWQiOiI2MDQ0OSIsInJvIjpmYWxzZSwiZ2siOmZhbHNlLCJrdiI6dHJ1ZX0.fYBWV4O5WPXxGuWG-vcrFWqmRHBm9yp0PHiYh_oAWxWxCaZX2Rf6WJfc13AxEeZ67-lY0TA2kSaOCp0PggBb_MGj73t4cH8gdwDJzANVxkiPL1Saqiw2NgZ3IHASJnisUWNnZp8HnrhLLe5ficvb1D9WOUOItmFC2ZgfGObNhlL2y-AMNLT4X7oNgrNTGm-mespo0jD_qH9dK5_evSzS3K8o03gu6p19jxfsnIh8TIVRvNdluYC2wo4qDl5EW5BEZ8OSuJ121ncOT1oRpzXB0cVZ9e5_UVAEr9X3f26_Eomg52-PjrgcRJ_jPIUYbrlo06KjjX2h0fzMr21ZE023Gw"
+	DemoToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImN3MiFSbDU2eDNoUnkjelM4YmdOIn0.eyJpc3MiOiJhcGkudHJhbnNpcC5ubCIsImF1ZCI6ImFwaS50cmFuc2lwLm5sIiwianRpIjoiY3cyIVJsNTZ4M2hSeSN6UzhiZ04iLCJpYXQiOjE1ODIyMDE1NTAsIm5iZiI6MTU4MjIwMTU1MCwiZXhwIjoyMTE4NzQ1NTUwLCJjaWQiOiI2MDQ0OSIsInJvIjpmYWxzZSwiZ2siOmZhbHNlLCJrdiI6dHJ1ZX0.fYBWV4O5WPXxGuWG-vcrFWqmRHBm9yp0PHiYh_oAWxWxCaZX2Rf6WJfc13AxEeZ67-lY0TA2kSaOCp0PggBb_MGj73t4cH8gdwDJzANVxkiPL1Saqiw2NgZ3IHASJnisUWNnZp8HnrhLLe5ficvb1D9WOUOItmFC2ZgfGObNhlL2y-AMNLT4X7oNgrNTGm-mespo0jD_qH9dK5_evSzS3K8o03gu6p19jxfsnIh8TIVRvNdluYC2wo4qDl5EW5BEZ8OSuJ121ncOT1oRpzXB0cVZ9e5_UVAEr9X3f26_Eomg52-PjrgcRJ_jPIUYbrlo06KjjX2h0fzMr21ZE023Gw"
 )
 
 // Authenticator is used by the client to retrieve a token to use as authentication mechanism in its requests
@@ -47,6 +46,7 @@ type TransipAuthenticator struct {
 	// this would be the acount name of customer
 	Login string
 	// When this is set to true the requested tokens can only be used with the 'ip' we are requesting with
+	// todo: check if token request is correct when this is set
 	Whitelisted bool
 	// Whether or not we want to request read only Tokens, that can only only be used to retrieve information
 	// not to create, modify or delete it
@@ -74,8 +74,10 @@ type AuthRequest struct {
 // if it is expired it will try to request a new Token, set and return that
 // on error it passes this back
 // todo: implement Token caching to io.Writer/Reader/Closer
-// todo: error on no private key and a expired Token
 func (a *TransipAuthenticator) GetToken() (jwt.Token, error) {
+	if a.Token.Expired() && a.PrivateKeyBody == nil {
+		return jwt.Token{}, errors.New("token expired and no private key is set")
+	}
 	if a.Token.Expired() {
 		var err error
 		a.Token, err = a.requestNewToken()
@@ -93,15 +95,15 @@ func (a *TransipAuthenticator) GetToken() (jwt.Token, error) {
 // on error it will pass this back
 func (a *TransipAuthenticator) requestNewToken() (jwt.Token, error) {
 	restRequest := a.getAuthRequest()
-	getMethod := rest.PostRestMethod
+	getMethod := rest.PostMethod
 
 	httpRequest, err := restRequest.GetHTTPRequest(a.BasePath, getMethod.Method)
 	if err != nil {
-		return jwt.Token{}, nil
+		return jwt.Token{}, fmt.Errorf("error constructing token http request: %w", err)
 	}
-	bodyToSign, err := restRequest.GetBody()
+	bodyToSign, err := restRequest.GetJsonBody()
 	if err != nil {
-		return jwt.Token{}, nil
+		return jwt.Token{}, fmt.Errorf("error marshalling token request: %w", err)
 	}
 	signature, err := signWithKey(bodyToSign, a.PrivateKeyBody)
 	if err != nil {
@@ -111,7 +113,7 @@ func (a *TransipAuthenticator) requestNewToken() (jwt.Token, error) {
 
 	httpResponse, err := a.HTTPClient.Do(httpRequest)
 	if err != nil {
-		return jwt.Token{}, fmt.Errorf("request error:\n%s", err.Error())
+		return jwt.Token{}, fmt.Errorf("request error: %w", err)
 	}
 
 	defer httpResponse.Body.Close()
@@ -122,7 +124,7 @@ func (a *TransipAuthenticator) requestNewToken() (jwt.Token, error) {
 		return jwt.Token{}, err
 	}
 
-	restResponse := response.RestResponse{
+	restResponse := rest.Response{
 		Body:       b,
 		StatusCode: httpResponse.StatusCode,
 		Method:     getMethod,
@@ -153,7 +155,7 @@ func (a *TransipAuthenticator) getNonce() string {
 }
 
 // getAuthRequest returns a rest.RestRequest filled with a new AuthRequest
-func (a *TransipAuthenticator) getAuthRequest() request.RestRequest {
+func (a *TransipAuthenticator) getAuthRequest() rest.RestRequest {
 	labelPostFix := time.Now().Unix()
 
 	authRequest := AuthRequest{
@@ -161,11 +163,11 @@ func (a *TransipAuthenticator) getAuthRequest() request.RestRequest {
 		Nonce:          a.getNonce(),
 		Label:          fmt.Sprintf("%s-%d", labelPrefix, labelPostFix),
 		ReadOnly:       a.ReadOnly,
-		ExpirationTime: time.Now().Unix() + defaultExpirationTime,
+		ExpirationTime: time.Now().Add(tokenExpirationDuration).Unix(),
 		GlobalKey:      a.Whitelisted,
 	}
 
-	return request.RestRequest{
+	return rest.RestRequest{
 		Endpoint: "/auth",
 		Body:     authRequest,
 	}

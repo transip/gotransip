@@ -53,18 +53,18 @@ func New(token string) (Token, error) {
 
 	tokenParts := strings.Split(token, ".")
 	if len(tokenParts) != 3 {
-		return Token{}, errors.New("Invalid token given, token should exist at least of 3 parts")
+		return Token{}, fmt.Errorf("invalid token '%s' given, token should exist at least of 3 parts", token)
 	}
 
 	jsonBody, err := base64.RawStdEncoding.DecodeString(tokenParts[1])
 	if err != nil {
-		return Token{}, errors.New("Could not decode token, invalid base64")
+		return Token{}, errors.New("could not decode token, invalid base64")
 	}
 
 	var tokenRequest tokenPayload
 	err = json.Unmarshal(jsonBody, &tokenRequest)
 	if err != nil {
-		return Token{}, errors.New("Could not read token body, invalid json")
+		return Token{}, errors.New("could not read token body, invalid json")
 	}
 
 	return Token{

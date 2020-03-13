@@ -1,7 +1,7 @@
 package invoice
 
 import (
-	"github.com/transip/gotransip/v6/rest/response"
+	"github.com/transip/gotransip/v6/rest"
 )
 
 // invoicesResponse object contains a list of Invoices in it
@@ -32,17 +32,17 @@ type invoiceItemsResponse struct {
 // Invoice struct for a invoice
 type Invoice struct {
 	// Invoice creation date
-	CreationDate response.Date `json:"creationDate"`
+	CreationDate rest.Date `json:"creationDate"`
 	// Currency used for this invoice
 	Currency string `json:"currency"`
 	// Invoice deadline
-	DueDate response.Date `json:"dueDate"`
+	DueDate rest.Date `json:"dueDate"`
 	// Invoice number
 	InvoiceNumber string `json:"invoiceNumber"`
 	// Invoice status
 	InvoiceStatus string `json:"invoiceStatus"`
 	// Invoice paid date
-	PayDate response.Date `json:"payDate"`
+	PayDate rest.Date `json:"payDate"`
 	// Invoice total (displayed in cents)
 	TotalAmount int `json:"totalAmount"`
 	// Invoice total including VAT (displayed in cents)
@@ -52,7 +52,7 @@ type Invoice struct {
 // InvoiceItem struct for InvoiceItem
 type InvoiceItem struct {
 	// Date when the order line item was up for invoicing
-	Date response.Date `json:"date"`
+	Date rest.Date `json:"date"`
 	// Product description
 	Description string `json:"description"`
 	// Applied discounts

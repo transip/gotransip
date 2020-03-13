@@ -3,7 +3,7 @@ package vps
 import (
 	"fmt"
 	"github.com/transip/gotransip/v6/ipaddress"
-	"github.com/transip/gotransip/v6/rest/request"
+	"github.com/transip/gotransip/v6/rest"
 )
 
 // Firewall struct for the Vps Firewall
@@ -31,7 +31,7 @@ type FirewallRule struct {
 // GetFirewall returns the state of the current VPS firewall
 func (r *Repository) GetFirewall(vpsName string) (Firewall, error) {
 	var response firewallWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/firewall", vpsName)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/firewall", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Firewall, err
@@ -42,7 +42,7 @@ func (r *Repository) GetFirewall(vpsName string) (Firewall, error) {
 // Adding / removing of ruleSets, updating the whitelists
 func (r *Repository) UpdateFirewall(vpsName string, firewall Firewall) error {
 	requestBody := firewallWrapper{Firewall: firewall}
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/firewall", vpsName), Body: &requestBody}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/firewall", vpsName), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }

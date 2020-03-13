@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/transip/gotransip/v6"
 	"github.com/transip/gotransip/v6/repository"
-	"github.com/transip/gotransip/v6/rest/request"
+	"github.com/transip/gotransip/v6/rest"
 )
 
 // Repository can be used to get a list of your domains
@@ -14,7 +14,7 @@ type Repository repository.RestRepository
 // GetAll returns all domains listed in your account
 func (r *Repository) GetAll() ([]Domain, error) {
 	var response domainsResponse
-	err := r.Client.Get(request.RestRequest{Endpoint: "/domains"}, &response)
+	err := r.Client.Get(rest.RestRequest{Endpoint: "/domains"}, &response)
 
 	return response.Domains, err
 }
@@ -23,7 +23,7 @@ func (r *Repository) GetAll() ([]Domain, error) {
 // requires a domainName, for example: 'example.com'
 func (r *Repository) GetByDomainName(domainName string) (Domain, error) {
 	var response domainWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s", domainName)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s", domainName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Domain, err
@@ -32,7 +32,7 @@ func (r *Repository) GetByDomainName(domainName string) (Domain, error) {
 // Register allows you to registers a new domain
 // You can set the contacts, nameservers and DNS entries immediately, but it’s not mandatory for registration
 func (r *Repository) Register(domainRegister Register) error {
-	restRequest := request.RestRequest{Endpoint: "/domains", Body: &domainRegister}
+	restRequest := rest.RestRequest{Endpoint: "/domains", Body: &domainRegister}
 
 	return r.Client.Post(restRequest)
 }
@@ -40,7 +40,7 @@ func (r *Repository) Register(domainRegister Register) error {
 // Transfer allows you to transfer a domain to TransIP using its transfer key
 // (or ‘EPP code’) by specifying it in the authCode parameter
 func (r *Repository) Transfer(domainTransfer Transfer) error {
-	restRequest := request.RestRequest{Endpoint: "/domains", Body: &domainTransfer}
+	restRequest := rest.RestRequest{Endpoint: "/domains", Body: &domainTransfer}
 
 	return r.Client.Post(restRequest)
 }
@@ -50,7 +50,7 @@ func (r *Repository) Transfer(domainTransfer Transfer) error {
 // To change tags, update the tags property
 func (r *Repository) Update(domain Domain) error {
 	requestBody := domainWrapper{Domain: domain}
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s", domain.Name), Body: &requestBody}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s", domain.Name), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
@@ -61,7 +61,7 @@ func (r *Repository) Update(domain Domain) error {
 func (r *Repository) Cancel(domainName string, endTime gotransip.CancellationTime) error {
 	var requestBody gotransip.CancellationRequest
 	requestBody.EndTime = endTime
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s", domainName), Body: &requestBody}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s", domainName), Body: &requestBody}
 
 	return r.Client.Delete(restRequest)
 }
@@ -70,7 +70,7 @@ func (r *Repository) Cancel(domainName string, endTime gotransip.CancellationTim
 // Branding can be altered using the method below
 func (r *Repository) GetDomainBranding(domainName string) (Branding, error) {
 	var response domainBrandingWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/branding", domainName)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/branding", domainName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Branding, err
@@ -79,7 +79,7 @@ func (r *Repository) GetDomainBranding(domainName string) (Branding, error) {
 // UpdateDomainBranding allows you to change the branding information on a domain
 func (r *Repository) UpdateDomainBranding(domainName string, branding Branding) error {
 	requestBody := domainBrandingWrapper{Branding: branding}
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/branding", domainName), Body: &requestBody}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/branding", domainName), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
@@ -87,7 +87,7 @@ func (r *Repository) UpdateDomainBranding(domainName string, branding Branding) 
 // GetContacts returns a list of contacts for the given domain name
 func (r *Repository) GetContacts(domainName string) ([]WhoisContact, error) {
 	var response contactsWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/contacts", domainName)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/contacts", domainName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Contacts, err
@@ -96,7 +96,7 @@ func (r *Repository) GetContacts(domainName string) ([]WhoisContact, error) {
 // UpdateContacts allows you to replace the whois contacts currently on a domain
 func (r *Repository) UpdateContacts(domainName string, contacts []WhoisContact) error {
 	requestBody := contactsWrapper{Contacts: contacts}
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/contacts", domainName), Body: &requestBody}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/contacts", domainName), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
@@ -104,7 +104,7 @@ func (r *Repository) UpdateContacts(domainName string, contacts []WhoisContact) 
 // GetDnsEntries returns a list of all DNS entries for a domain by domainName
 func (r *Repository) GetDnsEntries(domainName string) ([]DnsEntry, error) {
 	var response dnsEntriesWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.DnsEntries, err
@@ -113,7 +113,7 @@ func (r *Repository) GetDnsEntries(domainName string) ([]DnsEntry, error) {
 // AddDnsEntry allows you to add a single dns entry to a domain
 func (r *Repository) AddDnsEntry(domainName string, dnsEntry DnsEntry) error {
 	requestBody := dnsEntryWrapper{DnsEntry: dnsEntry}
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName), Body: &requestBody}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName), Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
@@ -122,7 +122,7 @@ func (r *Repository) AddDnsEntry(domainName string, dnsEntry DnsEntry) error {
 // the dns entry is identified by the 'Name', 'Expire' and 'Type' properties of the DnsEntry struct
 func (r *Repository) UpdateDnsEntry(domainName string, dnsEntry DnsEntry) error {
 	requestBody := dnsEntryWrapper{DnsEntry: dnsEntry}
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName), Body: &requestBody}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
@@ -130,7 +130,7 @@ func (r *Repository) UpdateDnsEntry(domainName string, dnsEntry DnsEntry) error 
 // ReplaceDnsEntries will wipe the entire zone replacing it with the given dns entries
 func (r *Repository) ReplaceDnsEntries(domainName string, dnsEntries []DnsEntry) error {
 	requestBody := dnsEntriesWrapper{DnsEntries: dnsEntries}
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName), Body: &requestBody}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
@@ -138,7 +138,7 @@ func (r *Repository) ReplaceDnsEntries(domainName string, dnsEntries []DnsEntry)
 // RemoveDnsEntry allows you to remove a single DNS entry from a domain
 func (r *Repository) RemoveDnsEntry(domainName string, dnsEntry DnsEntry) error {
 	requestBody := dnsEntryWrapper{DnsEntry: dnsEntry}
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName), Body: &requestBody}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName), Body: &requestBody}
 
 	return r.Client.Delete(restRequest)
 }
@@ -146,7 +146,7 @@ func (r *Repository) RemoveDnsEntry(domainName string, dnsEntry DnsEntry) error 
 // GetDnsEntries returns a list of all DNS entries for a domain by domainName
 func (r *Repository) GetDnsSecEntries(domainName string) ([]DnsSecEntry, error) {
 	var response dnsSecEntriesWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dnssec", domainName)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dnssec", domainName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.DnsSecEntries, err
@@ -155,7 +155,7 @@ func (r *Repository) GetDnsSecEntries(domainName string) ([]DnsSecEntry, error) 
 // ReplaceDnsSecEntries allows you to replace all DNSSEC entries with the ones that are provided
 func (r *Repository) ReplaceDnsSecEntries(domainName string, dnsSecEntries []DnsSecEntry) error {
 	requestBody := dnsSecEntriesWrapper{DnsSecEntries: dnsSecEntries}
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dnssec", domainName), Body: &requestBody}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dnssec", domainName), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
@@ -163,7 +163,7 @@ func (r *Repository) ReplaceDnsSecEntries(domainName string, dnsSecEntries []Dns
 // GetNameservers will list all nameservers currently set for a domain.
 func (r *Repository) GetNameservers(domainName string) ([]Nameserver, error) {
 	var response nameserversWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/nameservers", domainName)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/nameservers", domainName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Nameservers, err
@@ -172,7 +172,7 @@ func (r *Repository) GetNameservers(domainName string) ([]Nameserver, error) {
 // UpdateNameservers allows you to change the nameservers for a domain
 func (r *Repository) UpdateNameservers(domainName string, nameservers []Nameserver) error {
 	requestBody := nameserversWrapper{Nameservers: nameservers}
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/nameservers", domainName), Body: &requestBody}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/nameservers", domainName), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
@@ -180,7 +180,7 @@ func (r *Repository) UpdateNameservers(domainName string, nameservers []Nameserv
 // Domain actions are kept track of by TransIP. Domain actions include, for example, changing nameservers
 func (r *Repository) GetDomainAction(domainName string) (Action, error) {
 	var response actionWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/actions", domainName)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/actions", domainName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Action, err
@@ -193,14 +193,14 @@ func (r *Repository) RetryDomainAction(domainName string, authCode string, dnsEn
 	requestBody.DnsEntries = dnsEntries
 	requestBody.Nameservers = nameservers
 	requestBody.Contacts = contacts
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/actions", domainName), Body: &requestBody}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/actions", domainName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
 
 // With this method you are able to cancel a domain action while it is still pending or being processed
 func (r *Repository) CancelDomainAction(domainName string) error {
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/actions", domainName)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/actions", domainName)}
 
 	return r.Client.Delete(restRequest)
 }
@@ -208,7 +208,7 @@ func (r *Repository) CancelDomainAction(domainName string) error {
 // GetSSLCertificates allows you to get a list of SSL certificates for a specific domain
 func (r *Repository) GetSSLCertificates(domainName string) ([]SslCertificate, error) {
 	var response certificatesWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/ssl", domainName)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/ssl", domainName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Certificates, err
@@ -217,7 +217,7 @@ func (r *Repository) GetSSLCertificates(domainName string) ([]SslCertificate, er
 // GetSSLCertificateById allows you to get a single SSL certificate by id.
 func (r *Repository) GetSSLCertificateById(domainName string, certificateId int64) (SslCertificate, error) {
 	var response certificateWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/ssl/%d", domainName, certificateId)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/ssl/%d", domainName, certificateId)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Certificate, err
@@ -226,7 +226,7 @@ func (r *Repository) GetSSLCertificateById(domainName string, certificateId int6
 // This method will return the WHOIS information for a domain name as a string
 func (r *Repository) GetWHOIS(domainName string) (string, error) {
 	var response whoisWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/whois", domainName)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/whois", domainName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Whois, err
@@ -235,7 +235,7 @@ func (r *Repository) GetWHOIS(domainName string) (string, error) {
 // OrderWhitelabel allows you to order a whitelabel account
 // Note that you do not need to order a whitelabel account for every registered domain name
 func (r *Repository) OrderWhitelabel() error {
-	restRequest := request.RestRequest{Endpoint: "/whitelabel"}
+	restRequest := rest.RestRequest{Endpoint: "/whitelabel"}
 
 	return r.Client.Post(restRequest)
 }
@@ -243,7 +243,7 @@ func (r *Repository) OrderWhitelabel() error {
 // GetAvailability method allows you to check the availability for a domain name
 func (r *Repository) GetAvailability(domainName string) (Availability, error) {
 	var response availabilityWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/domain-availability/%s", domainName)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domain-availability/%s", domainName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Availability, err
@@ -255,7 +255,7 @@ func (r *Repository) GetAvailabilityForMultipleDomains(domainNames []string) ([]
 	var requestBody multipleAvailabilityRequest
 	requestBody.DomainNames = domainNames
 
-	restRequest := request.RestRequest{Endpoint: "/domain-availability", Body: requestBody}
+	restRequest := rest.RestRequest{Endpoint: "/domain-availability", Body: requestBody}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.AvailabilityList, err
@@ -264,7 +264,7 @@ func (r *Repository) GetAvailabilityForMultipleDomains(domainNames []string) ([]
 // GetTLDs will return a list of all available TLDs currently offered by TransIP
 func (r *Repository) GetTLDs() ([]Tld, error) {
 	var response tldsWrapper
-	restRequest := request.RestRequest{Endpoint: "/tlds"}
+	restRequest := rest.RestRequest{Endpoint: "/tlds"}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Tlds, err
@@ -274,7 +274,7 @@ func (r *Repository) GetTLDs() ([]Tld, error) {
 // General details such as price, renewal price and minimum registration length are outlined
 func (r *Repository) GetTLDByTLD(tld string) (Tld, error) {
 	var response tldWrapper
-	restRequest := request.RestRequest{Endpoint: fmt.Sprintf("/tlds/%s", tld)}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/tlds/%s", tld)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Tld, err

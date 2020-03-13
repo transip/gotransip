@@ -35,14 +35,14 @@ func signWithKey(body []byte, key []byte) (string, error) {
 	}
 	parsed, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
-		return "", fmt.Errorf("could not parse private key: %s", err.Error())
+		return "", fmt.Errorf("could not parse private key: %w", err)
 	}
 
 	pkey := parsed.(*rsa.PrivateKey)
 
 	enc, err := rsa.SignPKCS1v15(rand.Reader, pkey, crypto.Hash(0), digest)
 	if err != nil {
-		return "", fmt.Errorf("could not sign data: %s", err.Error())
+		return "", fmt.Errorf("could not sign data: %w", err)
 	}
 
 	return url.QueryEscape(base64.StdEncoding.EncodeToString(enc)), nil

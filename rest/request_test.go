@@ -1,4 +1,4 @@
-package request
+package rest
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -11,7 +11,7 @@ import (
 func TestRequestMarshalling(t *testing.T) {
 	request := RestRequest{}
 
-	body, err := request.GetBody()
+	body, err := request.GetJsonBody()
 	assert.NoError(t, err)
 	assert.Equal(t, string(body), "null")
 }
