@@ -14,8 +14,7 @@ before_install:
   - find $GOPATH/bin
 
 script:
-  - go test -v ./...
-  - FMT=$(git ls-files "*.go" | xargs gofmt -s -l)
-  - if [ ! -z "${FMT}" ]; then echo "gofmt failed on files ${FMT}"; exit 1; fi
-  - go vet ./...
-  - golint -set_exit_status ./...
+  - ci/tidy.sh
+  - ci/lint.sh
+  - ci/vet.sh
+  - ci/test.sh
