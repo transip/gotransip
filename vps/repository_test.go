@@ -287,7 +287,7 @@ func TestRepository_GetUsageData(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	usageData, err := repo.GetUsageDataByVps("example-vps", []VpsUsageType{VpsUsageTypeCpu}, UsagePeriod{TimeStart: 1500538995, TimeEnd: 1500542619})
+	usageData, err := repo.GetUsageDataByVps("example-vps", []UsageType{UsageTypeCpu}, UsagePeriod{TimeStart: 1500538995, TimeEnd: 1500542619})
 	require.NoError(t, err)
 
 	require.Equal(t, 1, len(usageData.Cpu))
@@ -456,12 +456,12 @@ func TestRepository_Upgrade(t *testing.T) {
 
 func TestRepository_GetOperatingSystems(t *testing.T) {
 	const apiResponse = `{ "operatingSystems": [ { "name": "ubuntu-18.04", "description": "Ubuntu 18.04 LTS", "isPreinstallableImage": false, "version": "18.04 LTS", "price": 1250 } ] }`
-	server := mockServer{t: t, expectedUrl: "/vps/placeholder/operating-systems", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	server := mockServer{t: t, expectedUrl: "/vps/example-vps/operating-systems", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	oses, err := repo.GetOperatingSystems()
+	oses, err := repo.GetOperatingSystems("example-vps")
 	require.NoError(t, err)
 	require.Equal(t, 1, len(oses))
 
@@ -674,7 +674,7 @@ func TestRepository_GetBackups(t *testing.T) {
 
 	assert.EqualValues(t, 712332, all[0].Id)
 	assert.EqualValues(t, "active", all[0].Status)
-	assert.Equal(t, "2019-11-29 22:11:20 +0100 CET", all[0].DateTimeCreate.String())
+	assert.Equal(t, "2019-11-29 22:11:20", all[0].DateTimeCreate.Format("2006-01-02 15:04:05"))
 	assert.EqualValues(t, 157286400, all[0].DiskSize)
 	assert.Equal(t, "Ubuntu 19.10", all[0].OperatingSystem)
 	assert.Equal(t, "ams0", all[0].AvailabilityZone)

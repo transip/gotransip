@@ -118,7 +118,7 @@ func (r *Repository) AddDnsEntry(domainName string, dnsEntry DnsEntry) error {
 	return r.Client.Post(restRequest)
 }
 
-// Update the content of a single DNS entry,
+// UpdateDnsEntry updates the content of a single DNS entry,
 // the dns entry is identified by the 'Name', 'Expire' and 'Type' properties of the DnsEntry struct
 func (r *Repository) UpdateDnsEntry(domainName string, dnsEntry DnsEntry) error {
 	requestBody := dnsEntryWrapper{DnsEntry: dnsEntry}
@@ -143,7 +143,7 @@ func (r *Repository) RemoveDnsEntry(domainName string, dnsEntry DnsEntry) error 
 	return r.Client.Delete(restRequest)
 }
 
-// GetDnsEntries returns a list of all DNS entries for a domain by domainName
+// GetDnsSecEntries returns a list of all DNS Sec entries for a domain by domainName
 func (r *Repository) GetDnsSecEntries(domainName string) ([]DnsSecEntry, error) {
 	var response dnsSecEntriesWrapper
 	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/dnssec", domainName)}
@@ -177,6 +177,7 @@ func (r *Repository) UpdateNameservers(domainName string, nameservers []Nameserv
 	return r.Client.Put(restRequest)
 }
 
+// GetDomainAction allows you to get the current domain action running for the given domain
 // Domain actions are kept track of by TransIP. Domain actions include, for example, changing nameservers
 func (r *Repository) GetDomainAction(domainName string) (Action, error) {
 	var response actionWrapper
@@ -186,6 +187,7 @@ func (r *Repository) GetDomainAction(domainName string) (Action, error) {
 	return response.Action, err
 }
 
+// RetryDomainAction allows you to retry a failed domain action
 // Domain actions can fail due to wrong information, this method allows you to retry an action
 func (r *Repository) RetryDomainAction(domainName string, authCode string, dnsEntries []DnsEntry, nameservers []Nameserver, contacts []WhoisContact) error {
 	var requestBody retryActionWrapper
@@ -198,7 +200,7 @@ func (r *Repository) RetryDomainAction(domainName string, authCode string, dnsEn
 	return r.Client.Patch(restRequest)
 }
 
-// With this method you are able to cancel a domain action while it is still pending or being processed
+// CancelDomainAction allows you to cancel a domain action while it is still pending or being processed
 func (r *Repository) CancelDomainAction(domainName string) error {
 	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/actions", domainName)}
 
@@ -223,7 +225,7 @@ func (r *Repository) GetSSLCertificateById(domainName string, certificateId int6
 	return response.Certificate, err
 }
 
-// This method will return the WHOIS information for a domain name as a string
+// GetWHOIS will return the WHOIS information for a domain name as a string
 func (r *Repository) GetWHOIS(domainName string) (string, error) {
 	var response whoisWrapper
 	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/domains/%s/whois", domainName)}
@@ -249,7 +251,7 @@ func (r *Repository) GetAvailability(domainName string) (Availability, error) {
 	return response.Availability, err
 }
 
-// GetAvailability method allows you to check the availability for a domain name
+// GetAvailabilityForMultipleDomains method allows you to check the availability for a list of domain names
 func (r *Repository) GetAvailabilityForMultipleDomains(domainNames []string) ([]Availability, error) {
 	var response availabilityListWrapper
 	var requestBody multipleAvailabilityRequest

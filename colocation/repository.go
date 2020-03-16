@@ -8,6 +8,8 @@ import (
 	"net"
 )
 
+// Repository can be used to get a list of your colocations, create a remote hands request
+// and edit/show/update colocation IP address data
 type Repository repository.RestRepository
 
 // GetAll returns a list of your colocations

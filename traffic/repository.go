@@ -6,6 +6,8 @@ import (
 	"github.com/transip/gotransip/v6/rest"
 )
 
+// Repository allows you to get information about your usage in your traffic pool
+// you can retrieve this information globally or per vps
 type Repository repository.RestRepository
 
 // GetTrafficPool returns all the traffic of your VPSes combined, overusage will also be billed based on this information

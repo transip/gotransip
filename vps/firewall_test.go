@@ -8,12 +8,12 @@ import (
 	"testing"
 )
 
-func TestRepository_GetFirewall(t *testing.T) {
+func TestFirewallRepository_GetFirewall(t *testing.T) {
 	const apiResponse = `{"vpsFirewall":{"isEnabled":true,"ruleSet":[{"description":"HTTP","startPort":80,"endPort":80,"protocol":"tcp","whitelist":["80.69.69.80/32","80.69.69.100/32","2a01:7c8:3:1337::1/128"]}]}}`
 	server := mockServer{t: t, expectedUrl: "/vps/example-vps/firewall", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := FirewallRepository{Client: *client}
 
 	firewall, err := repo.GetFirewall("example-vps")
 	require.NoError(t, err)
@@ -32,12 +32,12 @@ func TestRepository_GetFirewall(t *testing.T) {
 	assert.EqualValues(t, "2a01:7c8:3:1337::1/128", rule.Whitelist[2].String())
 }
 
-func TestRepository_UpdateFirewall(t *testing.T) {
+func TestFirewallRepository_UpdateFirewall(t *testing.T) {
 	const expectedRequest = `{"vpsFirewall":{"isEnabled":true,"ruleSet":[{"description":"HTTP","startPort":80,"endPort":80,"protocol":"tcp","whitelist":["80.69.69.80/32","80.69.69.100/32","2a01:7c8:3:1337::1/128"]}]}}`
 	server := mockServer{t: t, expectedUrl: "/vps/example-vps/firewall", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := FirewallRepository{Client: *client}
 
 	testWhitelists := []string{"80.69.69.80/32", "80.69.69.100/32", "2a01:7c8:3:1337::1/128"}
 	whiteListRanges := make([]ipaddress.IPRange, len(testWhitelists))

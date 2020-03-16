@@ -18,7 +18,7 @@ var (
 	PostMethod = Method{Method: "POST", ExpectedStatusCodes: []int{200, 201}}
 	// PutMethod is a wrapper with expected status codes around the HTTP "PUT" method
 	PutMethod = Method{Method: "PUT", ExpectedStatusCodes: []int{204}}
-	// PutMethod is a wrapper with expected status codes around the HTTP "PATCH" method
+	// PatchMethod is a wrapper with expected status codes around the HTTP "PATCH" method
 	PatchMethod = Method{Method: "PATCH", ExpectedStatusCodes: []int{204}}
 	// DeleteMethod is a wrapper with expected status codes around the HTTP "DELETE" method
 	DeleteMethod = Method{Method: "DELETE", ExpectedStatusCodes: []int{204}}

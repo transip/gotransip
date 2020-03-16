@@ -3,8 +3,13 @@ package vps
 import (
 	"fmt"
 	"github.com/transip/gotransip/v6/ipaddress"
+	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
 )
+
+// FirewallRepository allows you to get information on the current Vps firewall
+// and to update it
+type FirewallRepository repository.RestRepository
 
 // Firewall struct for the Vps Firewall
 type Firewall struct {
@@ -29,7 +34,7 @@ type FirewallRule struct {
 }
 
 // GetFirewall returns the state of the current VPS firewall
-func (r *Repository) GetFirewall(vpsName string) (Firewall, error) {
+func (r *FirewallRepository) GetFirewall(vpsName string) (Firewall, error) {
 	var response firewallWrapper
 	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/firewall", vpsName)}
 	err := r.Client.Get(restRequest, &response)
@@ -40,7 +45,7 @@ func (r *Repository) GetFirewall(vpsName string) (Firewall, error) {
 // UpdateFirewall allows you to update the state of the firewall
 // Enabling it, disabling it
 // Adding / removing of ruleSets, updating the whitelists
-func (r *Repository) UpdateFirewall(vpsName string, firewall Firewall) error {
+func (r *FirewallRepository) UpdateFirewall(vpsName string, firewall Firewall) error {
 	requestBody := firewallWrapper{Firewall: firewall}
 	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/firewall", vpsName), Body: &requestBody}
 

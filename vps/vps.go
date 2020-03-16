@@ -7,7 +7,7 @@ import (
 	"net"
 )
 
-// A backup status is one of the following strings
+// BackupStatus is one of the following strings
 // 'active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving'
 type BackupStatus string
 
@@ -29,17 +29,17 @@ const (
 	BackupStatusMoving BackupStatus = "moving"
 )
 
-// A backup status is one of the following strings
+// UsageType can be one of the following strings
 // 'cpu', 'disk', 'network'
-type VpsUsageType string
+type UsageType string
 
 const (
-	// VpsUsageTypeCpu is used to request the cpu usage data of a VPS
-	VpsUsageTypeCpu VpsUsageType = "cpu"
-	// VpsUsageTypeDisk is used to request the disk usage data of a VPS
-	VpsUsageTypeDisk VpsUsageType = "disk"
-	// VpsUsageTypeNetwork is used to request the network usage data of a VPS
-	VpsUsageTypeNetwork VpsUsageType = "network"
+	// UsageTypeCpu is used to request the cpu usage data of a VPS
+	UsageTypeCpu UsageType = "cpu"
+	// UsageTypeDisk is used to request the disk usage data of a VPS
+	UsageTypeDisk UsageType = "disk"
+	// UsageTypeNetwork is used to request the network usage data of a VPS
+	UsageTypeNetwork UsageType = "network"
 )
 
 // vpsWrapper struct contains a Vps in it,

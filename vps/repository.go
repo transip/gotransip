@@ -34,14 +34,14 @@ func (r *Repository) GetByName(vpsName string) (Vps, error) {
 	return response.Vps, err
 }
 
-// BigStorageOrder allows you to order a new VPS
+// Order allows you to order a new VPS
 func (r *Repository) Order(vpsOrder VpsOrder) error {
 	restRequest := rest.RestRequest{Endpoint: "/vps", Body: &vpsOrder}
 
 	return r.Client.Post(restRequest)
 }
 
-// Allows you to order multiple vpses at the same time
+// OrderMultiple allows you to order multiple vpses at the same time
 func (r *Repository) OrderMultiple(orders []VpsOrder) error {
 	requestBody := vpssOrderWrapper{Orders: orders}
 	restRequest := rest.RestRequest{Endpoint: "/vps", Body: &requestBody}
@@ -122,9 +122,9 @@ func (r *Repository) Cancel(vpsName string, endTime gotransip.CancellationTime) 
 	return r.Client.Delete(restRequest)
 }
 
-// GetUsage will allow you to request your vps usage for a specified period and usage type
+// GetUsageDataByVps will allow you to request your vps usage for a specified period and usage type
 // for convenience you can also use the GetUsages or GetUsagesLast24Hours
-func (r *Repository) GetUsageDataByVps(vpsName string, usageTypes []VpsUsageType, period UsagePeriod) (Usage, error) {
+func (r *Repository) GetUsageDataByVps(vpsName string, usageTypes []UsageType, period UsagePeriod) (Usage, error) {
 	var response usageWrapper
 	var types []string
 	for _, usageType := range usageTypes {
@@ -137,15 +137,17 @@ func (r *Repository) GetUsageDataByVps(vpsName string, usageTypes []VpsUsageType
 	return response.Usage, err
 }
 
-// GetUsages
+// GetAllUsageDataByVps returns a Usage struct filled with all usage data for the given UsagePeriod
+// UsagePeriod is struct containing a start and end unix timestamp
 func (r *Repository) GetAllUsageDataByVps(vpsName string, period UsagePeriod) (Usage, error) {
 	return r.GetUsageDataByVps(
 		vpsName,
-		[]VpsUsageType{VpsUsageTypeCpu, VpsUsageTypeDisk, VpsUsageTypeNetwork},
+		[]UsageType{UsageTypeCpu, UsageTypeDisk, UsageTypeNetwork},
 		period,
 	)
 }
 
+// GetAllUsageDataByVps24Hours returns all usage data for a given Vps within the last 24 hours
 func (r *Repository) GetAllUsageDataByVps24Hours(vpsName string) (Usage, error) {
 	// always define a period body, this way we don't have to depend on the empty body logic on the api server
 	period := UsagePeriod{TimeStart: time.Now().Unix() - 24*3600, TimeEnd: time.Now().Unix()}
@@ -212,15 +214,19 @@ func (r *Repository) Upgrade(vpsName string, productName string) error {
 	return r.Client.Post(restRequest)
 }
 
-// GetOperatingSystems
-func (r *Repository) GetOperatingSystems() ([]OperatingSystem, error) {
+// GetOperatingSystems returns a list of operating systems that you can install on a vps
+func (r *Repository) GetOperatingSystems(vpsName string) ([]OperatingSystem, error) {
 	var response operatingSystemsWrapper
-	restRequest := rest.RestRequest{Endpoint: "/vps/placeholder/operating-systems"}
+	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/operating-systems", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.OperatingSystems, err
 }
 
+// InstallOperatingSystem allows you to install an operating system to a Vps,
+// optionally you can specify a hostname and a base64InstallText,
+// which would be the automatic installation configuration of your Vps
+// for more information, see: https://api.transip.nl/rest/docs.html#vps-operatingsystems-post
 func (r *Repository) InstallOperatingSystem(vpsName string, operatingSystemName string, hostname string, base64InstallText string) error {
 	requestBody := installRequest{OperatingSystemName: operatingSystemName, Hostname: hostname, Base64InstallText: base64InstallText}
 	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/operating-systems", vpsName), Body: &requestBody}

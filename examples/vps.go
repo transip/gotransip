@@ -24,7 +24,7 @@ func main() {
 
 	// Simple loop to print vpses with their ip addresses
 	// Check out the vps structs to learn more about which data you can use
-	// For more info about the vps on the api, see: https://api.transip.nl/rest/docs.html#vps-vps-get
+	// For more info about the vps api, see: https://api.transip.nl/rest/docs.html#vps-vps-get
 	for _, v := range vpss {
 		ips, err := vpsRepo.GetIPAddresses(v.Name)
 		if err != nil {

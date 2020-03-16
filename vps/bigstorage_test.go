@@ -9,12 +9,12 @@ import (
 	"time"
 )
 
-func TestRepository_GetBigStorages(t *testing.T) {
+func TestBigStorageRepository_GetBigStorages(t *testing.T) {
 	const apiResponse = `{ "bigStorages": [ { "name": "example-bigstorage", "description": "Big storage description", "diskSize": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0" } ] } `
 	server := mockServer{t: t, expectedUrl: "/big-storages", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := BigStorageRepository{Client: *client}
 
 	all, err := repo.GetBigStorages()
 	require.NoError(t, err)
@@ -30,12 +30,12 @@ func TestRepository_GetBigStorages(t *testing.T) {
 	assert.Equal(t, "ams0", all[0].AvailabilityZone)
 }
 
-func TestRepository_GetBigStorageByName(t *testing.T) {
+func TestBigStorageRepository_GetBigStorageByName(t *testing.T) {
 	const apiResponse = `{ "bigStorage": { "name": "example-bigstorage", "description": "Big storage description", "diskSize": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0" } } `
 	server := mockServer{t: t, expectedUrl: "/big-storages/example-bigstorage", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := BigStorageRepository{Client: *client}
 
 	bigstorage, err := repo.GetBigStorageByName("example-bigstorage")
 	require.NoError(t, err)
@@ -49,12 +49,12 @@ func TestRepository_GetBigStorageByName(t *testing.T) {
 	assert.Equal(t, "ams0", bigstorage.AvailabilityZone)
 }
 
-func TestRepository_OrderBigStorage(t *testing.T) {
+func TestBigStorageRepository_OrderBigStorage(t *testing.T) {
 	const expectedRequest = `{"size":8,"offsiteBackups":true,"availabilityZone":"ams0","vpsName":"example-vps"}`
 	server := mockServer{t: t, expectedUrl: "/big-storages", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := BigStorageRepository{Client: *client}
 
 	order := BigStorageOrder{Size: 8, OffsiteBackups: true, AvailabilityZone: "ams0", VpsName: "example-vps"}
 	err := repo.OrderBigStorage(order)
@@ -62,24 +62,24 @@ func TestRepository_OrderBigStorage(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestRepository_UpgradeBigStorage(t *testing.T) {
+func TestBigStorageRepository_UpgradeBigStorage(t *testing.T) {
 	const expectedRequest = `{"bigStorageName":"example-bigstorage","size":8,"offsiteBackups":true}`
 	server := mockServer{t: t, expectedUrl: "/big-storages", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := BigStorageRepository{Client: *client}
 
 	err := repo.UpgradeBigStorage("example-bigstorage", 8, true)
 
 	require.NoError(t, err)
 }
 
-func TestRepository_UpdateBigStorage(t *testing.T) {
+func TestBigStorageRepository_UpdateBigStorage(t *testing.T) {
 	const expectedRequest = `{"bigStorage":{"name":"example-bigstorage","description":"Big storage description","diskSize":2147483648,"offsiteBackups":true,"vpsName":"example-vps","status":"active","isLocked":false,"availabilityZone":"ams0"}}`
 	server := mockServer{t: t, expectedUrl: "/big-storages/example-bigstorage", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := BigStorageRepository{Client: *client}
 
 	bigStorage := BigStorage{
 		Name:             "example-bigstorage",
@@ -96,12 +96,12 @@ func TestRepository_UpdateBigStorage(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestRepository_DetachVpsFromBigStorage(t *testing.T) {
+func TestBigStorageRepository_DetachVpsFromBigStorage(t *testing.T) {
 	const expectedRequest = `{"bigStorage":{"name":"example-bigstorage","description":"Big storage description","diskSize":2147483648,"offsiteBackups":true,"vpsName":"example-vps","status":"active","isLocked":false,"availabilityZone":"ams0"}}`
 	server := mockServer{t: t, expectedUrl: "/big-storages/example-bigstorage", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := BigStorageRepository{Client: *client}
 
 	bigStorage := BigStorage{
 		Name:             "example-bigstorage",
@@ -116,12 +116,12 @@ func TestRepository_DetachVpsFromBigStorage(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestRepository_AttachVpsToBigStorage(t *testing.T) {
+func TestBigStorageRepository_AttachVpsToBigStorage(t *testing.T) {
 	const expectedRequest = `{"bigStorage":{"name":"example-bigstorage","description":"Big storage description","diskSize":2147483648,"offsiteBackups":true,"vpsName":"","status":"active","isLocked":false,"availabilityZone":"ams0"}}`
 	server := mockServer{t: t, expectedUrl: "/big-storages/example-bigstorage", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := BigStorageRepository{Client: *client}
 
 	bigStorage := BigStorage{
 		Name:             "example-bigstorage",
@@ -137,23 +137,23 @@ func TestRepository_AttachVpsToBigStorage(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestRepository_CancelBigStorage(t *testing.T) {
+func TestBigStorageRepository_CancelBigStorage(t *testing.T) {
 	const expectedRequest = `{"endTime":"end"}`
 	server := mockServer{t: t, expectedUrl: "/big-storages/example-bigstorage", expectedMethod: "DELETE", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := BigStorageRepository{Client: *client}
 
 	err := repo.CancelBigStorage("example-bigstorage", gotransip.CancellationTimeEnd)
 	require.NoError(t, err)
 }
 
-func TestRepository_GetBigStorageBackups(t *testing.T) {
+func TestBigStorageRepository_GetBigStorageBackups(t *testing.T) {
 	const apiResponse = `{ "backups": [ { "id": 1583, "status": "active", "diskSize": 4294967296, "dateTimeCreate": "2019-12-31 09:13:55", "availabilityZone": "ams0" } ] }`
 	server := mockServer{t: t, expectedUrl: "/big-storages/example-bigstorage/backups", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := BigStorageRepository{Client: *client}
 
 	all, err := repo.GetBigStorageBackups("example-bigstorage")
 	require.NoError(t, err)
@@ -162,28 +162,28 @@ func TestRepository_GetBigStorageBackups(t *testing.T) {
 	assert.EqualValues(t, 1583, all[0].Id)
 	assert.Equal(t, "active", all[0].Status)
 	assert.EqualValues(t, 4294967296, all[0].DiskSize)
-	assert.Equal(t, "2019-12-31 09:13:55 +0100 CET", all[0].DateTimeCreate.String())
+	assert.Equal(t, "2019-12-31 09:13:55", all[0].DateTimeCreate.Format("2006-01-02 15:04:05"))
 	assert.Equal(t, "ams0", all[0].AvailabilityZone)
 }
 
-func TestRepository_RevertBigStorageBackup(t *testing.T) {
+func TestBigStorageRepository_RevertBigStorageBackup(t *testing.T) {
 	const expectedRequest = `{"action":"revert"}`
 	server := mockServer{t: t, expectedUrl: "/big-storages/example-bigstorage/backups/123", expectedMethod: "PATCH", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := BigStorageRepository{Client: *client}
 
 	err := repo.RevertBigStorageBackup("example-bigstorage", 123)
 	require.NoError(t, err)
 }
 
-func TestRepository_GetBigStorageUsage(t *testing.T) {
+func TestBigStorageRepository_GetBigStorageUsage(t *testing.T) {
 	const apiResponse = `{ "usage": [ { "iopsRead": 0.27, "iopsWrite": 0.13, "date": 1574783109 } ] }`
 	const expectedRequest = `{"dateTimeStart":1500538995,"dateTimeEnd":1500542619}`
 	server := mockServer{t: t, expectedUrl: "/big-storages/example-bigstorage/usage", expectedMethod: "GET", statusCode: 200, expectedRequest: expectedRequest, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := BigStorageRepository{Client: *client}
 
 	usageData, err := repo.GetBigStorageUsage("example-bigstorage", UsagePeriod{TimeStart: 1500538995, TimeEnd: 1500542619})
 	require.NoError(t, err)
@@ -194,13 +194,13 @@ func TestRepository_GetBigStorageUsage(t *testing.T) {
 	assert.EqualValues(t, 1574783109, usageData[0].Date)
 }
 
-func TestRepository_GetBigStorageUsageLast24Hours(t *testing.T) {
+func TestBigStorageRepository_GetBigStorageUsageLast24Hours(t *testing.T) {
 	const apiResponse = `{ "usage": [ { "iopsRead": 0.27, "iopsWrite": 0.13, "date": 1574783109 } ] }`
 	expectedRequest := fmt.Sprintf(`{"dateTimeStart":%d,"dateTimeEnd":%d}`, time.Now().Unix()-24*3600, time.Now().Unix())
 	server := mockServer{t: t, expectedUrl: "/big-storages/example-bigstorage/usage", expectedMethod: "GET", statusCode: 200, response: apiResponse, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := BigStorageRepository{Client: *client}
 
 	usageData, err := repo.GetBigStorageUsageLast24Hours("example-bigstorage")
 	require.NoError(t, err)

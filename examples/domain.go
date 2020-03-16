@@ -24,7 +24,7 @@ func main() {
 	}
 
 	// Simple loop to print your listed domains
-	// For more info about the domains on the api, see: https://api.transip.nl/rest/docs.html#account-invoices
+	// For more info about the domains api, see: https://api.transip.nl/rest/docs.html#account-invoices
 	fmt.Println(strings.Repeat("-", 50))
 	for _, domain := range domains {
 		fmt.Printf("Domain '%s' with tags: '%s' \n", domain.Name, domain.Tags)

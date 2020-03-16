@@ -7,13 +7,13 @@ import (
 	"testing"
 )
 
-func TestRepository_GetTCPMonitors(t *testing.T) {
+func TestTcpMonitorRepository_GetTCPMonitors(t *testing.T) {
 	const apiResponse = `{ "tcpMonitors": [ { "ipAddress": "10.3.37.1", "label": "HTTP", "ports": [ 80, 443 ], "interval": 6, "allowedTimeouts": 1, "contacts": [ { "id": 1, "enableEmail": true, "enableSMS": false } ], "ignoreTimes": [ { "timeFrom": "18:00", "timeTo": "08:30" } ] } ] }`
 
 	server := mockServer{t: t, expectedUrl: "/vps/example-vps/tcp-monitors", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := TcpMonitorRepository{Client: *client}
 
 	all, err := repo.GetTCPMonitors("example-vps")
 	require.NoError(t, err)
@@ -36,12 +36,12 @@ func TestRepository_GetTCPMonitors(t *testing.T) {
 
 }
 
-func TestRepository_CreateTCPMonitor(t *testing.T) {
+func TestTcpMonitorRepository_CreateTCPMonitor(t *testing.T) {
 	const expectedRequest = `{"tcpMonitor":{"ipAddress":"10.3.37.1","label":"HTTP","ports":[80,443],"interval":6,"allowedTimeouts":1,"contacts":[{"id":1,"enableEmail":true,"enableSMS":false}],"ignoreTimes":[{"timeFrom":"18:00","timeTo":"08:30"}]}}`
 	server := mockServer{t: t, expectedUrl: "/vps/example-vps/tcp-monitors", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := TcpMonitorRepository{Client: *client}
 
 	tcpMonitor := TcpMonitor{
 		IPAddress:       net.ParseIP("10.3.37.1"),
@@ -64,12 +64,12 @@ func TestRepository_CreateTCPMonitor(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestRepository_UpdateTCPMonitor(t *testing.T) {
+func TestTcpMonitorRepository_UpdateTCPMonitor(t *testing.T) {
 	const expectedRequest = `{"tcpMonitor":{"ipAddress":"10.3.37.1","label":"HTTP","ports":[80,443],"interval":6,"allowedTimeouts":1,"contacts":[{"id":1,"enableEmail":true,"enableSMS":false}],"ignoreTimes":[{"timeFrom":"18:00","timeTo":"08:30"}]}}`
 	server := mockServer{t: t, expectedUrl: "/vps/example-vps/tcp-monitors/10.3.37.1", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := TcpMonitorRepository{Client: *client}
 
 	tcpMonitor := TcpMonitor{
 		IPAddress:       net.ParseIP("10.3.37.1"),
@@ -92,24 +92,24 @@ func TestRepository_UpdateTCPMonitor(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestRepository_RemoveTCPMonitor(t *testing.T) {
+func TestTcpMonitorRepository_RemoveTCPMonitor(t *testing.T) {
 	const apiResponse = ""
 	server := mockServer{t: t, expectedUrl: "/vps/example-vps/tcp-monitors/10.3.37.1", expectedMethod: "DELETE", statusCode: 204, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := TcpMonitorRepository{Client: *client}
 
 	ip := net.ParseIP("10.3.37.1")
 	err := repo.RemoveTCPMonitor("example-vps", ip)
 	require.NoError(t, err)
 }
 
-func TestRepository_GetContacts(t *testing.T) {
+func TestTcpMonitorRepository_GetContacts(t *testing.T) {
 	const apiResponse = `{ "contacts": [ { "id": 1, "name": "John Wick", "telephone": "+31612345678", "email": "j.wick@example.com" } ] }`
 	server := mockServer{t: t, expectedUrl: "/monitoring-contacts", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := TcpMonitorRepository{Client: *client}
 
 	all, err := repo.GetContacts()
 	require.NoError(t, err)
@@ -121,12 +121,12 @@ func TestRepository_GetContacts(t *testing.T) {
 	assert.Equal(t, "j.wick@example.com", all[0].Email)
 }
 
-func TestRepository_CreateContact(t *testing.T) {
+func TestTcpMonitorRepository_CreateContact(t *testing.T) {
 	const expectedRequest = `{"name":"John Wick","telephone":"+31612345678","email":"j.wick@example.com"}`
 	server := mockServer{t: t, expectedUrl: "/monitoring-contacts", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := TcpMonitorRepository{Client: *client}
 
 	contact := MonitoringContact{
 		Name:      "John Wick",
@@ -137,12 +137,12 @@ func TestRepository_CreateContact(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestRepository_UpdateContact(t *testing.T) {
+func TestTcpMonitorRepository_UpdateContact(t *testing.T) {
 	const expectedRequest = `{"contact":{"id":1,"name":"John Wick","telephone":"+31612345678","email":"j.wick@example.com"}}`
 	server := mockServer{t: t, expectedUrl: "/monitoring-contacts/1", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := TcpMonitorRepository{Client: *client}
 
 	contact := MonitoringContact{
 		Id:        1,
@@ -155,11 +155,11 @@ func TestRepository_UpdateContact(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestRepository_DeleteContact(t *testing.T) {
+func TestTcpMonitorRepository_DeleteContact(t *testing.T) {
 	server := mockServer{t: t, expectedUrl: "/monitoring-contacts/1", expectedMethod: "DELETE", statusCode: 204}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := TcpMonitorRepository{Client: *client}
 
 	err := repo.RemoveContact(1)
 	require.NoError(t, err)

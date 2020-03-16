@@ -7,12 +7,12 @@ import (
 	"testing"
 )
 
-func TestRepository_GetPrivateNetworks(t *testing.T) {
+func TestPrivateNetworkRepository_GetPrivateNetworks(t *testing.T) {
 	const apiResponse = `{ "privateNetworks": [ { "name": "example-privatenetwork", "description": "FilesharingNetwork", "isBlocked": false, "isLocked": false, "vpsNames": [ "example-vps", "example-vps2" ] } ] } `
 	server := mockServer{t: t, expectedUrl: "/private-networks", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := PrivateNetworkRepository{Client: *client}
 
 	all, err := repo.GetPrivateNetworks()
 	require.NoError(t, err)
@@ -27,12 +27,12 @@ func TestRepository_GetPrivateNetworks(t *testing.T) {
 
 }
 
-func TestRepository_GetPrivateNetworkByName(t *testing.T) {
+func TestPrivateNetworkRepository_GetPrivateNetworkByName(t *testing.T) {
 	const apiResponse = `{ "privateNetwork": { "name": "example-privatenetwork", "description": "FilesharingNetwork", "isBlocked": false, "isLocked": false, "vpsNames": [ "example-vps", "example-vps2" ] } } `
 	server := mockServer{t: t, expectedUrl: "/private-networks/example-privatenetwork", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := PrivateNetworkRepository{Client: *client}
 
 	privateNetwork, err := repo.GetPrivateNetworkByName("example-privatenetwork")
 	require.NoError(t, err)
@@ -44,23 +44,23 @@ func TestRepository_GetPrivateNetworkByName(t *testing.T) {
 	assert.Equal(t, []string{"example-vps", "example-vps2"}, privateNetwork.VpsNames)
 }
 
-func TestRepository_OrderPrivateNetwork(t *testing.T) {
+func TestPrivateNetworkRepository_OrderPrivateNetwork(t *testing.T) {
 	const expectedRequest = `{"description":"test123"}`
 	server := mockServer{t: t, expectedUrl: "/private-networks", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := PrivateNetworkRepository{Client: *client}
 
 	err := repo.OrderPrivateNetwork("test123")
 	require.NoError(t, err)
 }
 
-func TestRepository_UpdatePrivateNetwork(t *testing.T) {
+func TestPrivateNetworkRepository_UpdatePrivateNetwork(t *testing.T) {
 	const expectedRequest = `{"privateNetwork":{"name":"example-privatenetwork","description":"einnetwork","isBlocked":false,"isLocked":false,"vpsNames":["example-vps","example-vps2"]}}`
 	server := mockServer{t: t, expectedUrl: "/private-networks/example-privatenetwork", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := PrivateNetworkRepository{Client: *client}
 
 	privateNetwork := PrivateNetwork{
 		Name:        "example-privatenetwork",
@@ -74,34 +74,34 @@ func TestRepository_UpdatePrivateNetwork(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestRepository_AttachVpsToPrivateNetwork(t *testing.T) {
+func TestPrivateNetworkRepository_AttachVpsToPrivateNetwork(t *testing.T) {
 	const expectedRequest = `{"action":"attachvps","vpsName":"example-vps"}`
 	server := mockServer{t: t, expectedUrl: "/private-networks/example-privatenetwork", expectedMethod: "PATCH", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := PrivateNetworkRepository{Client: *client}
 
 	err := repo.AttachVpsToPrivateNetwork("example-vps", "example-privatenetwork")
 	require.NoError(t, err)
 }
 
-func TestRepository_DetachVpsFromPrivateNetwork(t *testing.T) {
+func TestPrivateNetworkRepository_DetachVpsFromPrivateNetwork(t *testing.T) {
 	const expectedRequest = `{"action":"detachvps","vpsName":"example-vps"}`
 	server := mockServer{t: t, expectedUrl: "/private-networks/example-privatenetwork", expectedMethod: "PATCH", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := PrivateNetworkRepository{Client: *client}
 
 	err := repo.DetachVpsFromPrivateNetwork("example-vps", "example-privatenetwork")
 	require.NoError(t, err)
 }
 
-func TestRepository_CancelPrivateNetwork(t *testing.T) {
+func TestPrivateNetworkRepository_CancelPrivateNetwork(t *testing.T) {
 	const expectedRequest = `{"endTime":"end"}`
 	server := mockServer{t: t, expectedUrl: "/private-networks/example-privatenetwork", expectedMethod: "DELETE", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client: *client}
+	repo := PrivateNetworkRepository{Client: *client}
 
 	err := repo.CancelPrivateNetwork("example-privatenetwork", gotransip.CancellationTimeEnd)
 	require.NoError(t, err)

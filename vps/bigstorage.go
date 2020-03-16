@@ -3,9 +3,14 @@ package vps
 import (
 	"fmt"
 	"github.com/transip/gotransip/v6"
+	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
 	"time"
 )
+
+// BigStorageRepository allows you to manage all api actions on a bigstorage
+// getting information, ordering, upgrading, attaching/detaching it to a vps
+type BigStorageRepository repository.RestRepository
 
 // BigStorageOrder struct which is used to construct a new order request for a bigstorage
 type BigStorageOrder struct {
@@ -55,7 +60,7 @@ type BigStorageBackup struct {
 }
 
 // GetBigStorages returns a list of your bigstorages
-func (r *Repository) GetBigStorages() ([]BigStorage, error) {
+func (r *BigStorageRepository) GetBigStorages() ([]BigStorage, error) {
 	var response bigStoragesWrapper
 	restRequest := rest.RestRequest{Endpoint: "/big-storages"}
 	err := r.Client.Get(restRequest, &response)
@@ -64,7 +69,7 @@ func (r *Repository) GetBigStorages() ([]BigStorage, error) {
 }
 
 // GetBigStorageByName returns a specific BigStorage struct by name
-func (r *Repository) GetBigStorageByName(bigStorageName string) (BigStorage, error) {
+func (r *BigStorageRepository) GetBigStorageByName(bigStorageName string) (BigStorage, error) {
 	var response bigStorageWrapper
 	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorageName)}
 	err := r.Client.Get(restRequest, &response)
@@ -73,14 +78,14 @@ func (r *Repository) GetBigStorageByName(bigStorageName string) (BigStorage, err
 }
 
 // OrderBigStorage allows you to order a new bigstorage
-func (r *Repository) OrderBigStorage(order BigStorageOrder) error {
+func (r *BigStorageRepository) OrderBigStorage(order BigStorageOrder) error {
 	restRequest := rest.RestRequest{Endpoint: "/big-storages", Body: &order}
 
 	return r.Client.Post(restRequest)
 }
 
 // UpgradeBigStorage allows you to upgrade a BigStorage's size or/and to enable off-site backups
-func (r *Repository) UpgradeBigStorage(bigStorageName string, size int, offsiteBackups bool) error {
+func (r *BigStorageRepository) UpgradeBigStorage(bigStorageName string, size int, offsiteBackups bool) error {
 	requestBody := bigStorageUpgradeRequest{BigStorageName: bigStorageName, Size: size, OffsiteBackups: offsiteBackups}
 	restRequest := rest.RestRequest{Endpoint: "/big-storages", Body: &requestBody}
 
@@ -93,7 +98,7 @@ func (r *Repository) UpgradeBigStorage(bigStorageName string, size int, offsiteB
 // - One VPS can have a maximum of 10 bigstorages attached;
 // - Set the vpsName property to the VPS name to attach to for attaching Big Storage;
 // - Set the vpsName property to null to detach the Big Storage from the currently attached VPS.
-func (r *Repository) UpdateBigStorage(bigStorage BigStorage) error {
+func (r *BigStorageRepository) UpdateBigStorage(bigStorage BigStorage) error {
 	requestBody := bigStorageWrapper{BigStorage: bigStorage}
 	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorage.Name), Body: &requestBody}
 
@@ -101,14 +106,14 @@ func (r *Repository) UpdateBigStorage(bigStorage BigStorage) error {
 }
 
 // DetachVpsFromBigStorage allows you to detach a bigstorage from the vps it is attached to
-func (r *Repository) DetachVpsFromBigStorage(bigStorage BigStorage) error {
+func (r *BigStorageRepository) DetachVpsFromBigStorage(bigStorage BigStorage) error {
 	bigStorage.VpsName = ""
 
 	return r.UpdateBigStorage(bigStorage)
 }
 
 // AttachVpsToBigStorage allows you to attach a given VPS by name to a BigStorage
-func (r *Repository) AttachVpsToBigStorage(vpsName string, bigStorage BigStorage) error {
+func (r *BigStorageRepository) AttachVpsToBigStorage(vpsName string, bigStorage BigStorage) error {
 	bigStorage.VpsName = vpsName
 
 	return r.UpdateBigStorage(bigStorage)
@@ -118,7 +123,7 @@ func (r *Repository) AttachVpsToBigStorage(vpsName string, bigStorage BigStorage
 // You can set the endTime to end or immediately, this has the following implications:
 // - end: The Big Storage will be terminated from the end date of the agreement as can be found in the applicable quote;
 // - immediately: The Big Storage will be terminated immediately.
-func (r *Repository) CancelBigStorage(bigStorageName string, endTime gotransip.CancellationTime) error {
+func (r *BigStorageRepository) CancelBigStorage(bigStorageName string, endTime gotransip.CancellationTime) error {
 	requestBody := gotransip.CancellationRequest{EndTime: endTime}
 	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorageName), Body: &requestBody}
 
@@ -126,7 +131,7 @@ func (r *Repository) CancelBigStorage(bigStorageName string, endTime gotransip.C
 }
 
 // GetBigStorageBackups returns a list of backups for a specific bigstorage
-func (r *Repository) GetBigStorageBackups(bigStorageName string) ([]BigStorageBackup, error) {
+func (r *BigStorageRepository) GetBigStorageBackups(bigStorageName string) ([]BigStorageBackup, error) {
 	var response bigStorageBackupsWrapper
 	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/big-storages/%s/backups", bigStorageName)}
 	err := r.Client.Get(restRequest, &response)
@@ -135,7 +140,7 @@ func (r *Repository) GetBigStorageBackups(bigStorageName string) ([]BigStorageBa
 }
 
 // RevertBigStorageBackup allows you to revert a bigstorage by bigstorage name and backupId
-func (r *Repository) RevertBigStorageBackup(bigStorageName string, backupId int64) error {
+func (r *BigStorageRepository) RevertBigStorageBackup(bigStorageName string, backupId int64) error {
 	requestBody := actionWrapper{Action: "revert"}
 	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupId), Body: &requestBody}
 
@@ -143,7 +148,7 @@ func (r *Repository) RevertBigStorageBackup(bigStorageName string, backupId int6
 }
 
 // GetBigStorageUsage allows you to query your bigstorage usage within a certain period
-func (r *Repository) GetBigStorageUsage(bigStorageName string, period UsagePeriod) ([]UsageDataDisk, error) {
+func (r *BigStorageRepository) GetBigStorageUsage(bigStorageName string, period UsagePeriod) ([]UsageDataDisk, error) {
 	var response usageDataDiskWrapper
 	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/big-storages/%s/usage", bigStorageName), Body: &period}
 
@@ -152,8 +157,8 @@ func (r *Repository) GetBigStorageUsage(bigStorageName string, period UsagePerio
 	return response.Usage, err
 }
 
-// This method allows you to get usage statistics for the last 24 hours
-func (r *Repository) GetBigStorageUsageLast24Hours(bigStorageName string) ([]UsageDataDisk, error) {
+// GetBigStorageUsageLast24Hours allows you to get usage statistics for a given bigstorage within the last 24 hours
+func (r *BigStorageRepository) GetBigStorageUsageLast24Hours(bigStorageName string) ([]UsageDataDisk, error) {
 	// always define a period body, this way we don't have to depend on the empty body logic on the api server
 	period := UsagePeriod{TimeStart: time.Now().Unix() - 24*3600, TimeEnd: time.Now().Unix()}
 
