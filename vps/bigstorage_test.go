@@ -159,11 +159,11 @@ func TestRepository_GetBigStorageBackups(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(all))
 
-	assert.EqualValues(t,1583, all[0].Id)
-	assert.Equal(t,"active", all[0].Status)
-	assert.EqualValues(t,4294967296, all[0].DiskSize)
-	assert.Equal(t,"2019-12-31 09:13:55 +0100 CET", all[0].DateTimeCreate.String())
-	assert.Equal(t,"ams0", all[0].AvailabilityZone)
+	assert.EqualValues(t, 1583, all[0].Id)
+	assert.Equal(t, "active", all[0].Status)
+	assert.EqualValues(t, 4294967296, all[0].DiskSize)
+	assert.Equal(t, "2019-12-31 09:13:55 +0100 CET", all[0].DateTimeCreate.String())
+	assert.Equal(t, "ams0", all[0].AvailabilityZone)
 }
 
 func TestRepository_RevertBigStorageBackup(t *testing.T) {

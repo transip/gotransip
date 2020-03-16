@@ -44,7 +44,7 @@ func (r *Repository) CancelHaip(haipName string, endTime gotransip.CancellationT
 	return r.Client.Delete(restRequest)
 }
 
-func (r *Repository) GetAllCertificates(haipName string) ([]HaipCertificate, error)  {
+func (r *Repository) GetAllCertificates(haipName string) ([]HaipCertificate, error) {
 	var response certificatesWrapper
 	err := r.Client.Get(rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s/certificates", haipName)}, &response)
 

@@ -30,8 +30,7 @@ func (r *Repository) RegeneratePassword() error {
 func (r *Repository) AddDNSEntriesDomains(domainNames []string) error {
 	var requestBody domainNamesWrapper
 	requestBody.DomainNames = domainNames
-	restRequest := rest.RestRequest{Endpoint: "/mail-service", Body:requestBody}
+	restRequest := rest.RestRequest{Endpoint: "/mail-service", Body: requestBody}
 
 	return r.Client.Post(restRequest)
 }
-

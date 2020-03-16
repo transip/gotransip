@@ -148,10 +148,10 @@ func TestNonceIsNotStatic(t *testing.T) {
 
 func TestAuthenticator_getAuthRequest(t *testing.T) {
 	authenticator := TransipAuthenticator{
-		BasePath:       "http://api.transip.nl/v6",
-		Login:          "test-user",
-		Whitelisted:    true,
-		ReadOnly:       true,
+		BasePath:    "http://api.transip.nl/v6",
+		Login:       "test-user",
+		Whitelisted: true,
+		ReadOnly:    true,
 	}
 
 	authRequest := authenticator.getAuthRequest()
@@ -164,7 +164,7 @@ func TestAuthenticator_getAuthRequest(t *testing.T) {
 	// "read_only":true,"expiration_time":1584115100,"global_key":true
 	assert.Contains(t, stringBody, `"read_only":true,`)
 	assert.Contains(t, stringBody, `"global_key":true}`)
-	assert.Contains(t, stringBody, fmt.Sprintf(`"expiration_time":%d,`, time.Now().Unix() + 86400), fmt.Sprintf(`"expiration_time":%d,`, time.Now().Unix() + 86400))
+	assert.Contains(t, stringBody, fmt.Sprintf(`"expiration_time":%d,`, time.Now().Unix()+86400), fmt.Sprintf(`"expiration_time":%d,`, time.Now().Unix()+86400))
 	assert.Contains(t, stringBody, `"nonce":"`)
 }
 
@@ -215,4 +215,3 @@ func getNoncesFromAuthenticator() [amountOfNoncesToGet]string {
 
 	return nonces
 }
-

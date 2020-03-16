@@ -39,17 +39,17 @@ func TestRepository_UpdateFirewall(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	testWhitelists := []string{"80.69.69.80/32","80.69.69.100/32","2a01:7c8:3:1337::1/128"}
+	testWhitelists := []string{"80.69.69.80/32", "80.69.69.100/32", "2a01:7c8:3:1337::1/128"}
 	whiteListRanges := make([]ipaddress.IPRange, len(testWhitelists))
 	for idx, ipRange := range testWhitelists {
-		_,ipNet,err := net.ParseCIDR(ipRange)
+		_, ipNet, err := net.ParseCIDR(ipRange)
 		require.NoError(t, err)
-		whiteListRanges[idx] = ipaddress.IPRange{*ipNet}
+		whiteListRanges[idx] = ipaddress.IPRange{IPNet: *ipNet}
 	}
 
 	firewall := Firewall{
 		IsEnabled: true,
-		RuleSet:   []FirewallRule{{
+		RuleSet: []FirewallRule{{
 			Description: "HTTP",
 			EndPort:     80,
 			Protocol:    "tcp",
@@ -57,7 +57,7 @@ func TestRepository_UpdateFirewall(t *testing.T) {
 			Whitelist:   whiteListRanges,
 		}},
 	}
-	
+
 	err := repo.UpdateFirewall("example-vps", firewall)
 	require.NoError(t, err)
 }

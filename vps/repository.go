@@ -260,7 +260,7 @@ func (r *Repository) UpdateReverseDNS(vpsName string, ip ipaddress.IPAddress) er
 	requestBody := ipAddressWrapper{IPAddress: ip}
 	restRequest := rest.RestRequest{
 		Endpoint: fmt.Sprintf("/vps/%s/ip-addresses/%s", vpsName, ip.Address.String()),
-		Body: &requestBody,
+		Body:     &requestBody,
 	}
 
 	return r.Client.Put(restRequest)

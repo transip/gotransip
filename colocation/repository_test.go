@@ -13,7 +13,6 @@ import (
 	"testing"
 )
 
-
 // mockServer struct is used to test the how the client sends a request
 // and responds to a servers response
 type mockServer struct {
@@ -72,7 +71,7 @@ func TestRepository_GetAll(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(all))
 
-	assert.Equal(t,"example2", all[0].Name)
+	assert.Equal(t, "example2", all[0].Name)
 	require.Equal(t, 1, len(all[0].IpRanges))
 
 	assert.Equal(t, "2a01:7c8:c038:6::/64", all[0].IpRanges[0].String())
@@ -88,7 +87,7 @@ func TestRepository_GetByName(t *testing.T) {
 	colo, err := repo.GetByName("example2")
 	require.NoError(t, err)
 
-	assert.Equal(t,"example2", colo.Name)
+	assert.Equal(t, "example2", colo.Name)
 	require.Equal(t, 1, len(colo.IpRanges))
 
 	assert.Equal(t, "2a01:7c8:c038:6::/64", colo.IpRanges[0].String())
@@ -194,7 +193,7 @@ func TestRepository_UpdateReverseDNS(t *testing.T) {
 		Address:    ip,
 		Gateway:    net.ParseIP("37.97.254.1"),
 		ReverseDns: "example.com",
-		SubnetMask: ipaddress.SubnetMask{IPMask:ip.DefaultMask()},
+		SubnetMask: ipaddress.SubnetMask{IPMask: ip.DefaultMask()},
 	}
 	err := repo.UpdateReverseDNS("example2", address)
 	require.NoError(t, err)

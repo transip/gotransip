@@ -63,7 +63,7 @@ func TestRepository_GetTrafficInformationForVps(t *testing.T) {
 	server := mockServer{t: t, expectedUrl: "/traffic", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client:*client}
+	repo := Repository{Client: *client}
 	pool, err := repo.GetTrafficPool()
 	require.NoError(t, err)
 
@@ -79,7 +79,7 @@ func TestRepository_GetTrafficPool(t *testing.T) {
 	server := mockServer{t: t, expectedUrl: "/traffic/test-vps", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := Repository{Client:*client}
+	repo := Repository{Client: *client}
 	pool, err := repo.GetTrafficInformationForVps("test-vps")
 	require.NoError(t, err)
 

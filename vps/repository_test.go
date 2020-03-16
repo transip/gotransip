@@ -564,7 +564,7 @@ func TestRepository_UpdateReverseDNS(t *testing.T) {
 		Address:    ip,
 		Gateway:    net.ParseIP("37.97.254.1"),
 		ReverseDns: "example.com",
-		SubnetMask: ipaddress.SubnetMask{IPMask:ip.DefaultMask()},
+		SubnetMask: ipaddress.SubnetMask{IPMask: ip.DefaultMask()},
 	}
 	err := repo.UpdateReverseDNS("example-vps", address)
 	require.NoError(t, err)
@@ -608,7 +608,7 @@ func TestRepository_GetSnapshotByName(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	snap, err := repo.GetSnapshotByName("example-vps","1572607577")
+	snap, err := repo.GetSnapshotByName("example-vps", "1572607577")
 	require.NoError(t, err)
 
 	assert.Equal(t, "1572607577", snap.Name)

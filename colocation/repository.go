@@ -66,7 +66,7 @@ func (r *Repository) AddIPAddress(coloName string, address net.IP, reverseDns st
 	requestBody := addIpRequest{IPAddress: address, ReverseDns: reverseDns}
 	restRequest := rest.RestRequest{
 		Endpoint: fmt.Sprintf("/colocations/%s/ip-addresses", coloName),
-		Body: &requestBody,
+		Body:     &requestBody,
 	}
 
 	return r.Client.Post(restRequest)
@@ -77,7 +77,7 @@ func (r *Repository) UpdateReverseDNS(coloName string, ip ipaddress.IPAddress) e
 	requestBody := ipAddressWrapper{IPAddress: ip}
 	restRequest := rest.RestRequest{
 		Endpoint: fmt.Sprintf("/colocations/%s/ip-addresses/%s", coloName, ip.Address.String()),
-		Body: &requestBody,
+		Body:     &requestBody,
 	}
 
 	return r.Client.Put(restRequest)

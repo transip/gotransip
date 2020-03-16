@@ -43,7 +43,7 @@ type ipAddressWrapper struct {
 // this is solely used for marshalling
 type addIpRequest struct {
 	// The IP address to register to the colocation
-	IPAddress  net.IP `json:"ipAddress"`
+	IPAddress net.IP `json:"ipAddress"`
 	// Reverse DNS, also known as the PTR record
 	ReverseDns string `json:"reverseDns,omitempty"`
 }

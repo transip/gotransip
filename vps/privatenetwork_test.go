@@ -18,10 +18,10 @@ func TestRepository_GetPrivateNetworks(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(all))
 
-	assert.Equal(t,"example-privatenetwork", all[0].Name)
-	assert.Equal(t,"FilesharingNetwork", all[0].Description)
-	assert.Equal(t,false, all[0].IsBlocked)
-	assert.Equal(t,false, all[0].IsLocked)
+	assert.Equal(t, "example-privatenetwork", all[0].Name)
+	assert.Equal(t, "FilesharingNetwork", all[0].Description)
+	assert.Equal(t, false, all[0].IsBlocked)
+	assert.Equal(t, false, all[0].IsLocked)
 
 	assert.Equal(t, []string{"example-vps", "example-vps2"}, all[0].VpsNames)
 
@@ -36,10 +36,10 @@ func TestRepository_GetPrivateNetworkByName(t *testing.T) {
 
 	privateNetwork, err := repo.GetPrivateNetworkByName("example-privatenetwork")
 	require.NoError(t, err)
-	assert.Equal(t,"example-privatenetwork", privateNetwork.Name)
-	assert.Equal(t,"FilesharingNetwork", privateNetwork.Description)
-	assert.Equal(t,false, privateNetwork.IsBlocked)
-	assert.Equal(t,false, privateNetwork.IsLocked)
+	assert.Equal(t, "example-privatenetwork", privateNetwork.Name)
+	assert.Equal(t, "FilesharingNetwork", privateNetwork.Description)
+	assert.Equal(t, false, privateNetwork.IsBlocked)
+	assert.Equal(t, false, privateNetwork.IsLocked)
 
 	assert.Equal(t, []string{"example-vps", "example-vps2"}, privateNetwork.VpsNames)
 }
@@ -69,7 +69,7 @@ func TestRepository_UpdatePrivateNetwork(t *testing.T) {
 		IsLocked:    false,
 		VpsNames:    []string{"example-vps", "example-vps2"},
 	}
-	
+
 	err := repo.UpdatePrivateNetwork(privateNetwork)
 	require.NoError(t, err)
 }
