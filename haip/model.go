@@ -4,13 +4,29 @@ import (
 	"net"
 )
 
-// HaipsResponse object contains a list of Haips in it
-// used to unpack the rest response and return the encapsulated Haips
-// this is just used internal for unpacking, this should not be exported
-// we want to return Haip objects not a HaipsResponse
-type HaipsResponse struct {
+// haipsWrapper is a wrapper used to unpack the server response
+// it contains a list of haips
+type haipsWrapper struct {
 	// list of HA-IPs
 	Haips []Haip `json:"haips,omitempty"`
+}
+
+// certificatesWrapper is a wrapper used to unpack the server response
+// it contains a list of haip certificates in it
+type certificatesWrapper struct {
+	// list of HA-IPs
+	Certificates []HaipCertificate `json:"haips,certificates"`
+}
+
+// haipWrapper struct contains a haip in it,
+// this is solely used for unmarshalling/marshalling
+type haipWrapper struct {
+	Haip Haip `json:"haip"`
+}
+
+type haipOrderWrapper struct {
+	ProductName string `json:"productName"`
+	Description string `json:"description"`
 }
 
 // Haip struct for Haip
