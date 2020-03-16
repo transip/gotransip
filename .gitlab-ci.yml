@@ -13,7 +13,7 @@ lint:golint:
 lint:vet:
   stage: lint
   script:
-    - go vet ./...
+    - ci/vet.sh
   tags:
     - k8s
 

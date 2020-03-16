@@ -9,4 +9,4 @@ rest test traffic vps"
 subpackage_folders=$(echo $subpackages | sed 's/^/\.\//' | sed 's/ / \.\//g')
 
 # test the root package and defined subpackages
-go test ./ $subpackage_folders
+go vet ./ $subpackage_folders
