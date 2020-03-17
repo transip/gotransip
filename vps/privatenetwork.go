@@ -28,7 +28,7 @@ type PrivateNetwork struct {
 // GetPrivateNetworks returns a list of all your private networks
 func (r *PrivateNetworkRepository) GetPrivateNetworks() ([]PrivateNetwork, error) {
 	var response privateNetworksWrapper
-	restRequest := rest.RestRequest{Endpoint: "/private-networks"}
+	restRequest := rest.Request{Endpoint: "/private-networks"}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.PrivateNetworks, err
@@ -37,7 +37,7 @@ func (r *PrivateNetworkRepository) GetPrivateNetworks() ([]PrivateNetwork, error
 // GetPrivateNetworkByName allows you to get a specific PrivateNetwork by name
 func (r *PrivateNetworkRepository) GetPrivateNetworkByName(privateNetworkName string) (PrivateNetwork, error) {
 	var response privateNetworkWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.PrivateNetwork, err
@@ -46,7 +46,7 @@ func (r *PrivateNetworkRepository) GetPrivateNetworkByName(privateNetworkName st
 // OrderPrivateNetwork allows you to order new private network with a given description
 func (r *PrivateNetworkRepository) OrderPrivateNetwork(description string) error {
 	requestBody := privateNetworkOrderRequest{Description: description}
-	restRequest := rest.RestRequest{Endpoint: "/private-networks", Body: &requestBody}
+	restRequest := rest.Request{Endpoint: "/private-networks", Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
@@ -56,7 +56,7 @@ func (r *PrivateNetworkRepository) OrderPrivateNetwork(description string) error
 // on the PrivateNetwork struct Updating it using this function
 func (r *PrivateNetworkRepository) UpdatePrivateNetwork(privateNetwork PrivateNetwork) error {
 	requestBody := privateNetworkWrapper{PrivateNetwork: privateNetwork}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetwork.Name), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetwork.Name), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
@@ -64,7 +64,7 @@ func (r *PrivateNetworkRepository) UpdatePrivateNetwork(privateNetwork PrivateNe
 // AttachVpsToPrivateNetwork allows you to attach a VPS to a PrivateNetwork
 func (r *PrivateNetworkRepository) AttachVpsToPrivateNetwork(vpsName string, privateNetworkName string) error {
 	requestBody := privateNetworkActionwrapper{Action: "attachvps", VpsName: vpsName}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
@@ -72,7 +72,7 @@ func (r *PrivateNetworkRepository) AttachVpsToPrivateNetwork(vpsName string, pri
 // DetachVpsFromPrivateNetwork allows you to detachvps a VPS from a PrivateNetwork
 func (r *PrivateNetworkRepository) DetachVpsFromPrivateNetwork(vpsName string, privateNetworkName string) error {
 	requestBody := privateNetworkActionwrapper{Action: "detachvps", VpsName: vpsName}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
@@ -80,7 +80,7 @@ func (r *PrivateNetworkRepository) DetachVpsFromPrivateNetwork(vpsName string, p
 // CancelPrivateNetwork allows you to cancel a private network
 func (r *PrivateNetworkRepository) CancelPrivateNetwork(privateNetworkName string, endTime gotransip.CancellationTime) error {
 	requestBody := gotransip.CancellationRequest{EndTime: endTime}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName), Body: &requestBody}
 
 	return r.Client.Delete(restRequest)
 }

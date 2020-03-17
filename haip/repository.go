@@ -16,7 +16,7 @@ type Repository repository.RestRepository
 // GetAll returns an array of all Haips in your account
 func (r *Repository) GetAll() ([]Haip, error) {
 	var response haipsWrapper
-	err := r.Client.Get(rest.RestRequest{Endpoint: "/haips"}, &response)
+	err := r.Client.Get(rest.Request{Endpoint: "/haips"}, &response)
 
 	return response.Haips, err
 }
@@ -24,7 +24,7 @@ func (r *Repository) GetAll() ([]Haip, error) {
 // GetByName returns information on a specific Haip by name
 func (r *Repository) GetByName(haipName string) (Haip, error) {
 	var response haipWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s", haipName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s", haipName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Haip, err
@@ -34,7 +34,7 @@ func (r *Repository) GetByName(haipName string) (Haip, error) {
 func (r *Repository) Order(productName string, description string) error {
 	requestBody := haipOrderWrapper{ProductName: productName, Description: description}
 
-	return r.Client.Post(rest.RestRequest{Endpoint: "/haips", Body: requestBody})
+	return r.Client.Post(rest.Request{Endpoint: "/haips", Body: requestBody})
 }
 
 // Update allows you to alter your Haip in several ways outlined below:
@@ -57,14 +57,14 @@ func (r *Repository) Order(productName string, description string) error {
 func (r *Repository) Update(haip Haip) error {
 	requestBody := haipWrapper{Haip: haip}
 
-	return r.Client.Put(rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s", haip.Name), Body: requestBody})
+	return r.Client.Put(rest.Request{Endpoint: fmt.Sprintf("/haips/%s", haip.Name), Body: requestBody})
 }
 
 // Cancel will cancel the Haip, thus deleting it
 func (r *Repository) Cancel(haipName string, endTime gotransip.CancellationTime) error {
 	var requestBody gotransip.CancellationRequest
 	requestBody.EndTime = endTime
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s", haipName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s", haipName), Body: &requestBody}
 
 	return r.Client.Delete(restRequest)
 }
@@ -72,7 +72,7 @@ func (r *Repository) Cancel(haipName string, endTime gotransip.CancellationTime)
 // GetAllCertificates will return a list of certificates currently attached to the given Haip
 func (r *Repository) GetAllCertificates(haipName string) ([]HaipCertificate, error) {
 	var response certificatesWrapper
-	err := r.Client.Get(rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s/certificates", haipName)}, &response)
+	err := r.Client.Get(rest.Request{Endpoint: fmt.Sprintf("/haips/%s/certificates", haipName)}, &response)
 
 	return response.Certificates, err
 }
@@ -81,7 +81,7 @@ func (r *Repository) GetAllCertificates(haipName string) ([]HaipCertificate, err
 // Enable HTTPS mode in Configuration to use these certificates
 func (r *Repository) AddCertificate(haipName string, sslCertificateId int64) error {
 	requestBody := addCertificateRequest{SslCertificateId: sslCertificateId}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s/certificates", haipName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/certificates", haipName), Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
@@ -101,14 +101,14 @@ func (r *Repository) AddCertificate(haipName string, sslCertificateId int64) err
 // For more information, see: https://api.transip.nl/rest/docs.html#ha-ip-ha-ip-certificates-post-1
 func (r *Repository) AddLetsEncryptCertificate(haipName string, commonName string) error {
 	requestBody := addCertificateRequest{CommonName: commonName}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s/certificates", haipName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/certificates", haipName), Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
 
 // DetachCertificate detaches a certificate from a Haip by certificateId
 func (r *Repository) DetachCertificate(haipName string, certificateId int64) error {
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s/certificates/%d", haipName, certificateId)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/certificates/%d", haipName, certificateId)}
 
 	return r.Client.Delete(restRequest)
 }
@@ -116,7 +116,7 @@ func (r *Repository) DetachCertificate(haipName string, certificateId int64) err
 // GetAttachedIPAddresses returns a list of currently attached IP address(es) to your Haip
 func (r *Repository) GetAttachedIPAddresses(haipName string) ([]net.IP, error) {
 	var response ipAddressesWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s/ip-addresses", haipName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/ip-addresses", haipName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.IPAddresses, err
@@ -125,14 +125,14 @@ func (r *Repository) GetAttachedIPAddresses(haipName string) ([]net.IP, error) {
 // SetAttachedIPAddresses allows you to replace the IP address(es) attached your Haip
 func (r *Repository) SetAttachedIPAddresses(haipName string, ipAddresses []net.IP) error {
 	requestBody := ipAddressesWrapper{IPAddresses: ipAddresses}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s/ip-addresses", haipName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/ip-addresses", haipName), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
 
 // DetachIPAddresses allows you to detach all IP Addresses from a Haip
 func (r *Repository) DetachIPAddresses(haipName string) error {
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s/ip-addresses", haipName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/ip-addresses", haipName)}
 
 	return r.Client.Delete(restRequest)
 }
@@ -140,7 +140,7 @@ func (r *Repository) DetachIPAddresses(haipName string) error {
 // GetPortConfigurations returns a list of all PortConfigurations on the given Haip
 func (r *Repository) GetPortConfigurations(haipName string) ([]PortConfiguration, error) {
 	var response portConfigurationsWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s/port-configurations", haipName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/port-configurations", haipName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.PortConfigurations, err
@@ -149,7 +149,7 @@ func (r *Repository) GetPortConfigurations(haipName string) ([]PortConfiguration
 // GetPortConfiguration returns the Configuration struct for a given Configuration by id
 func (r *Repository) GetPortConfiguration(haipName string, portConfigurationId int64) (PortConfiguration, error) {
 	var response portConfigurationWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s/port-configurations/%d", haipName, portConfigurationId)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/port-configurations/%d", haipName, portConfigurationId)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Configuration, err
@@ -171,7 +171,7 @@ func (r *Repository) GetPortConfiguration(haipName string, portConfigurationId i
 //
 // For more information, see https://api.transip.nl/rest/docs.html#ha-ip-ha-ip-port-configurations-post
 func (r *Repository) AddPortConfiguration(haipName string, configuration PortConfiguration) error {
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s/port-configurations", haipName), Body: &configuration}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/port-configurations", haipName), Body: &configuration}
 
 	return r.Client.Post(restRequest)
 }
@@ -181,7 +181,7 @@ func (r *Repository) AddPortConfiguration(haipName string, configuration PortCon
 // for more information on these fields see the AddPortConfiguration method and: https://api.transip.nl/rest/docs.html#ha-ip-ha-ip-port-configurations-put
 func (r *Repository) UpdatePortConfiguration(haipName string, configuration PortConfiguration) error {
 	requestBody := portConfigurationWrapper{Configuration: configuration}
-	restRequest := rest.RestRequest{
+	restRequest := rest.Request{
 		Endpoint: fmt.Sprintf("/haips/%s/port-configurations/%d", haipName, configuration.Id),
 		Body:     &requestBody,
 	}
@@ -191,7 +191,7 @@ func (r *Repository) UpdatePortConfiguration(haipName string, configuration Port
 
 // RemovePortConfiguration allows you to remove a port configuration
 func (r *Repository) RemovePortConfiguration(haipName string, portConfigurationId int64) error {
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s/port-configurations/%d", haipName, portConfigurationId)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/port-configurations/%d", haipName, portConfigurationId)}
 
 	return r.Client.Delete(restRequest)
 }
@@ -200,7 +200,7 @@ func (r *Repository) RemovePortConfiguration(haipName string, portConfigurationI
 // you can use this method to monitor / verify the status of your HA-IP and attached IP addresses
 func (r *Repository) GetStatusReport(haipName string) ([]StatusReport, error) {
 	var response statusReportsWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/haips/%s/status-reports", haipName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/status-reports", haipName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.StatusReports, err

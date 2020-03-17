@@ -9,7 +9,7 @@ import (
 )
 
 func TestRequestMarshalling(t *testing.T) {
-	request := RestRequest{}
+	request := Request{}
 
 	body, err := request.GetJsonBody()
 	assert.NoError(t, err)
@@ -25,7 +25,7 @@ func TestHttpRequestForRestRequest(t *testing.T) {
 
 	values := url.Values{"test": []string{"1"}}
 
-	request := RestRequest{Endpoint: "/vps", Parameters: values, Body: order}
+	request := Request{Endpoint: "/vps", Parameters: values, Body: order}
 	httpRequest, err := request.GetHTTPRequest("https://example.com", "POST")
 	assert.NoError(t, err)
 	assert.Equal(t, "POST", httpRequest.Method)
@@ -40,7 +40,7 @@ func TestHttpRequestForRestRequest(t *testing.T) {
 }
 
 func TestHttpRequestForEmptyGetRestRequest(t *testing.T) {
-	request := RestRequest{Endpoint: "/domains"}
+	request := Request{Endpoint: "/domains"}
 	httpRequest, err := request.GetHTTPRequest("https://example.com", "GET")
 	assert.NoError(t, err)
 	assert.Equal(t, "GET", httpRequest.Method)
@@ -57,7 +57,7 @@ func TestBodyReader(t *testing.T) {
 		ProductName      string `json:"productName"`
 	}{AvailabilityZone: "ams", OperatingSystem: "ubuntu-18.04", ProductName: "vps-bladevps-x1"}
 
-	request := RestRequest{Endpoint: "/vps", Body: order}
+	request := Request{Endpoint: "/vps", Body: order}
 
 	reader, err := request.GetBodyReader()
 	require.NoError(t, err)
@@ -68,9 +68,21 @@ func TestBodyReader(t *testing.T) {
 }
 
 func TestEmptyReaderReturnsNil(t *testing.T) {
-	request := RestRequest{Endpoint: "/domains"}
+	request := Request{Endpoint: "/domains"}
 
 	reader, err := request.GetBodyReader()
 	require.NoError(t, err)
 	assert.Nil(t, reader)
+}
+
+func TestRestRequest_TestMode(t *testing.T) {
+	request := Request{Endpoint: "/domains", TestMode: true}
+	httpRequest, err := request.GetHTTPRequest("https://example.com", "GET")
+	assert.NoError(t, err)
+	assert.Equal(t, "GET", httpRequest.Method)
+	assert.Equal(t, "https://example.com/domains?test=1", httpRequest.URL.String())
+	assert.Equal(t, "application/json", httpRequest.Header.Get("Content-Type"))
+	assert.Equal(t, "application/json", httpRequest.Header.Get("Accept"))
+	assert.Equal(t, "test=1", httpRequest.URL.RawQuery)
+	assert.Zero(t, httpRequest.ContentLength)
 }

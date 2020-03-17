@@ -62,7 +62,7 @@ type BigStorageBackup struct {
 // GetBigStorages returns a list of your bigstorages
 func (r *BigStorageRepository) GetBigStorages() ([]BigStorage, error) {
 	var response bigStoragesWrapper
-	restRequest := rest.RestRequest{Endpoint: "/big-storages"}
+	restRequest := rest.Request{Endpoint: "/big-storages"}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.BigStorages, err
@@ -71,7 +71,7 @@ func (r *BigStorageRepository) GetBigStorages() ([]BigStorage, error) {
 // GetBigStorageByName returns a specific BigStorage struct by name
 func (r *BigStorageRepository) GetBigStorageByName(bigStorageName string) (BigStorage, error) {
 	var response bigStorageWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorageName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorageName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.BigStorage, err
@@ -79,7 +79,7 @@ func (r *BigStorageRepository) GetBigStorageByName(bigStorageName string) (BigSt
 
 // OrderBigStorage allows you to order a new bigstorage
 func (r *BigStorageRepository) OrderBigStorage(order BigStorageOrder) error {
-	restRequest := rest.RestRequest{Endpoint: "/big-storages", Body: &order}
+	restRequest := rest.Request{Endpoint: "/big-storages", Body: &order}
 
 	return r.Client.Post(restRequest)
 }
@@ -87,7 +87,7 @@ func (r *BigStorageRepository) OrderBigStorage(order BigStorageOrder) error {
 // UpgradeBigStorage allows you to upgrade a BigStorage's size or/and to enable off-site backups
 func (r *BigStorageRepository) UpgradeBigStorage(bigStorageName string, size int, offsiteBackups bool) error {
 	requestBody := bigStorageUpgradeRequest{BigStorageName: bigStorageName, Size: size, OffsiteBackups: offsiteBackups}
-	restRequest := rest.RestRequest{Endpoint: "/big-storages", Body: &requestBody}
+	restRequest := rest.Request{Endpoint: "/big-storages", Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
@@ -100,7 +100,7 @@ func (r *BigStorageRepository) UpgradeBigStorage(bigStorageName string, size int
 // - Set the vpsName property to null to detach the Big Storage from the currently attached VPS.
 func (r *BigStorageRepository) UpdateBigStorage(bigStorage BigStorage) error {
 	requestBody := bigStorageWrapper{BigStorage: bigStorage}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorage.Name), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorage.Name), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
@@ -125,7 +125,7 @@ func (r *BigStorageRepository) AttachVpsToBigStorage(vpsName string, bigStorage 
 // - immediately: The Big Storage will be terminated immediately.
 func (r *BigStorageRepository) CancelBigStorage(bigStorageName string, endTime gotransip.CancellationTime) error {
 	requestBody := gotransip.CancellationRequest{EndTime: endTime}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorageName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorageName), Body: &requestBody}
 
 	return r.Client.Delete(restRequest)
 }
@@ -133,7 +133,7 @@ func (r *BigStorageRepository) CancelBigStorage(bigStorageName string, endTime g
 // GetBigStorageBackups returns a list of backups for a specific bigstorage
 func (r *BigStorageRepository) GetBigStorageBackups(bigStorageName string) ([]BigStorageBackup, error) {
 	var response bigStorageBackupsWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/big-storages/%s/backups", bigStorageName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/backups", bigStorageName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.BigStorageBackups, err
@@ -142,7 +142,7 @@ func (r *BigStorageRepository) GetBigStorageBackups(bigStorageName string) ([]Bi
 // RevertBigStorageBackup allows you to revert a bigstorage by bigstorage name and backupId
 func (r *BigStorageRepository) RevertBigStorageBackup(bigStorageName string, backupId int64) error {
 	requestBody := actionWrapper{Action: "revert"}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupId), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupId), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
@@ -150,7 +150,7 @@ func (r *BigStorageRepository) RevertBigStorageBackup(bigStorageName string, bac
 // GetBigStorageUsage allows you to query your bigstorage usage within a certain period
 func (r *BigStorageRepository) GetBigStorageUsage(bigStorageName string, period UsagePeriod) ([]UsageDataDisk, error) {
 	var response usageDataDiskWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/big-storages/%s/usage", bigStorageName), Body: &period}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/usage", bigStorageName), Body: &period}
 
 	err := r.Client.Get(restRequest, &response)
 

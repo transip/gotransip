@@ -36,7 +36,7 @@ type FirewallRule struct {
 // GetFirewall returns the state of the current VPS firewall
 func (r *FirewallRepository) GetFirewall(vpsName string) (Firewall, error) {
 	var response firewallWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/firewall", vpsName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/firewall", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Firewall, err
@@ -47,7 +47,7 @@ func (r *FirewallRepository) GetFirewall(vpsName string) (Firewall, error) {
 // Adding / removing of ruleSets, updating the whitelists
 func (r *FirewallRepository) UpdateFirewall(vpsName string, firewall Firewall) error {
 	requestBody := firewallWrapper{Firewall: firewall}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/firewall", vpsName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/firewall", vpsName), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }

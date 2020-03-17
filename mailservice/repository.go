@@ -13,7 +13,7 @@ type Repository repository.RestRepository
 // regarding mail service usage and credentials using this API call
 func (r *Repository) GetInformation() (MailServiceInformation, error) {
 	var response mailServiceInformationWrapper
-	restRequest := rest.RestRequest{Endpoint: "/mail-service"}
+	restRequest := rest.Request{Endpoint: "/mail-service"}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.MailServiceInformation, err
@@ -22,7 +22,7 @@ func (r *Repository) GetInformation() (MailServiceInformation, error) {
 
 // RegeneratePassword allows you to regenerate your transip mail service password
 func (r *Repository) RegeneratePassword() error {
-	restRequest := rest.RestRequest{Endpoint: "/mail-service"}
+	restRequest := rest.Request{Endpoint: "/mail-service"}
 
 	return r.Client.Patch(restRequest)
 }
@@ -32,7 +32,7 @@ func (r *Repository) RegeneratePassword() error {
 func (r *Repository) AddDNSEntriesDomains(domainNames []string) error {
 	var requestBody domainNamesWrapper
 	requestBody.DomainNames = domainNames
-	restRequest := rest.RestRequest{Endpoint: "/mail-service", Body: requestBody}
+	restRequest := rest.Request{Endpoint: "/mail-service", Body: requestBody}
 
 	return r.Client.Post(restRequest)
 }

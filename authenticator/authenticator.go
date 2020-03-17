@@ -154,8 +154,8 @@ func (a *TransipAuthenticator) getNonce() string {
 	return fmt.Sprintf("%02x", randomBytes)
 }
 
-// getAuthRequest returns a rest.RestRequest filled with a new AuthRequest
-func (a *TransipAuthenticator) getAuthRequest() rest.RestRequest {
+// getAuthRequest returns a rest.Request filled with a new AuthRequest
+func (a *TransipAuthenticator) getAuthRequest() rest.Request {
 	labelPostFix := time.Now().Unix()
 
 	authRequest := AuthRequest{
@@ -167,7 +167,7 @@ func (a *TransipAuthenticator) getAuthRequest() rest.RestRequest {
 		GlobalKey:      a.Whitelisted,
 	}
 
-	return rest.RestRequest{
+	return rest.Request{
 		Endpoint: "/auth",
 		Body:     authRequest,
 	}

@@ -15,7 +15,7 @@ type Repository repository.RestRepository
 // GetAll returns a list of your colocations
 func (r *Repository) GetAll() ([]Colocation, error) {
 	var response colocationsWrapper
-	restRequest := rest.RestRequest{Endpoint: "/colocations"}
+	restRequest := rest.Request{Endpoint: "/colocations"}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Colocations, err
@@ -25,7 +25,7 @@ func (r *Repository) GetAll() ([]Colocation, error) {
 // GetByName returns a specific colocation by name
 func (r *Repository) GetByName(coloName string) (Colocation, error) {
 	var response colocationWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/colocations/%s", coloName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/colocations/%s", coloName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Colocation, err
@@ -35,7 +35,7 @@ func (r *Repository) GetByName(coloName string) (Colocation, error) {
 // It sends a request to a datacenter engineer to perform simple task on your server, e.g. a 'powercycle'
 func (r *Repository) CreateRemoteHandsRequest(remoteHandsRequest RemoteHandsRequest) error {
 	requestBody := remoteHandsRequestWrapper{RemoteHands: remoteHandsRequest}
-	restRequest := rest.RestRequest{
+	restRequest := rest.Request{
 		Endpoint: fmt.Sprintf("/colocations/%s/remote-hands", remoteHandsRequest.ColoName),
 		Body:     &requestBody,
 	}
@@ -46,7 +46,7 @@ func (r *Repository) CreateRemoteHandsRequest(remoteHandsRequest RemoteHandsRequ
 // GetIPAddresses returns all IP addresses attached to your Colocation
 func (r *Repository) GetIPAddresses(coloName string) ([]ipaddress.IPAddress, error) {
 	var response ipaddress.IPAddressesWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/colocations/%s/ip-addresses", coloName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/colocations/%s/ip-addresses", coloName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.IPAddresses, err
@@ -55,7 +55,7 @@ func (r *Repository) GetIPAddresses(coloName string) ([]ipaddress.IPAddress, err
 // GetIPAddressByAddress returns network information for the specified IP address of the specified Colocation
 func (r *Repository) GetIPAddressByAddress(coloName string, address net.IP) (ipaddress.IPAddress, error) {
 	var response ipAddressWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/colocations/%s/ip-addresses/%s", coloName, address.String())}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/colocations/%s/ip-addresses/%s", coloName, address.String())}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.IPAddress, err
@@ -66,7 +66,7 @@ func (r *Repository) GetIPAddressByAddress(coloName string, address net.IP) (ipa
 // Optionally, you can also set the reverse dns by setting the reverseDns argument
 func (r *Repository) AddIPAddress(coloName string, address net.IP, reverseDns string) error {
 	requestBody := addIpRequest{IPAddress: address, ReverseDns: reverseDns}
-	restRequest := rest.RestRequest{
+	restRequest := rest.Request{
 		Endpoint: fmt.Sprintf("/colocations/%s/ip-addresses", coloName),
 		Body:     &requestBody,
 	}
@@ -77,7 +77,7 @@ func (r *Repository) AddIPAddress(coloName string, address net.IP, reverseDns st
 // UpdateReverseDNS allows you to update the reverse dns for IPv4 addresses as wal as IP addresses
 func (r *Repository) UpdateReverseDNS(coloName string, ip ipaddress.IPAddress) error {
 	requestBody := ipAddressWrapper{IPAddress: ip}
-	restRequest := rest.RestRequest{
+	restRequest := rest.Request{
 		Endpoint: fmt.Sprintf("/colocations/%s/ip-addresses/%s", coloName, ip.Address.String()),
 		Body:     &requestBody,
 	}
@@ -87,7 +87,7 @@ func (r *Repository) UpdateReverseDNS(coloName string, ip ipaddress.IPAddress) e
 
 // RemoveIPAddress allows you to remove an IP address from the registered list of IP address within your Colocation's range.
 func (r *Repository) RemoveIPAddress(coloName string, address net.IP) error {
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/colocations/%s/ip-addresses/%s", coloName, address.String())}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/colocations/%s/ip-addresses/%s", coloName, address.String())}
 
 	return r.Client.Delete(restRequest)
 }

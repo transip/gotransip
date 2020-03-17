@@ -63,7 +63,7 @@ type MonitoringContact struct {
 // GetTCPMonitors returns an overview of all existing monitors attached to a VPS
 func (r *TcpMonitorRepository) GetTCPMonitors(vpsName string) ([]TcpMonitor, error) {
 	var response tcpMonitorsWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors", vpsName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.TcpMonitors, err
@@ -74,7 +74,7 @@ func (r *TcpMonitorRepository) GetTCPMonitors(vpsName string) ([]TcpMonitor, err
 // or see the documentation: https://api.transip.nl/rest/docs.html#vps-tcp-monitors-post
 func (r *TcpMonitorRepository) CreateTCPMonitor(vpsName string, tcpMonitor TcpMonitor) error {
 	requestBody := tcpMonitorWrapper{TcpMonitor: tcpMonitor}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors", vpsName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors", vpsName), Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
@@ -82,7 +82,7 @@ func (r *TcpMonitorRepository) CreateTCPMonitor(vpsName string, tcpMonitor TcpMo
 // UpdateTCPMonitor allows you to update your monitor settings for a given tcp monitored ip
 func (r *TcpMonitorRepository) UpdateTCPMonitor(vpsName string, tcpMonitor TcpMonitor) error {
 	requestBody := tcpMonitorWrapper{TcpMonitor: tcpMonitor}
-	restRequest := rest.RestRequest{
+	restRequest := rest.Request{
 		Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors/%s", vpsName, tcpMonitor.IPAddress.String()),
 		Body:     &requestBody,
 	}
@@ -92,7 +92,7 @@ func (r *TcpMonitorRepository) UpdateTCPMonitor(vpsName string, tcpMonitor TcpMo
 
 // RemoveTCPMonitor allows you to remove a tcp monitor for a specific ip address on a specifc VPS
 func (r *TcpMonitorRepository) RemoveTCPMonitor(vpsName string, ip net.IP) error {
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors/%s", vpsName, ip.String())}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/tcp-monitors/%s", vpsName, ip.String())}
 
 	return r.Client.Delete(restRequest)
 }
@@ -100,7 +100,7 @@ func (r *TcpMonitorRepository) RemoveTCPMonitor(vpsName string, ip net.IP) error
 // GetContacts returns a list of all your monitoring contacts
 func (r *TcpMonitorRepository) GetContacts() ([]MonitoringContact, error) {
 	var response contactsWrapper
-	restRequest := rest.RestRequest{Endpoint: "/monitoring-contacts"}
+	restRequest := rest.Request{Endpoint: "/monitoring-contacts"}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Contacts, err
@@ -108,7 +108,7 @@ func (r *TcpMonitorRepository) GetContacts() ([]MonitoringContact, error) {
 
 // CreateContact allows you to add a new contact which could be used by the tcp monitoring
 func (r *TcpMonitorRepository) CreateContact(contact MonitoringContact) error {
-	restRequest := rest.RestRequest{Endpoint: "/monitoring-contacts", Body: &contact}
+	restRequest := rest.Request{Endpoint: "/monitoring-contacts", Body: &contact}
 
 	return r.Client.Post(restRequest)
 }
@@ -116,14 +116,14 @@ func (r *TcpMonitorRepository) CreateContact(contact MonitoringContact) error {
 // UpdateContact updates the specified contact
 func (r *TcpMonitorRepository) UpdateContact(contact MonitoringContact) error {
 	requestBody := contactWrapper{Contact: contact}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/monitoring-contacts/%d", contact.Id), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/monitoring-contacts/%d", contact.Id), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
 
 // RemoveContact allows you to delete a specific contact by id
 func (r *TcpMonitorRepository) RemoveContact(contactId int64) error {
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/monitoring-contacts/%d", contactId)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/monitoring-contacts/%d", contactId)}
 
 	return r.Client.Delete(restRequest)
 }

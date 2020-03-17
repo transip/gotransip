@@ -1,7 +1,6 @@
 package gotransip
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"github.com/transip/gotransip/v6/authenticator"
@@ -21,8 +20,6 @@ type client struct {
 	// - use the demo token
 	// - enable debugging
 	config ClientConfiguration
-	// provides you the possibility to specify timeouts
-	context context.Context
 	// authenticator wraps all authentication logic
 	// - checking if the token is not expired yet
 	// - creating an authentication request
@@ -100,11 +97,17 @@ func newClient(config ClientConfiguration) (*client, error) {
 // This method is used by all rest client methods, thus: 'get','post','put','delete'
 // It uses the authenticator to get a token, either statically provided by the user or requested from the authentication server
 // Then decodes the json response to a supplied interface
-func (c *client) call(method rest.Method, request rest.RestRequest, result interface{}) error {
+func (c *client) call(method rest.Method, request rest.Request, result interface{}) error {
 	token, err := c.authenticator.GetToken()
 	if err != nil {
 		return fmt.Errorf("could not get token from authenticator %s", err.Error())
 	}
+
+	// if test mode is enabled we always want to change rest requests to return a test mode
+	if c.config.TestMode {
+		request.TestMode = true
+	}
+
 	httpRequest, err := request.GetHTTPRequest(c.config.URL, method.Method)
 	if err != nil {
 		return fmt.Errorf("error during request creation %s", err.Error())
@@ -152,30 +155,30 @@ func (c *client) GetAuthenticator() authenticator.Authenticator {
 }
 
 // This method that executes a http Get request
-func (c *client) Get(request rest.RestRequest, responseObject interface{}) error {
+func (c *client) Get(request rest.Request, responseObject interface{}) error {
 	return c.call(rest.GetMethod, request, responseObject)
 }
 
 // This method that executes a http Post request
 // It expects no response, that is why it does not return one
-func (c *client) Post(request rest.RestRequest) error {
+func (c *client) Post(request rest.Request) error {
 	return c.call(rest.PostMethod, request, nil)
 }
 
 // This method that executes a http Put request
 // It expects no response, that is why it does not return one
-func (c *client) Put(request rest.RestRequest) error {
+func (c *client) Put(request rest.Request) error {
 	return c.call(rest.PutMethod, request, nil)
 }
 
 // This method that executes a http Delete request
 // It expects no response, that is why it does not return one
-func (c *client) Delete(request rest.RestRequest) error {
+func (c *client) Delete(request rest.Request) error {
 	return c.call(rest.DeleteMethod, request, nil)
 }
 
 // This method that executes a http Patch request
 // It expects no response, that is why it does not return one
-func (c *client) Patch(request rest.RestRequest) error {
+func (c *client) Patch(request rest.Request) error {
 	return c.call(rest.PatchMethod, request, nil)
 }

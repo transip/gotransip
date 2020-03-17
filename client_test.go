@@ -5,9 +5,12 @@ import (
 	"errors"
 	"github.com/transip/gotransip/v6/authenticator"
 	"github.com/transip/gotransip/v6/product"
+	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 	"testing/iotest"
 
@@ -77,12 +80,12 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestClientCallReturnsObject(t *testing.T) {
-	server := getMockServer(t)
-	clientConfig := ClientConfiguration{Token: authenticator.DemoToken, URL: server.URL}
-	client, err := newClient(clientConfig)
-	require.NoError(t, err)
+	apiResponse := `{"domains":[{"name":"test.nl"}]}`
+	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/domains", statusCode: 200, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
 
-	restRequest := rest.RestRequest{Endpoint: "/domains"}
+	restRequest := rest.Request{Endpoint: "/domains"}
 	type domainResponse struct {
 		Name string `json:"name"`
 	}
@@ -90,25 +93,25 @@ func TestClientCallReturnsObject(t *testing.T) {
 		Domains []domainResponse `json:"domains"`
 	}
 
-	err = client.Get(restRequest, &domainsResponse)
+	err := client.Get(restRequest, &domainsResponse)
 	require.NoError(t, err)
 	require.Equal(t, 1, len(domainsResponse.Domains))
 	assert.Equal(t, "test.nl", domainsResponse.Domains[0].Name)
 }
 
 func TestEmptyBodyPostDoesPostWithoutBody(t *testing.T) {
-	server := getPostMockServer(t)
-	clientConfig := ClientConfiguration{Token: authenticator.DemoToken, URL: server.URL}
-	client, err := newClient(clientConfig)
-	require.NoError(t, err)
+	apiResponse := `{"domains":[{"name":"test.nl"}]}`
+	server := mockServer{t: t, expectedMethod: "POST", expectedUrl: "/test", statusCode: 201, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
 
-	restRequest := rest.RestRequest{Endpoint: "/test"}
-	err = client.Post(restRequest)
+	restRequest := rest.Request{Endpoint: "/test"}
+	err := client.Post(restRequest)
 	require.NoError(t, err)
 }
 
 // Test if we can connect to the api server using the demo token
-func TestClientCallToApiServer(t *testing.T) {
+func TestClient_CallToLiveApiServer(t *testing.T) {
 	clientConfig := ClientConfiguration{
 		Token: authenticator.DemoToken,
 	}
@@ -116,48 +119,84 @@ func TestClientCallToApiServer(t *testing.T) {
 	client, err := NewClient(clientConfig)
 	require.NoError(t, err)
 
-	request := rest.RestRequest{Endpoint: "/products"}
+	request := rest.Request{Endpoint: "/products"}
 	var responseObject product.ProductsResponse
 
 	err = client.Get(request, &responseObject)
 	require.NoError(t, err)
-	assert.Equal(t, 6, len(responseObject.Products.Vps))
+	assert.NotZero(t, len(responseObject.Products.Vps))
 }
 
-func getPostMockServer(t *testing.T) *httptest.Server {
+func TestClient_TestMode(t *testing.T) {
+	apiResponse := `{"ping":"pong"}`
+	params := url.Values{"test": []string{"1"}}
+
+	server := mockServer{t: t, expectedMethod: "POST", expectedUrl: "/test?test=1", statusCode: 200, response: apiResponse, expectedParams: params}
+	httpServer := server.getHTTPServer()
+	defer httpServer.Close()
+
+	// setup a client with test mode enabled
+	clientConfig := ClientConfiguration{DemoMode: true, TestMode: true, URL: httpServer.URL}
+	client, err := NewClient(clientConfig)
+
+	restRequest := rest.Request{Endpoint: "/test"}
+	err = client.Post(restRequest)
+	require.NoError(t, err)
+}
+
+// mockServer struct is used to test the how the client sends a request
+// and responds to a servers response
+type mockServer struct {
+	t               *testing.T
+	expectedUrl     string
+	expectedMethod  string
+	statusCode      int
+	expectedRequest string
+	response        string
+	expectedParams  url.Values
+}
+
+func (m *mockServer) getHTTPServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		// check if right url is called
-		assert.Equal(t, req.URL.String(), "/test")
-		// check if the right method is used
-		assert.Equal(t, req.Method, "POST")
-		// check if body is empty
-		assert.Equal(t, int64(0), req.ContentLength)
+		assert.Equal(m.t, m.expectedUrl, req.URL.String()) // check if right expectedUrl is called
+
+		if req.ContentLength != 0 {
+			// get the request body
+			// and check if the body matches the expected request body
+			body, err := ioutil.ReadAll(req.Body)
+			require.NoError(m.t, err)
+			assert.Equal(m.t, m.expectedRequest, string(body))
+		}
+
+		// expect http query strings to be equal
+		assert.Equal(m.t, m.expectedParams.Encode(), req.URL.RawQuery)
+
 		// check if a signature is set
-		assert.NotEmpty(t, req.Header.Get("Authorization"), "Authentication header not set")
+		assert.NotEmpty(m.t, req.Header.Get("Authorization"), "Authentication header not set")
 		// check if the request has the right content-type
-		assert.Equal(t, req.Header.Get("Accept"), "application/json")
+		assert.Equal(m.t, req.Header.Get("Accept"), "application/json")
 		// check if the request has the right content-type
-		assert.Equal(t, req.Header.Get("Content-Type"), "application/json")
-		// respond with 200
-		rw.WriteHeader(200)
+		assert.Equal(m.t, req.Header.Get("Content-Type"), "application/json")
+
+		assert.Equal(m.t, m.expectedMethod, req.Method) // check if the right expectedRequest expectedMethod is used
+		rw.WriteHeader(m.statusCode)                    // respond with given status code
+
+		if m.response != "" {
+			rw.Write([]byte(m.response))
+		}
 	}))
 }
 
-func getMockServer(t *testing.T) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		// check if right url is called
-		assert.Equal(t, req.URL.String(), "/domains")
-		// check if the right method is used
-		assert.Equal(t, req.Method, "GET")
-		// check if a signature is set
-		assert.NotEmpty(t, req.Header.Get("Authorization"), "Authentication header not set")
-		// check if the request has the right content-type
-		assert.Equal(t, req.Header.Get("Accept"), "application/json")
-		// check if the request has the right content-type
-		assert.Equal(t, req.Header.Get("Content-Type"), "application/json")
-		// respond with 200
-		rw.WriteHeader(200)
-		// send a token as response
-		rw.Write([]byte(`{"domains":[{"name":"test.nl"}]}`))
-	}))
+func (m *mockServer) getClient() (repository.Client, func()) {
+	httpServer := m.getHTTPServer()
+	config := ClientConfiguration{DemoMode: true, URL: httpServer.URL}
+	client, err := NewClient(config)
+	require.NoError(m.t, err)
+
+	// return tearDown method with which will close the test server after the test
+	tearDown := func() {
+		httpServer.Close()
+	}
+
+	return client, tearDown
 }

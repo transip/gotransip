@@ -19,7 +19,7 @@ type Repository repository.RestRepository
 // GetAll returns a list of all your VPSs
 func (r *Repository) GetAll() ([]Vps, error) {
 	var response vpssWrapper
-	restRequest := rest.RestRequest{Endpoint: "/vps"}
+	restRequest := rest.Request{Endpoint: "/vps"}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Vpss, err
@@ -28,7 +28,7 @@ func (r *Repository) GetAll() ([]Vps, error) {
 // GetByName returns information on a specific VPS by name
 func (r *Repository) GetByName(vpsName string) (Vps, error) {
 	var response vpsWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s", vpsName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Vps, err
@@ -36,7 +36,7 @@ func (r *Repository) GetByName(vpsName string) (Vps, error) {
 
 // Order allows you to order a new VPS
 func (r *Repository) Order(vpsOrder VpsOrder) error {
-	restRequest := rest.RestRequest{Endpoint: "/vps", Body: &vpsOrder}
+	restRequest := rest.Request{Endpoint: "/vps", Body: &vpsOrder}
 
 	return r.Client.Post(restRequest)
 }
@@ -44,7 +44,7 @@ func (r *Repository) Order(vpsOrder VpsOrder) error {
 // OrderMultiple allows you to order multiple vpses at the same time
 func (r *Repository) OrderMultiple(orders []VpsOrder) error {
 	requestBody := vpssOrderWrapper{Orders: orders}
-	restRequest := rest.RestRequest{Endpoint: "/vps", Body: &requestBody}
+	restRequest := rest.Request{Endpoint: "/vps", Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
@@ -57,7 +57,7 @@ func (r *Repository) OrderMultiple(orders []VpsOrder) error {
 // - VPS add-ons such as Big Storage aren’t affected by cloning - these will stay attached to the original VPS and can’t be swapped automatically
 func (r *Repository) Clone(vpsName string) error {
 	requestBody := cloneRequest{VpsName: vpsName}
-	restRequest := rest.RestRequest{Endpoint: "/vps", Body: &requestBody}
+	restRequest := rest.Request{Endpoint: "/vps", Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
@@ -65,7 +65,7 @@ func (r *Repository) Clone(vpsName string) error {
 // CloneToAvailabilityZone allows you to clone a vps to a specific availability zone, identified by name
 func (r *Repository) CloneToAvailabilityZone(vpsName string, availabilityZone string) error {
 	requestBody := cloneRequest{VpsName: vpsName, AvailabilityZone: availabilityZone}
-	restRequest := rest.RestRequest{Endpoint: "/vps", Body: &requestBody}
+	restRequest := rest.Request{Endpoint: "/vps", Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
@@ -76,7 +76,7 @@ func (r *Repository) CloneToAvailabilityZone(vpsName string, availabilityZone st
 // To add/remove tags, you must update the tags attribute
 func (r *Repository) Update(vps Vps) error {
 	requestBody := vpsWrapper{Vps: vps}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s", vps.Name), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s", vps.Name), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
@@ -84,7 +84,7 @@ func (r *Repository) Update(vps Vps) error {
 // Start allows you to start a VPS, given that it’s currently in a stopped state
 func (r *Repository) Start(vpsName string) error {
 	requestBody := actionWrapper{Action: "start"}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s", vpsName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s", vpsName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
@@ -92,7 +92,7 @@ func (r *Repository) Start(vpsName string) error {
 // Stop allows you to stop a VPS
 func (r *Repository) Stop(vpsName string) error {
 	requestBody := actionWrapper{Action: "stop"}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s", vpsName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s", vpsName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
@@ -100,7 +100,7 @@ func (r *Repository) Stop(vpsName string) error {
 // Reset allows you to reset a VPS, a reset is essentially the stop and start command combined into one
 func (r *Repository) Reset(vpsName string) error {
 	requestBody := actionWrapper{Action: "reset"}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s", vpsName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s", vpsName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
@@ -109,7 +109,7 @@ func (r *Repository) Reset(vpsName string) error {
 // The actual handover will be done when the target customer accepts the handover
 func (r *Repository) Handover(vpsName string, targetCustomerName string) error {
 	requestBody := handoverRequest{Action: "handover", TargetCustomerName: targetCustomerName}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s", vpsName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s", vpsName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
@@ -117,7 +117,7 @@ func (r *Repository) Handover(vpsName string, targetCustomerName string) error {
 // Cancel will cancel the VPS, thus deleting it
 func (r *Repository) Cancel(vpsName string, endTime gotransip.CancellationTime) error {
 	requestBody := gotransip.CancellationRequest{EndTime: endTime}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s", vpsName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s", vpsName), Body: &requestBody}
 
 	return r.Client.Delete(restRequest)
 }
@@ -131,7 +131,7 @@ func (r *Repository) GetUsageDataByVps(vpsName string, usageTypes []UsageType, p
 		types = append(types, string(usageType))
 	}
 	requestBody := vpsUsageRequest{Types: strings.Join(types, ","), UsagePeriod: period}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/usage", vpsName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/usage", vpsName), Body: &requestBody}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Usage, err
@@ -159,7 +159,7 @@ func (r *Repository) GetAllUsageDataByVps24Hours(vpsName string) (Usage, error) 
 // It allows you to get the location, token and password in order to connect directly to the VNC console of your VPS
 func (r *Repository) GetVNCData(vpsName string) (VncData, error) {
 	var response vncDataWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/vnc-data", vpsName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/vnc-data", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.VncData, err
@@ -167,7 +167,7 @@ func (r *Repository) GetVNCData(vpsName string) (VncData, error) {
 
 // RegenerateVNCToken allows you to regenerate the VNC credentials for a VPS
 func (r *Repository) RegenerateVNCToken(vpsName string) error {
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/vnc-data", vpsName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/vnc-data", vpsName)}
 
 	return r.Client.Patch(restRequest)
 }
@@ -175,7 +175,7 @@ func (r *Repository) RegenerateVNCToken(vpsName string) error {
 // GetAddons returns a struct with 'cancellable', 'available' and 'active' addons in it for the given VPS
 func (r *Repository) GetAddons(vpsName string) (Addons, error) {
 	var response addonsWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/addons", vpsName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/addons", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Addons, err
@@ -184,7 +184,7 @@ func (r *Repository) GetAddons(vpsName string) (Addons, error) {
 // OrderAddons allows you to expand VPS specs with a given list of addons to order
 func (r *Repository) OrderAddons(vpsName string, addons []string) error {
 	response := addonOrderRequest{Addons: addons}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/addons", vpsName), Body: &response}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/addons", vpsName), Body: &response}
 
 	return r.Client.Post(restRequest)
 }
@@ -192,7 +192,7 @@ func (r *Repository) OrderAddons(vpsName string, addons []string) error {
 // CancelAddon allows you to cancel an add-on by name, specifying the VPS name as well
 // Due to technical restrictions (possible dataloss) storage add-ons cannot be cancelled
 func (r *Repository) CancelAddon(vpsName string, addon string) error {
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/addons/%s", vpsName, addon)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/addons/%s", vpsName, addon)}
 
 	return r.Client.Delete(restRequest)
 }
@@ -200,7 +200,7 @@ func (r *Repository) CancelAddon(vpsName string, addon string) error {
 // GetUpgrades returns all available product upgrades for a VPS
 func (r *Repository) GetUpgrades(vpsName string) ([]product.Product, error) {
 	var response upgradesWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/upgrades", vpsName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/upgrades", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Upgrades, err
@@ -209,7 +209,7 @@ func (r *Repository) GetUpgrades(vpsName string) ([]product.Product, error) {
 // Upgrade allows you to upgrade a VPS by name and productName
 func (r *Repository) Upgrade(vpsName string, productName string) error {
 	requestBody := upgradeRequest{ProductName: productName}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/upgrades", vpsName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/upgrades", vpsName), Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
@@ -217,7 +217,7 @@ func (r *Repository) Upgrade(vpsName string, productName string) error {
 // GetOperatingSystems returns a list of operating systems that you can install on a vps
 func (r *Repository) GetOperatingSystems(vpsName string) ([]OperatingSystem, error) {
 	var response operatingSystemsWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/operating-systems", vpsName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/operating-systems", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.OperatingSystems, err
@@ -229,7 +229,7 @@ func (r *Repository) GetOperatingSystems(vpsName string) ([]OperatingSystem, err
 // for more information, see: https://api.transip.nl/rest/docs.html#vps-operatingsystems-post
 func (r *Repository) InstallOperatingSystem(vpsName string, operatingSystemName string, hostname string, base64InstallText string) error {
 	requestBody := installRequest{OperatingSystemName: operatingSystemName, Hostname: hostname, Base64InstallText: base64InstallText}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/operating-systems", vpsName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/operating-systems", vpsName), Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
@@ -237,7 +237,7 @@ func (r *Repository) InstallOperatingSystem(vpsName string, operatingSystemName 
 // GetIPAddresses returns all IPv4 and IPv6 addresses attached to the VPS
 func (r *Repository) GetIPAddresses(vpsName string) ([]ipaddress.IPAddress, error) {
 	var response ipaddress.IPAddressesWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/ip-addresses", vpsName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/ip-addresses", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.IPAddresses, err
@@ -246,7 +246,7 @@ func (r *Repository) GetIPAddresses(vpsName string) ([]ipaddress.IPAddress, erro
 // GetIPAddressByAddress returns network information for the specified IP address
 func (r *Repository) GetIPAddressByAddress(vpsName string, address net.IP) (ipaddress.IPAddress, error) {
 	var response ipAddressWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/ip-addresses/%s", vpsName, address.String())}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/ip-addresses/%s", vpsName, address.String())}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.IPAddress, err
@@ -256,7 +256,7 @@ func (r *Repository) GetIPAddressByAddress(vpsName string, address net.IP) (ipad
 // After adding an IPv6 address, you can set the reverse DNS for this address using the UpdateReverseDNS function
 func (r *Repository) AddIPv6Address(vpsName string, address net.IP) error {
 	requestBody := addIpRequest{IPAddress: address}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/ip-addresses", vpsName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/ip-addresses", vpsName), Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
@@ -264,7 +264,7 @@ func (r *Repository) AddIPv6Address(vpsName string, address net.IP) error {
 // UpdateReverseDNS allows you to update the reverse dns for IPv4 addresses as wal as IPv6 addresses
 func (r *Repository) UpdateReverseDNS(vpsName string, ip ipaddress.IPAddress) error {
 	requestBody := ipAddressWrapper{IPAddress: ip}
-	restRequest := rest.RestRequest{
+	restRequest := rest.Request{
 		Endpoint: fmt.Sprintf("/vps/%s/ip-addresses/%s", vpsName, ip.Address.String()),
 		Body:     &requestBody,
 	}
@@ -274,7 +274,7 @@ func (r *Repository) UpdateReverseDNS(vpsName string, ip ipaddress.IPAddress) er
 
 // RemoveIPv6Address allows you to remove an IPv6 address from the registered list of IPv6 address within your VPS's `/64` range.
 func (r *Repository) RemoveIPv6Address(vpsName string, address net.IP) error {
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/ip-addresses/%s", vpsName, address.String())}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/ip-addresses/%s", vpsName, address.String())}
 
 	return r.Client.Delete(restRequest)
 }
@@ -282,7 +282,7 @@ func (r *Repository) RemoveIPv6Address(vpsName string, address net.IP) error {
 // GetSnapshots returns a list of Snapshots for a given VPS
 func (r *Repository) GetSnapshots(vpsName string) ([]Snapshot, error) {
 	var response snapshotsWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/snapshots", vpsName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/snapshots", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Snapshots, err
@@ -291,7 +291,7 @@ func (r *Repository) GetSnapshots(vpsName string) ([]Snapshot, error) {
 // GetSnapshotByName returns a Snapshot for a VPS given its snapshotName and vpsName
 func (r *Repository) GetSnapshotByName(vpsName string, snapshotName string) (Snapshot, error) {
 	var response snapshotWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/snapshots/%s", vpsName, snapshotName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/snapshots/%s", vpsName, snapshotName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Snapshot, err
@@ -301,7 +301,7 @@ func (r *Repository) GetSnapshotByName(vpsName string, snapshotName string) (Sna
 // See the function RevertSnapshot for this
 func (r *Repository) CreateSnapshot(vpsName string, description string, shouldStartVps bool) error {
 	requestBody := createSnapshotRequest{Description: description, ShouldStartVps: shouldStartVps}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/snapshots", vpsName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/snapshots", vpsName), Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
@@ -309,7 +309,7 @@ func (r *Repository) CreateSnapshot(vpsName string, description string, shouldSt
 // RevertSnapshot allows you to revert a snapshot of a vps,
 // if you want to revert a snapshot to a different vps you can use the RevertSnapshotToOtherVps method
 func (r *Repository) RevertSnapshot(vpsName string, snapshotName string) error {
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/snapshots/%s", vpsName, snapshotName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/snapshots/%s", vpsName, snapshotName)}
 
 	return r.Client.Patch(restRequest)
 }
@@ -317,14 +317,14 @@ func (r *Repository) RevertSnapshot(vpsName string, snapshotName string) error {
 // RevertSnapshotToOtherVps allows you to revert a snapshot to a different vps
 func (r *Repository) RevertSnapshotToOtherVps(vpsName string, snapshotName string, destinationVps string) error {
 	requestBody := revertSnapshotRequest{DestinationVpsName: destinationVps}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/snapshots/%s", vpsName, snapshotName), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/snapshots/%s", vpsName, snapshotName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
 
 // RemoveSnapshot allows you to remove a snapshot from a given VPS
 func (r *Repository) RemoveSnapshot(vpsName string, snapshotName string) error {
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/snapshots/%s", vpsName, snapshotName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/snapshots/%s", vpsName, snapshotName)}
 
 	return r.Client.Delete(restRequest)
 }
@@ -332,7 +332,7 @@ func (r *Repository) RemoveSnapshot(vpsName string, snapshotName string) error {
 // GetBackups allows you to get a list of backups for a given VPS which you can use to revert or convert to snapshot
 func (r *Repository) GetBackups(vpsName string) ([]Backup, error) {
 	var response backupsWrapper
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/backups", vpsName)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/backups", vpsName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Backups, err
@@ -341,7 +341,7 @@ func (r *Repository) GetBackups(vpsName string) ([]Backup, error) {
 // RevertBackup allows you to revert a backup
 func (r *Repository) RevertBackup(vpsName string, backupId int64) error {
 	requestBody := actionWrapper{Action: "revert"}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/backups/%d", vpsName, backupId), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/backups/%d", vpsName, backupId), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
@@ -349,7 +349,7 @@ func (r *Repository) RevertBackup(vpsName string, backupId int64) error {
 // ConvertBackupToSnapshot allows you to convert a backup to a snapshot
 func (r *Repository) ConvertBackupToSnapshot(vpsName string, backupId int64, snapshotDescription string) error {
 	requestBody := convertBackupRequest{SnapshotDescription: snapshotDescription, Action: "convert"}
-	restRequest := rest.RestRequest{Endpoint: fmt.Sprintf("/vps/%s/backups/%d", vpsName, backupId), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/backups/%d", vpsName, backupId), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
