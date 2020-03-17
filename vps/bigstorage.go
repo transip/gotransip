@@ -25,6 +25,20 @@ type BigStorageOrder struct {
 	VpsName string `json:"vpsName"`
 }
 
+// BigStorageStatus is one of the following strings
+// 'active', 'attaching', 'detaching'
+type BigStorageStatus string
+
+// define all of the possible bigstorage backup statuses
+const (
+	// BigStorageStatusActive is the status field for an active BigStorage, ready to use
+	BigStorageStatusActive BigStorageStatus ="active"
+	// BigStorageStatusAttaching is the status field for a BigStorage that is being attached to a vps
+	BigStorageStatusAttaching BigStorageStatus ="attaching"
+	// BigStorageStatusDetaching is the status field for a BigStorage that is being detached from a vps
+	BigStorageStatusDetaching BigStorageStatus ="detaching"
+)
+
 // BigStorage struct for BigStorage
 type BigStorage struct {
 	// Name of the big storage
@@ -38,7 +52,7 @@ type BigStorage struct {
 	// The VPS that the big storage is attached to
 	VpsName string `json:"vpsName"`
 	// Status of the big storage can be 'active', 'attaching' or 'detachting'
-	Status string `json:"status,omitempty"`
+	Status BigStorageStatus `json:"status,omitempty"`
 	// Lock status of the big storage, when it is locked, it cannot be attached or detached.
 	IsLocked bool `json:"isLocked"`
 	// The availability zone the bigstorage is located in
@@ -50,7 +64,7 @@ type BigStorageBackup struct {
 	// Id of the big storage
 	Id int64 `json:"id,omitempty"`
 	// Status of the big storage backup ('active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving')
-	Status string `json:"status,omitempty"`
+	Status BackupStatus `json:"status,omitempty"`
 	// The backup disk size in kB
 	DiskSize int64 `json:"diskSize"`
 	// Date of the big storage backup

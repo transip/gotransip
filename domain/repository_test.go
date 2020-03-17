@@ -612,8 +612,8 @@ func TestRepository_GetAvailability(t *testing.T) {
 	availability, err := repo.GetAvailability("example.com")
 	require.NoError(t, err)
 	assert.Equal(t, "example.com", availability.DomainName)
-	assert.Equal(t, "free", availability.Status)
-	assert.Equal(t, []string{"register"}, availability.Actions)
+	assert.EqualValues(t, "free", availability.Status)
+	assert.Equal(t, []PerformAction{"register"}, availability.Actions)
 }
 
 func TestRepository_GetAvailabilityForMultipleDomains(t *testing.T) {
@@ -628,8 +628,8 @@ func TestRepository_GetAvailabilityForMultipleDomains(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(availabilityList))
 	assert.Equal(t, "example.com", availabilityList[0].DomainName)
-	assert.Equal(t, "free", availabilityList[0].Status)
-	assert.Equal(t, []string{"register"}, availabilityList[0].Actions)
+	assert.EqualValues(t, "free", availabilityList[0].Status)
+	assert.Equal(t, []PerformAction{"register"}, availabilityList[0].Actions)
 }
 
 func TestRepository_GetTLDs(t *testing.T) {

@@ -25,7 +25,7 @@ func TestBigStorageRepository_GetBigStorages(t *testing.T) {
 	assert.EqualValues(t, 2147483648, all[0].DiskSize)
 	assert.Equal(t, true, all[0].OffsiteBackups)
 	assert.Equal(t, "example-vps", all[0].VpsName)
-	assert.Equal(t, "active", all[0].Status)
+	assert.EqualValues(t, "active", all[0].Status)
 	assert.Equal(t, false, all[0].IsLocked)
 	assert.Equal(t, "ams0", all[0].AvailabilityZone)
 }
@@ -44,7 +44,7 @@ func TestBigStorageRepository_GetBigStorageByName(t *testing.T) {
 	assert.EqualValues(t, 2147483648, bigstorage.DiskSize)
 	assert.Equal(t, true, bigstorage.OffsiteBackups)
 	assert.Equal(t, "example-vps", bigstorage.VpsName)
-	assert.Equal(t, "active", bigstorage.Status)
+	assert.EqualValues(t, "active", bigstorage.Status)
 	assert.Equal(t, false, bigstorage.IsLocked)
 	assert.Equal(t, "ams0", bigstorage.AvailabilityZone)
 }
@@ -87,7 +87,7 @@ func TestBigStorageRepository_UpdateBigStorage(t *testing.T) {
 		DiskSize:         2147483648,
 		OffsiteBackups:   true,
 		VpsName:          "example-vps",
-		Status:           "active",
+		Status:           BigStorageStatusActive,
 		IsLocked:         false,
 		AvailabilityZone: "ams0",
 	}
@@ -160,7 +160,7 @@ func TestBigStorageRepository_GetBigStorageBackups(t *testing.T) {
 	require.Equal(t, 1, len(all))
 
 	assert.EqualValues(t, 1583, all[0].Id)
-	assert.Equal(t, "active", all[0].Status)
+	assert.EqualValues(t, "active", all[0].Status)
 	assert.EqualValues(t, 4294967296, all[0].DiskSize)
 	assert.Equal(t, "2019-12-31 09:13:55", all[0].DateTimeCreate.Format("2006-01-02 15:04:05"))
 	assert.Equal(t, "ams0", all[0].AvailabilityZone)

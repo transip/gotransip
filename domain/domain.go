@@ -5,6 +5,44 @@ import (
 	"net"
 )
 
+// PerformAction List of available actions to perform on this domain.
+// Possible actions are: 'register', 'transfer', 'internalpull' and 'internalpush'
+type PerformAction string
+
+// define all possible actions that a user can perform on a domain
+const (
+	// PerformActionTransfer is the available perform transfer action
+	PerformActionTransfer PerformAction = "transfer"
+	// PerformActionInternalPull is the available perform internalpull action,
+	// for when a domain is at transip and can be handovered pushed/pulled towards a different account
+	PerformActionInternalPull PerformAction = "internalpull"
+	// PerformActionInternalPush is the available perform internalpush action,
+	// for when a domain is at transip and can be handovered pushed/pulled towards a different account
+	PerformActionInternalPush PerformAction = "internalpush"
+)
+
+// AvailabilityStatus is the status for a domain. Returned during queries upon the availability
+// Possible statuses are: 'inyouraccount', 'unavailable', 'notfree', 'free', 'internalpull', 'internalpush'
+type AvailabilityStatus string
+
+// define all possible availability statuses
+const (
+	// AvailabilityStatusInYourAccount is the availability status for when a domain is already in your account
+	AvailabilityStatusInyouraccount AvailabilityStatus = "inyouraccount"
+	// AvailabilityStatusUnavailable is the availability status for when a domain is unavailable
+	AvailabilityStatusUnavailable AvailabilityStatus = "unavailable"
+	// AvailabilityStatusNotFree is the availability status for when a domain is already taken
+	AvailabilityStatusNotFree AvailabilityStatus = "notfree"
+	// AvailabilityStatusFree is the availability status for when a domain is free to register
+	AvailabilityStatusFree AvailabilityStatus = "free"
+	// AvailabilityStatusInternalPull is the availability status,
+	// for when a domain is at transip and can be handovered pushed/pulled towards a different account
+	AvailabilityStatusInternalPull AvailabilityStatus = "internalpull"
+	// AvailabilityStatusInternalPush is the availability status,
+	// for when a domain is at transip and can be handovered pushed/pulled towards a different account
+	AvailabilityStatusInternalPush AvailabilityStatus = "internalpush"
+)
+
 // domainsResponse struct contains a list of Domains in it,
 // this is solely used for unmarshalling/marshalling
 type domainsResponse struct {
@@ -310,11 +348,11 @@ type Tld struct {
 // Availability struct for Availability
 type Availability struct {
 	// List of available actions to perform on this domain. Possible actions are: 'register', 'transfer', 'internalpull' and 'internalpush'
-	Actions []string `json:"actions"`
+	Actions []PerformAction `json:"actions"`
 	// The name of the domain
 	DomainName string `json:"domainName"`
 	// The status for this domain. Possible statuses are: 'inyouraccount', 'unavailable', 'notfree', 'free', 'internalpull' and 'internalpush'
-	Status string `json:"status"`
+	Status AvailabilityStatus `json:"status"`
 }
 
 // Nameserver struct for Nameserver

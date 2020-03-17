@@ -5,6 +5,66 @@ import (
 	"net"
 )
 
+// HaipStatus is one of the following strings
+// 'active', 'inactive', 'creating'
+type HaipStatus string
+
+// define all of the possible haip statuses
+const (
+	// HaipStatusActive is the status field for an active Haip, ready to use
+	HaipStatusActive HaipStatus = "active"
+	// HaipStatusInactive is the status field for an inactive Haip, not usable, please contact support
+	HaipStatusInactive HaipStatus = "inactive"
+	// HaipStatusCreating is the status field for a Haip that is being created
+	HaipStatusCreating HaipStatus = "creating"
+)
+
+// LoadBalancingMode is one of the following strings
+// 'roundrobin', 'cookie', 'source'
+type LoadBalancingMode string
+
+// define all of the possible load balancing modes
+const (
+	// LoadBalancingModeRoundRobin is the LoadBalancing mode roundrobin for a Haip, forward to next address everytime
+	LoadBalancingModeRoundRobin LoadBalancingMode = "roundrobin"
+	// LoadBalancingModeCookie is the LoadBalancing mode cookie for a Haip, forward to a fixed server, based on the cookie
+	LoadBalancingModeCookie LoadBalancingMode = "cookie"
+	// LoadBalancingModeSource is the LoadBalancing mode source for a Haip, choose a server to forward based on the source address
+	LoadBalancingModeSource LoadBalancingMode = "source"
+)
+
+// IpSetup is one of the following strings
+// 'both', 'noipv6', 'ipv6to4'
+type IpSetup string
+
+// define all of the possible ip setup options
+const (
+	// IpSetupBoth accept ipv4 and ipv6 and forward them to seperate ipv4 and ipv6 addresses
+	IpSetupBoth IpSetup = "both"
+	// IpSetupNoIpv6 do not accept ipv6 traffic
+	IpSetupNoIpv6 IpSetup = "noipv6"
+	// IpSetupIpv6to4 forward ipv6 traffic to ipv4
+	IpSetupIpv6to4 IpSetup = "ipv6to4"
+)
+
+// PortConfigurationMode is one of the following strings
+// 'tcp', 'http', 'https', 'proxy', 'http2_https'
+type PortConfigurationMode string
+
+// define all of the possible port configuration modes
+const (
+	// PortConfigurationModeTcp plain TCP forward to your VPS
+	PortConfigurationModeTcp PortConfigurationMode = "tcp"
+	// PortConfigurationModeHttp appends a X-Forwarded-For header to HTTP requests with the original remote IP
+	PortConfigurationModeHttp PortConfigurationMode = "http"
+	// PortConfigurationModeHttps same as HTTP, with SSL Certificate offloading
+	PortConfigurationModeHttps PortConfigurationMode = "https"
+	// PortConfigurationModeProxy proxy protocol is also a way to retain the original remote IP, but also works for non HTTP traffic (note: the receiving application has to support this)
+	PortConfigurationModeProxy PortConfigurationMode = "proxy"
+	// PortConfigurationModeHttp2Https same as HTTPS, with http/2 support
+	PortConfigurationModeHttp2Https PortConfigurationMode = "http2_https"
+)
+
 // haipsWrapper is a wrapper used to unpack the server response
 // it contains a list of haips
 type haipsWrapper struct {
@@ -67,11 +127,11 @@ type Haip struct {
 	// The description that can be set by the customer
 	Description string `json:"description"`
 	// HA-IP status, either 'active', 'inactive', 'creating'
-	Status string `json:"status"`
+	Status HaipStatus `json:"status"`
 	// Whether load balancing is enabled for this HA-IP
 	IsLoadBalancingEnabled bool `json:"isLoadBalancingEnabled"`
 	// HA-IP load balancing mode: 'roundrobin', 'cookie', 'source'
-	LoadBalancingMode string `json:"loadBalancingMode,omitempty"`
+	LoadBalancingMode LoadBalancingMode `json:"loadBalancingMode,omitempty"`
 	// Cookie name to pin sessions on when using cookie balancing mode
 	StickyCookieName string `json:"stickyCookieName,omitempty"`
 	// The interval in milliseconds at which health checks are performed. The interval may not be smaller than 2000ms.
@@ -87,7 +147,7 @@ type Haip struct {
 	// HA-IP IPv6 address
 	Ipv6Address net.IP `json:"ipv6Address,omitempty"`
 	// HA-IP IP setup: 'both', 'noipv6', 'ipv6to4'
-	IpSetup string `json:"ipSetup"`
+	IpSetup IpSetup `json:"ipSetup"`
 	// The PTR record for the HA-IP
 	PtrRecord string `json:"ptrRecord,omitempty"`
 	// The IPs attached to this haip
@@ -132,8 +192,8 @@ type PortConfiguration struct {
 	SourcePort int `json:"sourcePort"`
 	// The port at which traffic arrives on your attached IP address(es)
 	TargetPort int `json:"targetPort"`
-	// The mode determining how traffic is processed and forwarded: 'tcp', 'http', 'https', 'proxy'
-	Mode string `json:"mode"`
+	// The mode determining how traffic is processed and forwarded: 'tcp', 'http', 'https', 'proxy', 'http2_https'
+	Mode PortConfigurationMode `json:"mode"`
 	// The mode determining how traffic between our load balancers and your attached IP address(es) is encrypted: 'off', 'on', 'strict'
 	EndpointSslMode string `json:"endpointSslMode"`
 }

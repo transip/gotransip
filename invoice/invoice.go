@@ -4,6 +4,27 @@ import (
 	"github.com/transip/gotransip/v6/rest"
 )
 
+// InvoiceStatus is one of the following strings
+// 'opened', 'closed', 'waitsforpayment', 'overdue', 'problem' , 'paid', 'paymentpending'
+type InvoiceStatus string
+
+const (
+	// InvoiceStatusOpened is the invoice status field for a opened invoice
+	InvoiceStatusOpened InvoiceStatus = "opened"
+	// InvoiceStatusClosed is the invoice status field for a closed invoice
+	InvoiceStatusClosed InvoiceStatus = "closed"
+	// InvoiceStatusWaitsforpayment is the invoice status field for when the invoice needs to be paid
+	InvoiceStatusWaitsforpayment InvoiceStatus = "waitsforpayment"
+	// InvoiceStatusOverdue is the invoice status field for when a payment is overdue
+	InvoiceStatusOverdue InvoiceStatus = "overdue"
+	// InvoiceStatusProblem is the invoice status field for when a problem occured during invoicing
+	InvoiceStatusProblem InvoiceStatus = "problem"
+	// InvoiceStatusPaid is the invoice status field for a paid invoice
+	InvoiceStatusPaid InvoiceStatus = "paid"
+	// InvoiceStatusPaymentpending is the invoice status field for when a payment is pending
+	InvoiceStatusPaymentpending InvoiceStatus = "paymentpending"
+)
+
 // invoicesResponse object contains a list of Invoices in it
 // used to unpack the rest response and return the encapsulated Invoices
 // this is just used internal for unpacking, this should not be exported
@@ -40,7 +61,7 @@ type Invoice struct {
 	// Invoice number
 	InvoiceNumber string `json:"invoiceNumber"`
 	// Invoice status
-	InvoiceStatus string `json:"invoiceStatus"`
+	InvoiceStatus InvoiceStatus `json:"invoiceStatus"`
 	// Invoice paid date
 	PayDate rest.Date `json:"payDate"`
 	// Invoice total (displayed in cents)

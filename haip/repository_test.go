@@ -72,9 +72,9 @@ func TestRepository_GetAll(t *testing.T) {
 
 	assert.Equal(t, "example-haip", all[0].Name)
 	assert.Equal(t, "frontend cluster", all[0].Description)
-	assert.Equal(t, "active", all[0].Status)
+	assert.EqualValues(t, "active", all[0].Status)
 	assert.Equal(t, true, all[0].IsLoadBalancingEnabled)
-	assert.Equal(t, "cookie", all[0].LoadBalancingMode)
+	assert.EqualValues(t, "cookie", all[0].LoadBalancingMode)
 	assert.Equal(t, "PHPSESSID", all[0].StickyCookieName)
 	assert.EqualValues(t, 3000, all[0].HealthCheckInterval)
 	assert.Equal(t, "/status.php", all[0].HttpHealthCheckPath)
@@ -82,7 +82,7 @@ func TestRepository_GetAll(t *testing.T) {
 	assert.Equal(t, true, all[0].HttpHealthCheckSsl)
 	assert.Equal(t, "37.97.254.7", all[0].Ipv4Address.String())
 	assert.Equal(t, "2a01:7c8:3:1337::1", all[0].Ipv6Address.String())
-	assert.Equal(t, "ipv6to4", all[0].IpSetup)
+	assert.EqualValues(t, "ipv6to4", all[0].IpSetup)
 	assert.Equal(t, "frontend.example.com", all[0].PtrRecord)
 
 	require.Equal(t, 2, len(all[0].IpAddresses))
@@ -103,9 +103,9 @@ func TestRepository_GetByName(t *testing.T) {
 
 	assert.Equal(t, "example-haip", haip.Name)
 	assert.Equal(t, "frontend cluster", haip.Description)
-	assert.Equal(t, "active", haip.Status)
+	assert.EqualValues(t, "active", haip.Status)
 	assert.Equal(t, true, haip.IsLoadBalancingEnabled)
-	assert.Equal(t, "cookie", haip.LoadBalancingMode)
+	assert.EqualValues(t, "cookie", haip.LoadBalancingMode)
 	assert.Equal(t, "PHPSESSID", haip.StickyCookieName)
 	assert.EqualValues(t, 3000, haip.HealthCheckInterval)
 	assert.Equal(t, "/status.php", haip.HttpHealthCheckPath)
@@ -113,7 +113,7 @@ func TestRepository_GetByName(t *testing.T) {
 	assert.Equal(t, true, haip.HttpHealthCheckSsl)
 	assert.Equal(t, "37.97.254.7", haip.Ipv4Address.String())
 	assert.Equal(t, "2a01:7c8:3:1337::1", haip.Ipv6Address.String())
-	assert.Equal(t, "ipv6to4", haip.IpSetup)
+	assert.EqualValues(t, "ipv6to4", haip.IpSetup)
 	assert.Equal(t, "frontend.example.com", haip.PtrRecord)
 
 	require.Equal(t, 2, len(haip.IpAddresses))
@@ -273,7 +273,7 @@ func TestRepository_GetPortConfigurations(t *testing.T) {
 	assert.Equal(t, "Website Traffic", all[0].Name)
 	assert.Equal(t, 80, all[0].SourcePort)
 	assert.Equal(t, 80, all[0].TargetPort)
-	assert.Equal(t, "http", all[0].Mode)
+	assert.EqualValues(t, "http", all[0].Mode)
 	assert.Equal(t, "off", all[0].EndpointSslMode)
 }
 
@@ -291,7 +291,7 @@ func TestRepository_GetPortConfiguration(t *testing.T) {
 	assert.Equal(t, "Website Traffic", configuration.Name)
 	assert.Equal(t, 80, configuration.SourcePort)
 	assert.Equal(t, 80, configuration.TargetPort)
-	assert.Equal(t, "http", configuration.Mode)
+	assert.EqualValues(t, "http", configuration.Mode)
 	assert.Equal(t, "off", configuration.EndpointSslMode)
 }
 

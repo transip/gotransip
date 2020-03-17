@@ -29,6 +29,47 @@ const (
 	BackupStatusMoving BackupStatus = "moving"
 )
 
+// SnapshotStatus is one of the following strings
+// 'active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving'
+type SnapshotStatus string
+
+// define all of the possible snapshot statuses
+const (
+	// SnapshotStatusActive is the status field for an active snapshot, ready to use
+	SnapshotStatusActive SnapshotStatus = "active"
+	// SnapshotStatusCreating is the status field for a snapshot that is going to be created
+	SnapshotStatusCreating SnapshotStatus = "creating"
+	// SnapshotStatusReverting is the status field for snapshot that is being reverted
+	SnapshotStatusReverting SnapshotStatus = "reverting"
+	// SnapshotStatusDeleting is the status field for snapshot that is going to be deleted
+	SnapshotStatusDeleting SnapshotStatus = "deleting"
+	// SnapshotStatusPendingDeletion is the status field for snapshot that is going to be deleted in the near future
+	SnapshotStatusPendingDeletion SnapshotStatus = "pendingDeletion"
+	// SnapshotStatusSyncing is the status field for a snapshot that is still under creation
+	SnapshotStatusSyncing SnapshotStatus = "syncing"
+	// SnapshotStatusMoving is the status field for a snapshot that is moving to another location,
+	// this means that the snapshot is under migration
+	SnapshotStatusMoving SnapshotStatus = "moving"
+)
+
+// VpsStatus is one of the following strings
+// 'created', 'installing', 'running', 'stopped', 'paused'
+type VpsStatus string
+
+// define all of the possible vps statuses
+const (
+	// VpsStatusCreated is the status field for a vps that is created but not yet used
+	VpsStatusCreated VpsStatus = "created"
+	// VpsStatusInstalling is the status field for a vps that is going to be installed
+	VpsStatusInstalling VpsStatus = "installing"
+	// VpsStatusRunning is the status field for a vps that is currently turned on
+	VpsStatusRunning VpsStatus = "running"
+	// VpsStatusStopped is the status field for a vps that is in stopped state
+	VpsStatusStopped VpsStatus = "stopped"
+	// VpsStatusPaused is the status field for a vps that is in paused state
+	VpsStatusPaused VpsStatus = "paused"
+)
+
 // UsageType can be one of the following strings
 // 'cpu', 'disk', 'network'
 type UsageType string
@@ -277,7 +318,7 @@ type Vps struct {
 	// The VPS cpu count
 	Cpus int `json:"cpus,omitempty"`
 	// The VPS status, either 'created', 'installing', 'running', 'stopped' or 'paused'
-	Status string `json:"status,omitempty"`
+	Status VpsStatus `json:"status,omitempty"`
 	// The VPS main ipAddress
 	IpAddress string `json:"ipAddress,omitempty"`
 	// The VPS macaddress
@@ -417,7 +458,7 @@ type Snapshot struct {
 	// The snapshot OperatingSystem
 	OperatingSystem string `json:"operatingSystem,omitempty"`
 	// The snapshot status ('active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving')
-	Status string `json:"status,omitempty"`
+	Status SnapshotStatus `json:"status,omitempty"`
 }
 
 // OperatingSystems struct for OperatingSystems

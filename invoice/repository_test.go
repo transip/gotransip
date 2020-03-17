@@ -119,7 +119,7 @@ func TestRepository_GetByInvoiceNumber(t *testing.T) {
 	assert.Equal(t, "2020-01-01", invoice.CreationDate.Format("2006-01-02"))
 	assert.Equal(t, "2020-01-01", invoice.PayDate.Format("2006-01-02"))
 	assert.Equal(t, "2020-02-01", invoice.DueDate.Format("2006-01-02"))
-	assert.Equal(t, "waitsforpayment", invoice.InvoiceStatus)
+	assert.EqualValues(t, "waitsforpayment", invoice.InvoiceStatus)
 	assert.Equal(t, "EUR", invoice.Currency)
 	assert.Equal(t, 1000, invoice.TotalAmount)
 	assert.Equal(t, 1240, invoice.TotalAmountInclVat)
