@@ -26,7 +26,8 @@ func getMockServer(t *testing.T, url string, method string, statusCode int, resp
 
 func getRepository(t *testing.T, responseStatusCode int, response string) (Repository, func()) {
 	server := getMockServer(t, "/availability-zones", "GET", responseStatusCode, response)
-	config := gotransip.ClientConfiguration{DemoMode: true, URL: server.URL}
+	config := gotransip.DemoClientConfiguration
+	config.URL = server.URL
 	client, err := gotransip.NewClient(config)
 	require.NoError(t, err)
 

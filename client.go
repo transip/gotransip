@@ -37,18 +37,12 @@ func NewClient(config ClientConfiguration) (repository.Client, error) {
 // newClient method is used internally for testing,
 // the NewClient method is exported as it follows the repository.Client interface
 // which is so that we don't have to bind to this specific implementation
-// todo: change to pointer
 func newClient(config ClientConfiguration) (*client, error) {
 	if config.HTTPClient == nil {
 		config.HTTPClient = http.DefaultClient
 	}
 	var privateKeyBody []byte
 	var token jwt.Token
-
-	// copy demo token from authenticator on demo mode
-	if config.DemoMode {
-		config.Token = authenticator.DemoToken
-	}
 
 	// check account name
 	if len(config.AccountName) == 0 && len(config.Token) == 0 {

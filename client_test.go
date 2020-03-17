@@ -34,11 +34,9 @@ func TestNewClient(t *testing.T) {
 	cc.Token = ""
 
 	// no error should be thrown when enabling demo mode
-	cc.DemoMode = true
-	client, err := newClient(cc)
+	client, err := newClient(DemoClientConfiguration)
 	require.NoError(t, err, "No error should be thrown upon enabling demo mode")
 	assert.Equal(t, authenticator.DemoToken, client.GetConfig().Token, "Token should be demo token")
-	cc.DemoMode = false
 
 	cc.AccountName = "foobar"
 	// ClientConfig with only AccountName set should raise error about private keys
@@ -136,7 +134,10 @@ func TestClient_TestMode(t *testing.T) {
 	defer httpServer.Close()
 
 	// setup a client with test mode enabled
-	clientConfig := ClientConfiguration{DemoMode: true, TestMode: true, URL: httpServer.URL}
+	clientConfig := DemoClientConfiguration
+	clientConfig.URL = httpServer.URL
+	clientConfig.TestMode = true
+
 	client, err := NewClient(clientConfig)
 
 	restRequest := rest.Request{Endpoint: "/test"}
@@ -189,7 +190,9 @@ func (m *mockServer) getHTTPServer() *httptest.Server {
 
 func (m *mockServer) getClient() (repository.Client, func()) {
 	httpServer := m.getHTTPServer()
-	config := ClientConfiguration{DemoMode: true, URL: httpServer.URL}
+	config := DemoClientConfiguration
+	config.URL = httpServer.URL
+
 	client, err := NewClient(config)
 	require.NoError(m.t, err)
 

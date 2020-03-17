@@ -1,6 +1,7 @@
 package gotransip
 
 import (
+	"github.com/transip/gotransip/v6/authenticator"
 	"io"
 	"net/http"
 )
@@ -22,13 +23,15 @@ var (
 	APIModeReadWrite APIMode = "readwrite"
 )
 
+// DemoClientConfiguration is the default configuration to use when testing the demo mode of the transip api
+var DemoClientConfiguration = ClientConfiguration{Token: authenticator.DemoToken}
+
 // ClientConfiguration stores the configuration of the API client
 type ClientConfiguration struct {
 	AccountName      string
 	URL              string
 	PrivateKeyReader io.Reader
 	Token            string
-	DemoMode         bool
 	TestMode         bool
 	HTTPClient       *http.Client
 	Mode             APIMode

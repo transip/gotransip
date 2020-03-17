@@ -9,9 +9,8 @@ import (
 )
 
 func main() {
-	// Create a new client with a default client config, using the demo token
-	clientConfig := gotransip.ClientConfiguration{DemoMode: true}
-	client, err := gotransip.NewClient(clientConfig)
+	// Create a new client with the default demo client config, using the demo token
+	client, err := gotransip.NewClient(gotransip.DemoClientConfiguration)
 	if err != nil {
 		panic(err)
 	}

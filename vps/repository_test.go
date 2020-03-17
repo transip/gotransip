@@ -50,7 +50,8 @@ func (m *mockServer) getHTTPServer() *httptest.Server {
 
 func (m *mockServer) getClient() (*repository.Client, func()) {
 	httpServer := m.getHTTPServer()
-	config := gotransip.ClientConfiguration{DemoMode: true, URL: httpServer.URL}
+	config := gotransip.DemoClientConfiguration
+	config.URL = httpServer.URL
 	client, err := gotransip.NewClient(config)
 	require.NoError(m.t, err)
 
