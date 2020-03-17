@@ -46,7 +46,7 @@ type ProductElementsResponse struct {
 // ProductElement struct for ProductElement
 type ProductElement struct {
 	// Amount
-	Amount uint64 `json:"amount,omitempty"`
+	Amount int64 `json:"amount,omitempty"`
 	// Describes this product element
 	Description string `json:"description,omitempty"`
 	// Name of the product element

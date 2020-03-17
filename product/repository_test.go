@@ -82,7 +82,7 @@ func TestProductRepository_GetSpecificationsForProduct(t *testing.T) {
 
 	require.Equal(t, 2, len(all))
 	assert.Equal(t, "disk-size", all[1].Name)
-	assert.Equal(t, uint64(0x9600000), all[1].Amount)
+	assert.EqualValues(t, uint64(0x9600000), all[1].Amount)
 }
 
 func TestRepository_GetAllError(t *testing.T) {
