@@ -1,10 +1,10 @@
 package availabilityzone
 
 import (
-	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6"
+	"github.com/transip/gotransip/v6/rest"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -59,5 +59,5 @@ func TestRepository_GetAllError(t *testing.T) {
 	obj, err := repo.GetAll()
 	require.Error(t, err)
 	assert.Nil(t, obj)
-	assert.Equal(t, errors.New("errortest"), err)
+	assert.Equal(t, &rest.Error{Message: "errortest", StatusCode: 406}, err)
 }

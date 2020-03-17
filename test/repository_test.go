@@ -1,10 +1,10 @@
 package test
 
 import (
-	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6"
+	"github.com/transip/gotransip/v6/rest"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -51,5 +51,5 @@ func TestRepository_TestError(t *testing.T) {
 
 	err := repo.Test()
 	require.Error(t, err)
-	assert.Equal(t, errors.New("blablabla"), err)
+	assert.Equal(t, &rest.Error{Message: "blablabla", StatusCode: 409}, err)
 }

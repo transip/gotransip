@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6"
 	"github.com/transip/gotransip/v6/repository"
+	"github.com/transip/gotransip/v6/rest"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -178,7 +179,7 @@ func TestRepository_GetByDomainNameError(t *testing.T) {
 	domain, err := repo.GetByDomainName(domainName)
 	require.Error(t, err)
 	require.Empty(t, domain.Name)
-	assert.Equal(t, errors.New("Domain with name 'example2.com' not found"), err)
+	assert.Equal(t, &rest.Error{Message: "Domain with name 'example2.com' not found", StatusCode: 404}, err)
 }
 
 func TestRepository_Register(t *testing.T) {

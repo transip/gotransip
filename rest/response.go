@@ -2,15 +2,20 @@ package rest
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"time"
 )
 
-// RestError is used to unpack every error returned by the api contains
-type RestError struct {
+// Error is used to unpack every error returned by the api contains
+type Error struct {
 	// Message contains the error from the api as string
 	Message string `json:"error"`
+	// StatusCode contains a HTTP status code that the api server responded with
+	StatusCode int
+}
+
+func (e *Error) Error() string {
+	return e.Message
 }
 
 // Response will contain a body (which can be empty), status code and the Method
@@ -78,24 +83,10 @@ func (td *Date) UnmarshalJSON(input []byte) error {
 // ParseResponse will convert a Response struct to the given interface
 // on error it will pass this back
 // when the rest response has no body it will return without filling the dest variable
-// todo: look into specific types of errors
 func (r *Response) ParseResponse(dest interface{}) error {
 	// do response error checking
 	if !r.Method.StatusCodeOK(r.StatusCode) {
-		// there is no response content so we also don't need to parse it
-		if len(r.Body) == 0 {
-			return fmt.Errorf("error response without body from api server status code '%d'", r.StatusCode)
-		}
-
-		var errorResponse RestError
-		err := json.Unmarshal(r.Body, &errorResponse)
-		if err != nil {
-			// todo: look into error wrapping, nested errors
-			// todo: add http status code
-			return fmt.Errorf("response error could not be decoded, response = %s", string(r.Body))
-		}
-
-		return errors.New(errorResponse.Message)
+		return r.parseErrorResponse()
 	}
 
 	if len(r.Body) == 0 {
@@ -103,4 +94,30 @@ func (r *Response) ParseResponse(dest interface{}) error {
 	}
 
 	return json.Unmarshal(r.Body, &dest)
+}
+
+// parseErrorResponse tries to unmarshal the error response body
+// so we can return it to the user
+func (r *Response) parseErrorResponse() error {
+	// there is no response content so we also don't need to parse it
+	if len(r.Body) == 0 {
+		return &Error{
+			Message:    fmt.Sprintf("error response without body from api server status code '%d'", r.StatusCode),
+			StatusCode: r.StatusCode,
+		}
+	}
+
+	var errorResponse Error
+	err := json.Unmarshal(r.Body, &errorResponse)
+	if err != nil {
+		return &Error{
+			Message:    fmt.Sprintf("response error could not be decoded '%s'", string(r.Body)),
+			StatusCode: r.StatusCode,
+		}
+	}
+
+	// set the exposed status code so users can check on this
+	errorResponse.StatusCode = r.StatusCode
+
+	return &errorResponse
 }

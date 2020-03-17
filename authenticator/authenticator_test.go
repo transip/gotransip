@@ -98,7 +98,9 @@ func TestAuthenticationErrorIsReturned(t *testing.T) {
 
 	_, err = authenticator.requestNewToken()
 	require.Error(t, err)
-	assert.Equal(t, errors.New("Authentication failed, API is not enabled for customer"), err)
+
+	err = errors.Unwrap(err)
+	assert.Equal(t, "Authentication failed, API is not enabled for customer", err.Error())
 }
 
 func TestAuthenticator_ReturnsSigningError(t *testing.T) {

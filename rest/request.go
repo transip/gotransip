@@ -17,14 +17,14 @@ const (
 type Request struct {
 	// Endpoint is the api endpoint, without the server, which we will receive the request,
 	// like: '/products'
-	Endpoint   string
+	Endpoint string
 	// Parameters is a map of strings (url.Values) that will be used to add
 	// http query strings to the request, like '/domains?tags=123'
 	Parameters url.Values
 	// Body is left as an interface because the Request does not know which
-	Body       interface{}
+	Body interface{}
 	// TestMode is used when users want to tinker with the api without touching their real data
-	TestMode   bool
+	TestMode bool
 }
 
 // GetJsonBody returns the request object as a json byte array

@@ -43,7 +43,7 @@ type TransipAuthenticator struct {
 	// this would be the auth path, thus where we will get new tokens from
 	// todo: add a test to check if this is actually set
 	BasePath string
-	// this would be the acount name of customer
+	// this would be the account name of customer
 	Login string
 	// When this is set to true the requested tokens can only be used with the 'ip' we are requesting with
 	// todo: check if token request is correct when this is set
@@ -113,7 +113,7 @@ func (a *TransipAuthenticator) requestNewToken() (jwt.Token, error) {
 
 	httpResponse, err := a.HTTPClient.Do(httpRequest)
 	if err != nil {
-		return jwt.Token{}, fmt.Errorf("request error: %w", err)
+		return jwt.Token{}, fmt.Errorf("error requesting token: %w", err)
 	}
 
 	defer httpResponse.Body.Close()
@@ -121,7 +121,7 @@ func (a *TransipAuthenticator) requestNewToken() (jwt.Token, error) {
 	// read entire response body
 	b, err := ioutil.ReadAll(httpResponse.Body)
 	if err != nil {
-		return jwt.Token{}, err
+		return jwt.Token{}, fmt.Errorf("error requesting token: %w", err)
 	}
 
 	restResponse := rest.Response{
@@ -133,7 +133,7 @@ func (a *TransipAuthenticator) requestNewToken() (jwt.Token, error) {
 	var tokenToReturn tokenResponse
 	err = restResponse.ParseResponse(&tokenToReturn)
 	if err != nil {
-		return jwt.Token{}, err
+		return jwt.Token{}, fmt.Errorf("error requesting token: %w", err)
 	}
 
 	return jwt.New(tokenToReturn.Token)

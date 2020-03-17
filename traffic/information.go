@@ -4,13 +4,13 @@ import (
 	"github.com/transip/gotransip/v6/rest"
 )
 
-// this struct will be used to unmarshal it only contains a TrafficInformation struct in it
-type trafficWrapper struct {
-	TrafficInformation TrafficInformation `json:"trafficInformation"`
+// this struct will be used to unmarshal it only contains a Information struct in it
+type wrapper struct {
+	TrafficInformation Information `json:"trafficInformation"`
 }
 
-// TrafficInformation struct for TrafficInformation
-type TrafficInformation struct {
+// Information struct for Information
+type Information struct {
 	// The end date in 'Y-m-d' format
 	EndDate rest.Date `json:"endDate"`
 	// The maximum amount of bytes that can be used in this period

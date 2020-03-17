@@ -2,7 +2,6 @@ package rest
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"testing"
@@ -23,20 +22,20 @@ func TestResponseParsing(t *testing.T) {
 }
 
 func TestErrorResponse(t *testing.T) {
-	error := RestError{Message: "this should be returned"}
-	data, err := json.Marshal(error)
+	e := Error{Message: "this should be returned"}
+	data, err := json.Marshal(e)
 	assert.NoError(t, err)
 
 	restResponse := Response{Body: data, StatusCode: 406, Method: GetMethod}
 
 	err = restResponse.ParseResponse(nil)
 	require.Error(t, err)
-	assert.Equal(t, errors.New("this should be returned"), err)
+	assert.Equal(t, &Error{Message: "this should be returned", StatusCode: 406}, err)
 
 	restResponse.Body = []byte{0x41}
 	err = restResponse.ParseResponse(nil)
 	require.Error(t, err)
-	assert.Equal(t, errors.New("response error could not be decoded, response = A"), err)
+	assert.Equal(t, &Error{Message: "response error could not be decoded 'A'", StatusCode: 406}, err)
 }
 
 func TestEmptyResponse(t *testing.T) {
@@ -54,7 +53,7 @@ func TestEmptyErrorResponse(t *testing.T) {
 
 	err := restResponse.ParseResponse(nil)
 	require.Error(t, err)
-	assert.Equal(t, errors.New("error response without body from api server status code '500'"), err)
+	assert.Equal(t, &Error{Message: "error response without body from api server status code '500'", StatusCode: 500}, err)
 }
 
 func TestResponseDateParsing(t *testing.T) {

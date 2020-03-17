@@ -1,11 +1,11 @@
 package invoice
 
 import (
-	"errors"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6"
+	"github.com/transip/gotransip/v6/rest"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -105,7 +105,7 @@ func TestRepository_GetAllError(t *testing.T) {
 	all, err := repo.GetAll()
 	require.Error(t, err)
 	require.Nil(t, all)
-	assert.Equal(t, errors.New("errortest"), err)
+	assert.Equal(t, &rest.Error{Message: "errortest", StatusCode: 500}, err)
 }
 
 func TestRepository_GetByInvoiceNumber(t *testing.T) {
@@ -134,7 +134,7 @@ func TestRepository_GetByInvoiceNumberError(t *testing.T) {
 	all, err := repo.GetByInvoiceNumber(invoiceNumber)
 	require.Error(t, err)
 	require.Empty(t, all.InvoiceNumber)
-	assert.Equal(t, errors.New("Invoice with number 'F0000.1911.0000.0004' not found"), err)
+	assert.Equal(t, &rest.Error{Message: "Invoice with number 'F0000.1911.0000.0004' not found", StatusCode: 404}, err)
 }
 
 func TestRepository_GetInvoiceItems(t *testing.T) {
@@ -169,7 +169,7 @@ func TestRepository_GetInvoiceItemsError(t *testing.T) {
 	all, err := repo.GetInvoiceItems(invoiceNumber)
 	require.Error(t, err)
 	require.Nil(t, all)
-	assert.Equal(t, errors.New("Invoice with number 'F0000.1911.0000.0004' not found"), err)
+	assert.Equal(t, &rest.Error{Message: "Invoice with number 'F0000.1911.0000.0004' not found", StatusCode: 404}, err)
 }
 
 func TestRepository_GetInvoicePdf(t *testing.T) {
@@ -196,5 +196,5 @@ func TestRepository_GetInvoicePdfError(t *testing.T) {
 	pdf, err := repo.GetInvoicePdf(invoiceNumber)
 	require.Error(t, err)
 	require.Empty(t, pdf.Content)
-	assert.Equal(t, errors.New("Invoice with number 'F0000.1911.0000.0004' not found"), err)
+	assert.Equal(t, &rest.Error{Message: "Invoice with number 'F0000.1911.0000.0004' not found", StatusCode: 404}, err)
 }

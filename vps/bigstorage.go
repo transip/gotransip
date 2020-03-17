@@ -32,11 +32,11 @@ type BigStorageStatus string
 // define all of the possible bigstorage backup statuses
 const (
 	// BigStorageStatusActive is the status field for an active BigStorage, ready to use
-	BigStorageStatusActive BigStorageStatus ="active"
+	BigStorageStatusActive BigStorageStatus = "active"
 	// BigStorageStatusAttaching is the status field for a BigStorage that is being attached to a vps
-	BigStorageStatusAttaching BigStorageStatus ="attaching"
+	BigStorageStatusAttaching BigStorageStatus = "attaching"
 	// BigStorageStatusDetaching is the status field for a BigStorage that is being detached from a vps
-	BigStorageStatusDetaching BigStorageStatus ="detaching"
+	BigStorageStatusDetaching BigStorageStatus = "detaching"
 )
 
 // BigStorage struct for BigStorage

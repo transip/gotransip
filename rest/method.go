@@ -13,7 +13,7 @@ type Method struct {
 
 var (
 	// GetMethod is a wrapper with expected status codes around the HTTP "GET" method
-	GetMethod = Method{Method: "GET", ExpectedStatusCodes: []int{200, 200}}
+	GetMethod = Method{Method: "GET", ExpectedStatusCodes: []int{200}}
 	// PostMethod is a wrapper with expected status codes around the HTTP "POST" method
 	PostMethod = Method{Method: "POST", ExpectedStatusCodes: []int{200, 201}}
 	// PutMethod is a wrapper with expected status codes around the HTTP "PUT" method

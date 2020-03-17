@@ -1,10 +1,10 @@
 package product
 
 import (
-	"errors"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6"
+	"github.com/transip/gotransip/v6/rest"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -71,7 +71,6 @@ func TestRepository_GetAll(t *testing.T) {
 	assert.Equal(t, "This is an example product", all.Vps[0].Description)
 	assert.Equal(t, 499, all.Vps[0].Price)
 	assert.Equal(t, 799, all.Vps[0].RecurringPrice)
-
 }
 
 func TestProductRepository_GetSpecificationsForProduct(t *testing.T) {
@@ -93,5 +92,5 @@ func TestRepository_GetAllError(t *testing.T) {
 	products, err := repo.GetAll()
 	require.Error(t, err)
 	assert.Nil(t, products.Vps)
-	assert.Equal(t, errors.New("errortest"), err)
+	assert.Equal(t, &rest.Error{Message: "errortest", StatusCode: 409}, err)
 }
