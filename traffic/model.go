@@ -4,11 +4,6 @@ import (
 	"github.com/transip/gotransip/v6/rest"
 )
 
-// Traffic struct for Traffic
-type Traffic struct {
-	Traffic TrafficInformation `json:"trafficInformation"`
-}
-
 // this struct will be used to unmarshal it only contains a TrafficInformation struct in it
 type trafficWrapper struct {
 	TrafficInformation TrafficInformation `json:"trafficInformation"`

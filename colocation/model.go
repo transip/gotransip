@@ -61,15 +61,3 @@ type RemoteHandsRequest struct {
 	// The instructions for the datacenter engineer to perform
 	Instructions string `json:"instructions,omitempty"`
 }
-
-// DataCenterVisitor struct for DataCenterVisitor
-type DataCenterVisitor struct {
-	// The accesscode of the visitor.
-	AccessCode string `json:"accessCode"`
-	// True iff this visitor been registered before at the datacenter. If true, does not need the accesscode
-	HasBeenRegisteredBefore string `json:"hasBeenRegisteredBefore"`
-	// The name of the visitor
-	Name string `json:"name"`
-	// The reservation number of the visitor.
-	ReservationNumber string `json:"reservationNumber"`
-}

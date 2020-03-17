@@ -439,12 +439,6 @@ type Backup struct {
 	AvailabilityZone string `json:"availabilityZone"`
 }
 
-// Snapshots struct for Snapshots
-type Snapshots struct {
-	// The snapshot creation date
-	Snapshots []Snapshot `json:"snapshots,omitempty"`
-}
-
 // Snapshot struct for Snapshot
 type Snapshot struct {
 	// The snapshot creation date
@@ -459,12 +453,6 @@ type Snapshot struct {
 	OperatingSystem string `json:"operatingSystem,omitempty"`
 	// The snapshot status ('active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving')
 	Status SnapshotStatus `json:"status,omitempty"`
-}
-
-// OperatingSystems struct for OperatingSystems
-type OperatingSystems struct {
-	// OperatingSystems
-	OperatingSystems string `json:"operatingSystems,omitempty"`
 }
 
 // OperatingSystem struct for OperatingSystem
@@ -486,9 +474,4 @@ type Usage struct {
 	Cpu     []VpsUsageDataCpu     `json:"cpu"`
 	Disk    []UsageDataDisk       `json:"disk"`
 	Network []VpsUsageDataNetwork `json:"network"`
-}
-
-// Upgrades struct for Upgrades
-type Upgrades struct {
-	Upgrades []product.Product `json:"upgrades"`
 }

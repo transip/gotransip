@@ -23,12 +23,6 @@ type Products struct {
 	VpsAddon []Product `json:"vpsAddon,omitempty"`
 }
 
-// Elements struct for Elements
-type Elements struct {
-	// different elements for a product with the amount that it comes with
-	Elements []ProductElement `json:"elements"`
-}
-
 // Product struct for Product
 type Product struct {
 	// Describes this product

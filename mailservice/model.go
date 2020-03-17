@@ -25,8 +25,3 @@ type MailServiceInformation struct {
 	// The username of the mail service
 	Username string `json:"username,omitempty"`
 }
-
-// MailService struct for MailService
-type MailService struct {
-	MailServiceInformation MailServiceInformation `json:"mailServiceInformation,omitempty"`
-}

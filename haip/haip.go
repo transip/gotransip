@@ -197,12 +197,3 @@ type PortConfiguration struct {
 	// The mode determining how traffic between our load balancers and your attached IP address(es) is encrypted: 'off', 'on', 'strict'
 	EndpointSslMode string `json:"endpointSslMode"`
 }
-
-// HaipIpAddressesResponse object contains a list of IPAddresses in it
-// used to unpack the rest response and return the encapsulated net.IPs
-// this is just used internal for unpacking, this should not be exported
-// we want to return net.IP objects not a HaipIpAddressesResponse
-type HaipIpAddressesResponse struct {
-	// Set of IP addresses to attach, replaces the current set of IP addresses
-	IpAddresses []net.IP `json:"ipAddresses,omitempty"`
-}
