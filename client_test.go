@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 	"testing"
 	"testing/iotest"
 
@@ -47,7 +48,7 @@ func TestNewClient(t *testing.T) {
 	cc.PrivateKeyReader = iotest.TimeoutReader(bytes.NewReader([]byte{0, 1}))
 	_, err = NewClient(cc)
 	require.Error(t, err)
-	assert.Equal(t, errors.New("error while reading private key: timeout"), err)
+	assert.EqualError(t, err, "error while reading private key: timeout")
 
 	cc.PrivateKeyReader = nil
 
@@ -59,7 +60,24 @@ func TestNewClient(t *testing.T) {
 	clientAuthenticator := client.GetAuthenticator()
 	config := client.GetConfig()
 	assert.NoError(t, err)
-	assert.Equal(t, pkBody, clientAuthenticator.GetPrivateKeyBody())
+	// Test if private key body is passed to the authenticator
+	assert.Equal(t, pkBody, clientAuthenticator.PrivateKeyBody)
+	// Test if the base url is passed to the authenticator
+	assert.Equal(t, config.URL, clientAuthenticator.BasePath)
+	// Test if the account name is passed on to the authenticator
+	assert.Equal(t, "foobar", clientAuthenticator.Login)
+
+	// Test if private key from path is read and passed to the authenticator
+	client, err = newClient(ClientConfiguration{PrivateKeyPath: "testdata/signature.key", AccountName: "example-user"})
+	require.NoError(t, err)
+	clientAuthenticator = client.GetAuthenticator()
+	privateKeyFile, err := os.Open("testdata/signature.key")
+	require.NoError(t, err)
+	privateKeyBody, err := ioutil.ReadAll(privateKeyFile)
+	require.NoError(t, err)
+
+	// Check if private key read from file is the same as the key body on the authenticator
+	assert.Equal(t, privateKeyBody, clientAuthenticator.PrivateKeyBody)
 
 	// Also, with no mode set, it should default to APIModeReadWrite
 	assert.Equal(t, APIModeReadWrite, config.Mode)
@@ -67,14 +85,16 @@ func TestNewClient(t *testing.T) {
 	assert.Equal(t, "https://api.transip.nl/v6", config.URL)
 	cc.PrivateKeyReader = nil
 
-	// override API mode to APIModeReadOnly
+	// Override API mode to APIModeReadOnly
 	cc.Mode = APIModeReadOnly
 	cc.Token = authenticator.DemoToken
 	client, err = newClient(cc)
 	clientAuthenticator = client.GetAuthenticator()
-	config = client.GetConfig()
 	assert.NoError(t, err)
-	assert.Equal(t, APIModeReadOnly, config.Mode)
+
+	// Assert that the api mode is set on the authenticator
+	assert.True(t, clientAuthenticator.ReadOnly)
+
 }
 
 func TestClientCallReturnsObject(t *testing.T) {

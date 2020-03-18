@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	// create new TransIP API SOAP client
+	// create new TransIP API client
 	file, err := os.Open("/path/to/api/private.key")
 	if err != nil {
 		panic(err.Error())
@@ -30,7 +30,7 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	vpsRepo := vps.Repository{Client:client}
+	vpsRepo := vps.Repository{Client: client}
 
 	// get list of VPSes
 	vpss, err := vpsRepo.GetAll()

@@ -28,11 +28,29 @@ var DemoClientConfiguration = ClientConfiguration{Token: authenticator.DemoToken
 
 // ClientConfiguration stores the configuration of the API client
 type ClientConfiguration struct {
-	AccountName      string
-	URL              string
+	// AccountName is the name of the account of the user, this is used in combination with a private key.
+	// When requesting a new token, the account name will be part of the token request body
+	AccountName string
+	// URL is set by default to the transip api server
+	// this is mainly used in tests to point to a mock server
+	URL string
+	// PrivateKeyPath is the filesystem location to the private key
+	PrivateKeyPath string
+	// For users that want the possibility to store their key elsewhere,
+	// not on a filesystem but on X datastore
 	PrivateKeyReader io.Reader
-	Token            string
-	TestMode         bool
-	HTTPClient       *http.Client
-	Mode             APIMode
+	// Token field gives users the option of providing their own acquired token,
+	// for example when generated in the transip control panel
+	Token string
+	// TestMode is used when users want to tinker with the api without touching their real data
+	TestMode bool
+	// optionally you can set your own HTTPClient
+	// to set extra non default settings
+	HTTPClient *http.Client
+	// APIMode specifies in which mode the API is used. Currently this is only
+	// supports either readonly or readwrite
+	Mode APIMode
+	// TokenCache is used to retrieve previously acquired tokens and saving new ones
+	// If not set we do not use a cache to store the tokens
+	TokenCache io.ReadWriter
 }

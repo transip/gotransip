@@ -50,7 +50,7 @@ func getFailedMockServer(t *testing.T) *httptest.Server {
 
 func TestAuthenticatorGetToken(t *testing.T) {
 	token := jwt.Token{ExpiryDate: time.Now().Unix() + 3600, RawToken: "123"}
-	authenticator := TransipAuthenticator{
+	authenticator := Authenticator{
 		Token:    token,
 		BasePath: "https://api.transip.nl",
 	}
@@ -66,7 +66,7 @@ func TestRequestANewToken(t *testing.T) {
 	key, err := ioutil.ReadFile("../testdata/signature.key")
 	require.NoError(t, err)
 
-	authenticator := TransipAuthenticator{
+	authenticator := Authenticator{
 		PrivateKeyBody: key,
 		BasePath:       server.URL,
 		Login:          "test-user",
@@ -87,7 +87,7 @@ func TestAuthenticationErrorIsReturned(t *testing.T) {
 	key, err := ioutil.ReadFile("../testdata/signature.key")
 	require.NoError(t, err)
 
-	authenticator := TransipAuthenticator{
+	authenticator := Authenticator{
 		PrivateKeyBody: key,
 		BasePath:       server.URL,
 		Login:          "test-user",
@@ -104,7 +104,7 @@ func TestAuthenticationErrorIsReturned(t *testing.T) {
 }
 
 func TestAuthenticator_ReturnsSigningError(t *testing.T) {
-	authenticator := TransipAuthenticator{
+	authenticator := Authenticator{
 		PrivateKeyBody: []byte{0x00},
 		Login:          "test-user",
 		HTTPClient:     http.DefaultClient,
@@ -116,7 +116,7 @@ func TestAuthenticator_ReturnsSigningError(t *testing.T) {
 }
 
 func TestAuthenticator_HttpRequestMarshalingError(t *testing.T) {
-	authenticator := TransipAuthenticator{
+	authenticator := Authenticator{
 		PrivateKeyBody: []byte{0x00},
 		Login:          "test-user",
 		HTTPClient:     http.DefaultClient,
@@ -128,7 +128,7 @@ func TestAuthenticator_HttpRequestMarshalingError(t *testing.T) {
 }
 
 func TestAuthenticator_GetTokenNoPrivateKey(t *testing.T) {
-	authenticator := TransipAuthenticator{}
+	authenticator := Authenticator{}
 	_, err := authenticator.GetToken()
 
 	require.Error(t, err)
@@ -149,7 +149,7 @@ func TestNonceIsNotStatic(t *testing.T) {
 }
 
 func TestAuthenticator_getAuthRequest(t *testing.T) {
-	authenticator := TransipAuthenticator{
+	authenticator := Authenticator{
 		BasePath:    "http://api.transip.nl/v6",
 		Login:       "test-user",
 		Whitelisted: true,
@@ -161,9 +161,9 @@ func TestAuthenticator_getAuthRequest(t *testing.T) {
 
 	require.NoError(t, err)
 	stringBody := string(body)
+
 	assert.Contains(t, stringBody, `{"login":"test-user",`)
 	assert.Contains(t, stringBody, fmt.Sprintf(`"label":"gotransip-client-%d"`, time.Now().Unix()))
-	// "read_only":true,"expiration_time":1584115100,"global_key":true
 	assert.Contains(t, stringBody, `"read_only":true,`)
 	assert.Contains(t, stringBody, `"global_key":true}`)
 	assert.Contains(t, stringBody, fmt.Sprintf(`"expiration_time":%d,`, time.Now().Unix()+86400), fmt.Sprintf(`"expiration_time":%d,`, time.Now().Unix()+86400))
@@ -208,7 +208,7 @@ func TestIfGetNonceIsThreadSafe(t *testing.T) {
 }
 
 func getNoncesFromAuthenticator() [amountOfNoncesToGet]string {
-	authenticator := TransipAuthenticator{}
+	authenticator := Authenticator{}
 	var nonces [amountOfNoncesToGet]string
 
 	for i := 0; i < amountOfNoncesToGet; i++ {

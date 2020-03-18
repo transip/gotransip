@@ -9,6 +9,7 @@ import (
 	"github.com/transip/gotransip/v6/rest"
 	"io/ioutil"
 	"net/http"
+	"os"
 )
 
 // client manages communication with the TransIP API
@@ -24,7 +25,7 @@ type client struct {
 	// - checking if the token is not expired yet
 	// - creating an authentication request
 	// - requesting and setting a new token
-	authenticator authenticator.Authenticator
+	authenticator *authenticator.Authenticator
 }
 
 // NewClient creates a new API client.
@@ -49,6 +50,17 @@ func newClient(config ClientConfiguration) (*client, error) {
 		return &client{}, errors.New("AccountName is required")
 	}
 
+	// if a private key path is specified and a private key reader is not we
+	// fill the private key reader with a opened file on the given PrivateKeyPath
+	if len(config.PrivateKeyPath) > 0 && config.PrivateKeyReader == nil {
+		privateKeyFile, err := os.Open(config.PrivateKeyPath)
+		config.PrivateKeyReader = privateKeyFile
+
+		if err != nil {
+			return &client{}, fmt.Errorf("error while opening private key file: %w", err)
+		}
+	}
+
 	// check if token or private key is set
 	if len(config.Token) == 0 && config.PrivateKeyReader == nil {
 		return &client{}, errors.New("PrivateKeyReader, token or PrivateKeyReader is required")
@@ -59,7 +71,7 @@ func newClient(config ClientConfiguration) (*client, error) {
 		privateKeyBody, err = ioutil.ReadAll(config.PrivateKeyReader)
 
 		if err != nil {
-			return &client{}, fmt.Errorf("error while reading private key: %s", err.Error())
+			return &client{}, fmt.Errorf("error while reading private key: %w", err)
 		}
 	}
 
@@ -83,8 +95,16 @@ func newClient(config ClientConfiguration) (*client, error) {
 	}
 
 	return &client{
-		authenticator: &authenticator.TransipAuthenticator{PrivateKeyBody: privateKeyBody, Token: token, HTTPClient: config.HTTPClient},
-		config:        config,
+		authenticator: &authenticator.Authenticator{
+			Login:          config.AccountName,
+			PrivateKeyBody: privateKeyBody,
+			Token:          token,
+			HTTPClient:     config.HTTPClient,
+			TokenCache:     config.TokenCache,
+			BasePath:       config.URL,
+			ReadOnly:		config.Mode == APIModeReadOnly,
+		},
+		config: config,
 	}, nil
 }
 
@@ -97,7 +117,8 @@ func (c *client) call(method rest.Method, request rest.Request, result interface
 		return fmt.Errorf("could not get token from authenticator %s", err.Error())
 	}
 
-	// if test mode is enabled we always want to change rest requests to return a test mode
+	// if test mode is enabled we always want to change rest requests to add a HTTP test=1 query string
+	// to a HTTP request
 	if c.config.TestMode {
 		request.TestMode = true
 	}
@@ -144,35 +165,35 @@ func (c *client) GetConfig() ClientConfiguration {
 
 // Allow modification of underlying config for alternate implementations and testing
 // Caution: modifying the configuration while live can cause data races and potentially unwanted behavior
-func (c *client) GetAuthenticator() authenticator.Authenticator {
+func (c *client) GetAuthenticator() *authenticator.Authenticator {
 	return c.authenticator
 }
 
-// This method that executes a http Get request
+// This method will create and execute a http Get request
 func (c *client) Get(request rest.Request, responseObject interface{}) error {
 	return c.call(rest.GetMethod, request, responseObject)
 }
 
-// This method that executes a http Post request
-// It expects no response, that is why it does not return one
+// This method will create and execute a http Post request
+// It expects no response, that is why it does not ask for a responseObject
 func (c *client) Post(request rest.Request) error {
 	return c.call(rest.PostMethod, request, nil)
 }
 
-// This method that executes a http Put request
-// It expects no response, that is why it does not return one
+// This method will create and execute a http Put request
+// It expects no response, that is why it does not ask for a responseObject
 func (c *client) Put(request rest.Request) error {
 	return c.call(rest.PutMethod, request, nil)
 }
 
-// This method that executes a http Delete request
-// It expects no response, that is why it does not return one
+// This method will create and execute a http Delete request
+// It expects no response, that is why it does not ask for a responseObject
 func (c *client) Delete(request rest.Request) error {
 	return c.call(rest.DeleteMethod, request, nil)
 }
 
-// This method that executes a http Patch request
-// It expects no response, that is why it does not return one
+// This method will create and execute a http Patch request
+// It expects no response, that is why it does not ask for a responseObject
 func (c *client) Patch(request rest.Request) error {
 	return c.call(rest.PatchMethod, request, nil)
 }
