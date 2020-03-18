@@ -25,6 +25,6 @@ func TestSignWithKey(t *testing.T) {
 	signature, err := signWithKey(bodyToSign, []byte(key))
 	require.NoError(t, err)
 
-	fixture := "MjUq83SdzBrT4yqoEv5qQj5GOjC6xjnvj8wm6%2FQ5LWxNeQSc9yl8n44vE4mw0XkiL%2FRyKj1fJxoMu2lgw%2B7Wn5J7aTcHGiURbJksW%2BR1GyVU5czy9D9L3ZehfZbKkED4pCwMhsjLTUlbaLRN%2FKjgJjdTH76C6uJFJBNYCGH0FDQe0TTy8JTaIFX6OLU%2FOFywasffrmnn%2F7kR1ue0hjb5ghfoMcQg55klYsbUihprdWPerjMsMY%2B2QUClTVpfG%2FkBFDwLn1A6ViWCF9O9yWM8nOxFmBIjQnNrFkwwBU5jMbVL6eUaizd%2FemOBsCe1XWN%2B0Unx5Ph9vyQzh86PpxvV7Q%3D%3D"
+	fixture := "TKjrjkdRqJLTQJI9QtI3JETV554bnrCmWUbUNdpUg/9OwOYHmtK76gjGs5nyWHVgOBHO9KZ15bCjkup/mzZP2sBnUtqfXxqXBfSh6bn/7a/1gOJzK71RtO84S0q1x7+DGago1OuYSMOdj8mgEMBUtY4aHHpHEy7eCahsCJCTEfMUb05Cq87mhE4XrjjGN2BJ8tEHPMxpWHjEtX1Z8uyaL0XY5l6dBmy1QP+ChyISrNe1n3gYZs9tyyPA9vgW+TqEVgq7mHL8l+g2Va1BwxR+rChoa5gTiJcA9fKJ8evVIBfcocXjRduMFzQW/SMp/yp3I4P7J0lUO0vDWVjEO8LX4A=="
 	assert.Equal(t, fixture, signature)
 }

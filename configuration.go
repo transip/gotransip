@@ -51,6 +51,6 @@ type ClientConfiguration struct {
 	// supports either readonly or readwrite
 	Mode APIMode
 	// TokenCache is used to retrieve previously acquired tokens and saving new ones
-	// If not set we do not use a cache to store the tokens
-	TokenCache io.ReadWriter
+	// If not set we do not use a cache to store the new acquired tokens
+	TokenCache authenticator.TokenCache
 }

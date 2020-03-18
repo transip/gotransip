@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
-	"sync"
 	"testing"
 	"time"
 )
@@ -151,7 +150,7 @@ func TestNonceIsNotStatic(t *testing.T) {
 func TestAuthenticator_getAuthRequest(t *testing.T) {
 	authenticator := Authenticator{
 		BasePath:    "http://api.transip.nl/v6",
-		Login:       "test-user",
+		Login:       "test-user1",
 		Whitelisted: true,
 		ReadOnly:    true,
 	}
@@ -162,49 +161,12 @@ func TestAuthenticator_getAuthRequest(t *testing.T) {
 	require.NoError(t, err)
 	stringBody := string(body)
 
-	assert.Contains(t, stringBody, `{"login":"test-user",`)
+	assert.Contains(t, stringBody, `{"login":"test-user1",`)
 	assert.Contains(t, stringBody, fmt.Sprintf(`"label":"gotransip-client-%d"`, time.Now().Unix()))
 	assert.Contains(t, stringBody, `"read_only":true,`)
-	assert.Contains(t, stringBody, `"global_key":true}`)
-	assert.Contains(t, stringBody, fmt.Sprintf(`"expiration_time":%d,`, time.Now().Unix()+86400), fmt.Sprintf(`"expiration_time":%d,`, time.Now().Unix()+86400))
+	assert.Contains(t, stringBody, `"global_key":false}`)
+	assert.Contains(t, stringBody, `"expiration_time":"1 day",`)
 	assert.Contains(t, stringBody, `"nonce":"`)
-}
-
-func TestIfGetNonceIsThreadSafe(t *testing.T) {
-	const amountOfThreadSafeNonceThreads = 100
-	var nonces [amountOfThreadSafeNonceThreads][amountOfNoncesToGet]string
-	var wg sync.WaitGroup
-
-	// get a list of nonces N=amountOfThreadSafeNonceThreads times
-	for i := 0; i < amountOfThreadSafeNonceThreads; i++ {
-		wg.Add(1)
-		go func(idx int) {
-			nonces[idx] = getNoncesFromAuthenticator()
-
-			defer wg.Done()
-		}(i)
-	}
-
-	wg.Wait()
-	var combinedNonces [amountOfThreadSafeNonceThreads * amountOfNoncesToGet]string
-	counter := 0
-	for i := 0; i < amountOfThreadSafeNonceThreads; i++ {
-		for _, nonce := range nonces[i] {
-			combinedNonces[counter] = nonce
-			counter++
-		}
-	}
-
-	// check if nonces are unique
-	for i, nonce := range combinedNonces {
-		for j, previousNonce := range combinedNonces {
-			if i == j {
-				continue
-			}
-
-			require.NotEqual(t, nonce, previousNonce, "duplicate nonce found")
-		}
-	}
 }
 
 func getNoncesFromAuthenticator() [amountOfNoncesToGet]string {
@@ -216,4 +178,10 @@ func getNoncesFromAuthenticator() [amountOfNoncesToGet]string {
 	}
 
 	return nonces
+}
+
+func TestAuthenticator_getTokenCacheKey(t *testing.T) {
+	authenticator := Authenticator{Login: "test"}
+
+	assert.Equal(t, "gotransip-client-test-token", authenticator.getTokenCacheKey())
 }

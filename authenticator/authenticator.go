@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/transip/gotransip/v6/jwt"
 	"github.com/transip/gotransip/v6/rest"
-	"io"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -19,7 +18,7 @@ const (
 	// customers are able to see this in their control panel
 	labelPrefix = "gotransip-client"
 	// a requested Token expires after a day
-	tokenExpirationDuration = time.Hour * 24
+	tokenExpiration = "1 day"
 	// DemoToken can be used to test with the api without using your own account
 	DemoToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImN3MiFSbDU2eDNoUnkjelM4YmdOIn0.eyJpc3MiOiJhcGkudHJhbnNpcC5ubCIsImF1ZCI6ImFwaS50cmFuc2lwLm5sIiwianRpIjoiY3cyIVJsNTZ4M2hSeSN6UzhiZ04iLCJpYXQiOjE1ODIyMDE1NTAsIm5iZiI6MTU4MjIwMTU1MCwiZXhwIjoyMTE4NzQ1NTUwLCJjaWQiOiI2MDQ0OSIsInJvIjpmYWxzZSwiZ2siOmZhbHNlLCJrdiI6dHJ1ZX0.fYBWV4O5WPXxGuWG-vcrFWqmRHBm9yp0PHiYh_oAWxWxCaZX2Rf6WJfc13AxEeZ67-lY0TA2kSaOCp0PggBb_MGj73t4cH8gdwDJzANVxkiPL1Saqiw2NgZ3IHASJnisUWNnZp8HnrhLLe5ficvb1D9WOUOItmFC2ZgfGObNhlL2y-AMNLT4X7oNgrNTGm-mespo0jD_qH9dK5_evSzS3K8o03gu6p19jxfsnIh8TIVRvNdluYC2wo4qDl5EW5BEZ8OSuJ121ncOT1oRpzXB0cVZ9e5_UVAEr9X3f26_Eomg52-PjrgcRJ_jPIUYbrlo06KjjX2h0fzMr21ZE023Gw"
 )
@@ -43,10 +42,10 @@ type Authenticator struct {
 	Whitelisted bool
 	// Whether or not we want to request read only Tokens, that can only only be used to retrieve information
 	// not to create, modify or delete it
-	ReadOnly   bool
+	ReadOnly bool
 	// TokenCache is used to retrieve previously acquired tokens and saving new ones
 	// If not set we do not use a cache to store the tokens
-	TokenCache io.ReadWriter
+	TokenCache TokenCache
 }
 
 // AuthRequest will be transformed and send in order to request a new Token
@@ -59,18 +58,25 @@ type AuthRequest struct {
 	// Custom name to give this Token, you can see your tokens in the transip control panel
 	Label string `json:"label,omitempty"`
 	// Enable read only mode
-	ReadOnly bool `json:"read_only,omitempty"`
+	ReadOnly bool `json:"read_only"`
 	// Unix time stamp of when this Token should expire
-	ExpirationTime int64 `json:"expiration_time,omitempty"`
+	ExpirationTime string `json:"expiration_time"`
 	// Whether this key can be used from everywhere, e.g should not be whitelisted to the current requesting ip
-	GlobalKey bool `json:"global_key,omitempty"`
+	GlobalKey bool `json:"global_key"`
 }
 
 // GetToken will return the current Token if it is not expired
 // if it is expired it will try to request a new Token, set and return that
 // on error it passes this back
-// todo: implement Token caching to io.Writer/Reader/Closer
 func (a *Authenticator) GetToken() (jwt.Token, error) {
+	// If token is not set, and we have a token cache,
+	// try to retrieve it from the token cache
+	if a.Token.ExpiryDate == 0 && a.TokenCache != nil {
+		if err := a.retrieveTokenFromCache(); err != nil {
+			return jwt.Token{}, err
+		}
+	}
+
 	if a.Token.Expired() && a.PrivateKeyBody == nil {
 		return jwt.Token{}, errors.New("token expired and no private key is set")
 	}
@@ -81,9 +87,37 @@ func (a *Authenticator) GetToken() (jwt.Token, error) {
 		if err != nil {
 			return jwt.Token{}, err
 		}
+
+		// if a TokenCache is set we want to write acquired tokens to the cache
+		if a.TokenCache != nil {
+			if err = a.TokenCache.Set(a.getTokenCacheKey(), []byte(a.Token.RawToken)); err != nil {
+				return jwt.Token{}, fmt.Errorf("error writing token to cache: %w", err)
+			}
+		}
 	}
 
 	return a.Token, nil
+}
+
+func (a *Authenticator) retrieveTokenFromCache() error {
+	// get the token from the cache
+	cachedToken, err := a.TokenCache.Get(a.getTokenCacheKey())
+	if err != nil {
+		return fmt.Errorf("error getting token from cache: %w", err)
+	}
+
+	// no token in cache, return no error as we can request a new one
+	if cachedToken == nil {
+		return nil
+	}
+
+	// try to parse the cached token
+	a.Token, err = jwt.New(string(cachedToken))
+	if err != nil {
+		return fmt.Errorf("error while parsing token from cache: %w", err)
+	}
+
+	return nil
 }
 
 // requestNewToken will request a new Token using the http client
@@ -159,12 +193,17 @@ func (a *Authenticator) getAuthRequest() rest.Request {
 		Nonce:          a.getNonce(),
 		Label:          fmt.Sprintf("%s-%d", labelPrefix, labelPostFix),
 		ReadOnly:       a.ReadOnly,
-		ExpirationTime: time.Now().Add(tokenExpirationDuration).Unix(),
-		GlobalKey:      a.Whitelisted,
+		ExpirationTime: tokenExpiration,
+		GlobalKey:      !a.Whitelisted,
 	}
 
 	return rest.Request{
 		Endpoint: "/auth",
 		Body:     authRequest,
 	}
+}
+
+// getTokenCacheKey returns a name for the given Login and our authenticator name
+func (a *Authenticator) getTokenCacheKey() string {
+	return fmt.Sprintf("%s-%s-token", labelPrefix, a.Login)
 }

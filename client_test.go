@@ -76,6 +76,14 @@ func TestNewClient(t *testing.T) {
 	privateKeyBody, err := ioutil.ReadAll(privateKeyFile)
 	require.NoError(t, err)
 
+	// Test that a tokencache is passed to the authenticator
+	defer os.Remove("/tmp/gotransip_test_token_cache")
+	cache, err := authenticator.NewFileTokenCache("/tmp/gotransip_test_token_cache")
+	client, err = newClient(ClientConfiguration{PrivateKeyPath: "testdata/signature.key", AccountName: "example-user", TokenCache: cache})
+	clientAuthenticator = client.GetAuthenticator()
+	require.NotNil(t, clientAuthenticator.TokenCache)
+	assert.Equal(t, cache, clientAuthenticator.TokenCache)
+
 	// Check if private key read from file is the same as the key body on the authenticator
 	assert.Equal(t, privateKeyBody, clientAuthenticator.PrivateKeyBody)
 
@@ -94,7 +102,6 @@ func TestNewClient(t *testing.T) {
 
 	// Assert that the api mode is set on the authenticator
 	assert.True(t, clientAuthenticator.ReadOnly)
-
 }
 
 func TestClientCallReturnsObject(t *testing.T) {

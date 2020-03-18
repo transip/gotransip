@@ -10,7 +10,6 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
-	"net/url"
 )
 
 var (
@@ -45,5 +44,5 @@ func signWithKey(body []byte, key []byte) (string, error) {
 		return "", fmt.Errorf("could not sign data: %w", err)
 	}
 
-	return url.QueryEscape(base64.StdEncoding.EncodeToString(enc)), nil
+	return base64.StdEncoding.EncodeToString(enc), nil
 }

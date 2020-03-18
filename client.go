@@ -8,8 +8,10 @@ import (
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"os"
+	"time"
 )
 
 // client manages communication with the TransIP API
@@ -94,6 +96,9 @@ func newClient(config ClientConfiguration) (*client, error) {
 		config.URL = basePath
 	}
 
+	// seed once in this client
+	rand.Seed(time.Now().UnixNano())
+
 	return &client{
 		authenticator: &authenticator.Authenticator{
 			Login:          config.AccountName,
@@ -102,7 +107,7 @@ func newClient(config ClientConfiguration) (*client, error) {
 			HTTPClient:     config.HTTPClient,
 			TokenCache:     config.TokenCache,
 			BasePath:       config.URL,
-			ReadOnly:		config.Mode == APIModeReadOnly,
+			ReadOnly:       config.Mode == APIModeReadOnly,
 		},
 		config: config,
 	}, nil
