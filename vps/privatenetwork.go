@@ -5,6 +5,7 @@ import (
 	"github.com/transip/gotransip/v6"
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
+	"net/url"
 )
 
 // PrivateNetworkRepository allows you to manage all private network api actions
@@ -25,8 +26,8 @@ type PrivateNetwork struct {
 	VpsNames []string `json:"vpsNames,omitempty"`
 }
 
-// GetPrivateNetworks returns a list of all your private networks
-func (r *PrivateNetworkRepository) GetPrivateNetworks() ([]PrivateNetwork, error) {
+// GetAll returns a list of all your private networks
+func (r *PrivateNetworkRepository) GetAll() ([]PrivateNetwork, error) {
 	var response privateNetworksWrapper
 	restRequest := rest.Request{Endpoint: "/private-networks"}
 	err := r.Client.Get(restRequest, &response)
@@ -34,8 +35,23 @@ func (r *PrivateNetworkRepository) GetPrivateNetworks() ([]PrivateNetwork, error
 	return response.PrivateNetworks, err
 }
 
-// GetPrivateNetworkByName allows you to get a specific PrivateNetwork by name
-func (r *PrivateNetworkRepository) GetPrivateNetworkByName(privateNetworkName string) (PrivateNetwork, error) {
+// GetSelection returns a limited list of private networks,
+// specify how many and which page/chunk of private networks you want to retrieve
+func (r *PrivateNetworkRepository) GetSelection(page int, itemsPerPage int) ([]PrivateNetwork, error) {
+	var response privateNetworksWrapper
+	params := url.Values{
+		"pageSize": []string{fmt.Sprintf("%d", itemsPerPage)},
+		"page":     []string{fmt.Sprintf("%d", page)},
+	}
+
+	restRequest := rest.Request{Endpoint: "/private-networks", Parameters: params}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.PrivateNetworks, err
+}
+
+// GetByName allows you to get a specific PrivateNetwork by name
+func (r *PrivateNetworkRepository) GetByName(privateNetworkName string) (PrivateNetwork, error) {
 	var response privateNetworkWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName)}
 	err := r.Client.Get(restRequest, &response)
@@ -43,42 +59,42 @@ func (r *PrivateNetworkRepository) GetPrivateNetworkByName(privateNetworkName st
 	return response.PrivateNetwork, err
 }
 
-// OrderPrivateNetwork allows you to order new private network with a given description
-func (r *PrivateNetworkRepository) OrderPrivateNetwork(description string) error {
+// Order allows you to order new private network with a given description
+func (r *PrivateNetworkRepository) Order(description string) error {
 	requestBody := privateNetworkOrderRequest{Description: description}
 	restRequest := rest.Request{Endpoint: "/private-networks", Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
 
-// UpdatePrivateNetwork allows you to update the private network
+// Update allows you to update the private network
 // you can change the description by changing the Description field
 // on the PrivateNetwork struct Updating it using this function
-func (r *PrivateNetworkRepository) UpdatePrivateNetwork(privateNetwork PrivateNetwork) error {
+func (r *PrivateNetworkRepository) Update(privateNetwork PrivateNetwork) error {
 	requestBody := privateNetworkWrapper{PrivateNetwork: privateNetwork}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetwork.Name), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
 
-// AttachVpsToPrivateNetwork allows you to attach a VPS to a PrivateNetwork
-func (r *PrivateNetworkRepository) AttachVpsToPrivateNetwork(vpsName string, privateNetworkName string) error {
+// AttachVps allows you to attach a VPS to a PrivateNetwork
+func (r *PrivateNetworkRepository) AttachVps(vpsName string, privateNetworkName string) error {
 	requestBody := privateNetworkActionwrapper{Action: "attachvps", VpsName: vpsName}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
 
-// DetachVpsFromPrivateNetwork allows you to detachvps a VPS from a PrivateNetwork
-func (r *PrivateNetworkRepository) DetachVpsFromPrivateNetwork(vpsName string, privateNetworkName string) error {
+// DetachVps allows you to detach a VPS from a PrivateNetwork
+func (r *PrivateNetworkRepository) DetachVps(vpsName string, privateNetworkName string) error {
 	requestBody := privateNetworkActionwrapper{Action: "detachvps", VpsName: vpsName}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
 
-// CancelPrivateNetwork allows you to cancel a private network
-func (r *PrivateNetworkRepository) CancelPrivateNetwork(privateNetworkName string, endTime gotransip.CancellationTime) error {
+// Cancel allows you to cancel a private network
+func (r *PrivateNetworkRepository) Cancel(privateNetworkName string, endTime gotransip.CancellationTime) error {
 	requestBody := gotransip.CancellationRequest{EndTime: endTime}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName), Body: &requestBody}
 

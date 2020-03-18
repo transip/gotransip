@@ -35,6 +35,21 @@ func (r *Repository) GetAllByTags(tags []string) ([]Vps, error) {
 	return response.Vpss, err
 }
 
+// GetSelection returns a limited list of VPSs,
+// specify how many and which page/chunk of VPSs you want to retrieve
+func (r *Repository) GetSelection(page int, itemsPerPage int) ([]Vps, error) {
+	var response vpssWrapper
+	params := url.Values{
+		"pageSize": []string{fmt.Sprintf("%d", itemsPerPage)},
+		"page":     []string{fmt.Sprintf("%d", page)},
+	}
+
+	restRequest := rest.Request{Endpoint: "/vps", Parameters: params}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Vpss, err
+}
+
 // GetByName returns information on a specific VPS by name
 func (r *Repository) GetByName(vpsName string) (Vps, error) {
 	var response vpsWrapper

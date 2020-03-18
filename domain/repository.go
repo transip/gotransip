@@ -29,6 +29,21 @@ func (r *Repository) GetAllByTags(tags []string) ([]Domain, error) {
 	return response.Domains, err
 }
 
+// GetSelection returns a limited list of all domains in your account,
+// specify how many and which page/chunk of domains you want to retrieve
+func (r *Repository) GetSelection(page int, itemsPerPage int) ([]Domain, error) {
+	var response domainsResponse
+	params := url.Values{
+		"pageSize": []string{fmt.Sprintf("%d", itemsPerPage)},
+		"page":     []string{fmt.Sprintf("%d", page)},
+	}
+
+	restRequest := rest.Request{Endpoint: "/domains", Parameters: params}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Domains, err
+}
+
 // GetByDomainName returns an object for specific domain name]
 // requires a domainName, for example: 'example.com'
 func (r *Repository) GetByDomainName(domainName string) (Domain, error) {

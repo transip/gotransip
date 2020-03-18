@@ -96,6 +96,35 @@ func TestRepository_GetAll(t *testing.T) {
 	all, err := repo.GetAll()
 	require.NoError(t, err)
 	assert.Equal(t, 1, len(all))
+
+	invoice := all[0]
+	assert.Equal(t, "F0000.1911.0000.0004", invoice.InvoiceNumber)
+	assert.Equal(t, "2020-01-01", invoice.CreationDate.Format("2006-01-02"))
+	assert.Equal(t, "2020-01-01", invoice.PayDate.Format("2006-01-02"))
+	assert.Equal(t, "2020-02-01", invoice.DueDate.Format("2006-01-02"))
+	assert.EqualValues(t, "waitsforpayment", invoice.InvoiceStatus)
+	assert.Equal(t, "EUR", invoice.Currency)
+	assert.Equal(t, 1000, invoice.TotalAmount)
+	assert.Equal(t, 1240, invoice.TotalAmountInclVat)
+}
+
+func TestRepository_GetSelection(t *testing.T) {
+	repo, tearDown := getRepository(t, "/invoices?page=1&pageSize=25", 200, invoicesApiResponse)
+	defer tearDown()
+
+	all, err := repo.GetSelection(1, 25)
+	require.NoError(t, err)
+	assert.Equal(t, 1, len(all))
+
+	invoice := all[0]
+	assert.Equal(t, "F0000.1911.0000.0004", invoice.InvoiceNumber)
+	assert.Equal(t, "2020-01-01", invoice.CreationDate.Format("2006-01-02"))
+	assert.Equal(t, "2020-01-01", invoice.PayDate.Format("2006-01-02"))
+	assert.Equal(t, "2020-02-01", invoice.DueDate.Format("2006-01-02"))
+	assert.EqualValues(t, "waitsforpayment", invoice.InvoiceStatus)
+	assert.Equal(t, "EUR", invoice.Currency)
+	assert.Equal(t, 1000, invoice.TotalAmount)
+	assert.Equal(t, 1240, invoice.TotalAmountInclVat)
 }
 
 func TestRepository_GetAllError(t *testing.T) {

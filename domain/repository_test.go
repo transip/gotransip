@@ -149,6 +149,27 @@ func TestRepository_GetAll(t *testing.T) {
 	assert.Equal(t, []string{"customTag", "anotherTag"}, all[0].Tags)
 }
 
+func TestRepository_GetSelection(t *testing.T) {
+	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/domains?page=1&pageSize=25", statusCode: 200, response: domainsAPIResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	all, err := repo.GetSelection(1, 25)
+	require.NoError(t, err)
+	require.Equal(t, 1, len(all))
+	assert.Equal(t, "example.com", all[0].Name)
+	assert.Equal(t, "kJqfuOXNOYQKqh/jO4bYSn54YDqgAt1ksCe+ZG4Ud", all[0].AuthCode)
+	assert.Equal(t, false, all[0].IsTransferLocked)
+	assert.Equal(t, "2016-01-01 00:00:00", all[0].RegistrationDate.Format("2006-01-02 15:04:05"))
+	assert.Equal(t, "2020-01-01 00:00:00", all[0].RenewalDate.Format("2006-01-02 15:04:05"))
+	assert.Equal(t, false, all[0].IsWhitelabel)
+	assert.Equal(t, "2020-01-01 12:00:00", all[0].CancellationDate.Format("2006-01-02 15:04:05"))
+	assert.Equal(t, "signed", all[0].CancellationStatus)
+	assert.Equal(t, false, all[0].IsDnsOnly)
+	assert.Equal(t, []string{"customTag", "anotherTag"}, all[0].Tags)
+}
+
 func TestRepository_GetAllByTags(t *testing.T) {
 	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/domains?tags=customTag", statusCode: 200, response: domainsAPIResponse}
 	client, tearDown := server.getClient()

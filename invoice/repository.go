@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
+	"net/url"
 )
 
 // Repository can be used to get a list of your invoices, invoice subitems (a specific product)
@@ -14,6 +15,21 @@ type Repository repository.RestRepository
 func (r *Repository) GetAll() ([]Invoice, error) {
 	var response invoicesResponse
 	restRequest := rest.Request{Endpoint: "/invoices"}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Invoices, err
+}
+
+// GetSelection returns a limited list of invoices,
+// specify how many and which page/chunk of invoices you want to retrieve
+func (r *Repository) GetSelection(page int, itemsPerPage int) ([]Invoice, error) {
+	var response invoicesResponse
+	params := url.Values{
+		"pageSize": []string{fmt.Sprintf("%d", itemsPerPage)},
+		"page":     []string{fmt.Sprintf("%d", page)},
+	}
+
+	restRequest := rest.Request{Endpoint: "/invoices", Parameters: params}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Invoices, err

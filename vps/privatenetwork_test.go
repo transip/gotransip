@@ -14,7 +14,7 @@ func TestPrivateNetworkRepository_GetPrivateNetworks(t *testing.T) {
 	defer tearDown()
 	repo := PrivateNetworkRepository{Client: *client}
 
-	all, err := repo.GetPrivateNetworks()
+	all, err := repo.GetAll()
 	require.NoError(t, err)
 	require.Equal(t, 1, len(all))
 
@@ -24,7 +24,25 @@ func TestPrivateNetworkRepository_GetPrivateNetworks(t *testing.T) {
 	assert.Equal(t, false, all[0].IsLocked)
 
 	assert.Equal(t, []string{"example-vps", "example-vps2"}, all[0].VpsNames)
+}
 
+func TestPrivateNetworkRepository_GetSelection(t *testing.T) {
+	const apiResponse = `{ "privateNetworks": [ { "name": "example-privatenetwork", "description": "FilesharingNetwork", "isBlocked": false, "isLocked": false, "vpsNames": [ "example-vps", "example-vps2" ] } ] } `
+	server := mockServer{t: t, expectedUrl: "/private-networks?page=1&pageSize=25", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := PrivateNetworkRepository{Client: *client}
+
+	all, err := repo.GetSelection(1, 25)
+	require.NoError(t, err)
+	require.Equal(t, 1, len(all))
+
+	assert.Equal(t, "example-privatenetwork", all[0].Name)
+	assert.Equal(t, "FilesharingNetwork", all[0].Description)
+	assert.Equal(t, false, all[0].IsBlocked)
+	assert.Equal(t, false, all[0].IsLocked)
+
+	assert.Equal(t, []string{"example-vps", "example-vps2"}, all[0].VpsNames)
 }
 
 func TestPrivateNetworkRepository_GetPrivateNetworkByName(t *testing.T) {
@@ -34,7 +52,7 @@ func TestPrivateNetworkRepository_GetPrivateNetworkByName(t *testing.T) {
 	defer tearDown()
 	repo := PrivateNetworkRepository{Client: *client}
 
-	privateNetwork, err := repo.GetPrivateNetworkByName("example-privatenetwork")
+	privateNetwork, err := repo.GetByName("example-privatenetwork")
 	require.NoError(t, err)
 	assert.Equal(t, "example-privatenetwork", privateNetwork.Name)
 	assert.Equal(t, "FilesharingNetwork", privateNetwork.Description)
@@ -51,7 +69,7 @@ func TestPrivateNetworkRepository_OrderPrivateNetwork(t *testing.T) {
 	defer tearDown()
 	repo := PrivateNetworkRepository{Client: *client}
 
-	err := repo.OrderPrivateNetwork("test123")
+	err := repo.Order("test123")
 	require.NoError(t, err)
 }
 
@@ -70,7 +88,7 @@ func TestPrivateNetworkRepository_UpdatePrivateNetwork(t *testing.T) {
 		VpsNames:    []string{"example-vps", "example-vps2"},
 	}
 
-	err := repo.UpdatePrivateNetwork(privateNetwork)
+	err := repo.Update(privateNetwork)
 	require.NoError(t, err)
 }
 
@@ -81,7 +99,7 @@ func TestPrivateNetworkRepository_AttachVpsToPrivateNetwork(t *testing.T) {
 	defer tearDown()
 	repo := PrivateNetworkRepository{Client: *client}
 
-	err := repo.AttachVpsToPrivateNetwork("example-vps", "example-privatenetwork")
+	err := repo.AttachVps("example-vps", "example-privatenetwork")
 	require.NoError(t, err)
 }
 
@@ -92,7 +110,7 @@ func TestPrivateNetworkRepository_DetachVpsFromPrivateNetwork(t *testing.T) {
 	defer tearDown()
 	repo := PrivateNetworkRepository{Client: *client}
 
-	err := repo.DetachVpsFromPrivateNetwork("example-vps", "example-privatenetwork")
+	err := repo.DetachVps("example-vps", "example-privatenetwork")
 	require.NoError(t, err)
 }
 
@@ -103,6 +121,6 @@ func TestPrivateNetworkRepository_CancelPrivateNetwork(t *testing.T) {
 	defer tearDown()
 	repo := PrivateNetworkRepository{Client: *client}
 
-	err := repo.CancelPrivateNetwork("example-privatenetwork", gotransip.CancellationTimeEnd)
+	err := repo.Cancel("example-privatenetwork", gotransip.CancellationTimeEnd)
 	require.NoError(t, err)
 }

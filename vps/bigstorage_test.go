@@ -16,7 +16,28 @@ func TestBigStorageRepository_GetBigStorages(t *testing.T) {
 	defer tearDown()
 	repo := BigStorageRepository{Client: *client}
 
-	all, err := repo.GetBigStorages()
+	all, err := repo.GetAll()
+	require.NoError(t, err)
+	require.Equal(t, 1, len(all))
+
+	assert.Equal(t, "example-bigstorage", all[0].Name)
+	assert.Equal(t, "Big storage description", all[0].Description)
+	assert.EqualValues(t, 2147483648, all[0].DiskSize)
+	assert.Equal(t, true, all[0].OffsiteBackups)
+	assert.Equal(t, "example-vps", all[0].VpsName)
+	assert.EqualValues(t, "active", all[0].Status)
+	assert.Equal(t, false, all[0].IsLocked)
+	assert.Equal(t, "ams0", all[0].AvailabilityZone)
+}
+
+func TestBigStorageRepository_GetSelection(t *testing.T) {
+	const apiResponse = `{ "bigStorages": [ { "name": "example-bigstorage", "description": "Big storage description", "diskSize": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0" } ] } `
+	server := mockServer{t: t, expectedUrl: "/big-storages?page=1&pageSize=25", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := BigStorageRepository{Client: *client}
+
+	all, err := repo.GetSelection(1, 25)
 	require.NoError(t, err)
 	require.Equal(t, 1, len(all))
 
@@ -37,7 +58,7 @@ func TestBigStorageRepository_GetBigStorageByName(t *testing.T) {
 	defer tearDown()
 	repo := BigStorageRepository{Client: *client}
 
-	bigstorage, err := repo.GetBigStorageByName("example-bigstorage")
+	bigstorage, err := repo.GetByName("example-bigstorage")
 	require.NoError(t, err)
 	assert.Equal(t, "example-bigstorage", bigstorage.Name)
 	assert.Equal(t, "Big storage description", bigstorage.Description)
@@ -57,7 +78,7 @@ func TestBigStorageRepository_OrderBigStorage(t *testing.T) {
 	repo := BigStorageRepository{Client: *client}
 
 	order := BigStorageOrder{Size: 8, OffsiteBackups: true, AvailabilityZone: "ams0", VpsName: "example-vps"}
-	err := repo.OrderBigStorage(order)
+	err := repo.Order(order)
 
 	require.NoError(t, err)
 }
@@ -69,7 +90,7 @@ func TestBigStorageRepository_UpgradeBigStorage(t *testing.T) {
 	defer tearDown()
 	repo := BigStorageRepository{Client: *client}
 
-	err := repo.UpgradeBigStorage("example-bigstorage", 8, true)
+	err := repo.Upgrade("example-bigstorage", 8, true)
 
 	require.NoError(t, err)
 }
@@ -91,7 +112,7 @@ func TestBigStorageRepository_UpdateBigStorage(t *testing.T) {
 		IsLocked:         false,
 		AvailabilityZone: "ams0",
 	}
-	err := repo.UpdateBigStorage(bigStorage)
+	err := repo.Update(bigStorage)
 
 	require.NoError(t, err)
 }
@@ -112,7 +133,7 @@ func TestBigStorageRepository_DetachVpsFromBigStorage(t *testing.T) {
 		IsLocked:         false,
 		AvailabilityZone: "ams0",
 	}
-	err := repo.AttachVpsToBigStorage("example-vps", bigStorage)
+	err := repo.AttachToVps("example-vps", bigStorage)
 	require.NoError(t, err)
 }
 
@@ -133,7 +154,7 @@ func TestBigStorageRepository_AttachVpsToBigStorage(t *testing.T) {
 		IsLocked:         false,
 		AvailabilityZone: "ams0",
 	}
-	err := repo.DetachVpsFromBigStorage(bigStorage)
+	err := repo.DetachFromVps(bigStorage)
 	require.NoError(t, err)
 }
 
@@ -144,7 +165,7 @@ func TestBigStorageRepository_CancelBigStorage(t *testing.T) {
 	defer tearDown()
 	repo := BigStorageRepository{Client: *client}
 
-	err := repo.CancelBigStorage("example-bigstorage", gotransip.CancellationTimeEnd)
+	err := repo.Cancel("example-bigstorage", gotransip.CancellationTimeEnd)
 	require.NoError(t, err)
 }
 
@@ -155,7 +176,7 @@ func TestBigStorageRepository_GetBigStorageBackups(t *testing.T) {
 	defer tearDown()
 	repo := BigStorageRepository{Client: *client}
 
-	all, err := repo.GetBigStorageBackups("example-bigstorage")
+	all, err := repo.GetBackups("example-bigstorage")
 	require.NoError(t, err)
 	require.Equal(t, 1, len(all))
 
@@ -173,7 +194,7 @@ func TestBigStorageRepository_RevertBigStorageBackup(t *testing.T) {
 	defer tearDown()
 	repo := BigStorageRepository{Client: *client}
 
-	err := repo.RevertBigStorageBackup("example-bigstorage", 123)
+	err := repo.RevertBackup("example-bigstorage", 123)
 	require.NoError(t, err)
 }
 
@@ -185,7 +206,7 @@ func TestBigStorageRepository_GetBigStorageUsage(t *testing.T) {
 	defer tearDown()
 	repo := BigStorageRepository{Client: *client}
 
-	usageData, err := repo.GetBigStorageUsage("example-bigstorage", UsagePeriod{TimeStart: 1500538995, TimeEnd: 1500542619})
+	usageData, err := repo.GetUsage("example-bigstorage", UsagePeriod{TimeStart: 1500538995, TimeEnd: 1500542619})
 	require.NoError(t, err)
 
 	require.Equal(t, 1, len(usageData))
@@ -202,7 +223,7 @@ func TestBigStorageRepository_GetBigStorageUsageLast24Hours(t *testing.T) {
 	defer tearDown()
 	repo := BigStorageRepository{Client: *client}
 
-	usageData, err := repo.GetBigStorageUsageLast24Hours("example-bigstorage")
+	usageData, err := repo.GetUsageLast24Hours("example-bigstorage")
 	require.NoError(t, err)
 
 	require.Equal(t, 1, len(usageData))

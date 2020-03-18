@@ -89,7 +89,37 @@ func TestRepository_GetAll(t *testing.T) {
 	require.Equal(t, 2, len(all[0].IpAddresses))
 	assert.Equal(t, "10.3.37.1", all[0].IpAddresses[0].String())
 	assert.Equal(t, "10.3.38.1", all[0].IpAddresses[1].String())
+}
 
+func TestRepository_GetSelection(t *testing.T) {
+	const apiResponse = `{ "haips": [ { "name": "example-haip", "description": "frontend cluster", "status": "active", "isLoadBalancingEnabled": true, "loadBalancingMode": "cookie", "stickyCookieName": "PHPSESSID", "healthCheckInterval": 3000, "httpHealthCheckPath": "/status.php", "httpHealthCheckPort": 443, "httpHealthCheckSsl": true, "ipv4Address": "37.97.254.7", "ipv6Address": "2a01:7c8:3:1337::1", "ipSetup": "ipv6to4", "ptrRecord": "frontend.example.com", "ipAddresses": [ "10.3.37.1", "10.3.38.1" ] } ] } `
+	server := mockServer{t: t, expectedUrl: "/haips?page=1&pageSize=25", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	all, err := repo.GetSelection(1, 25)
+	require.NoError(t, err)
+	require.Equal(t, 1, len(all))
+
+	assert.Equal(t, "example-haip", all[0].Name)
+	assert.Equal(t, "frontend cluster", all[0].Description)
+	assert.EqualValues(t, "active", all[0].Status)
+	assert.Equal(t, true, all[0].IsLoadBalancingEnabled)
+	assert.EqualValues(t, "cookie", all[0].LoadBalancingMode)
+	assert.Equal(t, "PHPSESSID", all[0].StickyCookieName)
+	assert.EqualValues(t, 3000, all[0].HealthCheckInterval)
+	assert.Equal(t, "/status.php", all[0].HttpHealthCheckPath)
+	assert.Equal(t, 443, all[0].HttpHealthCheckPort)
+	assert.Equal(t, true, all[0].HttpHealthCheckSsl)
+	assert.Equal(t, "37.97.254.7", all[0].Ipv4Address.String())
+	assert.Equal(t, "2a01:7c8:3:1337::1", all[0].Ipv6Address.String())
+	assert.EqualValues(t, "ipv6to4", all[0].IpSetup)
+	assert.Equal(t, "frontend.example.com", all[0].PtrRecord)
+
+	require.Equal(t, 2, len(all[0].IpAddresses))
+	assert.Equal(t, "10.3.37.1", all[0].IpAddresses[0].String())
+	assert.Equal(t, "10.3.38.1", all[0].IpAddresses[1].String())
 }
 
 func TestRepository_GetByName(t *testing.T) {
