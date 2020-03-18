@@ -8,6 +8,7 @@ import (
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
 	"net"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -20,6 +21,15 @@ type Repository repository.RestRepository
 func (r *Repository) GetAll() ([]Vps, error) {
 	var response vpssWrapper
 	restRequest := rest.Request{Endpoint: "/vps"}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Vpss, err
+}
+
+// GetAllByTags returns a list of all VPSs that match the tags provided
+func (r *Repository) GetAllByTags(tags []string) ([]Vps, error) {
+	var response vpssWrapper
+	restRequest := rest.Request{Endpoint: "/vps", Parameters: url.Values{"tags": tags}}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Vpss, err

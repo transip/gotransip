@@ -94,6 +94,37 @@ func TestRepository_GetAll(t *testing.T) {
 	assert.Equal(t, []string{"customTag", "anotherTag"}, all[0].Tags)
 }
 
+func TestRepository_GetAllByTags(t *testing.T) {
+	const apiResponse = `{ "vpss": [ { "name": "example-vps", "description": "example VPS", "productName": "vps-bladevps-x1", "operatingSystem": "ubuntu-18.04", "diskSize": 157286400, "memorySize": 4194304, "cpus": 2, "status": "running", "ipAddress": "37.97.254.6", "macAddress": "52:54:00:3b:52:65", "currentSnapshots": 1, "maxSnapshots": 10, "isLocked": false, "isBlocked": false, "isCustomerLocked": false, "availabilityZone": "ams0", "tags": [ "customTag", "anotherTag" ] } ] }`
+
+	server := mockServer{t: t, expectedUrl: "/vps?tags=customTag", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	all, err := repo.GetAllByTags([]string{"customTag"})
+	require.NoError(t, err)
+	require.Equal(t, 1, len(all))
+
+	assert.Equal(t, "example-vps", all[0].Name)
+	assert.Equal(t, "example VPS", all[0].Description)
+	assert.Equal(t, "vps-bladevps-x1", all[0].ProductName)
+	assert.Equal(t, "ubuntu-18.04", all[0].OperatingSystem)
+	assert.EqualValues(t, 157286400, all[0].DiskSize)
+	assert.EqualValues(t, 4194304, all[0].MemorySize)
+	assert.EqualValues(t, 2, all[0].Cpus)
+	assert.EqualValues(t, "running", all[0].Status)
+	assert.Equal(t, "37.97.254.6", all[0].IpAddress)
+	assert.Equal(t, "52:54:00:3b:52:65", all[0].MacAddress)
+	assert.EqualValues(t, 1, all[0].CurrentSnapshots)
+	assert.EqualValues(t, 10, all[0].MaxSnapshots)
+	assert.Equal(t, false, all[0].IsLocked)
+	assert.Equal(t, false, all[0].IsBlocked)
+	assert.Equal(t, false, all[0].IsCustomerLocked)
+	assert.Equal(t, "ams0", all[0].AvailabilityZone)
+	assert.Equal(t, []string{"customTag", "anotherTag"}, all[0].Tags)
+}
+
 func TestRepository_GetByName(t *testing.T) {
 	const apiResponse = `{ "vps": { "name": "example-vps", "description": "example VPS", "productName": "vps-bladevps-x1", "operatingSystem": "ubuntu-18.04", "diskSize": 157286400, "memorySize": 4194304, "cpus": 2, "status": "running", "ipAddress": "37.97.254.6", "macAddress": "52:54:00:3b:52:65", "currentSnapshots": 1, "maxSnapshots": 10, "isLocked": false, "isBlocked": false, "isCustomerLocked": false, "availabilityZone": "ams0", "tags": [ "customTag", "anotherTag" ] } }`
 	server := mockServer{t: t, expectedUrl: "/vps/example-vps", expectedMethod: "GET", statusCode: 200, response: apiResponse}

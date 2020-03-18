@@ -5,6 +5,7 @@ import (
 	"github.com/transip/gotransip/v6"
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
+	"net/url"
 )
 
 // Repository can be used to get a list of your domains
@@ -15,6 +16,15 @@ type Repository repository.RestRepository
 func (r *Repository) GetAll() ([]Domain, error) {
 	var response domainsResponse
 	err := r.Client.Get(rest.Request{Endpoint: "/domains"}, &response)
+
+	return response.Domains, err
+}
+
+// GetAllByTags returns a list of all Domains that match the tags provided
+func (r *Repository) GetAllByTags(tags []string) ([]Domain, error) {
+	var response domainsResponse
+	restRequest := rest.Request{Endpoint: "/domains", Parameters: url.Values{"tags": tags}}
+	err := r.Client.Get(restRequest, &response)
 
 	return response.Domains, err
 }
