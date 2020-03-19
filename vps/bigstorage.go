@@ -62,8 +62,8 @@ type BigStorage struct {
 
 // BigStorageBackup struct for BigStorageBackup
 type BigStorageBackup struct {
-	// Id of the big storage
-	Id int64 `json:"id,omitempty"`
+	// ID of the big storage
+	ID int64 `json:"id,omitempty"`
 	// Status of the big storage backup ('active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving')
 	Status BackupStatus `json:"status,omitempty"`
 	// The backup disk size in kB
@@ -169,10 +169,10 @@ func (r *BigStorageRepository) GetBackups(bigStorageName string) ([]BigStorageBa
 	return response.BigStorageBackups, err
 }
 
-// RevertBackup allows you to revert a bigstorage by bigstorage name and backupId
-func (r *BigStorageRepository) RevertBackup(bigStorageName string, backupId int64) error {
+// RevertBackup allows you to revert a bigstorage by bigstorage name and backupID
+func (r *BigStorageRepository) RevertBackup(bigStorageName string, backupID int64) error {
 	requestBody := actionWrapper{Action: "revert"}
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupId), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupID), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }

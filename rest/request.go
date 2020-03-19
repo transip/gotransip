@@ -28,8 +28,8 @@ type Request struct {
 	TestMode bool
 }
 
-// GetJsonBody returns the request object as a json byte array
-func (r *Request) GetJsonBody() ([]byte, error) {
+// GetJSONBody returns the request object as a json byte array
+func (r *Request) GetJSONBody() ([]byte, error) {
 	return json.Marshal(r.Body)
 }
 
@@ -37,7 +37,7 @@ func (r *Request) GetJsonBody() ([]byte, error) {
 // this will be used by the writer used in the client
 func (r *Request) GetBodyReader() (io.Reader, error) {
 	// try to get the marshalled body
-	body, err := r.GetJsonBody()
+	body, err := r.GetJSONBody()
 	if err != nil {
 		return nil, fmt.Errorf("error when marshaling request: %w", err)
 	}
@@ -49,7 +49,7 @@ func (r *Request) GetBodyReader() (io.Reader, error) {
 // It does this with the Request struct and the basePath and method,
 // that are provided by the client itself
 func (r *Request) GetHTTPRequest(basePath string, method string) (*http.Request, error) {
-	requestUrl := basePath + r.Endpoint
+	requestURL := basePath + r.Endpoint
 
 	var bodyReader io.Reader
 	if r.Body != nil {
@@ -61,7 +61,7 @@ func (r *Request) GetHTTPRequest(basePath string, method string) (*http.Request,
 		bodyReader = reader
 	}
 
-	request, err := http.NewRequest(method, requestUrl, bodyReader)
+	request, err := http.NewRequest(method, requestURL, bodyReader)
 	if err != nil {
 		return nil, err
 	}

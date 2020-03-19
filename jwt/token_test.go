@@ -18,10 +18,11 @@ func TestNewToken(t *testing.T) {
 	_, err = New(badtoken2)
 	assert.Equal(t, errors.New("could not read token body, invalid json"), err)
 
-	tokenObject, err := New(realtoken)
+	token, err := New(realtoken)
 	assert.NoError(t, err)
-	assert.Equal(t, int64(2118745550), tokenObject.ExpiryDate)
-	assert.Equal(t, realtoken, tokenObject.RawToken)
+	assert.EqualValues(t, 2118745550, token.ExpiryDate)
+	assert.Equal(t, realtoken, token.RawToken)
+	assert.Equal(t, realtoken, token.String())
 }
 
 func TestGetAuthenticationHeaderValue(t *testing.T) {

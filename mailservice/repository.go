@@ -11,7 +11,7 @@ type Repository repository.RestRepository
 
 // GetInformation allows you to gather detailed information
 // regarding mail service usage and credentials using this API call
-func (r *Repository) GetInformation() (MailServiceInformation, error) {
+func (r *Repository) GetInformation() (Information, error) {
 	var response mailServiceInformationWrapper
 	restRequest := rest.Request{Endpoint: "/mail-service"}
 	err := r.Client.Get(restRequest, &response)

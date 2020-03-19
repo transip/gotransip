@@ -10,7 +10,7 @@ import (
 
 func TestFirewallRepository_GetFirewall(t *testing.T) {
 	const apiResponse = `{"vpsFirewall":{"isEnabled":true,"ruleSet":[{"description":"HTTP","startPort":80,"endPort":80,"protocol":"tcp","whitelist":["80.69.69.80/32","80.69.69.100/32","2a01:7c8:3:1337::1/128"]}]}}`
-	server := mockServer{t: t, expectedUrl: "/vps/example-vps/firewall", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	server := mockServer{t: t, expectedURL: "/vps/example-vps/firewall", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := FirewallRepository{Client: *client}
@@ -34,7 +34,7 @@ func TestFirewallRepository_GetFirewall(t *testing.T) {
 
 func TestFirewallRepository_UpdateFirewall(t *testing.T) {
 	const expectedRequest = `{"vpsFirewall":{"isEnabled":true,"ruleSet":[{"description":"HTTP","startPort":80,"endPort":80,"protocol":"tcp","whitelist":["80.69.69.80/32","80.69.69.100/32","2a01:7c8:3:1337::1/128"]}]}}`
-	server := mockServer{t: t, expectedUrl: "/vps/example-vps/firewall", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
+	server := mockServer{t: t, expectedURL: "/vps/example-vps/firewall", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := FirewallRepository{Client: *client}

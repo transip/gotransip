@@ -126,60 +126,60 @@ func (r *Repository) UpdateContacts(domainName string, contacts []WhoisContact) 
 	return r.Client.Put(restRequest)
 }
 
-// GetDnsEntries returns a list of all DNS entries for a domain by domainName
-func (r *Repository) GetDnsEntries(domainName string) ([]DnsEntry, error) {
+// GetDNSEntries returns a list of all DNS entries for a domain by domainName
+func (r *Repository) GetDNSEntries(domainName string) ([]DNSEntry, error) {
 	var response dnsEntriesWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName)}
 	err := r.Client.Get(restRequest, &response)
 
-	return response.DnsEntries, err
+	return response.DNSEntries, err
 }
 
-// AddDnsEntry allows you to add a single dns entry to a domain
-func (r *Repository) AddDnsEntry(domainName string, dnsEntry DnsEntry) error {
-	requestBody := dnsEntryWrapper{DnsEntry: dnsEntry}
+// AddDNSEntry allows you to add a single dns entry to a domain
+func (r *Repository) AddDNSEntry(domainName string, dnsEntry DNSEntry) error {
+	requestBody := dnsEntryWrapper{DNSEntry: dnsEntry}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName), Body: &requestBody}
 
 	return r.Client.Post(restRequest)
 }
 
-// UpdateDnsEntry updates the content of a single DNS entry,
-// the dns entry is identified by the 'Name', 'Expire' and 'Type' properties of the DnsEntry struct
-func (r *Repository) UpdateDnsEntry(domainName string, dnsEntry DnsEntry) error {
-	requestBody := dnsEntryWrapper{DnsEntry: dnsEntry}
+// UpdateDNSEntry updates the content of a single DNS entry,
+// the dns entry is identified by the 'Name', 'Expire' and 'Type' properties of the DNSEntry struct
+func (r *Repository) UpdateDNSEntry(domainName string, dnsEntry DNSEntry) error {
+	requestBody := dnsEntryWrapper{DNSEntry: dnsEntry}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
 }
 
-// ReplaceDnsEntries will wipe the entire zone replacing it with the given dns entries
-func (r *Repository) ReplaceDnsEntries(domainName string, dnsEntries []DnsEntry) error {
-	requestBody := dnsEntriesWrapper{DnsEntries: dnsEntries}
+// ReplaceDNSEntries will wipe the entire zone replacing it with the given dns entries
+func (r *Repository) ReplaceDNSEntries(domainName string, dnsEntries []DNSEntry) error {
+	requestBody := dnsEntriesWrapper{DNSEntries: dnsEntries}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
 
-// RemoveDnsEntry allows you to remove a single DNS entry from a domain
-func (r *Repository) RemoveDnsEntry(domainName string, dnsEntry DnsEntry) error {
-	requestBody := dnsEntryWrapper{DnsEntry: dnsEntry}
+// RemoveDNSEntry allows you to remove a single DNS entry from a domain
+func (r *Repository) RemoveDNSEntry(domainName string, dnsEntry DNSEntry) error {
+	requestBody := dnsEntryWrapper{DNSEntry: dnsEntry}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s/dns", domainName), Body: &requestBody}
 
 	return r.Client.Delete(restRequest)
 }
 
-// GetDnsSecEntries returns a list of all DNS Sec entries for a domain by domainName
-func (r *Repository) GetDnsSecEntries(domainName string) ([]DnsSecEntry, error) {
+// GetDNSSecEntries returns a list of all DNS Sec entries for a domain by domainName
+func (r *Repository) GetDNSSecEntries(domainName string) ([]DNSSecEntry, error) {
 	var response dnsSecEntriesWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s/dnssec", domainName)}
 	err := r.Client.Get(restRequest, &response)
 
-	return response.DnsSecEntries, err
+	return response.DNSSecEntries, err
 }
 
-// ReplaceDnsSecEntries allows you to replace all DNSSEC entries with the ones that are provided
-func (r *Repository) ReplaceDnsSecEntries(domainName string, dnsSecEntries []DnsSecEntry) error {
-	requestBody := dnsSecEntriesWrapper{DnsSecEntries: dnsSecEntries}
+// ReplaceDNSSecEntries allows you to replace all DNSSEC entries with the ones that are provided
+func (r *Repository) ReplaceDNSSecEntries(domainName string, dnsSecEntries []DNSSecEntry) error {
+	requestBody := dnsSecEntriesWrapper{DNSSecEntries: dnsSecEntries}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s/dnssec", domainName), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
@@ -214,10 +214,10 @@ func (r *Repository) GetDomainAction(domainName string) (Action, error) {
 
 // RetryDomainAction allows you to retry a failed domain action
 // Domain actions can fail due to wrong information, this method allows you to retry an action
-func (r *Repository) RetryDomainAction(domainName string, authCode string, dnsEntries []DnsEntry, nameservers []Nameserver, contacts []WhoisContact) error {
+func (r *Repository) RetryDomainAction(domainName string, authCode string, dnsEntries []DNSEntry, nameservers []Nameserver, contacts []WhoisContact) error {
 	var requestBody retryActionWrapper
 	requestBody.AuthCode = authCode
-	requestBody.DnsEntries = dnsEntries
+	requestBody.DNSEntries = dnsEntries
 	requestBody.Nameservers = nameservers
 	requestBody.Contacts = contacts
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s/actions", domainName), Body: &requestBody}
@@ -241,10 +241,10 @@ func (r *Repository) GetSSLCertificates(domainName string) ([]SslCertificate, er
 	return response.Certificates, err
 }
 
-// GetSSLCertificateById allows you to get a single SSL certificate by id.
-func (r *Repository) GetSSLCertificateById(domainName string, certificateId int64) (SslCertificate, error) {
+// GetSSLCertificateByID allows you to get a single SSL certificate by id.
+func (r *Repository) GetSSLCertificateByID(domainName string, certificateID int64) (SslCertificate, error) {
 	var response certificateWrapper
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s/ssl/%d", domainName, certificateId)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s/ssl/%d", domainName, certificateID)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Certificate, err

@@ -58,10 +58,11 @@ As long as a provided TokenCache adheres to the following interface,
 the client's authenticator is able to use it. This means you can also provide
 your own token cacher: for example, one that caches to etcd
 	type TokenCache interface {
-		// Set will save a token by name as byte array
-		Set(key string, data []byte) error
-		// Get a previously acquired token by name returned as byte array
-		Get(key string) ([]byte, error)
+		// Set will save a token by name
+		Set(key string, token jwt.Token) error
+		// Get returns a previously acquired token by name returned as jwt.Token
+		// jwt is a subpackage in the gotransip package
+		Get(key string) (jwt.Token, error)
 	}
 
 Repositories

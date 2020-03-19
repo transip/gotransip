@@ -1,9 +1,9 @@
 package mailservice
 
-// mailServiceInformationWrapper struct contains the MailServiceInformation struct in it,
+// mailServiceInformationWrapper struct contains the Information struct in it,
 // this is solely used for unmarshalling
 type mailServiceInformationWrapper struct {
-	MailServiceInformation MailServiceInformation `json:"mailServiceInformation"`
+	MailServiceInformation Information `json:"mailServiceInformation"`
 }
 
 // domainNamesWrapper struct contains the domainNames in it which will be posted to the api
@@ -12,10 +12,10 @@ type domainNamesWrapper struct {
 	DomainNames []string `json:"domainNames"`
 }
 
-// MailServiceInformation struct for MailServiceInformation
-type MailServiceInformation struct {
+// Information struct for Information
+type Information struct {
 	// x-transip-mail-auth DNS TXT record Value
-	DnsTxt string `json:"dnsTxt,omitempty"`
+	DNSTxt string `json:"dnsTxt,omitempty"`
 	// The password of the mail service
 	Password string `json:"password,omitempty"`
 	// The quota of the mail service

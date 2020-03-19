@@ -24,7 +24,10 @@ var (
 func signWithKey(body []byte, key []byte) (string, error) {
 	// create SHA512 hash of given parameters
 	h := sha512.New()
-	h.Write(body)
+	_, err := h.Write(body)
+	if err != nil {
+		return "", fmt.Errorf("signing error during request body writing: %w", err)
+	}
 
 	// prefix ASN1 header to SHA512 hash
 	digest := append(asn1Header, h.Sum(nil)...)

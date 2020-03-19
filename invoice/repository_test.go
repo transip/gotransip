@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	invoicesApiResponse = `{
+	invoicesAPIResponse = `{
   "invoices": [
     {
       "invoiceNumber": "F0000.1911.0000.0004",
@@ -27,7 +27,7 @@ const (
     }
   ]
 }`
-	invoiceApiResponse = `{
+	invoiceAPIResponse = `{
   "invoice": {
     "invoiceNumber": "F0000.1911.0000.0004",
     "creationDate": "2020-01-01",
@@ -41,7 +41,7 @@ const (
 }`
 	errorResponse           = `{ "error": "errortest" }`
 	error404Response        = `{ "error": "Invoice with number 'F0000.1911.0000.0004' not found" }`
-	invoiceItemsApiResponse = `{
+	invoiceItemsAPIResponse = `{
   "invoiceItems": [
     {
       "product": "Big Storage Disk 2000 GB",
@@ -70,7 +70,8 @@ func getMockServer(t *testing.T, url string, method string, statusCode int, resp
 		assert.Equal(t, url, req.URL.String()) // check if right url is called
 		assert.Equal(t, method, req.Method)    // check if the right request method is used
 		rw.WriteHeader(statusCode)             // respond with given status code
-		rw.Write([]byte(response))
+		_, err := rw.Write([]byte(response))
+		require.NoError(t, err, "error when writing mock response")
 	}))
 }
 
@@ -90,7 +91,7 @@ func getRepository(t *testing.T, url string, responseStatusCode int, response st
 }
 
 func TestRepository_GetAll(t *testing.T) {
-	repo, tearDown := getRepository(t, "/invoices", 200, invoicesApiResponse)
+	repo, tearDown := getRepository(t, "/invoices", 200, invoicesAPIResponse)
 	defer tearDown()
 
 	all, err := repo.GetAll()
@@ -109,7 +110,7 @@ func TestRepository_GetAll(t *testing.T) {
 }
 
 func TestRepository_GetSelection(t *testing.T) {
-	repo, tearDown := getRepository(t, "/invoices?page=1&pageSize=25", 200, invoicesApiResponse)
+	repo, tearDown := getRepository(t, "/invoices?page=1&pageSize=25", 200, invoicesAPIResponse)
 	defer tearDown()
 
 	all, err := repo.GetSelection(1, 25)
@@ -141,7 +142,7 @@ func TestRepository_GetAllError(t *testing.T) {
 
 func TestRepository_GetByInvoiceNumber(t *testing.T) {
 	invoiceNumber := "F0000.1911.0000.0004"
-	repo, tearDown := getRepository(t, "/invoices/"+invoiceNumber, 200, invoiceApiResponse)
+	repo, tearDown := getRepository(t, "/invoices/"+invoiceNumber, 200, invoiceAPIResponse)
 	defer tearDown()
 
 	invoice, err := repo.GetByInvoiceNumber(invoiceNumber)
@@ -172,7 +173,7 @@ func TestRepository_GetByInvoiceNumberError(t *testing.T) {
 
 func TestRepository_GetInvoiceItems(t *testing.T) {
 	invoiceNumber := "F0000.1911.0000.0004"
-	repo, tearDown := getRepository(t, fmt.Sprintf("/invoices/%s/invoice-items", invoiceNumber), 200, invoiceItemsApiResponse)
+	repo, tearDown := getRepository(t, fmt.Sprintf("/invoices/%s/invoice-items", invoiceNumber), 200, invoiceItemsAPIResponse)
 	defer tearDown()
 
 	all, err := repo.GetInvoiceItems(invoiceNumber)

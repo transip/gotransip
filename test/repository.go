@@ -17,7 +17,7 @@ var (
 
 // Test will execute an api test and respond with an error if the test failed
 func (r *Repository) Test() error {
-	var testResponse ApiTest
+	var testResponse APITest
 	restRequest := rest.Request{Endpoint: "/api-test"}
 
 	if err := r.Client.Get(restRequest, &testResponse); err != nil {

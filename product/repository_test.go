@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	productsApiResponse = `{
+	productsAPIResponse = `{
   "products": {
     "vps": [ { "name": "example-product-name", "description": "This is an example product", "price": 499, "recurringPrice": 799 } ],
     "vpsAddon": [ { "name": "example-product-name", "description": "This is an example product", "price": 499, "recurringPrice": 799 } ],
@@ -20,7 +20,7 @@ const (
     "privateNetworks": [ { "name": "example-product-name", "description": "This is an example product", "price": 499, "recurringPrice": 799 } ]
   }
 }`
-	elementsApiResponse = `{
+	elementsAPIResponse = `{
   "productElements": [
     { "name": "ipv4Addresses", "description": "description of ipv4Addresses", "amount": 1 },
 	{ "name": "disk-size", "description": "description of disk-size", "amount": 157286400 }
@@ -35,7 +35,8 @@ func getMockServer(t *testing.T, url string, method string, statusCode int, resp
 		assert.Equal(t, url, req.URL.String()) // check if right url is called
 		assert.Equal(t, method, req.Method)    // check if the right request method is used
 		rw.WriteHeader(statusCode)             // respond with given status code
-		rw.Write([]byte(response))
+		_, err := rw.Write([]byte(response))
+		require.NoError(t, err, "error when writing mock response")
 	}))
 }
 
@@ -55,7 +56,7 @@ func getRepository(t *testing.T, url string, responseStatusCode int, response st
 }
 
 func TestRepository_GetAll(t *testing.T) {
-	repo, tearDown := getRepository(t, "/products", 200, productsApiResponse)
+	repo, tearDown := getRepository(t, "/products", 200, productsAPIResponse)
 	defer tearDown()
 
 	all, err := repo.GetAll()
@@ -74,7 +75,7 @@ func TestRepository_GetAll(t *testing.T) {
 }
 
 func TestProductRepository_GetSpecificationsForProduct(t *testing.T) {
-	repo, tearDown := getRepository(t, "/products/vps-bladevps-x4/elements", 200, elementsApiResponse)
+	repo, tearDown := getRepository(t, "/products/vps-bladevps-x4/elements", 200, elementsAPIResponse)
 	defer tearDown()
 
 	all, err := repo.GetSpecificationsForProduct(Product{Name: "vps-bladevps-x4"})

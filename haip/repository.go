@@ -64,8 +64,8 @@ func (r *Repository) Order(productName string, description string) error {
 // - cookie: forward to a fixed server, based on the cookie;
 // - source: choose a server to forward to based on the source address.
 //
-// Ip setup options (ipSetup):
-// - both: accept ipv4 and ipv6 and forward them to seperate ipv4 and ipv6 addresses;
+// IP setup options (ipSetup):
+// - both: accept ipv4 and ipv6 and forward them to separate ipv4 and ipv6 addresses;
 // - noipv6: do not accept ipv6 traffic;
 // - ipv6to4: forward ipv6 traffic to ipv4.
 //
@@ -86,7 +86,7 @@ func (r *Repository) Cancel(haipName string, endTime gotransip.CancellationTime)
 }
 
 // GetAllCertificates will return a list of certificates currently attached to the given Haip
-func (r *Repository) GetAllCertificates(haipName string) ([]HaipCertificate, error) {
+func (r *Repository) GetAllCertificates(haipName string) ([]Certificate, error) {
 	var response certificatesWrapper
 	err := r.Client.Get(rest.Request{Endpoint: fmt.Sprintf("/haips/%s/certificates", haipName)}, &response)
 
@@ -95,8 +95,8 @@ func (r *Repository) GetAllCertificates(haipName string) ([]HaipCertificate, err
 
 // AddCertificate allows you to add a DV, OV or EV Certificate to Haip for SSL offloading
 // Enable HTTPS mode in Configuration to use these certificates
-func (r *Repository) AddCertificate(haipName string, sslCertificateId int64) error {
-	requestBody := addCertificateRequest{SslCertificateId: sslCertificateId}
+func (r *Repository) AddCertificate(haipName string, sslCertificateID int64) error {
+	requestBody := addCertificateRequest{SslCertificateID: sslCertificateID}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/certificates", haipName), Body: &requestBody}
 
 	return r.Client.Post(restRequest)
@@ -123,8 +123,8 @@ func (r *Repository) AddLetsEncryptCertificate(haipName string, commonName strin
 }
 
 // DetachCertificate detaches a certificate from a Haip by certificateId
-func (r *Repository) DetachCertificate(haipName string, certificateId int64) error {
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/certificates/%d", haipName, certificateId)}
+func (r *Repository) DetachCertificate(haipName string, certificateID int64) error {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/certificates/%d", haipName, certificateID)}
 
 	return r.Client.Delete(restRequest)
 }
@@ -163,9 +163,9 @@ func (r *Repository) GetPortConfigurations(haipName string) ([]PortConfiguration
 }
 
 // GetPortConfiguration returns the Configuration struct for a given Configuration by id
-func (r *Repository) GetPortConfiguration(haipName string, portConfigurationId int64) (PortConfiguration, error) {
+func (r *Repository) GetPortConfiguration(haipName string, portConfigurationID int64) (PortConfiguration, error) {
 	var response portConfigurationWrapper
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/port-configurations/%d", haipName, portConfigurationId)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/port-configurations/%d", haipName, portConfigurationID)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Configuration, err
@@ -174,16 +174,27 @@ func (r *Repository) GetPortConfiguration(haipName string, portConfigurationId i
 // AddPortConfiguration allows you to Add PortConfigurations to your HA-IP to route traffic to your attached IP address(es)
 //
 // Mode options:
+//
 // - http: appends a X-Forwarded-For header to HTTP requests with the original remote IP;
+//
 // - https: same as HTTP, with SSL Certificate offloading;
+//
 // - http2_https: same as HTTPS, with http/2 support;
+//
 // - tcp: plain TCP forward to your attached IP address(es);
-// - proxy: proxy protocol is also a way to retain the original remote IP, but also works for non HTTP traffic (note: the receiving application has to support this).
+//
+// - proxy: proxy protocol is also a way to retain the original remote IP, but also works for non HTTP traffic
+//   (note: the receiving application has to support this).
 //
 // Endpoint SSL mode options:
+//
 // - off: no SSL connection is established between our load balancers and your attached IP address(es);
-// - on: an SSL connection is established between our load balancers your attached IP address(es), but the certificate is not validated;
-// - strict: an SSL connection is established between our load balancers your attached IP address(es), and the certificate must signed by a trusted Certificate Authority.
+//
+// - on: an SSL connection is established between our load balancers your attached IP address(es),
+//   but the certificate is not validated;
+//
+// - strict: an SSL connection is established between our load balancers your attached IP address(es),
+//   and the certificate must signed by a trusted Certificate Authority.
 //
 // For more information, see https://api.transip.nl/rest/docs.html#ha-ip-ha-ip-port-configurations-post
 func (r *Repository) AddPortConfiguration(haipName string, configuration PortConfiguration) error {
@@ -198,7 +209,7 @@ func (r *Repository) AddPortConfiguration(haipName string, configuration PortCon
 func (r *Repository) UpdatePortConfiguration(haipName string, configuration PortConfiguration) error {
 	requestBody := portConfigurationWrapper{Configuration: configuration}
 	restRequest := rest.Request{
-		Endpoint: fmt.Sprintf("/haips/%s/port-configurations/%d", haipName, configuration.Id),
+		Endpoint: fmt.Sprintf("/haips/%s/port-configurations/%d", haipName, configuration.ID),
 		Body:     &requestBody,
 	}
 
@@ -206,8 +217,8 @@ func (r *Repository) UpdatePortConfiguration(haipName string, configuration Port
 }
 
 // RemovePortConfiguration allows you to remove a port configuration
-func (r *Repository) RemovePortConfiguration(haipName string, portConfigurationId int64) error {
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/port-configurations/%d", haipName, portConfigurationId)}
+func (r *Repository) RemovePortConfiguration(haipName string, portConfigurationID int64) error {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/port-configurations/%d", haipName, portConfigurationID)}
 
 	return r.Client.Delete(restRequest)
 }

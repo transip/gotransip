@@ -15,7 +15,7 @@ import (
 // and responds to a servers response
 type mockServer struct {
 	t                   *testing.T
-	expectedUrl         string
+	expectedURL         string
 	expectedMethod      string
 	statusCode          int
 	expectedRequestBody string
@@ -25,7 +25,7 @@ type mockServer struct {
 
 func (m *mockServer) getHTTPServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		assert.Equal(m.t, m.expectedUrl, req.URL.String()) // check if right expectedUrl is called
+		assert.Equal(m.t, m.expectedURL, req.URL.String()) // check if right expectedURL is called
 
 		if m.skipRequestBody == false && req.ContentLength != 0 {
 			// get the request body
@@ -39,7 +39,8 @@ func (m *mockServer) getHTTPServer() *httptest.Server {
 		rw.WriteHeader(m.statusCode)                    // respond with given status code
 
 		if m.response != "" {
-			rw.Write([]byte(m.response))
+			_, err := rw.Write([]byte(m.response))
+			require.NoError(m.t, err, "error when writing mock response")
 		}
 	}))
 }
@@ -61,7 +62,7 @@ func (m *mockServer) getClient() (*repository.Client, func()) {
 
 func TestRepository_AddDNSEntriesDomains(t *testing.T) {
 	expectedRequestBody := `{"domainNames":["example.com","another.com"]}`
-	server := mockServer{t: t, expectedMethod: "POST", expectedUrl: "/mail-service", statusCode: 201, expectedRequestBody: expectedRequestBody}
+	server := mockServer{t: t, expectedMethod: "POST", expectedURL: "/mail-service", statusCode: 201, expectedRequestBody: expectedRequestBody}
 	client, tearDown := server.getClient()
 	defer tearDown()
 
@@ -74,7 +75,7 @@ func TestRepository_AddDNSEntriesDomains(t *testing.T) {
 
 func TestRepository_GetInformation(t *testing.T) {
 	responseBody := `{"mailServiceInformation":{ "username": "test@vps.transip.email", "password": "KgDseBsmWJNTiGww", "usage": 54, "quota": 1000, "dnsTxt": "782d28c2fa0b0bdeadf979e7155a83a15632fcddb0149d510c09fb78a470f7d3" } }`
-	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/mail-service", statusCode: 200, response: responseBody}
+	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/mail-service", statusCode: 200, response: responseBody}
 	client, tearDown := server.getClient()
 	defer tearDown()
 
@@ -86,11 +87,11 @@ func TestRepository_GetInformation(t *testing.T) {
 	assert.Equal(t, "KgDseBsmWJNTiGww", mailServiceInfo.Password)
 	assert.Equal(t, float32(54), mailServiceInfo.Usage)
 	assert.Equal(t, float32(1000), mailServiceInfo.Quota)
-	assert.Equal(t, "782d28c2fa0b0bdeadf979e7155a83a15632fcddb0149d510c09fb78a470f7d3", mailServiceInfo.DnsTxt)
+	assert.Equal(t, "782d28c2fa0b0bdeadf979e7155a83a15632fcddb0149d510c09fb78a470f7d3", mailServiceInfo.DNSTxt)
 }
 
 func TestRepository_RegeneratePassword(t *testing.T) {
-	server := mockServer{t: t, expectedMethod: "PATCH", expectedUrl: "/mail-service", statusCode: 204}
+	server := mockServer{t: t, expectedMethod: "PATCH", expectedURL: "/mail-service", statusCode: 204}
 	client, tearDown := server.getClient()
 	defer tearDown()
 

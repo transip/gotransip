@@ -34,6 +34,11 @@ func (t *Token) GetAuthenticationHeaderValue() string {
 	return fmt.Sprintf("Bearer %s", t.RawToken)
 }
 
+// String returns the string representation of the Token struct
+func (t *Token) String() string {
+	return t.RawToken
+}
+
 // tokenPayload is used to unpack the payload from the jwt
 type tokenPayload struct {
 	// This ExpirationTime is a 64 bit epoch that will be put into the token struct

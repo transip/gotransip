@@ -4,25 +4,25 @@ import (
 	"github.com/transip/gotransip/v6/rest"
 )
 
-// InvoiceStatus is one of the following strings
+// Status is one of the following strings
 // 'opened', 'closed', 'waitsforpayment', 'overdue', 'problem' , 'paid', 'paymentpending'
-type InvoiceStatus string
+type Status string
 
 const (
 	// InvoiceStatusOpened is the invoice status field for a opened invoice
-	InvoiceStatusOpened InvoiceStatus = "opened"
+	InvoiceStatusOpened Status = "opened"
 	// InvoiceStatusClosed is the invoice status field for a closed invoice
-	InvoiceStatusClosed InvoiceStatus = "closed"
+	InvoiceStatusClosed Status = "closed"
 	// InvoiceStatusWaitsforpayment is the invoice status field for when the invoice needs to be paid
-	InvoiceStatusWaitsforpayment InvoiceStatus = "waitsforpayment"
+	InvoiceStatusWaitsforpayment Status = "waitsforpayment"
 	// InvoiceStatusOverdue is the invoice status field for when a payment is overdue
-	InvoiceStatusOverdue InvoiceStatus = "overdue"
-	// InvoiceStatusProblem is the invoice status field for when a problem occured during invoicing
-	InvoiceStatusProblem InvoiceStatus = "problem"
+	InvoiceStatusOverdue Status = "overdue"
+	// InvoiceStatusProblem is the invoice status field for when a problem occurred during invoicing
+	InvoiceStatusProblem Status = "problem"
 	// InvoiceStatusPaid is the invoice status field for a paid invoice
-	InvoiceStatusPaid InvoiceStatus = "paid"
+	InvoiceStatusPaid Status = "paid"
 	// InvoiceStatusPaymentpending is the invoice status field for when a payment is pending
-	InvoiceStatusPaymentpending InvoiceStatus = "paymentpending"
+	InvoiceStatusPaymentpending Status = "paymentpending"
 )
 
 // invoicesResponse object contains a list of Invoices in it
@@ -44,10 +44,10 @@ type invoiceResponse struct {
 // invoiceItemsResponse object contains a list of InvoiceItems in it
 // used to unpack the rest response and return the encapsulated InvoiceItems
 // this is just used internal for unpacking, this should not be exported
-// we want to return InvoiceItem objects not a invoicesItemsResponse
+// we want to return Item objects not a invoicesItemsResponse
 type invoiceItemsResponse struct {
 	// array of invoice items
-	InvoiceItems []InvoiceItem `json:"invoiceItems"`
+	InvoiceItems []Item `json:"invoiceItems"`
 }
 
 // Invoice struct for a invoice
@@ -61,7 +61,7 @@ type Invoice struct {
 	// Invoice number
 	InvoiceNumber string `json:"invoiceNumber"`
 	// Invoice status
-	InvoiceStatus InvoiceStatus `json:"invoiceStatus"`
+	InvoiceStatus Status `json:"invoiceStatus"`
 	// Invoice paid date
 	PayDate rest.Date `json:"payDate"`
 	// Invoice total (displayed in cents)
@@ -70,14 +70,14 @@ type Invoice struct {
 	TotalAmountInclVat int `json:"totalAmountInclVat"`
 }
 
-// InvoiceItem struct for InvoiceItem
-type InvoiceItem struct {
+// Item struct is one item line on a invoice, see Description and Product for more information
+type Item struct {
 	// Date when the order line item was up for invoicing
 	Date rest.Date `json:"date"`
 	// Product description
 	Description string `json:"description"`
 	// Applied discounts
-	Discounts []InvoiceItemDiscount `json:"discounts"`
+	Discounts []Discount `json:"discounts"`
 	// Payment is recurring
 	IsRecurring bool `json:"isRecurring"`
 	// Price excluding VAT (displayed in cents)
@@ -94,8 +94,8 @@ type InvoiceItem struct {
 	VatPercentage int `json:"vatPercentage"`
 }
 
-// InvoiceItemDiscount struct for InvoiceItemDiscount
-type InvoiceItemDiscount struct {
+// Discount struct for Discount
+type Discount struct {
 	// Discounted amount (in cents)
 	Amount int `json:"amount"`
 	// Applied discount description

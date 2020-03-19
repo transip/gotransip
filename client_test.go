@@ -71,9 +71,6 @@ func TestNewClient(t *testing.T) {
 	assert.Equal(t, "foobar", clientAuthenticator.Login)
 
 	// Test if private key from path is read and passed to the authenticator
-	client, err = newClient(ClientConfiguration{PrivateKeyPath: "testdata/signature.key", AccountName: "example-user"})
-	require.NoError(t, err)
-	clientAuthenticator = client.GetAuthenticator()
 	privateKeyFile, err := os.Open("testdata/signature.key")
 	require.NoError(t, err)
 	privateKeyBody, err := ioutil.ReadAll(privateKeyFile)
@@ -82,7 +79,9 @@ func TestNewClient(t *testing.T) {
 	// Test that a tokencache is passed to the authenticator
 	defer os.Remove("/tmp/gotransip_test_token_cache")
 	cache, err := authenticator.NewFileTokenCache("/tmp/gotransip_test_token_cache")
+	require.NoError(t, err)
 	client, err = newClient(ClientConfiguration{PrivateKeyPath: "testdata/signature.key", AccountName: "example-user", TokenCache: cache})
+	require.NoError(t, err)
 	clientAuthenticator = client.GetAuthenticator()
 	require.NotNil(t, clientAuthenticator.TokenCache)
 	assert.Equal(t, cache, clientAuthenticator.TokenCache)
@@ -108,8 +107,8 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestClientCallReturnsObject(t *testing.T) {
-	apiResponse := `{"domains":[{"name":"test.nl"}]}`
-	server := mockServer{t: t, expectedMethod: "GET", expectedUrl: "/domains", statusCode: 200, response: apiResponse}
+	apiResponse := `{"domains":[{"name":"testje.nl"}]}`
+	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domains", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 
@@ -124,12 +123,12 @@ func TestClientCallReturnsObject(t *testing.T) {
 	err := client.Get(restRequest, &domainsResponse)
 	require.NoError(t, err)
 	require.Equal(t, 1, len(domainsResponse.Domains))
-	assert.Equal(t, "test.nl", domainsResponse.Domains[0].Name)
+	assert.Equal(t, "testje.nl", domainsResponse.Domains[0].Name)
 }
 
 func TestEmptyBodyPostDoesPostWithoutBody(t *testing.T) {
 	apiResponse := `{"domains":[{"name":"test.nl"}]}`
-	server := mockServer{t: t, expectedMethod: "POST", expectedUrl: "/test", statusCode: 201, response: apiResponse}
+	server := mockServer{t: t, expectedMethod: "POST", expectedURL: "/test", statusCode: 201, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 
@@ -159,7 +158,7 @@ func TestClient_TestMode(t *testing.T) {
 	apiResponse := `{"ping":"pong"}`
 	params := url.Values{"test": []string{"1"}}
 
-	server := mockServer{t: t, expectedMethod: "POST", expectedUrl: "/test?test=1", statusCode: 200, response: apiResponse, expectedParams: params}
+	server := mockServer{t: t, expectedMethod: "POST", expectedURL: "/test?test=1", statusCode: 200, response: apiResponse, expectedParams: params}
 	httpServer := server.getHTTPServer()
 	defer httpServer.Close()
 
@@ -169,6 +168,7 @@ func TestClient_TestMode(t *testing.T) {
 	clientConfig.TestMode = true
 
 	client, err := NewClient(clientConfig)
+	require.NoError(t, err)
 
 	restRequest := rest.Request{Endpoint: "/test"}
 	err = client.Post(restRequest)
@@ -179,7 +179,7 @@ func TestClient_TestMode(t *testing.T) {
 // and responds to a servers response
 type mockServer struct {
 	t               *testing.T
-	expectedUrl     string
+	expectedURL     string
 	expectedMethod  string
 	statusCode      int
 	expectedRequest string
@@ -189,7 +189,7 @@ type mockServer struct {
 
 func (m *mockServer) getHTTPServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		assert.Equal(m.t, m.expectedUrl, req.URL.String()) // check if right expectedUrl is called
+		assert.Equal(m.t, m.expectedURL, req.URL.String()) // check if right expectedURL is called
 
 		if req.ContentLength != 0 {
 			// get the request body
@@ -215,7 +215,8 @@ func (m *mockServer) getHTTPServer() *httptest.Server {
 		rw.WriteHeader(m.statusCode)                    // respond with given status code
 
 		if m.response != "" {
-			rw.Write([]byte(m.response))
+			_, err := rw.Write([]byte(m.response))
+			require.NoError(m.t, err, "error when writing mock response")
 		}
 	}))
 }

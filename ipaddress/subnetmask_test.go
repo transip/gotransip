@@ -38,10 +38,10 @@ func TestSubnetMask_MarshalText(t *testing.T) {
 		{in: []byte("/128"), out: []byte("/128"), error: nil},
 		{in: []byte("/1"), out: []byte("/1"), error: nil},
 		{in: []byte("/0"), out: []byte("/0"), error: nil},
-		{in: []byte("48"), out: []byte(""), error: nil},
-		{in: []byte("/129"), out: []byte(""), error: nil},
+		{in: []byte("48"), out: []byte(""), error: &net.ParseError{Type: "IP mask", Text: "48"}},
+		{in: []byte("/129"), out: []byte(""), error: errors.New("Invalid prefixLength provided")},
 		{in: []byte("255.255.255.0"), out: []byte("255.255.255.0"), error: nil},
-		{in: []byte("255.255.255.d"), out: []byte(""), error: nil},
+		{in: []byte("255.255.255.d"), out: []byte(""), error: &net.ParseError{Type: "IP mask", Text: "255.255.255.d"}},
 		{in: []byte("255.0.255.0"), out: []byte("255.0.255.0"), error: nil},
 		{in: []byte("255.0.128.0"), out: []byte("255.0.128.0"), error: nil},
 	}
@@ -49,11 +49,12 @@ func TestSubnetMask_MarshalText(t *testing.T) {
 	for _, expect := range expects {
 		mask := SubnetMask{}
 		// lets get some data, empty masks are also allowed
-		mask.UnmarshalText(expect.in)
+		err := mask.UnmarshalText(expect.in)
+		assert.Equal(t, expect.error, err)
 
 		out, err := mask.MarshalText()
 
-		assert.Equal(t, expect.error, err)
+		assert.Equal(t, nil, err)
 		require.Equal(t, expect.out, out, fmt.Sprintf("Expecting output: '%s' for '%s'", string(expect.out), string(expect.in)))
 	}
 }

@@ -48,7 +48,7 @@ func (r *Repository) GetByInvoiceNumber(invoiceNumber string) (Invoice, error) {
 // GetInvoiceItems returns a list of InvoiceItems
 // detailing what specific products or services are on this invoice
 // invoiceNumber corresponds to the InvoiceNumber property on a Invoice struct
-func (r *Repository) GetInvoiceItems(invoiceNumber string) ([]InvoiceItem, error) {
+func (r *Repository) GetInvoiceItems(invoiceNumber string) ([]Item, error) {
 	var response invoiceItemsResponse
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/invoices/%s/invoice-items", invoiceNumber)}
 	err := r.Client.Get(restRequest, &response)

@@ -30,7 +30,7 @@ func main() {
 	}
 	fmt.Println(strings.Repeat("-", 50))
 
-	defaultDnsEntry := domain.DnsEntry{
+	defaultDnsEntry := domain.DNSEntry{
 		Name:    "localhost",
 		Expire:  86400,
 		Type:    "A",
@@ -39,6 +39,6 @@ func main() {
 	// Add a default dns entry to all of my domains
 	for _, domain := range domains {
 		log.Printf("Added dnsEntry '%v' to domain '%s'\n", defaultDnsEntry, domain.Name)
-		domainRepo.AddDnsEntry(domain.Name, defaultDnsEntry)
+		domainRepo.AddDNSEntry(domain.Name, defaultDnsEntry)
 	}
 }

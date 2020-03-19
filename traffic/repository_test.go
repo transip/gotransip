@@ -15,7 +15,7 @@ import (
 // and responds to a servers response
 type mockServer struct {
 	t                   *testing.T
-	expectedUrl         string
+	expectedURL         string
 	expectedMethod      string
 	statusCode          int
 	expectedRequestBody string
@@ -25,7 +25,7 @@ type mockServer struct {
 
 func (m *mockServer) getHTTPServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		assert.Equal(m.t, m.expectedUrl, req.URL.String()) // check if right expectedUrl is called
+		assert.Equal(m.t, m.expectedURL, req.URL.String()) // check if right expectedURL is called
 
 		if m.skipRequestBody == false && req.ContentLength != 0 {
 			// get the request body
@@ -39,7 +39,8 @@ func (m *mockServer) getHTTPServer() *httptest.Server {
 		rw.WriteHeader(m.statusCode)                    // respond with given status code
 
 		if m.response != "" {
-			rw.Write([]byte(m.response))
+			_, err := rw.Write([]byte(m.response))
+			require.NoError(m.t, err, "error when writing mock response")
 		}
 	}))
 }
@@ -61,7 +62,7 @@ func (m *mockServer) getClient() (*repository.Client, func()) {
 
 func TestRepository_GetTrafficInformationForVps(t *testing.T) {
 	const apiResponse = `{ "trafficInformation": { "startDate": "2019-06-22", "endDate": "2019-07-22", "usedInBytes": 7860253754, "usedTotalBytes": 11935325369, "maxInBytes": 1073741824000 } }`
-	server := mockServer{t: t, expectedUrl: "/traffic", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	server := mockServer{t: t, expectedURL: "/traffic", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -77,7 +78,7 @@ func TestRepository_GetTrafficInformationForVps(t *testing.T) {
 
 func TestRepository_GetTrafficPool(t *testing.T) {
 	const apiResponse = `{ "trafficInformation": { "startDate": "2019-06-22", "endDate": "2019-07-22", "usedInBytes": 7860253754, "usedTotalBytes": 11935325369, "maxInBytes": 1073741824000 } }`
-	server := mockServer{t: t, expectedUrl: "/traffic/test-vps", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	server := mockServer{t: t, expectedURL: "/traffic/test-vps", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}

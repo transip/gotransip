@@ -11,7 +11,7 @@ import (
 func TestRequestMarshalling(t *testing.T) {
 	request := Request{}
 
-	body, err := request.GetJsonBody()
+	body, err := request.GetJSONBody()
 	assert.NoError(t, err)
 	assert.Equal(t, string(body), "null")
 }
@@ -36,6 +36,7 @@ func TestHttpRequestForRestRequest(t *testing.T) {
 	assert.Equal(t, int64(91), httpRequest.ContentLength)
 
 	body, err := ioutil.ReadAll(httpRequest.Body)
+	require.NoError(t, err)
 	assert.Equal(t, "{\"availabilityZone\":\"ams\",\"operatingSystem\":\"ubuntu-18.04\",\"productName\":\"vps-bladevps-x1\"}", string(body))
 }
 

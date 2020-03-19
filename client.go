@@ -9,10 +9,8 @@ import (
 	"github.com/transip/gotransip/v6/rest"
 	"io"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"os"
-	"time"
 )
 
 // client manages communication with the TransIP API
@@ -101,9 +99,6 @@ func newClient(config ClientConfiguration) (*client, error) {
 	if len(config.URL) == 0 {
 		config.URL = defaultBasePath
 	}
-
-	// seed once in this client
-	rand.Seed(time.Now().UnixNano())
 
 	return &client{
 		authenticator: &authenticator.Authenticator{

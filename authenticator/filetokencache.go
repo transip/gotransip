@@ -3,6 +3,7 @@ package authenticator
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/transip/gotransip/v6/jwt"
 	"io/ioutil"
 	"os"
 	"sync"
@@ -55,10 +56,10 @@ func NewFileTokenCache(path string) (*FileTokenCache, error) {
 }
 
 // Set will save a token by name as byte array
-func (f *FileTokenCache) Set(key string, data []byte) error {
+func (f *FileTokenCache) Set(key string, token jwt.Token) error {
 	for idx, item := range f.CacheItems {
 		if item.Key == key {
-			f.CacheItems[idx].Data = data
+			f.CacheItems[idx].Data = []byte(token.String())
 
 			// persist this change to the cache file
 			return f.writeCacheToFile()
@@ -66,7 +67,7 @@ func (f *FileTokenCache) Set(key string, data []byte) error {
 	}
 
 	// if the key did not exist before, we append a new item to the cache item list
-	f.CacheItems = append(f.CacheItems, cacheItem{Key: key, Data: data})
+	f.CacheItems = append(f.CacheItems, cacheItem{Key: key, Data: []byte(token.String())})
 
 	return f.writeCacheToFile()
 }
@@ -90,12 +91,14 @@ func (f *FileTokenCache) writeCacheToFile() error {
 }
 
 // Get a previously acquired token by name returned as byte array
-func (f *FileTokenCache) Get(key string) ([]byte, error) {
+func (f *FileTokenCache) Get(key string) (jwt.Token, error) {
 	for _, item := range f.CacheItems {
 		if item.Key == key {
-			return item.Data, nil
+			dataAsString := string(item.Data)
+
+			return jwt.New(dataAsString)
 		}
 	}
 
-	return nil, nil
+	return jwt.Token{}, nil
 }

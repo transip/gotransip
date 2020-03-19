@@ -1,7 +1,14 @@
 image: docker.transip.us/transip/golang:latest
 stages:
+  - analyze
   - lint
   - test
+
+analyze:lint:
+  stage: analyze
+  image: golangci/golangci-lint:v1.19
+  script:
+    - golangci-lint run
 
 lint:golint:
   stage: lint

@@ -64,8 +64,8 @@ func (r *Repository) GetIPAddressByAddress(coloName string, address net.IP) (ipa
 // AddIPAddress allows you to add an IP address to your Colocation by specifying the Colocation name and the IP to add
 // Note: the IP address you want to add should be in a range you own.
 // Optionally, you can also set the reverse dns by setting the reverseDns argument
-func (r *Repository) AddIPAddress(coloName string, address net.IP, reverseDns string) error {
-	requestBody := addIpRequest{IPAddress: address, ReverseDns: reverseDns}
+func (r *Repository) AddIPAddress(coloName string, address net.IP, reverseDNS string) error {
+	requestBody := addIPRequest{IPAddress: address, ReverseDNS: reverseDNS}
 	restRequest := rest.Request{
 		Endpoint: fmt.Sprintf("/colocations/%s/ip-addresses", coloName),
 		Body:     &requestBody,

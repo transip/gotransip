@@ -15,7 +15,8 @@ func getMockServer(t *testing.T, url string, method string, statusCode int, resp
 		assert.Equal(t, url, req.URL.String()) // check if right url is called
 		assert.Equal(t, method, req.Method)    // check if the right request method is used
 		rw.WriteHeader(statusCode)             // respond with given status code
-		rw.Write([]byte(response))
+		_, err := rw.Write([]byte(response))
+		require.NoError(t, err, "error when writing mock response")
 	}))
 }
 

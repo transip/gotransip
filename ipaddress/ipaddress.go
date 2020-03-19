@@ -9,11 +9,11 @@ type IPAddress struct {
 	// The IP address
 	Address net.IP `json:"address"`
 	// The TransIP DNS resolvers you can use
-	DnsResolvers []net.IP `json:"dnsResolvers,omitempty"`
+	DNSResolvers []net.IP `json:"dnsResolvers,omitempty"`
 	// Gateway
 	Gateway net.IP `json:"gateway,omitempty"`
 	// Reverse DNS, also known as the PTR record
-	ReverseDns string `json:"reverseDns"`
+	ReverseDNS string `json:"reverseDns"`
 	// Subnet mask
 	SubnetMask SubnetMask `json:"subnetMask,omitempty"`
 }

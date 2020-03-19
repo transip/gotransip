@@ -16,7 +16,7 @@ import (
 const amountOfNoncesToGet = 10
 
 func getMockServer(t *testing.T) *httptest.Server {
-	tokenAsJson := fmt.Sprintf(`{"token":"%s"}`, DemoToken)
+	tokenAsJSON := fmt.Sprintf(`{"token":"%s"}`, DemoToken)
 
 	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		// check if right url is called
@@ -30,7 +30,8 @@ func getMockServer(t *testing.T) *httptest.Server {
 		// check if the request is a POST request
 		assert.Equal(t, req.Method, "POST")
 		// send a Token as response
-		rw.Write([]byte(tokenAsJson))
+		_, err := rw.Write([]byte(tokenAsJSON))
+		require.NoError(t, err, "error when writing mock response")
 	}))
 }
 
@@ -43,7 +44,8 @@ func getFailedMockServer(t *testing.T) *httptest.Server {
 		// respond with a 409 error
 		rw.WriteHeader(409)
 		// send a Token as response
-		rw.Write([]byte(`{"error":"Authentication failed, API is not enabled for customer"}`))
+		_, err := rw.Write([]byte(`{"error":"Authentication failed, API is not enabled for customer"}`))
+		require.NoError(t, err, "error when writing mock response")
 	}))
 }
 
@@ -157,8 +159,9 @@ func TestAuthenticator_getAuthRequest(t *testing.T) {
 		ReadOnly:    true,
 	}
 
-	authRequest := authenticator.getAuthRequest()
-	body, err := authRequest.GetJsonBody()
+	authRequest, err := authenticator.getAuthRequest()
+	require.NoError(t, err)
+	body, err := authRequest.GetJSONBody()
 
 	require.NoError(t, err)
 	stringBody := string(body)
@@ -176,7 +179,7 @@ func getNoncesFromAuthenticator() [amountOfNoncesToGet]string {
 	var nonces [amountOfNoncesToGet]string
 
 	for i := 0; i < amountOfNoncesToGet; i++ {
-		nonces[i] = authenticator.getNonce()
+		nonces[i], _ = authenticator.getNonce()
 	}
 
 	return nonces

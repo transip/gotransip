@@ -8,7 +8,7 @@ import (
 // Colocation struct for Colocation
 type Colocation struct {
 	// List of IP ranges
-	IpRanges []ipaddress.IPRange `json:"ipRanges"`
+	IPRanges []ipaddress.IPRange `json:"ipRanges"`
 	// Colocation name
 	Name string `json:"name"`
 }
@@ -41,11 +41,11 @@ type ipAddressWrapper struct {
 
 // addIpRequest struct contains an IPAddress in it,
 // this is solely used for marshalling
-type addIpRequest struct {
+type addIPRequest struct {
 	// The IP address to register to the colocation
 	IPAddress net.IP `json:"ipAddress"`
 	// Reverse DNS, also known as the PTR record
-	ReverseDns string `json:"reverseDns,omitempty"`
+	ReverseDNS string `json:"reverseDns,omitempty"`
 }
 
 // RemoteHandsRequest struct for RemoteHandsRequest

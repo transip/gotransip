@@ -16,7 +16,7 @@ import (
 // and responds to a servers response
 type mockServer struct {
 	t               *testing.T
-	expectedUrl     string
+	expectedURL     string
 	expectedMethod  string
 	statusCode      int
 	expectedRequest string
@@ -26,7 +26,7 @@ type mockServer struct {
 
 func (m *mockServer) getHTTPServer() *httptest.Server {
 	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		assert.Equal(m.t, m.expectedUrl, req.URL.String()) // check if right expectedUrl is called
+		assert.Equal(m.t, m.expectedURL, req.URL.String()) // check if right expectedURL is called
 
 		if m.skipRequestBody == false && req.ContentLength != 0 {
 			// get the request body
@@ -40,7 +40,8 @@ func (m *mockServer) getHTTPServer() *httptest.Server {
 		rw.WriteHeader(m.statusCode)                    // respond with given status code
 
 		if m.response != "" {
-			rw.Write([]byte(m.response))
+			_, err := rw.Write([]byte(m.response))
+			require.NoError(m.t, err, "error when writing mock response")
 		}
 	}))
 }
@@ -62,7 +63,7 @@ func (m *mockServer) getClient() (*repository.Client, func()) {
 
 func TestRepository_GetAll(t *testing.T) {
 	const apiResponse = `{ "haips": [ { "name": "example-haip", "description": "frontend cluster", "status": "active", "isLoadBalancingEnabled": true, "loadBalancingMode": "cookie", "stickyCookieName": "PHPSESSID", "healthCheckInterval": 3000, "httpHealthCheckPath": "/status.php", "httpHealthCheckPort": 443, "httpHealthCheckSsl": true, "ipv4Address": "37.97.254.7", "ipv6Address": "2a01:7c8:3:1337::1", "ipSetup": "ipv6to4", "ptrRecord": "frontend.example.com", "ipAddresses": [ "10.3.37.1", "10.3.38.1" ] } ] } `
-	server := mockServer{t: t, expectedUrl: "/haips", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	server := mockServer{t: t, expectedURL: "/haips", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -78,22 +79,22 @@ func TestRepository_GetAll(t *testing.T) {
 	assert.EqualValues(t, "cookie", all[0].LoadBalancingMode)
 	assert.Equal(t, "PHPSESSID", all[0].StickyCookieName)
 	assert.EqualValues(t, 3000, all[0].HealthCheckInterval)
-	assert.Equal(t, "/status.php", all[0].HttpHealthCheckPath)
-	assert.Equal(t, 443, all[0].HttpHealthCheckPort)
-	assert.Equal(t, true, all[0].HttpHealthCheckSsl)
-	assert.Equal(t, "37.97.254.7", all[0].Ipv4Address.String())
-	assert.Equal(t, "2a01:7c8:3:1337::1", all[0].Ipv6Address.String())
-	assert.EqualValues(t, "ipv6to4", all[0].IpSetup)
+	assert.Equal(t, "/status.php", all[0].HTTPHealthCheckPath)
+	assert.Equal(t, 443, all[0].HTTPHealthCheckPort)
+	assert.Equal(t, true, all[0].HTTPHealthCheckSsl)
+	assert.Equal(t, "37.97.254.7", all[0].IPv4Address.String())
+	assert.Equal(t, "2a01:7c8:3:1337::1", all[0].IPv6Address.String())
+	assert.EqualValues(t, "ipv6to4", all[0].IPSetup)
 	assert.Equal(t, "frontend.example.com", all[0].PtrRecord)
 
-	require.Equal(t, 2, len(all[0].IpAddresses))
-	assert.Equal(t, "10.3.37.1", all[0].IpAddresses[0].String())
-	assert.Equal(t, "10.3.38.1", all[0].IpAddresses[1].String())
+	require.Equal(t, 2, len(all[0].IPAddresses))
+	assert.Equal(t, "10.3.37.1", all[0].IPAddresses[0].String())
+	assert.Equal(t, "10.3.38.1", all[0].IPAddresses[1].String())
 }
 
 func TestRepository_GetSelection(t *testing.T) {
 	const apiResponse = `{ "haips": [ { "name": "example-haip", "description": "frontend cluster", "status": "active", "isLoadBalancingEnabled": true, "loadBalancingMode": "cookie", "stickyCookieName": "PHPSESSID", "healthCheckInterval": 3000, "httpHealthCheckPath": "/status.php", "httpHealthCheckPort": 443, "httpHealthCheckSsl": true, "ipv4Address": "37.97.254.7", "ipv6Address": "2a01:7c8:3:1337::1", "ipSetup": "ipv6to4", "ptrRecord": "frontend.example.com", "ipAddresses": [ "10.3.37.1", "10.3.38.1" ] } ] } `
-	server := mockServer{t: t, expectedUrl: "/haips?page=1&pageSize=25", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	server := mockServer{t: t, expectedURL: "/haips?page=1&pageSize=25", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -109,22 +110,22 @@ func TestRepository_GetSelection(t *testing.T) {
 	assert.EqualValues(t, "cookie", all[0].LoadBalancingMode)
 	assert.Equal(t, "PHPSESSID", all[0].StickyCookieName)
 	assert.EqualValues(t, 3000, all[0].HealthCheckInterval)
-	assert.Equal(t, "/status.php", all[0].HttpHealthCheckPath)
-	assert.Equal(t, 443, all[0].HttpHealthCheckPort)
-	assert.Equal(t, true, all[0].HttpHealthCheckSsl)
-	assert.Equal(t, "37.97.254.7", all[0].Ipv4Address.String())
-	assert.Equal(t, "2a01:7c8:3:1337::1", all[0].Ipv6Address.String())
-	assert.EqualValues(t, "ipv6to4", all[0].IpSetup)
+	assert.Equal(t, "/status.php", all[0].HTTPHealthCheckPath)
+	assert.Equal(t, 443, all[0].HTTPHealthCheckPort)
+	assert.Equal(t, true, all[0].HTTPHealthCheckSsl)
+	assert.Equal(t, "37.97.254.7", all[0].IPv4Address.String())
+	assert.Equal(t, "2a01:7c8:3:1337::1", all[0].IPv6Address.String())
+	assert.EqualValues(t, "ipv6to4", all[0].IPSetup)
 	assert.Equal(t, "frontend.example.com", all[0].PtrRecord)
 
-	require.Equal(t, 2, len(all[0].IpAddresses))
-	assert.Equal(t, "10.3.37.1", all[0].IpAddresses[0].String())
-	assert.Equal(t, "10.3.38.1", all[0].IpAddresses[1].String())
+	require.Equal(t, 2, len(all[0].IPAddresses))
+	assert.Equal(t, "10.3.37.1", all[0].IPAddresses[0].String())
+	assert.Equal(t, "10.3.38.1", all[0].IPAddresses[1].String())
 }
 
 func TestRepository_GetByName(t *testing.T) {
 	const apiResponse = `{ "haip": { "name": "example-haip", "description": "frontend cluster", "status": "active", "isLoadBalancingEnabled": true, "loadBalancingMode": "cookie", "stickyCookieName": "PHPSESSID", "healthCheckInterval": 3000, "httpHealthCheckPath": "/status.php", "httpHealthCheckPort": 443, "httpHealthCheckSsl": true, "ipv4Address": "37.97.254.7", "ipv6Address": "2a01:7c8:3:1337::1", "ipSetup": "ipv6to4", "ptrRecord": "frontend.example.com", "ipAddresses": [ "10.3.37.1", "10.3.38.1" ] } }`
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -139,22 +140,22 @@ func TestRepository_GetByName(t *testing.T) {
 	assert.EqualValues(t, "cookie", haip.LoadBalancingMode)
 	assert.Equal(t, "PHPSESSID", haip.StickyCookieName)
 	assert.EqualValues(t, 3000, haip.HealthCheckInterval)
-	assert.Equal(t, "/status.php", haip.HttpHealthCheckPath)
-	assert.Equal(t, 443, haip.HttpHealthCheckPort)
-	assert.Equal(t, true, haip.HttpHealthCheckSsl)
-	assert.Equal(t, "37.97.254.7", haip.Ipv4Address.String())
-	assert.Equal(t, "2a01:7c8:3:1337::1", haip.Ipv6Address.String())
-	assert.EqualValues(t, "ipv6to4", haip.IpSetup)
+	assert.Equal(t, "/status.php", haip.HTTPHealthCheckPath)
+	assert.Equal(t, 443, haip.HTTPHealthCheckPort)
+	assert.Equal(t, true, haip.HTTPHealthCheckSsl)
+	assert.Equal(t, "37.97.254.7", haip.IPv4Address.String())
+	assert.Equal(t, "2a01:7c8:3:1337::1", haip.IPv6Address.String())
+	assert.EqualValues(t, "ipv6to4", haip.IPSetup)
 	assert.Equal(t, "frontend.example.com", haip.PtrRecord)
 
-	require.Equal(t, 2, len(haip.IpAddresses))
-	assert.Equal(t, "10.3.37.1", haip.IpAddresses[0].String())
-	assert.Equal(t, "10.3.38.1", haip.IpAddresses[1].String())
+	require.Equal(t, 2, len(haip.IPAddresses))
+	assert.Equal(t, "10.3.37.1", haip.IPAddresses[0].String())
+	assert.Equal(t, "10.3.38.1", haip.IPAddresses[1].String())
 }
 
 func TestRepository_Order(t *testing.T) {
 	const expectedRequestBody = `{"productName":"haip-pro-contract","description":"myhaip01"}`
-	server := mockServer{t: t, expectedUrl: "/haips", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequestBody}
+	server := mockServer{t: t, expectedURL: "/haips", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequestBody}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -165,7 +166,7 @@ func TestRepository_Order(t *testing.T) {
 
 func TestRepository_Update(t *testing.T) {
 	const expectedRequestBody = `{"haip":{"name":"example-haip","description":"frontend cluster","status":"active","isLoadBalancingEnabled":true,"loadBalancingMode":"cookie","stickyCookieName":"PHPSESSID","healthCheckInterval":3000,"httpHealthCheckPath":"/status.php","httpHealthCheckPort":443,"httpHealthCheckSsl":true,"ipv4Address":"37.97.254.7","ipv6Address":"2a01:7c8:3:1337::1","ipSetup":"ipv6to4","ptrRecord":"frontend.example.com","ipAddresses":["10.3.37.1","10.3.38.1"]}}`
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequestBody}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequestBody}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -178,14 +179,14 @@ func TestRepository_Update(t *testing.T) {
 		LoadBalancingMode:      "cookie",
 		StickyCookieName:       "PHPSESSID",
 		HealthCheckInterval:    3000,
-		HttpHealthCheckPath:    "/status.php",
-		HttpHealthCheckPort:    443,
-		HttpHealthCheckSsl:     true,
-		Ipv4Address:            net.ParseIP("37.97.254.7"),
-		Ipv6Address:            net.ParseIP("2a01:7c8:3:1337::1"),
-		IpSetup:                "ipv6to4",
+		HTTPHealthCheckPath:    "/status.php",
+		HTTPHealthCheckPort:    443,
+		HTTPHealthCheckSsl:     true,
+		IPv4Address:            net.ParseIP("37.97.254.7"),
+		IPv6Address:            net.ParseIP("2a01:7c8:3:1337::1"),
+		IPSetup:                "ipv6to4",
 		PtrRecord:              "frontend.example.com",
-		IpAddresses:            []net.IP{net.ParseIP("10.3.37.1"), net.ParseIP("10.3.38.1")},
+		IPAddresses:            []net.IP{net.ParseIP("10.3.37.1"), net.ParseIP("10.3.38.1")},
 	}
 
 	err := repo.Update(haip)
@@ -194,7 +195,7 @@ func TestRepository_Update(t *testing.T) {
 
 func TestRepository_Cancel(t *testing.T) {
 	const expectedRequestBody = `{"endTime":"immediately"}`
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip", expectedMethod: "DELETE", statusCode: 204, expectedRequest: expectedRequestBody}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip", expectedMethod: "DELETE", statusCode: 204, expectedRequest: expectedRequestBody}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -205,7 +206,7 @@ func TestRepository_Cancel(t *testing.T) {
 
 func TestRepository_GetAllCertificates(t *testing.T) {
 	const apiResponse = `{ "certificates": [ { "id": 25478, "commonName": "example.com", "expirationDate": "2019-11-23" } ] }`
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip/certificates", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip/certificates", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -214,14 +215,14 @@ func TestRepository_GetAllCertificates(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(all))
 
-	assert.EqualValues(t, 25478, all[0].Id)
+	assert.EqualValues(t, 25478, all[0].ID)
 	assert.Equal(t, "example.com", all[0].CommonName)
 	assert.Equal(t, "2019-11-23", all[0].ExpirationDate)
 }
 
 func TestRepository_AddCertificate(t *testing.T) {
 	const expectedRequestBody = `{"sslCertificateId":1337}`
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip/certificates", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequestBody}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip/certificates", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequestBody}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -232,7 +233,7 @@ func TestRepository_AddCertificate(t *testing.T) {
 
 func TestRepository_AddLetsEncryptCertificate(t *testing.T) {
 	const expectedRequestBody = `{"commonName":"foobar.example.com"}`
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip/certificates", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequestBody}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip/certificates", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequestBody}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -242,7 +243,7 @@ func TestRepository_AddLetsEncryptCertificate(t *testing.T) {
 }
 
 func TestRepository_DetachCertificate(t *testing.T) {
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip/certificates/1337", expectedMethod: "DELETE", statusCode: 204}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip/certificates/1337", expectedMethod: "DELETE", statusCode: 204}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -253,7 +254,7 @@ func TestRepository_DetachCertificate(t *testing.T) {
 
 func TestRepository_GetAttachedIPAddresses(t *testing.T) {
 	const apiResponse = `{ "ipAddresses": [ "149.13.3.7", "149.31.33.7" ] }`
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip/ip-addresses", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip/ip-addresses", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -268,7 +269,7 @@ func TestRepository_GetAttachedIPAddresses(t *testing.T) {
 
 func TestRepository_SetAttachedIPAddresses(t *testing.T) {
 	const expectedRequestBody = `{"ipAddresses":["10.3.37.1","10.3.37.2"]}`
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip/ip-addresses", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequestBody}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip/ip-addresses", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequestBody}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -280,7 +281,7 @@ func TestRepository_SetAttachedIPAddresses(t *testing.T) {
 }
 
 func TestRepository_DetachIPAddresses(t *testing.T) {
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip/ip-addresses", expectedMethod: "DELETE", statusCode: 204}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip/ip-addresses", expectedMethod: "DELETE", statusCode: 204}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -291,7 +292,7 @@ func TestRepository_DetachIPAddresses(t *testing.T) {
 
 func TestRepository_GetPortConfigurations(t *testing.T) {
 	const apiResponse = `{ "portConfigurations": [ { "id": 9865, "name": "Website Traffic", "sourcePort": 80, "targetPort": 80, "mode": "http", "endpointSslMode": "off" } ] } `
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip/port-configurations", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip/port-configurations", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -300,7 +301,7 @@ func TestRepository_GetPortConfigurations(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(all))
 
-	assert.EqualValues(t, 9865, all[0].Id)
+	assert.EqualValues(t, 9865, all[0].ID)
 	assert.Equal(t, "Website Traffic", all[0].Name)
 	assert.Equal(t, 80, all[0].SourcePort)
 	assert.Equal(t, 80, all[0].TargetPort)
@@ -310,7 +311,7 @@ func TestRepository_GetPortConfigurations(t *testing.T) {
 
 func TestRepository_GetPortConfiguration(t *testing.T) {
 	const apiResponse = `{ "portConfiguration": { "id": 9865, "name": "Website Traffic", "sourcePort": 80, "targetPort": 80, "mode": "http", "endpointSslMode": "off" } } `
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip/port-configurations/9865", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip/port-configurations/9865", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -318,7 +319,7 @@ func TestRepository_GetPortConfiguration(t *testing.T) {
 	configuration, err := repo.GetPortConfiguration("example-haip", 9865)
 	require.NoError(t, err)
 
-	assert.EqualValues(t, 9865, configuration.Id)
+	assert.EqualValues(t, 9865, configuration.ID)
 	assert.Equal(t, "Website Traffic", configuration.Name)
 	assert.Equal(t, 80, configuration.SourcePort)
 	assert.Equal(t, 80, configuration.TargetPort)
@@ -328,7 +329,7 @@ func TestRepository_GetPortConfiguration(t *testing.T) {
 
 func TestRepository_AddPortConfiguration(t *testing.T) {
 	const expectedRequestBody = `{"name":"Website Traffic","sourcePort":443,"targetPort":443,"mode":"https","endpointSslMode":"on"}`
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip/port-configurations", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequestBody}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip/port-configurations", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequestBody}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -346,13 +347,13 @@ func TestRepository_AddPortConfiguration(t *testing.T) {
 
 func TestRepository_UpdatePortConfiguration(t *testing.T) {
 	const expectedRequestBody = `{"portConfiguration":{"id":9865,"name":"Website Traffic","sourcePort":443,"targetPort":443,"mode":"https","endpointSslMode":"on"}}`
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip/port-configurations/9865", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequestBody}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip/port-configurations/9865", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequestBody}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
 	configuration := PortConfiguration{
-		Id:              9865,
+		ID:              9865,
 		Name:            "Website Traffic",
 		SourcePort:      443,
 		TargetPort:      443,
@@ -364,7 +365,7 @@ func TestRepository_UpdatePortConfiguration(t *testing.T) {
 }
 
 func TestRepository_RemovePortConfiguration(t *testing.T) {
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip/port-configurations/1337", expectedMethod: "DELETE", statusCode: 204}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip/port-configurations/1337", expectedMethod: "DELETE", statusCode: 204}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -375,7 +376,7 @@ func TestRepository_RemovePortConfiguration(t *testing.T) {
 
 func TestRepository_GetStatusReport(t *testing.T) {
 	const apiResponse = `{ "statusReport": [ { "ipAddress": "136.10.14.1", "port": 80, "ipVersion": 4, "loadBalancerName": "lb0", "loadBalancerIp": "136.144.151.255", "state": "up", "lastChange": "2019-09-29 16:51:18" } ] }`
-	server := mockServer{t: t, expectedUrl: "/haips/example-haip/status-reports", expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	server := mockServer{t: t, expectedURL: "/haips/example-haip/status-reports", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -384,11 +385,11 @@ func TestRepository_GetStatusReport(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, len(all))
 
-	assert.Equal(t, "136.10.14.1", all[0].IpAddress.String())
+	assert.Equal(t, "136.10.14.1", all[0].IPAddress.String())
 	assert.Equal(t, 80, all[0].Port)
-	assert.Equal(t, 4, all[0].IpVersion)
+	assert.Equal(t, 4, all[0].IPVersion)
 	assert.Equal(t, "lb0", all[0].LoadBalancerName)
-	assert.Equal(t, "136.144.151.255", all[0].LoadBalancerIp.String())
+	assert.Equal(t, "136.144.151.255", all[0].LoadBalancerIP.String())
 	assert.Equal(t, "up", all[0].State)
 	assert.Equal(t, "2019-09-29 16:51:18", all[0].LastChange.Format("2006-01-02 15:04:05"))
 }

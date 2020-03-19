@@ -20,8 +20,8 @@ func (r *Repository) GetAll() (Products, error) {
 }
 
 // GetSpecificationsForProduct returns the ProductElements for a given Product
-func (r *Repository) GetSpecificationsForProduct(product Product) ([]ProductElement, error) {
-	var response ProductElementsResponse
+func (r *Repository) GetSpecificationsForProduct(product Product) ([]Element, error) {
+	var response productElementsResponse
 	productRequest := rest.Request{Endpoint: fmt.Sprintf("/products/%s/elements", product.Name)}
 	err := r.Client.Get(productRequest, &response)
 

@@ -35,16 +35,16 @@ type Product struct {
 	RecurringPrice int `json:"recurringPrice,omitempty"`
 }
 
-// ProductElementsResponse object contains a list of ProductElements in it
+// productElementsResponse object contains a list of ProductElements in it
 // used to unpack the rest response and return the encapsulated ProductElements
 // this is just used internal for unpacking, this should not be exported
-// we want to return ProductElement objects not a ProductElementsResponse
-type ProductElementsResponse struct {
-	ProductElements []ProductElement `json:"productElements,omitempty"`
+// we want to return Element objects not a productElementsResponse
+type productElementsResponse struct {
+	ProductElements []Element `json:"productElements,omitempty"`
 }
 
-// ProductElement struct for ProductElement
-type ProductElement struct {
+// Element struct for Element
+type Element struct {
 	// Amount
 	Amount int64 `json:"amount,omitempty"`
 	// Describes this product element

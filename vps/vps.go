@@ -52,22 +52,22 @@ const (
 	SnapshotStatusMoving SnapshotStatus = "moving"
 )
 
-// VpsStatus is one of the following strings
+// Status is one of the following strings
 // 'created', 'installing', 'running', 'stopped', 'paused'
-type VpsStatus string
+type Status string
 
 // define all of the possible vps statuses
 const (
 	// VpsStatusCreated is the status field for a vps that is created but not yet used
-	VpsStatusCreated VpsStatus = "created"
+	VpsStatusCreated Status = "created"
 	// VpsStatusInstalling is the status field for a vps that is going to be installed
-	VpsStatusInstalling VpsStatus = "installing"
+	VpsStatusInstalling Status = "installing"
 	// VpsStatusRunning is the status field for a vps that is currently turned on
-	VpsStatusRunning VpsStatus = "running"
+	VpsStatusRunning Status = "running"
 	// VpsStatusStopped is the status field for a vps that is in stopped state
-	VpsStatusStopped VpsStatus = "stopped"
+	VpsStatusStopped Status = "stopped"
 	// VpsStatusPaused is the status field for a vps that is in paused state
-	VpsStatusPaused VpsStatus = "paused"
+	VpsStatusPaused Status = "paused"
 )
 
 // UsageType can be one of the following strings
@@ -75,8 +75,8 @@ const (
 type UsageType string
 
 const (
-	// UsageTypeCpu is used to request the cpu usage data of a VPS
-	UsageTypeCpu UsageType = "cpu"
+	// UsageTypeCPU is used to request the cpu usage data of a VPS
+	UsageTypeCPU UsageType = "cpu"
 	// UsageTypeDisk is used to request the disk usage data of a VPS
 	UsageTypeDisk UsageType = "disk"
 	// UsageTypeNetwork is used to request the network usage data of a VPS
@@ -98,7 +98,7 @@ type vpssWrapper struct {
 // vpssOrderWrapper struct contains a list of VpsOrders in it,
 // this is solely used for marshalling
 type vpssOrderWrapper struct {
-	Orders []VpsOrder `json:"vpss"`
+	Orders []Order `json:"vpss"`
 }
 
 // cloneRequest is solely used for marshalling a vpsName and an availabilityZone
@@ -223,9 +223,9 @@ type privateNetworkOrderRequest struct {
 	Description string `json:"description"`
 }
 
-// addIpRequest struct contains an IPAddress in it,
+// addIPRequest struct contains an IPAddress in it,
 // this is solely used for marshalling
-type addIpRequest struct {
+type addIPRequest struct {
 	IPAddress net.IP `json:"ipAddress"`
 }
 
@@ -281,14 +281,14 @@ type usageDataDiskWrapper struct {
 	Usage []UsageDataDisk `json:"usage"`
 }
 
-// tcpMonitorsWrapper struct is used for unmarshalling a []TcpMonitor list
+// tcpMonitorsWrapper struct is used for unmarshalling a []TCPMonitor list
 type tcpMonitorsWrapper struct {
-	TcpMonitors []TcpMonitor `json:"tcpMonitors"`
+	TCPMonitors []TCPMonitor `json:"tcpMonitors"`
 }
 
-// tcpMonitorWrapper struct is used for marshalling/unmarshalling the TcpMonitor struct
+// tcpMonitorWrapper struct is used for marshalling/unmarshalling the TCPMonitor struct
 type tcpMonitorWrapper struct {
-	TcpMonitor TcpMonitor `json:"tcpMonitor"`
+	TCPMonitor TCPMonitor `json:"tcpMonitor"`
 }
 
 // contactsWrapper struct is used for unmarshalling a []MonitoringContact list
@@ -316,11 +316,11 @@ type Vps struct {
 	// The VPS memory size in kB
 	MemorySize int64 `json:"memorySize,omitempty"`
 	// The VPS cpu count
-	Cpus int `json:"cpus,omitempty"`
+	CPUs int `json:"cpus,omitempty"`
 	// The VPS status, either 'created', 'installing', 'running', 'stopped' or 'paused'
-	Status VpsStatus `json:"status,omitempty"`
+	Status Status `json:"status,omitempty"`
 	// The VPS main ipAddress
-	IpAddress string `json:"ipAddress,omitempty"`
+	IPAddress string `json:"ipAddress,omitempty"`
 	// The VPS macaddress
 	MacAddress string `json:"macAddress,omitempty"`
 	// The amount of snapshots that is used on this VPS
@@ -350,11 +350,11 @@ type VncData struct {
 	// token to identify the VPS to connect to (changes dynamically)
 	Token string `json:"token,omitempty"`
 	// Complete websocket URL
-	Url string `json:"url,omitempty"`
+	URL string `json:"url,omitempty"`
 }
 
-// VpsUsageDataNetwork struct for VpsUsageDataNetwork
-type VpsUsageDataNetwork struct {
+// UsageDataNetwork struct for UsageDataNetwork
+type UsageDataNetwork struct {
 	// Date of the entry, by default in UNIX timestamp format
 	Date float32 `json:"date"`
 	// The amount of inbound traffic in Mbps for this usage entry
@@ -377,7 +377,7 @@ type UsagePeriod struct {
 	TimeEnd int64 `json:"dateTimeEnd"`
 }
 
-// UsageDataDisk struct for UsageDataDisk
+// UsageDataDisk struct contains disk usage for a certain date
 type UsageDataDisk struct {
 	// Date of the entry, by default in UNIX timestamp format
 	Date int64 `json:"date"`
@@ -387,16 +387,16 @@ type UsageDataDisk struct {
 	IopsWrite float32 `json:"iopsWrite"`
 }
 
-// VpsUsageDataCpu struct for VpsUsageDataCpu
-type VpsUsageDataCpu struct {
+// UsageDataCPU struct contains cpu usage percentage for a certain date
+type UsageDataCPU struct {
 	// Date of the entry, by default in UNIX timestamp format
 	Date int64 `json:"date"`
 	// The percentage of CPU usage for this entry
 	Percentage float32 `json:"percentage"`
 }
 
-// VpsOrder struct for VpsOrder
-type VpsOrder struct {
+// Order struct can be used to order a new VPS
+type Order struct {
 	// Name of the product
 	ProductName string `json:"productName"`
 	// The name of the operating system to install
@@ -426,7 +426,7 @@ type Addons struct {
 // Backup struct for Backup
 type Backup struct {
 	// The backup id
-	Id int64 `json:"id"`
+	ID int64 `json:"id"`
 	// Status of the backup ('active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving')
 	Status BackupStatus `json:"status"`
 	// The backup creation date
@@ -471,7 +471,7 @@ type OperatingSystem struct {
 
 // Usage struct for Usage
 type Usage struct {
-	Cpu     []VpsUsageDataCpu     `json:"cpu"`
-	Disk    []UsageDataDisk       `json:"disk"`
-	Network []VpsUsageDataNetwork `json:"network"`
+	CPU     []UsageDataCPU     `json:"cpu"`
+	Disk    []UsageDataDisk    `json:"disk"`
+	Network []UsageDataNetwork `json:"network"`
 }

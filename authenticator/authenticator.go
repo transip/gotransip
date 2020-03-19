@@ -1,12 +1,12 @@
 package authenticator
 
 import (
+	"crypto/rand"
 	"errors"
 	"fmt"
 	"github.com/transip/gotransip/v6/jwt"
 	"github.com/transip/gotransip/v6/rest"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"time"
 )
@@ -23,7 +23,15 @@ const (
 	// a requested Token expires after a day
 	tokenExpiration = "1 day"
 	// DemoToken can be used to test with the api without using your own account
-	DemoToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImN3MiFSbDU2eDNoUnkjelM4YmdOIn0.eyJpc3MiOiJhcGkudHJhbnNpcC5ubCIsImF1ZCI6ImFwaS50cmFuc2lwLm5sIiwianRpIjoiY3cyIVJsNTZ4M2hSeSN6UzhiZ04iLCJpYXQiOjE1ODIyMDE1NTAsIm5iZiI6MTU4MjIwMTU1MCwiZXhwIjoyMTE4NzQ1NTUwLCJjaWQiOiI2MDQ0OSIsInJvIjpmYWxzZSwiZ2siOmZhbHNlLCJrdiI6dHJ1ZX0.fYBWV4O5WPXxGuWG-vcrFWqmRHBm9yp0PHiYh_oAWxWxCaZX2Rf6WJfc13AxEeZ67-lY0TA2kSaOCp0PggBb_MGj73t4cH8gdwDJzANVxkiPL1Saqiw2NgZ3IHASJnisUWNnZp8HnrhLLe5ficvb1D9WOUOItmFC2ZgfGObNhlL2y-AMNLT4X7oNgrNTGm-mespo0jD_qH9dK5_evSzS3K8o03gu6p19jxfsnIh8TIVRvNdluYC2wo4qDl5EW5BEZ8OSuJ121ncOT1oRpzXB0cVZ9e5_UVAEr9X3f26_Eomg52-PjrgcRJ_jPIUYbrlo06KjjX2h0fzMr21ZE023Gw"
+	DemoToken = `eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImN3MiFSbDU2eDNoUnkjelM4YmdOIn0.` +
+		`eyJpc3MiOiJhcGkudHJhbnNpcC5ubCIsImF1ZCI6ImFwaS50cmFuc2lwLm5sIiwianRpIjoiY3cy` +
+		`IVJsNTZ4M2hSeSN6UzhiZ04iLCJpYXQiOjE1ODIyMDE1NTAsIm5iZiI6MTU4MjIwMTU1MCwiZXhw` +
+		`IjoyMTE4NzQ1NTUwLCJjaWQiOiI2MDQ0OSIsInJvIjpmYWxzZSwiZ2siOmZhbHNlLCJrdiI6dHJ1` +
+		`ZX0.fYBWV4O5WPXxGuWG-vcrFWqmRHBm9yp0PHiYh_oAWxWxCaZX2Rf6WJfc13AxEeZ67-lY0TA2` +
+		`kSaOCp0PggBb_MGj73t4cH8gdwDJzANVxkiPL1Saqiw2NgZ3IHASJnisUWNnZp8HnrhLLe5ficvb` +
+		`1D9WOUOItmFC2ZgfGObNhlL2y-AMNLT4X7oNgrNTGm-mespo0jD_qH9dK5_evSzS3K8o03gu6p19` +
+		`jxfsnIh8TIVRvNdluYC2wo4qDl5EW5BEZ8OSuJ121ncOT1oRpzXB0cVZ9e5_UVAEr9X3f26_Eomg` +
+		`52-PjrgcRJ_jPIUYbrlo06KjjX2h0fzMr21ZE023Gw`
 )
 
 var (
@@ -99,7 +107,7 @@ func (a *Authenticator) GetToken() (jwt.Token, error) {
 
 		// if a TokenCache is set we want to write acquired tokens to the cache
 		if a.TokenCache != nil {
-			if err = a.TokenCache.Set(a.getTokenCacheKey(), []byte(a.Token.RawToken)); err != nil {
+			if err = a.TokenCache.Set(a.getTokenCacheKey(), a.Token); err != nil {
 				return jwt.Token{}, fmt.Errorf("error writing token to cache: %w", err)
 			}
 		}
@@ -108,22 +116,12 @@ func (a *Authenticator) GetToken() (jwt.Token, error) {
 	return a.Token, nil
 }
 
+// retrieveTokenFromCache gets the token from the cache
 func (a *Authenticator) retrieveTokenFromCache() error {
-	// get the token from the cache
-	cachedToken, err := a.TokenCache.Get(a.getTokenCacheKey())
+	var err error
+	a.Token, err = a.TokenCache.Get(a.getTokenCacheKey())
 	if err != nil {
 		return fmt.Errorf("error getting token from cache: %w", err)
-	}
-
-	// no token in cache, return no error as we can request a new one
-	if cachedToken == nil {
-		return nil
-	}
-
-	// try to parse the cached token
-	a.Token, err = jwt.New(string(cachedToken))
-	if err != nil {
-		return fmt.Errorf("error while parsing token from cache: %w", err)
 	}
 
 	return nil
@@ -133,14 +131,18 @@ func (a *Authenticator) retrieveTokenFromCache() error {
 // creating a new AuthRequest, converting it to json and sending that to the api auth url
 // on error it will pass this back
 func (a *Authenticator) requestNewToken() (jwt.Token, error) {
-	restRequest := a.getAuthRequest()
+	restRequest, err := a.getAuthRequest()
+	if err != nil {
+		return jwt.Token{}, fmt.Errorf("error during auth request creation: %w", err)
+	}
+
 	getMethod := rest.PostMethod
 
 	httpRequest, err := restRequest.GetHTTPRequest(a.BasePath, getMethod.Method)
 	if err != nil {
 		return jwt.Token{}, fmt.Errorf("error constructing token http request: %w", err)
 	}
-	bodyToSign, err := restRequest.GetJsonBody()
+	bodyToSign, err := restRequest.GetJSONBody()
 	if err != nil {
 		return jwt.Token{}, fmt.Errorf("error marshalling token request: %w", err)
 	}
@@ -185,21 +187,30 @@ type tokenResponse struct {
 
 // getNonce returns a random 16 character length string nonce
 // each time it is called
-func (a *Authenticator) getNonce() string {
+func (a *Authenticator) getNonce() (string, error) {
 	randomBytes := make([]byte, 8)
-	rand.Read(randomBytes)
+	_, err := rand.Read(randomBytes)
+
+	if err != nil {
+		return "", fmt.Errorf("error when getting random data for new nonce: %w", err)
+	}
 
 	// convert to hex
-	return fmt.Sprintf("%02x", randomBytes)
+	return fmt.Sprintf("%02x", randomBytes), nil
 }
 
 // getAuthRequest returns a rest.Request filled with a new AuthRequest
-func (a *Authenticator) getAuthRequest() rest.Request {
+func (a *Authenticator) getAuthRequest() (rest.Request, error) {
 	labelPostFix := time.Now().Unix()
+
+	nonce, err := a.getNonce()
+	if err != nil {
+		return rest.Request{}, err
+	}
 
 	authRequest := AuthRequest{
 		Login:          a.Login,
-		Nonce:          a.getNonce(),
+		Nonce:          nonce,
 		Label:          fmt.Sprintf("%s-%d", labelPrefix, labelPostFix),
 		ReadOnly:       a.ReadOnly,
 		ExpirationTime: tokenExpiration,
@@ -209,7 +220,7 @@ func (a *Authenticator) getAuthRequest() rest.Request {
 	return rest.Request{
 		Endpoint: authenticationPath,
 		Body:     authRequest,
-	}
+	}, nil
 }
 
 // getTokenCacheKey returns a name for the given Login and our authenticator name
