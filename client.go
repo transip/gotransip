@@ -97,9 +97,9 @@ func newClient(config ClientConfiguration) (*client, error) {
 		config.Mode = APIModeReadWrite
 	}
 
-	// set basePath by default
+	// set defaultBasePath by default
 	if len(config.URL) == 0 {
-		config.URL = basePath
+		config.URL = defaultBasePath
 	}
 
 	// seed once in this client
@@ -140,6 +140,7 @@ func (c *client) call(method rest.Method, request rest.Request, result interface
 	}
 
 	httpRequest.Header.Add("Authorization", token.GetAuthenticationHeaderValue())
+	httpRequest.Header.Set("User-Agent", userAgent)
 	client := c.config.HTTPClient
 	httpResponse, err := client.Do(httpRequest)
 	if err != nil {

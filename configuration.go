@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	libraryVersion = "6.0.0"
-	basePath       = "https://api.transip.nl/v6"
-	userAgent      = "go-client-gotransip/" + libraryVersion
+	libraryVersion  = "6.0.0"
+	defaultBasePath = "https://api.transip.nl/v6"
+	userAgent       = "go-client-gotransip/" + libraryVersion
 )
 
 // APIMode specifies in which mode the API is used. Currently this is only
