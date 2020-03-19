@@ -14,13 +14,12 @@ import (
 	"fmt"
 	"github.com/transip/gotransip/v6"
 	"github.com/transip/gotransip/v6/vps"
-	"os"
 )
 
 func main() {
 	// create a new TransIP API client
 	client, err := gotransip.NewClient(gotransip.ClientConfiguration{
-		AccountName:      "accountName",
+		AccountName:    "accountName",
 		PrivateKeyPath: "/path/to/api/private.key",
 	})
 	if err != nil {
@@ -34,8 +33,9 @@ func main() {
 		panic(err.Error())
 	}
 
+	pnRepo := vps.PrivateNetworkRepository{Client: client}
 	// get a list of your private networks
-	pns, err := vpsRepo.GetPrivateNetworks()
+	pns, err := pnRepo.GetAll()
 	if err != nil {
 		panic(err.Error())
 	}
@@ -52,7 +52,7 @@ func main() {
 
     // order a new ubuntu 18.04 x8 vps, specifying a custom description,
     // so we can find out when the vps is delivered
-	err = vpsRepo.Order(vps.VpsOrder{
+	err = vpsRepo.Order(vps.Order{
 		ProductName:       "vps-bladevps-x8",
 		OperatingSystem:   "ubuntu-18.04",
 		AvailabilityZone:  "ams0",
