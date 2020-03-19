@@ -70,6 +70,6 @@ For detailed descriptions of all functions, check out the [TransIP API documenta
 
 [transip]: https://transip.nl/
 [api]: https://api.transip.nl/
-[doc]: https://pkg.go.dev/github.com/transip/gotransip?tab=doc
+[doc]: https://pkg.go.dev/github.com/transip/gotransip/v6?tab=doc
 [apidoc]: https://api.transip.nl/rest/docs.html
 [goreport]: https://goreportcard.com/report/github.com/transip/gotransip
