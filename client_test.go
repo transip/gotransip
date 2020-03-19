@@ -1,122 +1,239 @@
 package gotransip
 
 import (
+	"bytes"
 	"errors"
+	"github.com/transip/gotransip/v6/authenticator"
+	"github.com/transip/gotransip/v6/repository"
+	"github.com/transip/gotransip/v6/rest"
 	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
-	"regexp"
 	"testing"
+	"testing/iotest"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestNewSOAPClient(t *testing.T) {
-	var cc ClientConfig
+func TestNewClient(t *testing.T) {
+	var cc ClientConfiguration
 	var err error
 
 	// empty ClientConfig should raise error about missing AccountName
-	_, err = NewSOAPClient(cc)
-	require.Error(t, err)
-	assert.Equal(t, errors.New("AccountName is required"), err)
+	_, err = NewClient(cc)
+	if assert.Errorf(t, err, "accountname error not returned") {
+		assert.Equal(t, errors.New("AccountName is required"), err)
+	}
+
+	// ... unless a token is provided
+	cc.Token = authenticator.DemoToken
+	_, err = NewClient(cc)
+	require.NoError(t, err, "No error when correct token is provided")
+	cc.Token = ""
+
+	// no error should be thrown when enabling demo mode
+	client, err := newClient(DemoClientConfiguration)
+	require.NoError(t, err, "No error should be thrown upon enabling demo mode")
+	assert.Equal(t, authenticator.DemoToken, client.GetConfig().Token, "Token should be demo token")
 
 	cc.AccountName = "foobar"
 	// ClientConfig with only AccountName set should raise error about private keys
-	_, err = NewSOAPClient(cc)
-	require.Error(t, err)
-	assert.Equal(t, errors.New("PrivateKeyPath or PrivateKeyBody is required"), err)
+	_, err = NewClient(cc)
+	if assert.Errorf(t, err, "expecting private key, token required error") {
+		assert.EqualError(t, err, "PrivateKeyReader, token or PrivateKeyReader is required")
+	}
 
-	cc.PrivateKeyPath = "/file/not/found"
-	// ClientConfig with PrivateKeyPath set to nonexisting file should raise error
-	_, err = NewSOAPClient(cc)
-	require.Error(t, err)
-	assert.Regexp(t, regexp.MustCompile("^could not open private key"), err.Error())
+	cc.PrivateKeyReader = iotest.TimeoutReader(bytes.NewReader([]byte{0, 1}))
+	_, err = NewClient(cc)
+	if assert.Errorf(t, err, "expecting private key reader error returned") {
+		assert.EqualError(t, err, "error while reading private key: timeout")
+	}
 
-	// ClientConfig with PrivateKeyPath that does exist but is unreadable should raise
-	// error
-	// prepare tmpfile
-	tmpFile, err := ioutil.TempFile("", "gotransip")
+	cc.PrivateKeyReader = nil
+
+	// Override PrivateKeyBody with PrivateKeyReader
+	pkBody := []byte{2, 3, 4, 5}
+	cc.PrivateKeyReader = bytes.NewReader(pkBody)
+
+	client, err = newClient(cc)
+	clientAuthenticator := client.GetAuthenticator()
+	config := client.GetConfig()
 	assert.NoError(t, err)
-	err = os.Chmod(tmpFile.Name(), 0000)
-	assert.NoError(t, err)
+	// Test if private key body is passed to the authenticator
+	assert.Equal(t, pkBody, clientAuthenticator.PrivateKeyBody)
+	// Test if the base url is passed to the authenticator
+	assert.Equal(t, config.URL, clientAuthenticator.BasePath)
+	// Test if the account name is passed on to the authenticator
+	assert.Equal(t, "foobar", clientAuthenticator.Login)
 
-	cc.PrivateKeyPath = tmpFile.Name()
-	_, err = NewSOAPClient(cc)
-	require.Error(t, err)
-	assert.Regexp(t, regexp.MustCompile("permission denied"), err.Error())
+	// Test if private key from path is read and passed to the authenticator
+	privateKeyFile, err := os.Open("testdata/signature.key")
+	require.NoError(t, err)
+	privateKeyBody, err := ioutil.ReadAll(privateKeyFile)
+	require.NoError(t, err)
 
-	os.Remove(tmpFile.Name())
-	cc.PrivateKeyPath = ""
+	// Test that a tokencache is passed to the authenticator
+	defer os.Remove("/tmp/gotransip_test_token_cache")
+	cache, err := authenticator.NewFileTokenCache("/tmp/gotransip_test_token_cache")
+	require.NoError(t, err)
+	client, err = newClient(ClientConfiguration{PrivateKeyPath: "testdata/signature.key", AccountName: "example-user", TokenCache: cache})
+	require.NoError(t, err)
+	clientAuthenticator = client.GetAuthenticator()
+	require.NotNil(t, clientAuthenticator.TokenCache)
+	assert.Equal(t, cache, clientAuthenticator.TokenCache)
 
-	// ClientConfig with PrivateKeyBody set but no PrivateKeyPath should have
-	// PrivateKeyBody as private key body
-	cc.PrivateKeyBody = []byte{1, 2, 3, 4}
-	c, err := NewSOAPClient(cc)
-	assert.NoError(t, err)
-	assert.Equal(t, cc.PrivateKeyBody, c.soapClient.PrivateKey)
+	// Check if private key read from file is the same as the key body on the authenticator
+	assert.Equal(t, privateKeyBody, clientAuthenticator.PrivateKeyBody)
 
 	// Also, with no mode set, it should default to APIModeReadWrite
-	assert.Equal(t, APIModeReadWrite, c.soapClient.Mode)
+	assert.Equal(t, APIModeReadWrite, config.Mode)
+	// Check if the base path is set by default
+	assert.Equal(t, "https://api.transip.nl/v6", config.URL)
+	cc.PrivateKeyReader = nil
 
-	// Override PrivateKeyBody with PrivateKeyPath
-	pkBody := []byte{2, 3, 4, 5}
-	// prepare tmpfile
-	tmpFile, err = ioutil.TempFile("", "gotransip")
-	assert.NoError(t, err)
-	err = ioutil.WriteFile(tmpFile.Name(), []byte(pkBody), 0)
-	assert.NoError(t, err)
-
-	cc.PrivateKeyPath = tmpFile.Name()
-	c, err = NewSOAPClient(cc)
-	assert.NoError(t, err)
-	assert.Equal(t, pkBody, c.soapClient.PrivateKey)
-
-	os.Remove(tmpFile.Name())
-	cc.PrivateKeyPath = ""
-
-	// override API mode to APIModeReadOnly
+	// Override API mode to APIModeReadOnly
 	cc.Mode = APIModeReadOnly
+	cc.Token = authenticator.DemoToken
+	client, err = newClient(cc)
+	clientAuthenticator = client.GetAuthenticator()
+	assert.NoError(t, err)
 
-	c, err = NewSOAPClient(cc)
-	assert.Equal(t, APIModeReadOnly, c.soapClient.Mode)
+	// Assert that the api mode is set on the authenticator
+	assert.True(t, clientAuthenticator.ReadOnly)
 }
 
-func TestFakeSOAPClientCall(t *testing.T) {
+func TestClientCallReturnsObject(t *testing.T) {
+	apiResponse := `{"domains":[{"name":"testje.nl"}]}`
+	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domains", statusCode: 200, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
 
-	c := FakeSOAPClient{
-		fixture: []byte(`<SOAP-ENV:Envelope>
-	<SOAP-ENV:Body>
-		<ns1:testResponse>
-			<return>
-				<item>
-					<key>foo</key>
-				</item>
-			</return>
-		</ns1:testResponse>
-	</SOAP-ENV:Body>
-</SOAP-ENV:Envelope>`),
+	restRequest := rest.Request{Endpoint: "/domains"}
+	type domainResponse struct {
+		Name string `json:"name"`
+	}
+	var domainsResponse struct {
+		Domains []domainResponse `json:"domains"`
 	}
 
-	var v struct {
-		Item struct {
-			Key string `xml:"key"`
-		} `xml:"item"`
-	}
-
-	err := c.Call(SoapRequest{Method: "test"}, &v)
+	err := client.Get(restRequest, &domainsResponse)
 	require.NoError(t, err)
-	assert.Equal(t, "foo", v.Item.Key)
+	require.Equal(t, 1, len(domainsResponse.Domains))
+	assert.Equal(t, "testje.nl", domainsResponse.Domains[0].Name)
 }
 
-func TestFakeSOAPClientFixtureFromFile(t *testing.T) {
-	var err error
-	c := FakeSOAPClient{}
-	err = c.FixtureFromFile("testdata/thisfiledoesnotexist")
-	require.Error(t, err)
-	assert.Contains(t, err.Error(), "no such file or directory")
-	assert.Equal(t, []byte(nil), c.fixture)
+func TestEmptyBodyPostDoesPostWithoutBody(t *testing.T) {
+	apiResponse := `{"domains":[{"name":"test.nl"}]}`
+	server := mockServer{t: t, expectedMethod: "POST", expectedURL: "/test", statusCode: 201, response: apiResponse}
+	client, tearDown := server.getClient()
+	defer tearDown()
 
-	err = c.FixtureFromFile("testdata/fakesoapclientfixturefromfile")
+	restRequest := rest.Request{Endpoint: "/test"}
+	err := client.Post(restRequest)
 	require.NoError(t, err)
-	assert.Equal(t, []byte("testfoobar\n"), c.fixture)
+}
+
+// Test if we can connect to the api server using the demo token
+func TestClient_CallToLiveApiServer(t *testing.T) {
+	clientConfig := ClientConfiguration{
+		Token: authenticator.DemoToken,
+	}
+
+	client, err := NewClient(clientConfig)
+	require.NoError(t, err)
+
+	request := rest.Request{Endpoint: "/api-test"}
+	var responseObject struct {
+		Response string `json:"ping"`
+	}
+
+	err = client.Get(request, &responseObject)
+	require.NoError(t, err)
+	assert.NotZero(t, len(responseObject.Response))
+}
+
+func TestClient_TestMode(t *testing.T) {
+	apiResponse := `{"ping":"pong"}`
+	params := url.Values{"test": []string{"1"}}
+
+	server := mockServer{t: t, expectedMethod: "POST", expectedURL: "/test?test=1", statusCode: 200, response: apiResponse, expectedParams: params}
+	httpServer := server.getHTTPServer()
+	defer httpServer.Close()
+
+	// setup a client with test mode enabled
+	clientConfig := DemoClientConfiguration
+	clientConfig.URL = httpServer.URL
+	clientConfig.TestMode = true
+
+	client, err := NewClient(clientConfig)
+	require.NoError(t, err)
+
+	restRequest := rest.Request{Endpoint: "/test"}
+	err = client.Post(restRequest)
+	require.NoError(t, err)
+}
+
+// mockServer struct is used to test the how the client sends a request
+// and responds to a servers response
+type mockServer struct {
+	t               *testing.T
+	expectedURL     string
+	expectedMethod  string
+	statusCode      int
+	expectedRequest string
+	response        string
+	expectedParams  url.Values
+}
+
+func (m *mockServer) getHTTPServer() *httptest.Server {
+	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
+		assert.Equal(m.t, m.expectedURL, req.URL.String()) // check if right expectedURL is called
+
+		if req.ContentLength != 0 {
+			// get the request body
+			// and check if the body matches the expected request body
+			body, err := ioutil.ReadAll(req.Body)
+			require.NoError(m.t, err)
+			assert.Equal(m.t, m.expectedRequest, string(body))
+		}
+
+		// expect http query strings to be equal
+		assert.Equal(m.t, m.expectedParams.Encode(), req.URL.RawQuery)
+
+		// check if a signature is set
+		assert.NotEmpty(m.t, req.Header.Get("Authorization"), "Authentication header not set")
+		// check if the request has the right content-type
+		assert.Equal(m.t, req.Header.Get("Accept"), "application/json")
+		// check if the request has the right user-agent
+		assert.Equal(m.t, req.Header.Get("User-Agent"), "go-client-gotransip/6.0.0")
+		// check if the request has the right content-type
+		assert.Equal(m.t, req.Header.Get("Content-Type"), "application/json")
+
+		assert.Equal(m.t, m.expectedMethod, req.Method) // check if the right expectedRequest expectedMethod is used
+		rw.WriteHeader(m.statusCode)                    // respond with given status code
+
+		if m.response != "" {
+			_, err := rw.Write([]byte(m.response))
+			require.NoError(m.t, err, "error when writing mock response")
+		}
+	}))
+}
+
+func (m *mockServer) getClient() (repository.Client, func()) {
+	httpServer := m.getHTTPServer()
+	config := DemoClientConfiguration
+	config.URL = httpServer.URL
+
+	client, err := NewClient(config)
+	require.NoError(m.t, err)
+
+	// return tearDown method with which will close the test server after the test
+	tearDown := func() {
+		httpServer.Close()
+	}
+
+	return client, tearDown
 }

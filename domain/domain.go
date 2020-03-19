@@ -1,512 +1,362 @@
 package domain
 
 import (
-	"fmt"
+	"github.com/transip/gotransip/v6/rest"
 	"net"
-
-	"github.com/transip/gotransip/v5"
-	"github.com/transip/gotransip/v5/util"
 )
 
+// PerformAction List of available actions to perform on this domain.
+// Possible actions are: 'register', 'transfer', 'internalpull' and 'internalpush'
+type PerformAction string
+
+// define all possible actions that a user can perform on a domain
 const (
-	serviceName    string = "DomainService"
-	dnsServiceName string = "DnsService"
+	// PerformActionTransfer is the available perform transfer action
+	PerformActionTransfer PerformAction = "transfer"
+	// PerformActionInternalPull is the available perform internalpull action,
+	// for when a domain is at transip and can be handovered pushed/pulled towards a different account
+	PerformActionInternalPull PerformAction = "internalpull"
+	// PerformActionInternalPush is the available perform internalpush action,
+	// for when a domain is at transip and can be handovered pushed/pulled towards a different account
+	PerformActionInternalPush PerformAction = "internalpush"
 )
 
-// Domain represents a Transip_Domain object
-// as described at https://api.transip.nl/docs/transip.nl/class-Transip_Domain.html
-type Domain struct {
-	Name              string         `xml:"name"`
-	Nameservers       []Nameserver   `xml:"nameservers>item"`
-	Contacts          []WhoisContact `xml:"contacts>item"`
-	DNSEntries        []DNSEntry     `xml:"dnsEntries>item"`
-	Branding          Branding       `xml:"branding"`
-	AuthorizationCode string         `xml:"authCode"`
-	IsLocked          bool           `xml:"isLocked"`
-	RegistrationDate  util.XMLTime   `xml:"registrationDate"`
-	RenewalDate       util.XMLTime   `xml:"renewalDate"`
-}
+// AvailabilityStatus is the status for a domain. Returned during queries upon the availability
+// Possible statuses are: 'inyouraccount', 'unavailable', 'notfree', 'free', 'internalpull', 'internalpush'
+type AvailabilityStatus string
 
-// EncodeParams returns Domain parameters ready to be used for constructing a signature
-// the order of parameters added here has to match the order in the WSDL
-// as described at http://api.transip.nl/wsdl/?service=DomainService
-func (d Domain) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
-	if len(prefix) == 0 {
-		prefix = fmt.Sprintf("%d", prm.Len())
-	}
-
-	prm.Add(fmt.Sprintf("%s[name]", prefix), d.Name)
-
-	// nameservers
-	Nameservers(d.Nameservers).EncodeParams(prm, fmt.Sprintf("%s[nameservers]", prefix))
-
-	// contacts
-	WhoisContacts(d.Contacts).EncodeParams(prm, fmt.Sprintf("%s[contacts]", prefix))
-
-	// dnsEntries
-	DNSEntries(d.DNSEntries).EncodeParams(prm, fmt.Sprintf("%s[dnsEntries]", prefix))
-
-	// branding
-	d.Branding.EncodeParams(prm, fmt.Sprintf("%s[branding]", prefix))
-
-	prm.Add(fmt.Sprintf("%s[authCode]", prefix), d.AuthorizationCode)
-	prm.Add(fmt.Sprintf("%s[isLocked]", prefix), d.IsLocked)
-	prm.Add(fmt.Sprintf("%s[registrationDate]", prefix), d.RegistrationDate.Format("2006-01-02"))
-	prm.Add(fmt.Sprintf("%s[renewalDate]", prefix), d.RenewalDate.Format("2006-01-02"))
-}
-
-// EncodeArgs returns Domain XML body ready to be passed in the SOAP call
-func (d Domain) EncodeArgs(key string) string {
-	output := fmt.Sprintf(`<%s xsi:type="ns1:Domain">
-	<name xsi:type="xsd:string">%s</name>`, key, d.Name) + "\n"
-
-	output += Nameservers(d.Nameservers).EncodeArgs("nameservers") + "\n"
-	output += WhoisContacts(d.Contacts).EncodeArgs("contacts") + "\n"
-	output += DNSEntries(d.DNSEntries).EncodeArgs("dnsEntries") + "\n"
-	output += d.Branding.EncodeArgs("branding") + "\n"
-
-	output += fmt.Sprintf(`	<authCode xsi:type="xsd:string">%s</authCode>
-	<isLocked xsi:type="xsd:boolean">%t</isLocked>
-	<registrationDate xsi:type="xsd:string">%s</registrationDate>
-	<renewalDate xsi:type="xsd:string">%s</renewalDate>`,
-		d.AuthorizationCode, d.IsLocked,
-		d.RegistrationDate.Format("2006-01-02"), d.RenewalDate.Format("2006-01-02"),
-	) + "\n"
-
-	return fmt.Sprintf("%s</%s>", output, key)
-}
-
-// Capability represents the possible capabilities a TLD can have
-type Capability string
-
-var (
-	// CapabilityRequiresAuthCode defines this TLD requires an auth code
-	// to be transferred
-	CapabilityRequiresAuthCode Capability = "requiresAuthCode"
-	// CapabilityCanRegister defines this TLD can be registered
-	CapabilityCanRegister Capability = "canRegister"
-	// CapabilityCanTransferWithOwnerChange defines this TLD can be transferred
-	// with change of ownership
-	CapabilityCanTransferWithOwnerChange Capability = "canTransferWithOwnerChange"
-	// CapabilityCanTransferWithoutOwnerChange defines this TLD can be
-	// transferred without change of ownership
-	CapabilityCanTransferWithoutOwnerChange Capability = "canTransferWithoutOwnerChange"
-	// CapabilityCanSetLock defines this TLD allows to be locked
-	CapabilityCanSetLock Capability = "canSetLock"
-	// CapabilityCanSetOwner defines this TLD supports setting an owner
-	CapabilityCanSetOwner Capability = "canSetOwner"
-	// CapabilityCanSetContacts defines this TLD supports setting contacts
-	CapabilityCanSetContacts Capability = "canSetContacts"
-	// CapabilityCanSetNameservers defines this TLD supports setting nameservers
-	CapabilityCanSetNameservers Capability = "canSetNameservers"
+// define all possible availability statuses
+const (
+	// AvailabilityStatusInYourAccount is the availability status for when a domain is already in your account
+	AvailabilityStatusInyouraccount AvailabilityStatus = "inyouraccount"
+	// AvailabilityStatusUnavailable is the availability status for when a domain is unavailable
+	AvailabilityStatusUnavailable AvailabilityStatus = "unavailable"
+	// AvailabilityStatusNotFree is the availability status for when a domain is already taken
+	AvailabilityStatusNotFree AvailabilityStatus = "notfree"
+	// AvailabilityStatusFree is the availability status for when a domain is free to register
+	AvailabilityStatusFree AvailabilityStatus = "free"
+	// AvailabilityStatusInternalPull is the availability status,
+	// for when a domain is at transip and can be handovered pushed/pulled towards a different account
+	AvailabilityStatusInternalPull AvailabilityStatus = "internalpull"
+	// AvailabilityStatusInternalPush is the availability status,
+	// for when a domain is at transip and can be handovered pushed/pulled towards a different account
+	AvailabilityStatusInternalPush AvailabilityStatus = "internalpush"
 )
 
-// TLD represents a Transip_Tld object as described at
-// https://api.transip.nl/docs/transip.nl/class-Transip_Tld.html
-type TLD struct {
-	Name                     string       `xml:"name"`
-	Price                    float64      `xml:"price"`
-	RenewalPrice             float64      `xml:"renewalPrice"`
-	Capabilities             []Capability `xml:"capabilities>item"`
-	RegistrationPeriodLength int64        `xml:"registrationPeriodLength"`
-	CancelTimeFrame          int64        `xml:"cancelTimeFrame"`
+// domainsResponse struct contains a list of Domains in it,
+// this is solely used for unmarshalling/marshalling
+type domainsResponse struct {
+	Domains []Domain `json:"domains"`
 }
 
-// Nameserver represents a Transip_Nameserver object as described at
-// https://api.transip.nl/docs/transip.nl/class-Transip_Nameserver.html
-type Nameserver struct {
-	Hostname    string `xml:"hostname"`
-	IPv4Address net.IP `xml:"ipv4"`
-	IPv6Address net.IP `xml:"ipv6"`
+// domainWrapper struct contains a Domain in it,
+// this is solely used for unmarshalling/marshalling
+type domainWrapper struct {
+	Domain Domain `json:"domain"`
 }
 
-// Nameservers is just an array of Nameserver
-// basically only here so it can implement paramsEncoder
-type Nameservers []Nameserver
-
-// EncodeParams returns Nameservers parameters ready to be used for constructing a signature
-// the order of parameters added here has to match the order in the WSDL
-// as described at http://api.transip.nl/wsdl/?service=DomainService
-func (n Nameservers) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
-	if len(n) == 0 {
-		prm.Add("anything", nil)
-		return
-	}
-
-	if len(prefix) == 0 {
-		prefix = fmt.Sprintf("%d", prm.Len())
-	}
-
-	for i, e := range n {
-		var ipv4, ipv6 string
-		if e.IPv4Address != nil {
-			ipv4 = e.IPv4Address.String()
-		}
-		if e.IPv6Address != nil {
-			ipv6 = e.IPv6Address.String()
-		}
-		prm.Add(fmt.Sprintf("%s[%d][hostname]", prefix, i), e.Hostname)
-		prm.Add(fmt.Sprintf("%s[%d][ipv4]", prefix, i), ipv4)
-		prm.Add(fmt.Sprintf("%s[%d][ipv6]", prefix, i), ipv6)
-	}
+// domainBrandingWrapper struct contains a Branding struct in it,
+// this is solely used for unmarshalling/marshalling
+type domainBrandingWrapper struct {
+	Branding Branding `json:"branding"`
 }
 
-// EncodeArgs returns Nameservers XML body ready to be passed in the SOAP call
-func (n Nameservers) EncodeArgs(key string) string {
-	output := fmt.Sprintf(`<%s SOAP-ENC:arrayType="ns1:Nameserver[%d]" xsi:type="ns1:ArrayOfNameserver">`, key, len(n)) + "\n"
-	for _, e := range n {
-		var ipv4, ipv6 string
-		if e.IPv4Address != nil {
-			ipv4 = e.IPv4Address.String()
-		}
-		if e.IPv6Address != nil {
-			ipv6 = e.IPv6Address.String()
-		}
-		output += fmt.Sprintf(`	<item xsi:type="ns1:Nameserver">
-		<hostname xsi:type="xsd:string">%s</hostname>
-		<ipv4 xsi:type="xsd:string">%s</ipv4>
-		<ipv6 xsi:type="xsd:string">%s</ipv6>
-	</item>`, e.Hostname, ipv4, ipv6) + "\n"
-	}
-
-	return fmt.Sprintf("%s</%s>", output, key)
+// dnsEntriesWrapper struct contains a DNSEntry list in it,
+// this is solely used for unmarshalling/marshalling
+type dnsEntriesWrapper struct {
+	DNSEntries []DNSEntry `json:"dnsEntries"`
 }
 
-// DNSEntryType represents the possible types of DNS entries
-type DNSEntryType string
+// dnsEntryWrapper struct contains a DNSEntry struct in it,
+// this is solely used for unmarshalling/marshalling
+type dnsEntryWrapper struct {
+	DNSEntry DNSEntry `json:"dnsEntry"`
+}
 
-var (
-	// DNSEntryTypeA represents an A-record
-	DNSEntryTypeA DNSEntryType = "A"
-	// DNSEntryTypeAAAA represents an AAAA-record
-	DNSEntryTypeAAAA DNSEntryType = "AAAA"
-	// DNSEntryTypeCNAME represents a CNAME-record
-	DNSEntryTypeCNAME DNSEntryType = "CNAME"
-	// DNSEntryTypeMX represents an MX-record
-	DNSEntryTypeMX DNSEntryType = "MX"
-	// DNSEntryTypeNS represents an NS-record
-	DNSEntryTypeNS DNSEntryType = "NS"
-	// DNSEntryTypeTXT represents a TXT-record
-	DNSEntryTypeTXT DNSEntryType = "TXT"
-	// DNSEntryTypeSRV represents an SRV-record
-	DNSEntryTypeSRV DNSEntryType = "SRV"
-	// DNSEntryTypeSSHFP represents an SSHFP-record
-	DNSEntryTypeSSHFP DNSEntryType = "SSHFP"
-	// DNSEntryTypeTLSA represents a TLSA-record
-	DNSEntryTypeTLSA DNSEntryType = "TLSA"
-	// DNSEntryTypeCAA represents a CAA-record
-	DNSEntryTypeCAA DNSEntryType = "CAA"
-)
+// contactsWrapper struct contains a list of Contacts in it,
+// this is solely used for unmarshalling/marshalling
+type contactsWrapper struct {
+	Contacts []WhoisContact `json:"contacts"`
+}
 
-// DNSEntry represents a Transip_DnsEntry object as described at
-// https://api.transip.nl/docs/transip.nl/class-Transip_DnsEntry.html
+// dnsSecEntriesWrapper struct contains a list of DNSSecEntry in it,
+// this is solely used for unmarshalling/marshalling
+type dnsSecEntriesWrapper struct {
+	// All DNSSEC entries for a domain
+	DNSSecEntries []DNSSecEntry `json:"dnsSecEntries"`
+}
+
+// nameserversWrapper struct contains a list of Nameservers in it,
+// this is solely used for unmarshalling/marshalling
+type nameserversWrapper struct {
+	Nameservers []Nameserver `json:"nameservers"`
+}
+
+// actionWrapper struct contains a Action in it, this is solely used for unmarshalling/marshalling
+type actionWrapper struct {
+	Action Action `json:"action"`
+}
+
+// retryActionWrapper object is used to create a retry action request body
+type retryActionWrapper struct {
+	// The authcode for this domain as generated by the registry.
+	AuthCode string `json:"authCode,omitempty"`
+	// Optionally you can set different domain dns entries
+	DNSEntries []DNSEntry `json:"dnsEntries,omitempty"`
+	// Optionally you can set different nameservers
+	Nameservers []Nameserver `json:"nameservers,omitempty"`
+	// Optionally you can set different whois contacts
+	Contacts []WhoisContact `json:"contacts"`
+}
+
+// certificatesWrapper struct contains a list of SslCertificates in it,
+// this is solely used for unmarshalling
+type certificatesWrapper struct {
+	Certificates []SslCertificate `json:"certificates"`
+}
+
+// certificateWrapper struct contains a SslCertificate in it,
+// this is solely used for unmarshalling
+type certificateWrapper struct {
+	Certificate SslCertificate `json:"certificate"`
+}
+
+// whoisWrapper struct contains a whois string in it,
+// this is solely used for unmarshalling
+type whoisWrapper struct {
+	Whois string `json:"whois"`
+}
+
+// availabilityWrapper struct contains a Availability struct in it,
+// this is solely used for unmarshalling
+type availabilityWrapper struct {
+	Availability Availability `json:"availability"`
+}
+
+// availabilityListWrapper struct contains a list of Availability structs in it,
+// this is solely used for unmarshalling
+type availabilityListWrapper struct {
+	AvailabilityList []Availability `json:"availability"`
+}
+
+// this struct is used to generate a json request
+// for the multiple domain names availability option
+type multipleAvailabilityRequest struct {
+	DomainNames []string `json:"domainNames"`
+}
+
+// tldsWrapper struct contains a list of Tlds in it,
+// this is solely used for unmarshalling
+type tldsWrapper struct {
+	Tlds []Tld `json:"tlds"`
+}
+
+// tldWrapper struct contains a list of Tld in it,
+// this is solely used for unmarshalling
+type tldWrapper struct {
+	Tld Tld `json:"tld"`
+}
+
+// Contact struct for a Contact
+type Contact struct {
+	// Email address of the contact
+	Email string `json:"email"`
+	// ID number of the contact
+	ID int64 `json:"id"`
+	// Name of the contact
+	Name string `json:"name"`
+	// Telephone number of the contact
+	Telephone string `json:"telephone"`
+}
+
+// DNSEntry struct for a DNSEntry
 type DNSEntry struct {
-	Name    string       `xml:"name"`
-	TTL     int64        `xml:"expire"`
-	Type    DNSEntryType `xml:"type"`
-	Content string       `xml:"content"`
+	// The name of the dns entry, for example '@' or 'www'
+	Name string `json:"name"`
+	// The expiration period of the dns entry, in seconds. For example 86400 for a day of expiration
+	Expire int `json:"expire"`
+	// The type of dns entry. Possbible types are 'A', 'AAAA', 'CNAME', 'MX', 'NS', 'TXT', 'SRV', 'SSHFP' and 'TLSA'
+	Type string `json:"type"`
+	// The content of of the dns entry, for example '10 mail', '127.0.0.1' or 'www'
+	Content string `json:"content"`
 }
 
-// DNSEntries is just an array of DNSEntry
-// basically only here so it can implement paramsEncoder
-type DNSEntries []DNSEntry
-
-// EncodeParams returns DNSEntries parameters ready to be used for constructing a signature
-// the order of parameters added here has to match the order in the WSDL
-// as described at http://api.transip.nl/wsdl/?service=DomainService
-func (d DNSEntries) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
-	if len(d) == 0 {
-		prm.Add("anything", nil)
-		return
-	}
-
-	if len(prefix) == 0 {
-		prefix = fmt.Sprintf("%d", prm.Len())
-	}
-
-	for i, e := range d {
-		prm.Add(fmt.Sprintf("%s[%d][name]", prefix, i), e.Name)
-		prm.Add(fmt.Sprintf("%s[%d][expire]", prefix, i), fmt.Sprintf("%d", e.TTL))
-		prm.Add(fmt.Sprintf("%s[%d][type]", prefix, i), string(e.Type))
-		prm.Add(fmt.Sprintf("%s[%d][content]", prefix, i), e.Content)
-	}
-}
-
-// EncodeArgs returns DNSEntries XML body ready to be passed in the SOAP call
-func (d DNSEntries) EncodeArgs(key string) string {
-	output := fmt.Sprintf(`<%s SOAP-ENC:arrayType="ns1:DnsEntry[%d]" xsi:type="ns1:ArrayOfDnsEntry">`, key, len(d)) + "\n"
-	for _, e := range d {
-		output += fmt.Sprintf(`	<item xsi:type="ns1:DnsEntry">
-		<name xsi:type="xsd:string">%s</name>
-		<expire xsi:type="xsd:int">%d</expire>
-		<type xsi:type="xsd:string">%s</type>
-		<content xsi:type="xsd:string">%s</content>
-	</item>`, e.Name, e.TTL, e.Type, e.Content) + "\n"
-	}
-
-	return fmt.Sprintf("%s</%s>", output, key)
-}
-
-// DNSSecAlgorithm represents the possible types of DNSSec algorithms
-type DNSSecAlgorithm int
-
-const (
-	// DNSSecAlgorithmDSA represents DSA
-	DNSSecAlgorithmDSA DNSSecAlgorithm = iota + 3
-	_
-	// DNSSecAlgorithmRSASHA1 represents RSASHA1
-	DNSSecAlgorithmRSASHA1
-	// DNSSecAlgorithmDSANSEC3SHA1 represents DSANSEC3SHA1
-	DNSSecAlgorithmDSANSEC3SHA1
-	// DNSSecAlgorithmRSASHA1NSEC3SHA1 represents RSASHA1NSEC3SHA1
-	DNSSecAlgorithmRSASHA1NSEC3SHA1
-	// DNSSecAlgorithmRSASHA256 represents RSASHA256
-	DNSSecAlgorithmRSASHA256
-	// DNSSecAlgorithmRSASHA512 represents RSASHA512
-	DNSSecAlgorithmRSASHA512 DNSSecAlgorithm = iota + 4
-	_
-	// DNSSecAlgorithmECCGOST represents ECCGOST
-	DNSSecAlgorithmECCGOST
-	// DNSSecAlgorithmECDSAP256SHA256 represents ECDSAP256SHA256
-	DNSSecAlgorithmECDSAP256SHA256
-	// DNSSecAlgorithmECDSAP384SHA384 represents ECDSAP384SHA384
-	DNSSecAlgorithmECDSAP384SHA384
-	// DNSSecAlgorithmED25519 represents ED25519
-	DNSSecAlgorithmED25519
-	// DNSSecAlgorithmED448 represents ED448
-	DNSSecAlgorithmED448
-)
-
-// DNSSecFlag represents the possible types of DNSSec flags
-type DNSSecFlag int
-
-const (
-	// DNSSecFlagNone means no flag is set
-	DNSSecFlagNone DNSSecFlag = 0
-	// DNSSecFlagZSK means this is a Zone Signing Key
-	DNSSecFlagZSK DNSSecFlag = 256
-	// DNSSecFlagKSK means this is a Key Signing Key
-	DNSSecFlagKSK DNSSecFlag = 257
-)
-
-// DNSSecEntry represents a Transip_DnsSecEntry object as described at
-// https://api.transip.nl/docs/transip.nl/class-Transip_DnsSecEntry.html
-type DNSSecEntry struct {
-	KeyTag    int             `xml:"keyTag"`
-	Flags     DNSSecFlag      `xml:"flags"`
-	Algorithm DNSSecAlgorithm `xml:"algorithm"`
-	PublicKey string          `xml:"publicKey"`
-}
-
-// DNSSecEntries is just an array of DNSSecEntry
-// basically only here so it can implement paramsEncoder
-type DNSSecEntries []DNSSecEntry
-
-// EncodeParams returns DNSSecEntries parameters ready to be used for constructing
-// a signature
-// the order of parameters added here has to match the order in the WSDL as
-// described at http://api.transip.nl/wsdl/?service=DnsService
-func (d DNSSecEntries) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
-	if len(d) == 0 {
-		prm.Add("anything", nil)
-		return
-	}
-
-	if len(prefix) == 0 {
-		prefix = fmt.Sprintf("%d", prm.Len())
-	}
-
-	for i, e := range d {
-		prm.Add(fmt.Sprintf("%s[%d][keyTag]", prefix, i), fmt.Sprintf("%d", e.KeyTag))
-		prm.Add(fmt.Sprintf("%s[%d][flags]", prefix, i), fmt.Sprintf("%d", e.Flags))
-		prm.Add(fmt.Sprintf("%s[%d][algorithm]", prefix, i), fmt.Sprintf("%d", e.Algorithm))
-		prm.Add(fmt.Sprintf("%s[%d][publicKey]", prefix, i), e.PublicKey)
-	}
-}
-
-// EncodeArgs returns Entries XML body ready to be passed in the SOAP call
-func (d DNSSecEntries) EncodeArgs(key string) string {
-	output := fmt.Sprintf(`<%s SOAP-ENC:arrayType="ns1:DnsSecEntry[%d]" xsi:type="ns1:ArrayOfDnsSecEntry">`, key, len(d)) + "\n"
-	for _, e := range d {
-		output += fmt.Sprintf(`	<item xsi:type="ns1:DnsSecEntry">
-		<keyTag xsi:type="xsd:int">%d</keyTag>
-		<flags xsi:type="xsd:int">%d</flags>
-		<algorithm xsi:type="xsd:int">%d</algorithm>
-		<publicKey xsi:type="xsd:string">%s</publicKey>
-	</item>`, e.KeyTag, e.Flags, e.Algorithm, e.PublicKey) + "\n"
-	}
-
-	return fmt.Sprintf("%s</%s>", output, key)
-}
-
-// Status reflects the current status of a domain in a check result
-type Status string
-
-var (
-	// StatusInYourAccount means he domain name is already in your account
-	StatusInYourAccount Status = "inyouraccount"
-	// StatusUnavailable means the domain name is currently unavailable and can not be registered due to unknown reasons.
-	StatusUnavailable Status = "unavailable"
-	// StatusNotFree means the domain name has already been registered
-	StatusNotFree Status = "notfree"
-	// StatusFree means the domain name is currently free, is available and can be registered
-	StatusFree Status = "free"
-	// StatusInternalPull means the domain name is currently registered at TransIP and is available to be pulled from another account to yours.
-	StatusInternalPull Status = "internalpull"
-	// StatusInternalPush means the domain name is currently registered at TransIP in your accounta and is available to be pushed to another account.
-	StatusInternalPush Status = "internalpush"
-)
-
-// CheckResult represents a Transip_DomainCheckResult object as described at
-// https://api.transip.nl/docs/transip.nl/class-Transip_DomainCheckResult.html
-type CheckResult struct {
-	DomainName string   `xml:"domainName"`
-	Status     Status   `xml:"status"`
-	Actions    []Action `xml:"actions>item"`
-}
-
-// Branding represents a Transip_DomainBranding object as described at
-// https://api.transip.nl/docs/transip.nl/class-Transip_DomainBranding.html
-type Branding struct {
-	CompanyName     string `xml:"companyName"`
-	SupportEmail    string `xml:"supportEmail"`
-	CompanyURL      string `xml:"companyUrl"`
-	TermsOfUsageURL string `xml:"termsOfUsageUrl"`
-	BannerLine1     string `xml:"bannerLine1"`
-	BannerLine2     string `xml:"bannerLine2"`
-	BannerLine3     string `xml:"bannerLine3"`
-}
-
-// EncodeParams returns WhoisContacts parameters ready to be used for constructing a signature
-// the order of parameters added here has to match the order in the WSDL
-// as described at http://api.transip.nl/wsdl/?service=DomainService
-func (b Branding) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
-	if len(prefix) == 0 {
-		prefix = fmt.Sprintf("%d", prm.Len())
-	}
-
-	prm.Add(fmt.Sprintf("%s[companyName]", prefix), b.CompanyName)
-	prm.Add(fmt.Sprintf("%s[supportEmail]", prefix), b.SupportEmail)
-	prm.Add(fmt.Sprintf("%s[companyUrl]", prefix), b.CompanyURL)
-	prm.Add(fmt.Sprintf("%s[termsOfUsageUrl]", prefix), b.TermsOfUsageURL)
-	prm.Add(fmt.Sprintf("%s[bannerLine1]", prefix), b.BannerLine1)
-	prm.Add(fmt.Sprintf("%s[bannerLine2]", prefix), b.BannerLine2)
-	prm.Add(fmt.Sprintf("%s[bannerLine3]", prefix), b.BannerLine3)
-}
-
-// EncodeArgs returns Branding XML body ready to be passed in the SOAP call
-func (b Branding) EncodeArgs(key string) string {
-	return fmt.Sprintf(`<branding xsi:type="ns1:DomainBranding">
-    <companyName xsi:type="xsd:string">%s</companyName>
-    <supportEmail xsi:type="xsd:string">%s</supportEmail>
-    <companyUrl xsi:type="xsd:string">%s</companyUrl>
-    <termsOfUsageUrl xsi:type="xsd:string">%s</termsOfUsageUrl>
-    <bannerLine1 xsi:type="xsd:string">%s</bannerLine1>
-    <bannerLine2 xsi:type="xsd:string">%s</bannerLine2>
-    <bannerLine3 xsi:type="xsd:string">%s</bannerLine3>
-</branding>`, b.CompanyName, b.SupportEmail, b.CompanyURL, b.TermsOfUsageURL, b.BannerLine1, b.BannerLine2, b.BannerLine3)
-}
-
-// Action reflects the available actions to perform on a domain
-type Action string
-
-var (
-	// ActionRegister registers a domain
-	ActionRegister Action = "register"
-	// ActionTransfer transfers a domain to another provider
-	ActionTransfer Action = "transfer"
-	// ActionInternalPull transfers a domain to another account at TransIP
-	ActionInternalPull Action = "internalpull"
-)
-
-// ActionResult represents a Transip_DomainAction object as described at
-// https://api.transip.nl/docs/transip.nl/class-Transip_DomainAction.html
-type ActionResult struct {
-	Name      string `xml:"name"`
-	HasFailed bool   `xml:"hasFailed"`
-	Message   string `xml:"message"`
-}
-
-// WhoisContact represents a TransIP_WhoisContact object
-// as described at https://api.transip.nl/docs/transip.nl/class-Transip_WhoisContact.html
+// WhoisContact struct for a whois contact
 type WhoisContact struct {
-	Type        string `xml:"type"`
-	FirstName   string `xml:"firstName"`
-	MiddleName  string `xml:"middleName"`
-	LastName    string `xml:"lastName"`
-	CompanyName string `xml:"companyName"`
-	CompanyKvk  string `xml:"companyKvk"`
-	CompanyType string `xml:"companyType"`
-	Street      string `xml:"street"`
-	Number      string `xml:"number"`
-	PostalCode  string `xml:"postalCode"`
-	City        string `xml:"city"`
-	PhoneNumber string `xml:"phoneNumber"`
-	FaxNumber   string `xml:"faxNumber"`
-	Email       string `xml:"email"`
-	Country     string `xml:"country"`
+	// The type of this Contact, 'registrant', 'administrative' or 'technical'
+	Type string `json:"type"`
+	// The firstName of this Contact
+	FirstName string `json:"firstName"`
+	// The lastName of this Contact
+	LastName string `json:"lastName"`
+	// The companyName of this Contact, in case of a company
+	CompanyName string `json:"companyName"`
+	// The kvk number of this Contact, in case of a company
+	CompanyKvk string `json:"companyKvk"`
+	// The type number of this Contact, in case of a company.
+	// Possible types are: 'BV', 'BVI/O', 'COOP', 'CV', 'EENMANSZAAK', 'KERK', 'NV',
+	// 'OWM', 'REDR', 'STICHTING', 'VERENIGING', 'VOF', 'BEG', 'BRO', 'EESV' and 'ANDERS'
+	CompanyType string `json:"companyType"`
+	// The street of the address of this Contact
+	Street string `json:"street"`
+	// The number part of the address of this Contact
+	Number string `json:"number"`
+	// The postalCode part of the address of this Contact
+	PostalCode string `json:"postalCode"`
+	// The city part of the address of this Contact
+	City string `json:"city"`
+	// The phoneNumber of this Contact
+	PhoneNumber string `json:"phoneNumber"`
+	// The faxNumber of this Contact
+	FaxNumber string `json:"faxNumber,omitempty"`
+	// The email address of this Contact
+	Email string `json:"email"`
+	// The country of this Contact, one of the ISO 3166-1 2 letter country codes, must be lowercase.
+	Country string `json:"country"`
 }
 
-// WhoisContacts is just an array of WhoisContact
-// basically only here so it can implement paramsEncoder
-type WhoisContacts []WhoisContact
-
-// EncodeParams returns WhoisContacts parameters ready to be used for constructing a signature
-// the order of parameters added here has to match the order in the WSDL
-// as described at http://api.transip.nl/wsdl/?service=DomainService
-func (w WhoisContacts) EncodeParams(prm gotransip.ParamsContainer, prefix string) {
-	if len(w) == 0 {
-		prm.Add("anything", nil)
-		return
-	}
-
-	if len(prefix) == 0 {
-		prefix = fmt.Sprintf("%d", prm.Len())
-	}
-
-	for i, e := range w {
-		prm.Add(fmt.Sprintf("%s[%d][type]", prefix, i), e.Type)
-		prm.Add(fmt.Sprintf("%s[%d][firstName]", prefix, i), e.FirstName)
-		prm.Add(fmt.Sprintf("%s[%d][middleName]", prefix, i), e.MiddleName)
-		prm.Add(fmt.Sprintf("%s[%d][lastName]", prefix, i), e.LastName)
-		prm.Add(fmt.Sprintf("%s[%d][companyName]", prefix, i), e.CompanyName)
-		prm.Add(fmt.Sprintf("%s[%d][companyKvk]", prefix, i), e.CompanyKvk)
-		prm.Add(fmt.Sprintf("%s[%d][companyType]", prefix, i), e.CompanyType)
-		prm.Add(fmt.Sprintf("%s[%d][street]", prefix, i), e.Street)
-		prm.Add(fmt.Sprintf("%s[%d][number]", prefix, i), e.Number)
-		prm.Add(fmt.Sprintf("%s[%d][postalCode]", prefix, i), e.PostalCode)
-		prm.Add(fmt.Sprintf("%s[%d][city]", prefix, i), e.City)
-		prm.Add(fmt.Sprintf("%s[%d][phoneNumber]", prefix, i), e.PhoneNumber)
-		prm.Add(fmt.Sprintf("%s[%d][faxNumber]", prefix, i), e.FaxNumber)
-		prm.Add(fmt.Sprintf("%s[%d][email]", prefix, i), e.Email)
-		prm.Add(fmt.Sprintf("%s[%d][country]", prefix, i), e.Country)
-	}
+// Action struct for a domain Action
+type Action struct {
+	// If this action has failed, this field will be true.
+	HasFailed bool `json:"hasFailed,omitempty"`
+	// If this action has failed, this field will contain an descriptive message.
+	Message string `json:"message,omitempty"`
+	// The name of this Action.
+	Name string `json:"name"`
 }
 
-// EncodeArgs returns WhoisContacts XML body ready to be passed in the SOAP call
-func (w WhoisContacts) EncodeArgs(key string) string {
-	output := fmt.Sprintf(`<%s SOAP-ENC:arrayType="ns1:WhoisContact[%d]" xsi:type="ns1:ArrayOfWhoisContact">`, key, len(w)) + "\n"
-	for _, e := range w {
-		output += fmt.Sprintf(`	<item xsi:type="ns1:WhoisContact">
-		<type xsi:type="xsd:string">%s</type>
-		<firstName xsi:type="xsd:string">%s</firstName>
-		<middleName xsi:type="xsd:string">%s</middleName>
-		<lastName xsi:type="xsd:string">%s</lastName>
-		<companyName xsi:type="xsd:string">%s</companyName>
-		<companyKvk xsi:type="xsd:string">%s</companyKvk>
-		<companyType xsi:type="xsd:string">%s</companyType>
-		<street xsi:type="xsd:string">%s</street>
-		<number xsi:type="xsd:string">%s</number>
-		<postalCode xsi:type="xsd:string">%s</postalCode>
-		<city xsi:type="xsd:string">%s</city>
-		<phoneNumber xsi:type="xsd:string">%s</phoneNumber>
-		<faxNumber xsi:type="xsd:string">%s</faxNumber>
-		<email xsi:type="xsd:string">%s</email>
-		<country xsi:type="xsd:string">%s</country>
-	</item>`, e.Type, e.FirstName, e.MiddleName, e.LastName, e.CompanyName,
-			e.CompanyKvk, e.CompanyType, e.Street, e.Number, e.PostalCode, e.City,
-			e.PhoneNumber, e.FaxNumber, e.Email, e.Country) + "\n"
-	}
+// SslCertificate struct for a SslCertificate
+type SslCertificate struct {
+	// The id of the certificate, can be used to retrieve additional info
+	CertificateID int `json:"certificateId"`
+	// The domain name that the SSL certificate is added to. Start with '*.' when the certificate is a wildcard.
+	CommonName string `json:"commonName"`
+	// Expiration date
+	ExpirationDate string `json:"expirationDate"`
+	// The current status, either 'active', 'inactive' or 'expired'
+	Status string `json:"status"`
+}
 
-	return output + fmt.Sprintf("</%s>", key)
+// Domain struct for a Domain
+type Domain struct {
+	// The custom tags added to this domain.
+	Tags []string `json:"tags"`
+	// The authcode for this domain as generated by the registry.
+	AuthCode string `json:"authCode,omitempty"`
+	// Cancellation data, in YYYY-mm-dd h:i:s format, null if the domain is active.
+	CancellationDate rest.Time `json:"cancellationDate,omitempty"`
+	// Cancellation status, null if the domain is active, 'cancelled' when the domain is cancelled.
+	CancellationStatus string `json:"cancellationStatus,omitempty"`
+	// Whether this domain is DNS only
+	IsDNSOnly bool `json:"isDnsOnly,omitempty"`
+	// If this domain supports transfer locking, this flag is true when the domains ability to transfer is locked at the registry.
+	IsTransferLocked bool `json:"isTransferLocked"`
+	// If this domain is added to your whitelabel.
+	IsWhitelabel bool `json:"isWhitelabel"`
+	// The name, including the tld of this domain
+	Name string `json:"name"`
+	// Registration date of the domain, in YYYY-mm-dd format.
+	RegistrationDate rest.Date `json:"registrationDate,omitempty"`
+	// Next renewal date of the domain, in YYYY-mm-dd format.
+	RenewalDate rest.Date `json:"renewalDate,omitempty"`
+}
+
+// Branding struct for a Branding, this information is shown in the whois information
+type Branding struct {
+	// The first generic bannerLine displayed in whois-branded whois output.
+	BannerLine1 string `json:"bannerLine1"`
+	// The second generic bannerLine displayed in whois-branded whois output.
+	BannerLine2 string `json:"bannerLine2"`
+	// The third generic bannerLine displayed in whois-branded whois output.
+	BannerLine3 string `json:"bannerLine3"`
+	// The company name displayed in transfer-branded e-mails
+	CompanyName string `json:"companyName"`
+	// The company url displayed in transfer-branded e-mails
+	CompanyURL string `json:"companyUrl"`
+	// The support email used for transfer-branded e-mails
+	SupportEmail string `json:"supportEmail"`
+	// The terms of usage url as displayed in transfer-branded e-mails
+	TermsOfUsageURL string `json:"termsOfUsageUrl"`
+}
+
+// DNSSecEntry struct for a DNSSecEntry
+type DNSSecEntry struct {
+	// The algorithm type that is used,
+	// see: https://www.transip.nl/vragen/461-domeinnaam-nameservers-gebruikt-beveiligen-dnssec/ for the possible options.
+	Algorithm int `json:"algorithm"`
+	// The signing key number, either 256 (Zone Signing Key) or 257 (Key Signing Key)
+	Flags int `json:"flags"`
+	// A 5-digit key of the Zonesigner
+	KeyTag int `json:"keyTag"`
+	// The public key
+	PublicKey string `json:"publicKey"`
+}
+
+// Tld struct for a Tld
+type Tld struct {
+	// Number of days a domain needs to be canceled before the renewal date.
+	CancelTimeFrame int `json:"cancelTimeFrame,omitempty"`
+	// A list of the capabilities that this Tld has (the things that can be done with a domain under this tld).
+	// Possible capabilities are: 'requiresAuthCode', 'canRegister', 'canTransferWithOwnerChange',
+	// 'canTransferWithoutOwnerChange', 'canSetLock', 'canSetOwner', 'canSetContacts', 'canSetNameservers',
+	// 'supportsDnsSec'
+	Capabilities []string `json:"capabilities,omitempty"`
+	// The maximum amount of characters need for registering a domain under this TLD.
+	MaxLength int `json:"maxLength,omitempty"`
+	// The minimum amount of characters need for registering a domain under this TLD.
+	MinLength int `json:"minLength,omitempty"`
+	// The name of this TLD, including the starting dot. E.g. .nl or .com.
+	Name string `json:"name"`
+	// Price of the TLD in cents
+	Price int `json:"price,omitempty"`
+	// Price for renewing the TLD in cents
+	RecurringPrice int `json:"recurringPrice,omitempty"`
+	// Length in months of each registration or renewal period.
+	RegistrationPeriodLength int `json:"registrationPeriodLength,omitempty"`
+}
+
+// Availability struct for an Availability
+type Availability struct {
+	// List of available actions to perform on this domain. Possible actions are: 'register', 'transfer', 'internalpull' and 'internalpush'
+	Actions []PerformAction `json:"actions"`
+	// The name of the domain
+	DomainName string `json:"domainName"`
+	// The status for this domain. Possible statuses are: 'inyouraccount', 'unavailable', 'notfree', 'free', 'internalpull' and 'internalpush'
+	Status AvailabilityStatus `json:"status"`
+}
+
+// Nameserver struct for a Nameserver
+type Nameserver struct {
+	// The hostname of this nameserver
+	Hostname string `json:"hostname"`
+	// Optional ipv4 glue record for this nameserver
+	IPv4 net.IP `json:"ipv4,omitempty"`
+	// Optional ipv6 glue record for this nameserver
+	IPv6 net.IP `json:"ipv6,omitempty"`
+}
+
+// Register struct used when registering a new domain
+type Register struct {
+	// The name, including the tld of the domain
+	DomainName string `json:"domainName"`
+	// Optionally you can set whois contacts
+	Contacts []Contact `json:"contacts,omitempty"`
+	// Optionally you can set the domain dns entries before transferring
+	DNSEntries []DNSEntry `json:"dnsEntries,omitempty"`
+	// Optionally you can set the domain nameservers before transferring
+	Nameservers []Nameserver `json:"nameservers,omitempty"`
+}
+
+// Transfer struct used when transferring a domain to transip
+type Transfer struct {
+	// The name, including the tld of the domain
+	DomainName string `json:"domainName"`
+	// The authcode for this domain as generated by the registry.
+	AuthCode string `json:"authCode"`
+	// Optionally you can set whois contacts
+	Contacts []Contact `json:"contacts,omitempty"`
+	// Optionally you can set the domain dns entries before transferring
+	DNSEntries []DNSEntry `json:"dnsEntries,omitempty"`
+	// Optionally you can set the domain nameservers before transferring
+	Nameservers []Nameserver `json:"nameservers,omitempty"`
 }

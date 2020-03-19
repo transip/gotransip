@@ -1,9 +1,0 @@
-<branding xsi:type="ns1:DomainBranding">
-    <companyName xsi:type="xsd:string">TransIP BV</companyName>
-    <supportEmail xsi:type="xsd:string">support@transip.nl</supportEmail>
-    <companyUrl xsi:type="xsd:string">https://transip.nl/</companyUrl>
-    <termsOfUsageUrl xsi:type="xsd:string">https://transip.nl/tou</termsOfUsageUrl>
-    <bannerLine1 xsi:type="xsd:string">TransIP 1</bannerLine1>
-    <bannerLine2 xsi:type="xsd:string">TransIP 2</bannerLine2>
-    <bannerLine3 xsi:type="xsd:string">TransIP 3</bannerLine3>
-</branding>

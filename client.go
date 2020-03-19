@@ -3,117 +3,206 @@ package gotransip
 import (
 	"errors"
 	"fmt"
+	"github.com/transip/gotransip/v6/authenticator"
+	"github.com/transip/gotransip/v6/jwt"
+	"github.com/transip/gotransip/v6/repository"
+	"github.com/transip/gotransip/v6/rest"
+	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 )
 
-const (
-	transipAPIHost      = "api.transip.nl"
-	transipAPINamespace = "http://www.transip.nl/soap"
-)
-
-// APIMode specifies in which mode the API is used. Currently this is only
-// supports either readonly or readwrite
-type APIMode string
-
-var (
-	// APIModeReadOnly specifies that no changes can be made from API calls
-	APIModeReadOnly APIMode = "readonly"
-	// APIModeReadWrite specifies that changes can be made from API calls
-	APIModeReadWrite APIMode = "readwrite"
-)
-
-// ClientConfig is a tool to easily create a new Client object
-type ClientConfig struct {
-	AccountName    string
-	PrivateKeyPath string
-	PrivateKeyBody []byte
-	Mode           APIMode
+// client manages communication with the TransIP API
+// In most cases there should be only one, shared, client.
+type client struct {
+	// client configuration file, allows you to:
+	// - setting a custom useragent
+	// - enable test mode
+	// - use the demo token
+	// - enable debugging
+	config ClientConfiguration
+	// authenticator wraps all authentication logic
+	// - checking if the token is not expired yet
+	// - creating an authentication request
+	// - requesting and setting a new token
+	authenticator *authenticator.Authenticator
 }
 
-// Client is the interface which all clients should implement
-type Client interface {
-	Call(SoapRequest, interface{}) error // execute request on client
+// httpBodyLimit provides a maximum byte limit around the http body reader.
+// If a request somehow ends up having a huge response body you load all of that data into memory.
+// We do not expect to hit this extreme high number even when serving things like PDFs
+const httpBodyLimit = 1024 * 1024 * 4
+
+// NewClient creates a new API client.
+// optionally you could put a custom http.client in the configuration struct
+// to allow for advanced features such as caching.
+func NewClient(config ClientConfiguration) (repository.Client, error) {
+	return newClient(config)
 }
 
-// SOAPClient represents a TransIP API SOAP client, implementing the Client
-// interface
-type SOAPClient struct {
-	soapClient soapClient
-}
+// newClient method is used internally for testing,
+// the NewClient method is exported as it follows the repository.Client interface
+// which is so that we don't have to bind to this specific implementation
+func newClient(config ClientConfiguration) (*client, error) {
+	if config.HTTPClient == nil {
+		config.HTTPClient = http.DefaultClient
+	}
+	var privateKeyBody []byte
+	var token jwt.Token
 
-// Call performs given SOAP request and fills the response into result
-func (c SOAPClient) Call(req SoapRequest, result interface{}) error {
-	return c.soapClient.call(req, result)
-}
-
-// NewSOAPClient returns a new SOAPClient object for given config
-// ClientConfig's PrivateKeyPath will override potentially given PrivateKeyBody
-func NewSOAPClient(c ClientConfig) (SOAPClient, error) {
 	// check account name
-	if len(c.AccountName) == 0 {
-		return SOAPClient{}, errors.New("AccountName is required")
+	if len(config.AccountName) == 0 && len(config.Token) == 0 {
+		return &client{}, errors.New("AccountName is required")
 	}
 
-	// check if private key was given in any form
-	if len(c.PrivateKeyPath) == 0 && len(c.PrivateKeyBody) == 0 {
-		return SOAPClient{}, errors.New("PrivateKeyPath or PrivateKeyBody is required")
-	}
+	// if a private key path is specified and a private key reader is not we
+	// fill the private key reader with a opened file on the given PrivateKeyPath
+	if len(config.PrivateKeyPath) > 0 && config.PrivateKeyReader == nil {
+		privateKeyFile, err := os.Open(config.PrivateKeyPath)
+		config.PrivateKeyReader = privateKeyFile
 
-	// if PrivateKeyPath was set, this will override any given PrivateKeyBody
-	if len(c.PrivateKeyPath) > 0 {
-		// try to open private key and read contents
-		if _, err := os.Stat(c.PrivateKeyPath); err != nil {
-			return SOAPClient{}, fmt.Errorf("could not open private key: %s", err.Error())
-		}
-
-		// read private key so we can pass the body to the soapClient
-		var err error
-		c.PrivateKeyBody, err = ioutil.ReadFile(c.PrivateKeyPath)
 		if err != nil {
-			return SOAPClient{}, err
+			return &client{}, fmt.Errorf("error while opening private key file: %w", err)
+		}
+	}
+
+	// check if token or private key is set
+	if len(config.Token) == 0 && config.PrivateKeyReader == nil {
+		return &client{}, errors.New("PrivateKeyReader, token or PrivateKeyReader is required")
+	}
+
+	if config.PrivateKeyReader != nil {
+		var err error
+		privateKeyBody, err = ioutil.ReadAll(config.PrivateKeyReader)
+
+		if err != nil {
+			return &client{}, fmt.Errorf("error while reading private key: %w", err)
+		}
+	}
+
+	if len(config.Token) > 0 {
+		var err error
+		token, err = jwt.New(config.Token)
+
+		if err != nil {
+			return &client{}, err
 		}
 	}
 
 	// default to APIMode read/write
-	if len(c.Mode) == 0 {
-		c.Mode = APIModeReadWrite
+	if len(config.Mode) == 0 {
+		config.Mode = APIModeReadWrite
 	}
 
-	// create soapClient and pass it to a new Client pointer
-	sc := soapClient{
-		Login:      c.AccountName,
-		Mode:       c.Mode,
-		PrivateKey: c.PrivateKeyBody,
+	// set defaultBasePath by default
+	if len(config.URL) == 0 {
+		config.URL = defaultBasePath
 	}
 
-	return SOAPClient{
-		soapClient: sc,
+	return &client{
+		authenticator: &authenticator.Authenticator{
+			Login:          config.AccountName,
+			PrivateKeyBody: privateKeyBody,
+			Token:          token,
+			HTTPClient:     config.HTTPClient,
+			TokenCache:     config.TokenCache,
+			BasePath:       config.URL,
+			ReadOnly:       config.Mode == APIModeReadOnly,
+		},
+		config: config,
 	}, nil
 }
 
-// FakeSOAPClient is a client doing nothing except implementing the gotransip.Client
-// interface
-// you can however set a fixture XML body which Call will try to Unmarshal into
-// result
-// useful for testing
-type FakeSOAPClient struct {
-	fixture []byte // preset this fixture so Call can use it to Unmarshal
-}
-
-// FixtureFromFile reads file and sets content as FakeSOAPClient's fixture
-func (f *FakeSOAPClient) FixtureFromFile(file string) (err error) {
-	// read fixture file
-	f.fixture, err = ioutil.ReadFile(file)
+// This method is used by all rest client methods, thus: 'get','post','put','delete'
+// It uses the authenticator to get a token, either statically provided by the user or requested from the authentication server
+// Then decodes the json response to a supplied interface
+func (c *client) call(method rest.Method, request rest.Request, result interface{}) error {
+	token, err := c.authenticator.GetToken()
 	if err != nil {
-		err = fmt.Errorf("could not read fixture from file %s: %s", file, err.Error())
+		return fmt.Errorf("could not get token from authenticator: %w", err)
 	}
 
-	return
+	// if test mode is enabled we always want to change rest requests to add a HTTP test=1 query string
+	// to a HTTP request
+	if c.config.TestMode {
+		request.TestMode = true
+	}
+
+	httpRequest, err := request.GetHTTPRequest(c.config.URL, method.Method)
+	if err != nil {
+		return fmt.Errorf("error during request creation: %w", err)
+	}
+
+	httpRequest.Header.Add("Authorization", token.GetAuthenticationHeaderValue())
+	httpRequest.Header.Set("User-Agent", userAgent)
+	client := c.config.HTTPClient
+	httpResponse, err := client.Do(httpRequest)
+	if err != nil {
+		return fmt.Errorf("request error: %w", err)
+	}
+
+	defer httpResponse.Body.Close()
+
+	bodyReader := io.LimitReader(httpResponse.Body, httpBodyLimit)
+
+	// read entire httpResponse body
+	b, err := ioutil.ReadAll(bodyReader)
+	if err != nil {
+		return fmt.Errorf("error reading http response body: %w", err)
+	}
+
+	restResponse := rest.Response{
+		Body:       b,
+		StatusCode: httpResponse.StatusCode,
+		Method:     method,
+	}
+
+	return restResponse.ParseResponse(&result)
 }
 
-// Call doesn't do anything except fill the XML unmarshalled result
-func (f FakeSOAPClient) Call(req SoapRequest, result interface{}) error {
-	// this fake client just parses given fixture as if it was a SOAP response
-	return parseSoapResponse(f.fixture, req.Method, req.Padding, 200, result)
+// ChangeBasePath changes base path to allow switching to mocks
+func (c *client) ChangeBasePath(path string) {
+	c.config.URL = path
+}
+
+// Allow modification of underlying config for alternate implementations and testing
+// Caution: modifying the configuration while live can cause data races and potentially unwanted behavior
+func (c *client) GetConfig() ClientConfiguration {
+	return c.config
+}
+
+// Allow modification of underlying config for alternate implementations and testing
+// Caution: modifying the configuration while live can cause data races and potentially unwanted behavior
+func (c *client) GetAuthenticator() *authenticator.Authenticator {
+	return c.authenticator
+}
+
+// This method will create and execute a http Get request
+func (c *client) Get(request rest.Request, responseObject interface{}) error {
+	return c.call(rest.GetMethod, request, responseObject)
+}
+
+// This method will create and execute a http Post request
+// It expects no response, that is why it does not ask for a responseObject
+func (c *client) Post(request rest.Request) error {
+	return c.call(rest.PostMethod, request, nil)
+}
+
+// This method will create and execute a http Put request
+// It expects no response, that is why it does not ask for a responseObject
+func (c *client) Put(request rest.Request) error {
+	return c.call(rest.PutMethod, request, nil)
+}
+
+// This method will create and execute a http Delete request
+// It expects no response, that is why it does not ask for a responseObject
+func (c *client) Delete(request rest.Request) error {
+	return c.call(rest.DeleteMethod, request, nil)
+}
+
+// This method will create and execute a http Patch request
+// It expects no response, that is why it does not ask for a responseObject
+func (c *client) Patch(request rest.Request) error {
+	return c.call(rest.PatchMethod, request, nil)
 }
