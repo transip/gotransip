@@ -131,7 +131,7 @@ func (c *client) call(method rest.Method, request rest.Request, result interface
 
 	httpRequest, err := request.GetHTTPRequest(c.config.URL, method.Method)
 	if err != nil {
-		return fmt.Errorf("error during request creation %s", err.Error())
+		return fmt.Errorf("error during request creation: %w", err)
 	}
 
 	httpRequest.Header.Add("Authorization", token.GetAuthenticationHeaderValue())
