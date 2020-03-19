@@ -7,6 +7,7 @@ import (
 	"github.com/transip/gotransip/v6/jwt"
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
+	"io"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
@@ -29,6 +30,11 @@ type client struct {
 	// - requesting and setting a new token
 	authenticator *authenticator.Authenticator
 }
+
+// httpBodyLimit provides a maximum byte limit around the http body reader.
+// If a request somehow ends up having a huge response body you load all of that data into memory.
+// We do not expect to hit this extreme high number even when serving things like PDFs
+const httpBodyLimit = 1024 * 1024 * 4
 
 // NewClient creates a new API client.
 // optionally you could put a custom http.client in the configuration struct
@@ -142,8 +148,10 @@ func (c *client) call(method rest.Method, request rest.Request, result interface
 
 	defer httpResponse.Body.Close()
 
+	bodyReader := io.LimitReader(httpResponse.Body, httpBodyLimit)
+
 	// read entire httpResponse body
-	b, err := ioutil.ReadAll(httpResponse.Body)
+	b, err := ioutil.ReadAll(bodyReader)
 	if err != nil {
 		return err
 	}

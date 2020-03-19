@@ -91,9 +91,9 @@ func (r *Repository) Cancel(domainName string, endTime gotransip.CancellationTim
 	return r.Client.Delete(restRequest)
 }
 
-// GetDomainBranding returns a Branding struct for the given domain
+// GetBranding returns a Branding struct for the given domain
 // Branding can be altered using the method below
-func (r *Repository) GetDomainBranding(domainName string) (Branding, error) {
+func (r *Repository) GetBranding(domainName string) (Branding, error) {
 	var response domainBrandingWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s/branding", domainName)}
 	err := r.Client.Get(restRequest, &response)
@@ -101,8 +101,8 @@ func (r *Repository) GetDomainBranding(domainName string) (Branding, error) {
 	return response.Branding, err
 }
 
-// UpdateDomainBranding allows you to change the branding information on a domain
-func (r *Repository) UpdateDomainBranding(domainName string, branding Branding) error {
+// UpdateBranding allows you to change the branding information on a domain
+func (r *Repository) UpdateBranding(domainName string, branding Branding) error {
 	requestBody := domainBrandingWrapper{Branding: branding}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s/branding", domainName), Body: &requestBody}
 

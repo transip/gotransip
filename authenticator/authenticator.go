@@ -17,10 +17,19 @@ const (
 	// this prefix will be used to name tokens we requested
 	// customers are able to see this in their control panel
 	labelPrefix = "gotransip-client"
+	// authenticationPath is the endpoint that the authenticator
+	// will communicate with
+	authenticationPath = "/auth"
 	// a requested Token expires after a day
 	tokenExpiration = "1 day"
 	// DemoToken can be used to test with the api without using your own account
 	DemoToken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImN3MiFSbDU2eDNoUnkjelM4YmdOIn0.eyJpc3MiOiJhcGkudHJhbnNpcC5ubCIsImF1ZCI6ImFwaS50cmFuc2lwLm5sIiwianRpIjoiY3cyIVJsNTZ4M2hSeSN6UzhiZ04iLCJpYXQiOjE1ODIyMDE1NTAsIm5iZiI6MTU4MjIwMTU1MCwiZXhwIjoyMTE4NzQ1NTUwLCJjaWQiOiI2MDQ0OSIsInJvIjpmYWxzZSwiZ2siOmZhbHNlLCJrdiI6dHJ1ZX0.fYBWV4O5WPXxGuWG-vcrFWqmRHBm9yp0PHiYh_oAWxWxCaZX2Rf6WJfc13AxEeZ67-lY0TA2kSaOCp0PggBb_MGj73t4cH8gdwDJzANVxkiPL1Saqiw2NgZ3IHASJnisUWNnZp8HnrhLLe5ficvb1D9WOUOItmFC2ZgfGObNhlL2y-AMNLT4X7oNgrNTGm-mespo0jD_qH9dK5_evSzS3K8o03gu6p19jxfsnIh8TIVRvNdluYC2wo4qDl5EW5BEZ8OSuJ121ncOT1oRpzXB0cVZ9e5_UVAEr9X3f26_Eomg52-PjrgcRJ_jPIUYbrlo06KjjX2h0fzMr21ZE023Gw"
+)
+
+var (
+	// ErrTokenExpired will be throwed when the static token that has been set by the client is expired
+	// and we cannot request a new one
+	ErrTokenExpired = errors.New("token expired and no private key is set")
 )
 
 // Authenticator is used to store,retrieve and request new tokens during every request
@@ -78,7 +87,7 @@ func (a *Authenticator) GetToken() (jwt.Token, error) {
 	}
 
 	if a.Token.Expired() && a.PrivateKeyBody == nil {
-		return jwt.Token{}, errors.New("token expired and no private key is set")
+		return jwt.Token{}, ErrTokenExpired
 	}
 	if a.Token.Expired() {
 		var err error
@@ -198,7 +207,7 @@ func (a *Authenticator) getAuthRequest() rest.Request {
 	}
 
 	return rest.Request{
-		Endpoint: "/auth",
+		Endpoint: authenticationPath,
 		Body:     authRequest,
 	}
 }

@@ -57,7 +57,8 @@ func TestRepository_GetAllError(t *testing.T) {
 	defer tearDown()
 
 	obj, err := repo.GetAll()
-	require.Error(t, err)
-	assert.Nil(t, obj)
-	assert.Equal(t, &rest.Error{Message: "errortest", StatusCode: 406}, err)
+	if assert.Errorf(t, err, "getall server response error not returned") {
+		assert.Nil(t, obj)
+		assert.Equal(t, &rest.Error{Message: "errortest", StatusCode: 406}, err)
+	}
 }

@@ -63,8 +63,9 @@ func Test_InvalidPrefixLength(t *testing.T) {
 	subnetMask := SubnetMask{IPType: 6, IPMask: mask}
 	_, err := subnetMask.MarshalText()
 
-	require.Error(t, err)
-	assert.Equal(t, err.Error(), "IPv6 mask can't be bigger than 128 bits")
+	if assert.Errorf(t, err, "invalid prefix length error not returned") {
+		assert.Equal(t, err.Error(), "IPv6 mask can't be bigger than 128 bits")
+	}
 }
 
 func Test_parseIPv6Mask(t *testing.T) {

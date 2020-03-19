@@ -50,8 +50,7 @@ func getFailedMockServer(t *testing.T) *httptest.Server {
 func TestAuthenticatorGetToken(t *testing.T) {
 	token := jwt.Token{ExpiryDate: time.Now().Unix() + 3600, RawToken: "123"}
 	authenticator := Authenticator{
-		Token:    token,
-		BasePath: "https://api.transip.nl",
+		Token: token,
 	}
 
 	returnedToken, err := authenticator.GetToken()
@@ -96,10 +95,10 @@ func TestAuthenticationErrorIsReturned(t *testing.T) {
 	}
 
 	_, err = authenticator.requestNewToken()
-	require.Error(t, err)
-
-	err = errors.Unwrap(err)
-	assert.Equal(t, "Authentication failed, API is not enabled for customer", err.Error())
+	if assert.Errorf(t, err, "auth failed error not returned") {
+		err = errors.Unwrap(err)
+		assert.Equal(t, "Authentication failed, API is not enabled for customer", err.Error())
+	}
 }
 
 func TestAuthenticator_ReturnsSigningError(t *testing.T) {
@@ -110,8 +109,9 @@ func TestAuthenticator_ReturnsSigningError(t *testing.T) {
 	}
 
 	_, err := authenticator.requestNewToken()
-	require.Error(t, err)
-	assert.Equal(t, err, errors.New("could not decode private key"))
+	if assert.Errorf(t, err, "private key decode error not returned") {
+		assert.Equal(t, err, errors.New("could not decode private key"))
+	}
 }
 
 func TestAuthenticator_HttpRequestMarshalingError(t *testing.T) {
@@ -122,16 +122,18 @@ func TestAuthenticator_HttpRequestMarshalingError(t *testing.T) {
 	}
 
 	_, err := authenticator.requestNewToken()
-	require.Error(t, err)
-	assert.Equal(t, err, errors.New("could not decode private key"))
+	if assert.Errorf(t, err, "decode private key error not returned") {
+		assert.Equal(t, err, errors.New("could not decode private key"))
+	}
 }
 
 func TestAuthenticator_GetTokenNoPrivateKey(t *testing.T) {
 	authenticator := Authenticator{}
 	_, err := authenticator.GetToken()
 
-	require.Error(t, err)
-	assert.Equal(t, err, errors.New("token expired and no private key is set"))
+	if assert.Errorf(t, err, "token expired error not returned") {
+		assert.Equal(t, err, errors.New("token expired and no private key is set"))
+	}
 }
 
 func TestNonceIsNotStatic(t *testing.T) {

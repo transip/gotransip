@@ -14,7 +14,7 @@ func main() {
 	if err != nil {
 		panic(err.Error())
 	}
-	// Create a new client and provide the private key
+	// Create a new client and provide the private key and the tokencache
 	config := gotransip.ClientConfiguration{
 		AccountName:    "accountname",
 		PrivateKeyPath: "/path/to/private.key",

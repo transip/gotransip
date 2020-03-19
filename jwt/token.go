@@ -48,7 +48,7 @@ type tokenPayload struct {
 // return a Token struct with the RawToken and ExpiryDate set
 func New(token string) (Token, error) {
 	if len(token) == 0 {
-		return Token{}, errors.New("No token given, a token should be set")
+		return Token{}, errors.New("no token given, a token should be set")
 	}
 
 	tokenParts := strings.Split(token, ".")

@@ -47,6 +47,7 @@ func TestHttpRequestForEmptyGetRestRequest(t *testing.T) {
 	assert.Equal(t, "https://example.com/domains", httpRequest.URL.String())
 	assert.Equal(t, "application/json", httpRequest.Header.Get("Content-Type"))
 	assert.Equal(t, "application/json", httpRequest.Header.Get("Accept"))
+	assert.Nil(t, httpRequest.Body)
 	assert.Zero(t, httpRequest.ContentLength)
 }
 
@@ -65,14 +66,6 @@ func TestBodyReader(t *testing.T) {
 	body, err := ioutil.ReadAll(reader)
 	require.NoError(t, err)
 	assert.Equal(t, "{\"availabilityZone\":\"ams\",\"operatingSystem\":\"ubuntu-18.04\",\"productName\":\"vps-bladevps-x1\"}", string(body))
-}
-
-func TestEmptyReaderReturnsNil(t *testing.T) {
-	request := Request{Endpoint: "/domains"}
-
-	reader, err := request.GetBodyReader()
-	require.NoError(t, err)
-	assert.Nil(t, reader)
 }
 
 func TestRestRequest_TestMode(t *testing.T) {

@@ -3,6 +3,7 @@ package rest
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -35,14 +36,10 @@ func (r *Request) GetJsonBody() ([]byte, error) {
 // GetBodyReader returns an io.Reader for the json marshalled body of this request
 // this will be used by the writer used in the client
 func (r *Request) GetBodyReader() (io.Reader, error) {
-	if r.Body == nil {
-		return nil, nil
-	}
-
 	// try to get the marshalled body
 	body, err := r.GetJsonBody()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error when marshaling request: %w", err)
 	}
 
 	return bytes.NewReader(body), nil
@@ -53,9 +50,15 @@ func (r *Request) GetBodyReader() (io.Reader, error) {
 // that are provided by the client itself
 func (r *Request) GetHTTPRequest(basePath string, method string) (*http.Request, error) {
 	requestUrl := basePath + r.Endpoint
-	bodyReader, err := r.GetBodyReader()
-	if err != nil {
-		return nil, err
+
+	var bodyReader io.Reader
+	if r.Body != nil {
+		reader, err := r.GetBodyReader()
+		if err != nil {
+			return nil, err
+		}
+
+		bodyReader = reader
 	}
 
 	request, err := http.NewRequest(method, requestUrl, bodyReader)

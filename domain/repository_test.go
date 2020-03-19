@@ -220,9 +220,10 @@ func TestRepository_GetByDomainNameError(t *testing.T) {
 	repo := Repository{Client: *client}
 
 	domain, err := repo.GetByDomainName(domainName)
-	require.Error(t, err)
-	require.Empty(t, domain.Name)
-	assert.Equal(t, &rest.Error{Message: "Domain with name 'example2.com' not found", StatusCode: 404}, err)
+	if assert.Errorf(t, err, "getbydomainname server response error not returned") {
+		require.Empty(t, domain.Name)
+		assert.Equal(t, &rest.Error{Message: "Domain with name 'example2.com' not found", StatusCode: 404}, err)
+	}
 }
 
 func TestRepository_Register(t *testing.T) {
@@ -246,8 +247,9 @@ func TestRepository_RegisterError(t *testing.T) {
 
 	register := Register{DomainName: "example.com"}
 	err := repo.Register(register)
-	require.Error(t, err)
-	assert.Error(t, errors.New("The domain 'example.com' is not free and thus cannot be registered"), err)
+	if assert.Errorf(t, err, "register server response error not returned") {
+		assert.Error(t, errors.New("The domain 'example.com' is not free and thus cannot be registered"), err)
+	}
 }
 
 func TestRepository_Transfer(t *testing.T) {
@@ -272,8 +274,10 @@ func TestRepository_TransferError(t *testing.T) {
 
 	transfer := Transfer{DomainName: "example.com", AuthCode: "test123"}
 	err := repo.Transfer(transfer)
-	require.Error(t, err)
-	assert.Error(t, errors.New("The domain 'example.com' is not registered and thus cannot be transferred"), err)
+
+	if assert.Errorf(t, err, "transfer server response error not returned") {
+		assert.Error(t, errors.New("The domain 'example.com' is not registered and thus cannot be transferred"), err)
+	}
 }
 
 func TestRepository_Update(t *testing.T) {
@@ -318,7 +322,7 @@ func TestRepository_GetDomainBranding(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	branding, err := repo.GetDomainBranding(domainName)
+	branding, err := repo.GetBranding(domainName)
 	require.NoError(t, err)
 
 	assert.Equal(t, "Example B.V.", branding.CompanyName)
@@ -347,7 +351,7 @@ func TestRepository_UpdateDomainBranding(t *testing.T) {
 		TermsOfUsageUrl: "http://www.example.com/products",
 	}
 
-	err := repo.UpdateDomainBranding("example.com", branding)
+	err := repo.UpdateBranding("example.com", branding)
 	require.NoError(t, err)
 }
 

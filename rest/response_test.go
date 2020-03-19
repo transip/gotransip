@@ -29,13 +29,15 @@ func TestErrorResponse(t *testing.T) {
 	restResponse := Response{Body: data, StatusCode: 406, Method: GetMethod}
 
 	err = restResponse.ParseResponse(nil)
-	require.Error(t, err)
-	assert.Equal(t, &Error{Message: "this should be returned", StatusCode: 406}, err)
+	if assert.Errorf(t, err, "server response error not returned") {
+		assert.Equal(t, &Error{Message: "this should be returned", StatusCode: 406}, err)
+	}
 
 	restResponse.Body = []byte{0x41}
 	err = restResponse.ParseResponse(nil)
-	require.Error(t, err)
-	assert.Equal(t, &Error{Message: "response error could not be decoded 'A'", StatusCode: 406}, err)
+	if assert.Errorf(t, err, "decode error not returned") {
+		assert.Equal(t, &Error{Message: "response error could not be decoded 'A'", StatusCode: 406}, err)
+	}
 }
 
 func TestEmptyResponse(t *testing.T) {
@@ -52,8 +54,9 @@ func TestEmptyErrorResponse(t *testing.T) {
 	}
 
 	err := restResponse.ParseResponse(nil)
-	require.Error(t, err)
-	assert.Equal(t, &Error{Message: "error response without body from api server status code '500'", StatusCode: 500}, err)
+	if assert.Errorf(t, err, "empty server response error not returned") {
+		assert.Equal(t, &Error{Message: "error response without body from api server status code '500'", StatusCode: 500}, err)
+	}
 }
 
 func TestResponseDateParsing(t *testing.T) {

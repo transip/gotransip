@@ -50,6 +50,8 @@ func TestRepository_TestError(t *testing.T) {
 	defer tearDown()
 
 	err := repo.Test()
-	require.Error(t, err)
-	assert.Equal(t, &rest.Error{Message: "blablabla", StatusCode: 409}, err)
+
+	if assert.Errorf(t, err, "server response error not returned") {
+		assert.Equal(t, &rest.Error{Message: "blablabla", StatusCode: 409}, err)
+	}
 }

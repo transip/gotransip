@@ -17,6 +17,8 @@ var (
 		0x30, 0x51, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03,
 		0x04, 0x02, 0x03, 0x05, 0x00, 0x04, 0x40,
 	}
+	// ErrDecodingPrivateKey will be thrown when an invalid private key has been given
+	ErrDecodingPrivateKey = errors.New("could not decode private key")
 )
 
 func signWithKey(body []byte, key []byte) (string, error) {
@@ -30,7 +32,7 @@ func signWithKey(body []byte, key []byte) (string, error) {
 	// prepare key struct
 	block, _ := pem.Decode(key)
 	if block == nil {
-		return "", errors.New("could not decode private key")
+		return "", ErrDecodingPrivateKey
 	}
 	parsed, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {

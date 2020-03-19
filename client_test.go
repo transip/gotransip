@@ -25,8 +25,9 @@ func TestNewClient(t *testing.T) {
 
 	// empty ClientConfig should raise error about missing AccountName
 	_, err = NewClient(cc)
-	require.Error(t, err)
-	assert.Equal(t, errors.New("AccountName is required"), err)
+	if assert.Errorf(t, err, "accountname error not returned") {
+		assert.Equal(t, errors.New("AccountName is required"), err)
+	}
 
 	// ... unless a token is provided
 	cc.Token = authenticator.DemoToken
@@ -42,13 +43,15 @@ func TestNewClient(t *testing.T) {
 	cc.AccountName = "foobar"
 	// ClientConfig with only AccountName set should raise error about private keys
 	_, err = NewClient(cc)
-	require.Error(t, err)
-	assert.Equal(t, errors.New("PrivateKeyReader, token or PrivateKeyReader is required"), err)
+	if assert.Errorf(t, err, "expecting private key, token required error") {
+		assert.EqualError(t, err, "PrivateKeyReader, token or PrivateKeyReader is required")
+	}
 
 	cc.PrivateKeyReader = iotest.TimeoutReader(bytes.NewReader([]byte{0, 1}))
 	_, err = NewClient(cc)
-	require.Error(t, err)
-	assert.EqualError(t, err, "error while reading private key: timeout")
+	if assert.Errorf(t, err, "expecting private key reader error returned") {
+		assert.EqualError(t, err, "error while reading private key: timeout")
+	}
 
 	cc.PrivateKeyReader = nil
 

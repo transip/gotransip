@@ -90,7 +90,9 @@ func TestRepository_GetAllError(t *testing.T) {
 	defer tearDown()
 
 	products, err := repo.GetAll()
-	require.Error(t, err)
-	assert.Nil(t, products.Vps)
-	assert.Equal(t, &rest.Error{Message: "errortest", StatusCode: 409}, err)
+
+	if assert.Errorf(t, err, "getall server response error not returned") {
+		assert.Nil(t, products.Vps)
+		assert.Equal(t, &rest.Error{Message: "errortest", StatusCode: 409}, err)
+	}
 }

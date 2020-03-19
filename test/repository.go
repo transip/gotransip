@@ -10,6 +10,11 @@ import (
 // do a simple ping and retrieve pong from the server
 type Repository repository.RestRepository
 
+var (
+	// ErrWrongResponse will be thrown when the api's response does not match what we expect
+	ErrWrongResponse = errors.New("Test api response doesn't equal 'pong'")
+)
+
 // Test will execute an api test and respond with an error if the test failed
 func (r *Repository) Test() error {
 	var testResponse ApiTest
@@ -20,7 +25,7 @@ func (r *Repository) Test() error {
 	}
 
 	if testResponse.Response != "pong" {
-		return errors.New("Test api response doesn't equal 'pong'")
+		return ErrWrongResponse
 	}
 
 	return nil
