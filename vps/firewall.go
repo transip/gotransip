@@ -42,9 +42,8 @@ func (r *FirewallRepository) GetFirewall(vpsName string) (Firewall, error) {
 	return response.Firewall, err
 }
 
-// UpdateFirewall allows you to update the state of the firewall
-// Enabling it, disabling it
-// Adding / removing of ruleSets, updating the whitelists
+// UpdateFirewall allows you to update the state of the firewall.
+// Enabling it, disabling it, Adding / removing of ruleSets, updating the whitelists.
 func (r *FirewallRepository) UpdateFirewall(vpsName string, firewall Firewall) error {
 	requestBody := firewallWrapper{Firewall: firewall}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/firewall", vpsName), Body: &requestBody}

@@ -4,7 +4,7 @@ import (
 	"net"
 )
 
-// IPAddress struct for IPAddress
+// IPAddress struct for an IPAddress
 type IPAddress struct {
 	// The IP address
 	Address net.IP `json:"address"`
@@ -18,7 +18,8 @@ type IPAddress struct {
 	SubnetMask SubnetMask `json:"subnetMask,omitempty"`
 }
 
-// IPAddressesWrapper struct for IPAddressesWrapper
+// IPAddressesWrapper struct wraps an IPAddress struct,
+// this is mainly used in other subpackages that need to unmarshal a ipAddresses: [] server response
 type IPAddressesWrapper struct {
 	// array of IP Addresses
 	IPAddresses []IPAddress `json:"ipAddresses,omitempty"`

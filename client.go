@@ -120,7 +120,7 @@ func newClient(config ClientConfiguration) (*client, error) {
 func (c *client) call(method rest.Method, request rest.Request, result interface{}) error {
 	token, err := c.authenticator.GetToken()
 	if err != nil {
-		return fmt.Errorf("could not get token from authenticator %s", err.Error())
+		return fmt.Errorf("could not get token from authenticator: %w", err)
 	}
 
 	// if test mode is enabled we always want to change rest requests to add a HTTP test=1 query string
@@ -139,7 +139,7 @@ func (c *client) call(method rest.Method, request rest.Request, result interface
 	client := c.config.HTTPClient
 	httpResponse, err := client.Do(httpRequest)
 	if err != nil {
-		return fmt.Errorf("request error:\n%s", err.Error())
+		return fmt.Errorf("request error: %w", err)
 	}
 
 	defer httpResponse.Body.Close()
@@ -149,7 +149,7 @@ func (c *client) call(method rest.Method, request rest.Request, result interface
 	// read entire httpResponse body
 	b, err := ioutil.ReadAll(bodyReader)
 	if err != nil {
-		return err
+		return fmt.Errorf("error reading http response body: %w", err)
 	}
 
 	restResponse := rest.Response{

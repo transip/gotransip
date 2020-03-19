@@ -11,15 +11,15 @@ import (
 
 // Token is the jwt that will be used by the client in the Authorization header
 // to send in every request to the api server, every request except for the auth request
-// which is used to request a new token
+// which is used to request a new token.
 //
-// for more information see: https://jwt.io/
+// For more information see: https://jwt.io/
 type Token struct {
 	ExpiryDate int64
 	RawToken   string
 }
 
-// Define a hard expiration skew in seconds
+// Define a hard expiration skew in seconds,
 // so we will retrieve a new token way before the moment of expiration
 const expirationSkew = 1800
 
@@ -47,10 +47,10 @@ type tokenPayload struct {
 	ExpirationTime int64 `json:"exp"`
 }
 
-// New expects a raw token as string
-// It will try to decode it and return an error on error
+// New expects a raw token as string.
+// It will try to decode it and return an error on error.
 // Once decoded it will retrieve the expiry date and
-// return a Token struct with the RawToken and ExpiryDate set
+// return a Token struct with the RawToken and ExpiryDate set.
 func New(token string) (Token, error) {
 	if len(token) == 0 {
 		return Token{}, errors.New("no token given, a token should be set")

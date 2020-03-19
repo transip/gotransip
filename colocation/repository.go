@@ -31,8 +31,8 @@ func (r *Repository) GetByName(coloName string) (Colocation, error) {
 	return response.Colocation, err
 }
 
-// CreateRemoteHandsRequest allows you to request a remote task from an engineer
-// It sends a request to a datacenter engineer to perform simple task on your server, e.g. a 'powercycle'
+// CreateRemoteHandsRequest allows you to request a remote task from an engineer.
+// It sends a request to a datacenter engineer to perform simple task on your server, e.g. a 'powercycle'.
 func (r *Repository) CreateRemoteHandsRequest(remoteHandsRequest RemoteHandsRequest) error {
 	requestBody := remoteHandsRequestWrapper{RemoteHands: remoteHandsRequest}
 	restRequest := rest.Request{
@@ -61,9 +61,10 @@ func (r *Repository) GetIPAddressByAddress(coloName string, address net.IP) (ipa
 	return response.IPAddress, err
 }
 
-// AddIPAddress allows you to add an IP address to your Colocation by specifying the Colocation name and the IP to add
+// AddIPAddress allows you to add an IP address to your Colocation by specifying the Colocation name and the IP to add.
+// Optionally, you can also set the reverse dns by setting the reverseDNS argument
+//
 // Note: the IP address you want to add should be in a range you own.
-// Optionally, you can also set the reverse dns by setting the reverseDns argument
 func (r *Repository) AddIPAddress(coloName string, address net.IP, reverseDNS string) error {
 	requestBody := addIPRequest{IPAddress: address, ReverseDNS: reverseDNS}
 	restRequest := rest.Request{

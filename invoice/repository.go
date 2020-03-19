@@ -35,7 +35,8 @@ func (r *Repository) GetSelection(page int, itemsPerPage int) ([]Invoice, error)
 	return response.Invoices, err
 }
 
-// GetByInvoiceNumber returns an Invoice object for the given invoice number
+// GetByInvoiceNumber returns an Invoice object for the given invoice number.
+//
 // invoiceNumber corresponds to the InvoiceNumber property on a Invoice struct
 func (r *Repository) GetByInvoiceNumber(invoiceNumber string) (Invoice, error) {
 	var response invoiceResponse
@@ -45,9 +46,10 @@ func (r *Repository) GetByInvoiceNumber(invoiceNumber string) (Invoice, error) {
 	return response.Invoice, err
 }
 
-// GetInvoiceItems returns a list of InvoiceItems
-// detailing what specific products or services are on this invoice
-// invoiceNumber corresponds to the InvoiceNumber property on a Invoice struct
+// GetInvoiceItems returns a list of InvoiceItems,
+// detailing what specific products or services are on this invoice.
+//
+// invoiceNumber corresponds to the InvoiceNumber property on a Invoice struct.
 func (r *Repository) GetInvoiceItems(invoiceNumber string) ([]Item, error) {
 	var response invoiceItemsResponse
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/invoices/%s/invoice-items", invoiceNumber)}
@@ -57,8 +59,9 @@ func (r *Repository) GetInvoiceItems(invoiceNumber string) ([]Item, error) {
 }
 
 // GetInvoicePdf returns a pdf struct containing the contents of the pdf encoded in base64
-// there are specific Pdf struct functions that help you decode the contents of the pdf to a file
-// invoiceNumber corresponds to the InvoiceNumber property on a Invoice struct
+// there are specific Pdf struct functions that help you decode the contents of the pdf to a file.
+//
+// invoiceNumber corresponds to the InvoiceNumber property on a Invoice struct.
 func (r *Repository) GetInvoicePdf(invoiceNumber string) (Pdf, error) {
 	var response Pdf
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/invoices/%s/pdf", invoiceNumber)}

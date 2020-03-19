@@ -8,7 +8,7 @@ type availabilityZonesResponse struct {
 	AvailabilityZones []AvailabilityZone `json:"availabilityZones"`
 }
 
-// AvailabilityZone struct for AvailabilityZone
+// AvailabilityZone struct for an availability zone
 type AvailabilityZone struct {
 	// Name of AvailabilityZone
 	Name string `json:"name,omitempty"`

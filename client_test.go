@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"github.com/transip/gotransip/v6/authenticator"
-	"github.com/transip/gotransip/v6/product"
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
 	"io/ioutil"
@@ -146,12 +145,14 @@ func TestClient_CallToLiveApiServer(t *testing.T) {
 	client, err := NewClient(clientConfig)
 	require.NoError(t, err)
 
-	request := rest.Request{Endpoint: "/products"}
-	var responseObject product.ProductsResponse
+	request := rest.Request{Endpoint: "/api-test"}
+	var responseObject struct {
+		Response string `json:"ping"`
+	}
 
 	err = client.Get(request, &responseObject)
 	require.NoError(t, err)
-	assert.NotZero(t, len(responseObject.Products.Vps))
+	assert.NotZero(t, len(responseObject.Response))
 }
 
 func TestClient_TestMode(t *testing.T) {

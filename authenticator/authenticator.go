@@ -40,8 +40,8 @@ var (
 	ErrTokenExpired = errors.New("token expired and no private key is set")
 )
 
-// Authenticator is used to store,retrieve and request new tokens during every request
-// it checks the expiry date of a Token and if it is expired it will request a new one
+// Authenticator is used to store,retrieve and request new tokens on every request.
+// It checks the expiry date of a Token and if it is expired it will request a new one
 type Authenticator struct {
 	// this contains a []byte representation of the the private key of the customer
 	// this key will be used to sign a new Token request
@@ -82,9 +82,8 @@ type AuthRequest struct {
 	GlobalKey bool `json:"global_key"`
 }
 
-// GetToken will return the current Token if it is not expired
-// if it is expired it will try to request a new Token, set and return that
-// on error it passes this back
+// GetToken will return the current Token if it is not expired.
+// If it is expired it will try to request a new Token, set and return that.
 func (a *Authenticator) GetToken() (jwt.Token, error) {
 	// If token is not set, and we have a token cache,
 	// try to retrieve it from the token cache

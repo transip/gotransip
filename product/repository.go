@@ -10,9 +10,9 @@ import (
 // for example which product to order when ordering a new Vps
 type Repository repository.RestRepository
 
-// GetAll returns Products with a list Product per product group in it
+// GetAll returns the Products struct containing a list of Products per product group in it
 func (r *Repository) GetAll() (Products, error) {
-	var response ProductsResponse
+	var response productsResponse
 	productsRequest := rest.Request{Endpoint: "/products"}
 	err := r.Client.Get(productsRequest, &response)
 

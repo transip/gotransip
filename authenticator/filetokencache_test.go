@@ -40,13 +40,13 @@ func TestFileTokenCache_SetGetFromFile(t *testing.T) {
 	err = cache.Set("testkey", tokenToCache)
 	require.NoError(t, err)
 
-	// write again so we know the file gets overridden
+	// write again so we know the File gets overridden
 	tokenToCache = jwt.Token{ExpiryDate: 2118745550, RawToken: DemoToken}
 	err = cache.Set("testkey", tokenToCache)
 	require.NoError(t, err)
 
-	// close the file so we know we will fetch it with a new file token cache
-	err = cache.file.Close()
+	// close the File so we know we will fetch it with a new File token cache
+	err = cache.File.Close()
 	require.NoError(t, err)
 
 	cache, err = NewFileTokenCache("/tmp/gotransip_cache_setgetfromfile")

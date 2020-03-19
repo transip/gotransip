@@ -9,7 +9,7 @@ type wrapper struct {
 	TrafficInformation Information `json:"trafficInformation"`
 }
 
-// Information struct for Information
+// Information struct wrapping the traffic information
 type Information struct {
 	// The end date in 'Y-m-d' format
 	EndDate rest.Date `json:"endDate"`

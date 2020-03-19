@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Pdf struct for Pdf
+// Pdf struct for a invoice as Pdf
 type Pdf struct {
 	// Content contains a base64 encoded string containing the pdf content
 	// We provide a io.Reader on this struct called GetReader

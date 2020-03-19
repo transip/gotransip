@@ -103,10 +103,11 @@ func (r *Repository) CloneToAvailabilityZone(vpsName string, availabilityZone st
 	return r.Client.Post(restRequest)
 }
 
-// Update allows you to lock/unlock a VPS, update a VPS description, and add/remove tags
-// For locking the VPS, set isCustomerLocked to true. Set the value to false for unlocking the VPS
-// You can change your VPS description by simply changing the description attribute
-// To add/remove tags, you must update the tags attribute
+// Update allows you to lock/unlock a VPS, update a VPS description, and add/remove tags.
+//
+//   For locking the VPS, set isCustomerLocked to true. Set the value to false for unlocking the VPS
+//   You can change your VPS description by simply changing the description attribute
+//   To add/remove tags, you must update the tags attribute
 func (r *Repository) Update(vps Vps) error {
 	requestBody := vpsWrapper{Vps: vps}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s", vps.Name), Body: &requestBody}
@@ -138,7 +139,7 @@ func (r *Repository) Reset(vpsName string) error {
 	return r.Client.Patch(restRequest)
 }
 
-// Handover will handover a VPS to another TransIP Account. This call will initiate the handover process
+// Handover will handover a VPS to another TransIP Account. This call will initiate the handover process.
 // The actual handover will be done when the target customer accepts the handover
 func (r *Repository) Handover(vpsName string, targetCustomerName string) error {
 	requestBody := handoverRequest{Action: "handover", TargetCustomerName: targetCustomerName}
@@ -155,9 +156,9 @@ func (r *Repository) Cancel(vpsName string, endTime gotransip.CancellationTime) 
 	return r.Client.Delete(restRequest)
 }
 
-// GetUsageDataByVps will allow you to request your vps usage for a specified period and usage type
+// GetUsage will allow you to request your vps usage for a specified period and usage type,
 // for convenience you can also use the GetUsages or GetUsagesLast24Hours
-func (r *Repository) GetUsageDataByVps(vpsName string, usageTypes []UsageType, period UsagePeriod) (Usage, error) {
+func (r *Repository) GetUsage(vpsName string, usageTypes []UsageType, period UsagePeriod) (Usage, error) {
 	var response usageWrapper
 	var types []string
 	for _, usageType := range usageTypes {
@@ -170,26 +171,26 @@ func (r *Repository) GetUsageDataByVps(vpsName string, usageTypes []UsageType, p
 	return response.Usage, err
 }
 
-// GetAllUsageDataByVps returns a Usage struct filled with all usage data for the given UsagePeriod
+// GetAllUsage returns a Usage struct filled with all usage data for the given UsagePeriod.
 // UsagePeriod is struct containing a start and end unix timestamp
-func (r *Repository) GetAllUsageDataByVps(vpsName string, period UsagePeriod) (Usage, error) {
-	return r.GetUsageDataByVps(
+func (r *Repository) GetAllUsage(vpsName string, period UsagePeriod) (Usage, error) {
+	return r.GetUsage(
 		vpsName,
 		[]UsageType{UsageTypeCPU, UsageTypeDisk, UsageTypeNetwork},
 		period,
 	)
 }
 
-// GetAllUsageDataByVps24Hours returns all usage data for a given Vps within the last 24 hours
-func (r *Repository) GetAllUsageDataByVps24Hours(vpsName string) (Usage, error) {
+// GetAllUsage24Hours returns all usage data for a given Vps within the last 24 hours
+func (r *Repository) GetAllUsage24Hours(vpsName string) (Usage, error) {
 	// always define a period body, this way we don't have to depend on the empty body logic on the api server
 	period := UsagePeriod{TimeStart: time.Now().Unix() - 24*3600, TimeEnd: time.Now().Unix()}
 
-	return r.GetAllUsageDataByVps(vpsName, period)
+	return r.GetAllUsage(vpsName, period)
 }
 
-// GetVNCData will return VncData about your vps
-// It allows you to get the location, token and password in order to connect directly to the VNC console of your VPS
+// GetVNCData will return VncData about your vps.
+// It allows you to get the location, token and password in order to connect directly to the VNC console of your VPS.
 func (r *Repository) GetVNCData(vpsName string) (VncData, error) {
 	var response vncDataWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/vnc-data", vpsName)}
@@ -222,8 +223,8 @@ func (r *Repository) OrderAddons(vpsName string, addons []string) error {
 	return r.Client.Post(restRequest)
 }
 
-// CancelAddon allows you to cancel an add-on by name, specifying the VPS name as well
-// Due to technical restrictions (possible dataloss) storage add-ons cannot be cancelled
+// CancelAddon allows you to cancel an add-on by name, specifying the VPS name as well.
+// Due to technical restrictions (possible dataloss) storage add-ons cannot be cancelled.
 func (r *Repository) CancelAddon(vpsName string, addon string) error {
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/addons/%s", vpsName, addon)}
 
@@ -285,8 +286,8 @@ func (r *Repository) GetIPAddressByAddress(vpsName string, address net.IP) (ipad
 	return response.IPAddress, err
 }
 
-// AddIPv6Address allows you to add an IPv6 address to your VPS
-// After adding an IPv6 address, you can set the reverse DNS for this address using the UpdateReverseDNS function
+// AddIPv6Address allows you to add an IPv6 address to your VPS.
+// After adding an IPv6 address, you can set the reverse DNS for this address using the UpdateReverseDNS function.
 func (r *Repository) AddIPv6Address(vpsName string, address net.IP) error {
 	requestBody := addIPRequest{IPAddress: address}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/ip-addresses", vpsName), Body: &requestBody}
@@ -330,8 +331,8 @@ func (r *Repository) GetSnapshotByName(vpsName string, snapshotName string) (Sna
 	return response.Snapshot, err
 }
 
-// CreateSnapshot allows you to create a snapshot for restoring it at a later time or restoring it to another VPS
-// See the function RevertSnapshot for this
+// CreateSnapshot allows you to create a snapshot for restoring it at a later time or restoring it to another VPS.
+// See the function RevertSnapshot for this.
 func (r *Repository) CreateSnapshot(vpsName string, description string, shouldStartVps bool) error {
 	requestBody := createSnapshotRequest{Description: description, ShouldStartVps: shouldStartVps}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/snapshots", vpsName), Body: &requestBody}

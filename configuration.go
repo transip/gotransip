@@ -17,13 +17,15 @@ const (
 type APIMode string
 
 var (
-	// APIModeReadOnly specifies that no changes can be made from API calls
+	// APIModeReadOnly specifies that no changes can be made from API calls.
+	// If you do try to order a product or change some data, the api will return an error.
 	APIModeReadOnly APIMode = "readonly"
 	// APIModeReadWrite specifies that changes can be made from API calls
 	APIModeReadWrite APIMode = "readwrite"
 )
 
-// DemoClientConfiguration is the default configuration to use when testing the demo mode of the transip api
+// DemoClientConfiguration is the default configuration to use when testing the demo mode of the transip api.
+// Demo mode allows users to test without authenticating with their own credentials.
 var DemoClientConfiguration = ClientConfiguration{Token: authenticator.DemoToken}
 
 // ClientConfiguration stores the configuration of the API client
@@ -42,7 +44,8 @@ type ClientConfiguration struct {
 	// Token field gives users the option of providing their own acquired token,
 	// for example when generated in the transip control panel
 	Token string
-	// TestMode is used when users want to tinker with the api without touching their real data
+	// TestMode is used when users want to tinker with the api without touching their real data.
+	// So you can view your own data, order new products, but the actual order never happens.
 	TestMode bool
 	// optionally you can set your own HTTPClient
 	// to set extra non default settings

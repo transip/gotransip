@@ -11,7 +11,7 @@ import (
 // 'active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving'
 type BackupStatus string
 
-// define all of the possible backup statuses
+// Definition of all of the possible backup statuses
 const (
 	// BackupStatusActive is the status field for a ready to use backup
 	BackupStatusActive BackupStatus = "active"
@@ -33,7 +33,7 @@ const (
 // 'active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving'
 type SnapshotStatus string
 
-// define all of the possible snapshot statuses
+// Definition of all of the possible snapshot statuses
 const (
 	// SnapshotStatusActive is the status field for an active snapshot, ready to use
 	SnapshotStatusActive SnapshotStatus = "active"
@@ -56,7 +56,7 @@ const (
 // 'created', 'installing', 'running', 'stopped', 'paused'
 type Status string
 
-// define all of the possible vps statuses
+// Definition of all of the possible vps statuses
 const (
 	// VpsStatusCreated is the status field for a vps that is created but not yet used
 	VpsStatusCreated Status = "created"
@@ -301,7 +301,7 @@ type contactWrapper struct {
 	Contact MonitoringContact `json:"contact"`
 }
 
-// Vps struct for Vps
+// Vps struct for a Vps
 type Vps struct {
 	// The unique VPS name
 	Name string `json:"name"`
@@ -339,7 +339,7 @@ type Vps struct {
 	Tags []string `json:"tags,omitempty"`
 }
 
-// VncData struct for VpsVncData
+// VncData struct for the vps vnc data
 type VncData struct {
 	// Location of the VNC Proxy
 	Host string `json:"host,omitempty"`
@@ -413,7 +413,7 @@ type Order struct {
 	Base64InstallText string `json:"base64InstallText,omitempty"`
 }
 
-// Addons struct for Addons
+// Addons struct for an Addons
 type Addons struct {
 	// A list of non cancellable active addons
 	Active []product.Product `json:"active,omitempty"`
@@ -423,7 +423,7 @@ type Addons struct {
 	Cancellable []product.Product `json:"cancellable,omitempty"`
 }
 
-// Backup struct for Backup
+// Backup struct for a Backup
 type Backup struct {
 	// The backup id
 	ID int64 `json:"id"`
@@ -439,7 +439,7 @@ type Backup struct {
 	AvailabilityZone string `json:"availabilityZone"`
 }
 
-// Snapshot struct for Snapshot
+// Snapshot struct for a Snapshot
 type Snapshot struct {
 	// The snapshot creation date
 	DateTimeCreate string `json:"dateTimeCreate,omitempty"`
@@ -455,7 +455,7 @@ type Snapshot struct {
 	Status SnapshotStatus `json:"status,omitempty"`
 }
 
-// OperatingSystem struct for OperatingSystem
+// OperatingSystem struct for an OperatingSystem
 type OperatingSystem struct {
 	// Description
 	Description string `json:"description,omitempty"`
@@ -469,7 +469,7 @@ type OperatingSystem struct {
 	Version string `json:"version,omitempty"`
 }
 
-// Usage struct for Usage
+// Usage struct for an Usage
 type Usage struct {
 	CPU     []UsageDataCPU     `json:"cpu"`
 	Disk    []UsageDataDisk    `json:"disk"`

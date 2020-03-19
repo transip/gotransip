@@ -12,7 +12,7 @@ import (
 // updating, creating, deleting contacts
 type TCPMonitorRepository repository.RestRepository
 
-// TCPMonitor struct for TCPMonitor
+// TCPMonitor struct for a TCPMonitor, tcp monitors are created on specific IPs
 type TCPMonitor struct {
 	// IP Address that is monitored
 	IPAddress net.IP `json:"ipAddress"`
@@ -30,7 +30,7 @@ type TCPMonitor struct {
 	IgnoreTimes []IgnoreTime `json:"ignoreTimes"`
 }
 
-// TCPMonitorContact struct for TCPMonitorContact
+// TCPMonitorContact struct for a TCPMonitorContact
 type TCPMonitorContact struct {
 	// Monitoring contact id
 	ID int64 `json:"id"`
@@ -48,7 +48,7 @@ type IgnoreTime struct {
 	TimeTo string `json:"timeTo"`
 }
 
-// MonitoringContact struct for MonitoringContact
+// MonitoringContact struct for a MonitoringContact
 type MonitoringContact struct {
 	// ID number of the contact
 	ID int64 `json:"id,omitempty"`
@@ -69,8 +69,9 @@ func (r *TCPMonitorRepository) GetTCPMonitors(vpsName string) ([]TCPMonitor, err
 	return response.TCPMonitors, err
 }
 
-// CreateTCPMonitor allows you to create a tcp monitor and specify which ports you would like to monitor
-// to get a better grip on which fields exist and which can be changes have a look at the TCPMonitor struct
+// CreateTCPMonitor allows you to create a tcp monitor and specify which ports you would like to monitor.
+//
+// To get a better grip on which fields exist and which can be changes have a look at the TCPMonitor struct
 // or see the documentation: https://api.transip.nl/rest/docs.html#vps-tcp-monitors-post
 func (r *TCPMonitorRepository) CreateTCPMonitor(vpsName string, tcpMonitor TCPMonitor) error {
 	requestBody := tcpMonitorWrapper{TCPMonitor: tcpMonitor}

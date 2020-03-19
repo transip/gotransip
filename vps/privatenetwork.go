@@ -12,7 +12,7 @@ import (
 // like listing, ordering, canceling, getting information, updating description, attaching and detaching vpses
 type PrivateNetworkRepository repository.RestRepository
 
-// PrivateNetwork struct for PrivateNetwork
+// PrivateNetwork struct for a PrivateNetwork
 type PrivateNetwork struct {
 	// The unique private network name
 	Name string `json:"name"`
@@ -67,9 +67,9 @@ func (r *PrivateNetworkRepository) Order(description string) error {
 	return r.Client.Post(restRequest)
 }
 
-// Update allows you to update the private network
-// you can change the description by changing the Description field
-// on the PrivateNetwork struct Updating it using this function
+// Update allows you to update the private network.
+// You can change the description by changing the Description field
+// on the PrivateNetwork struct Updating it using this function.
 func (r *PrivateNetworkRepository) Update(privateNetwork PrivateNetwork) error {
 	requestBody := privateNetworkWrapper{PrivateNetwork: privateNetwork}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetwork.Name), Body: &requestBody}

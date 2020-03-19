@@ -30,7 +30,7 @@ type BigStorageOrder struct {
 // 'active', 'attaching', 'detaching'
 type BigStorageStatus string
 
-// define all of the possible bigstorage backup statuses
+// Definition of all of the possible bigstorage backup statuses
 const (
 	// BigStorageStatusActive is the status field for an active BigStorage, ready to use
 	BigStorageStatusActive BigStorageStatus = "active"
@@ -40,7 +40,7 @@ const (
 	BigStorageStatusDetaching BigStorageStatus = "detaching"
 )
 
-// BigStorage struct for BigStorage
+// BigStorage struct for a BigStorage
 type BigStorage struct {
 	// Name of the big storage
 	Name string `json:"name,omitempty"`
@@ -60,7 +60,7 @@ type BigStorage struct {
 	AvailabilityZone string `json:"availabilityZone,omitempty"`
 }
 
-// BigStorageBackup struct for BigStorageBackup
+// BigStorageBackup struct for a BigStorageBackup
 type BigStorageBackup struct {
 	// ID of the big storage
 	ID int64 `json:"id,omitempty"`
@@ -123,11 +123,11 @@ func (r *BigStorageRepository) Upgrade(bigStorageName string, size int, offsiteB
 }
 
 // Update allows you to alter the BigStorage in several ways outlined below:
-// - Changing the description of a Big Storage;
-// - One Big Storages can only be attached to one VPS at a time;
-// - One VPS can have a maximum of 10 bigstorages attached;
-// - Set the vpsName property to the VPS name to attach to for attaching Big Storage;
-// - Set the vpsName property to null to detach the Big Storage from the currently attached VPS.
+//   - Changing the description of a Big Storage;
+//   - One Big Storages can only be attached to one VPS at a time;
+//   - One VPS can have a maximum of 10 bigstorages attached;
+//   - Set the vpsName property to the VPS name to attach to for attaching Big Storage;
+//   - Set the vpsName property to null to detach the Big Storage from the currently attached VPS.
 func (r *BigStorageRepository) Update(bigStorage BigStorage) error {
 	requestBody := bigStorageWrapper{BigStorage: bigStorage}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorage.Name), Body: &requestBody}
@@ -151,8 +151,9 @@ func (r *BigStorageRepository) AttachToVps(vpsName string, bigStorage BigStorage
 
 // Cancel cancels a bigstorage for the specified endTime.
 // You can set the endTime to end or immediately, this has the following implications:
-// - end: The Big Storage will be terminated from the end date of the agreement as can be found in the applicable quote;
-// - immediately: The Big Storage will be terminated immediately.
+//
+//   - end: The Big Storage will be terminated from the end date of the agreement as can be found in the applicable quote;
+//   - immediately: The Big Storage will be terminated immediately.
 func (r *BigStorageRepository) Cancel(bigStorageName string, endTime gotransip.CancellationTime) error {
 	requestBody := gotransip.CancellationRequest{EndTime: endTime}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorageName), Body: &requestBody}

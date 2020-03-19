@@ -9,6 +9,36 @@ As of version 6.0 this package is no longer compatible with TransIP SOAP API bec
 library is now organized around REST. The SOAP API library versions 5.* are now deprecated
 and will no longer receive future updates.
 
+
+Example
+
+The following example uses the transip demo token in order to call the api with the test repository.
+For more information about authenticating with your own credentials, see the Authentication section.
+
+	package main
+
+	import (
+		"github.com/transip/gotransip/v6"
+		"github.com/transip/gotransip/v6/test"
+		"log"
+	)
+
+	func main() {
+		// Create a new client with the default demo client config, using the demo token
+		client, err := gotransip.NewClient(gotransip.DemoClientConfiguration)
+		if err != nil {
+			panic(err)
+		}
+
+		testRepo := test.Repository{Client: client}
+		log.Println("Executing test call to the api server")
+		if err := testRepo.Test(); err != nil {
+			panic(err)
+		}
+		log.Println("Test successful")
+	}
+
+
 Authentication
 
 If you want to tinker out with the api first without setting up your authentication,

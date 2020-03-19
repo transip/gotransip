@@ -157,7 +157,7 @@ type tldWrapper struct {
 	Tld Tld `json:"tld"`
 }
 
-// Contact struct for Contact
+// Contact struct for a Contact
 type Contact struct {
 	// Email address of the contact
 	Email string `json:"email"`
@@ -169,7 +169,7 @@ type Contact struct {
 	Telephone string `json:"telephone"`
 }
 
-// DNSEntry struct for DNSEntry
+// DNSEntry struct for a DNSEntry
 type DNSEntry struct {
 	// The name of the dns entry, for example '@' or 'www'
 	Name string `json:"name"`
@@ -181,7 +181,7 @@ type DNSEntry struct {
 	Content string `json:"content"`
 }
 
-// WhoisContact struct for WhoisContact
+// WhoisContact struct for a whois contact
 type WhoisContact struct {
 	// The type of this Contact, 'registrant', 'administrative' or 'technical'
 	Type string `json:"type"`
@@ -215,7 +215,7 @@ type WhoisContact struct {
 	Country string `json:"country"`
 }
 
-// Action struct for Action
+// Action struct for a domain Action
 type Action struct {
 	// If this action has failed, this field will be true.
 	HasFailed bool `json:"hasFailed,omitempty"`
@@ -225,7 +225,7 @@ type Action struct {
 	Name string `json:"name"`
 }
 
-// SslCertificate struct for SslCertificate
+// SslCertificate struct for a SslCertificate
 type SslCertificate struct {
 	// The id of the certificate, can be used to retrieve additional info
 	CertificateID int `json:"certificateId"`
@@ -237,7 +237,7 @@ type SslCertificate struct {
 	Status string `json:"status"`
 }
 
-// Domain struct for Domain
+// Domain struct for a Domain
 type Domain struct {
 	// The custom tags added to this domain.
 	Tags []string `json:"tags"`
@@ -261,7 +261,7 @@ type Domain struct {
 	RenewalDate rest.Date `json:"renewalDate,omitempty"`
 }
 
-// Branding struct for Branding
+// Branding struct for a Branding, this information is shown in the whois information
 type Branding struct {
 	// The first generic bannerLine displayed in whois-branded whois output.
 	BannerLine1 string `json:"bannerLine1"`
@@ -279,7 +279,7 @@ type Branding struct {
 	TermsOfUsageURL string `json:"termsOfUsageUrl"`
 }
 
-// DNSSecEntry struct for DNSSecEntry
+// DNSSecEntry struct for a DNSSecEntry
 type DNSSecEntry struct {
 	// The algorithm type that is used,
 	// see: https://www.transip.nl/vragen/461-domeinnaam-nameservers-gebruikt-beveiligen-dnssec/ for the possible options.
@@ -292,7 +292,7 @@ type DNSSecEntry struct {
 	PublicKey string `json:"publicKey"`
 }
 
-// Tld struct for Tld
+// Tld struct for a Tld
 type Tld struct {
 	// Number of days a domain needs to be canceled before the renewal date.
 	CancelTimeFrame int `json:"cancelTimeFrame,omitempty"`
@@ -315,7 +315,7 @@ type Tld struct {
 	RegistrationPeriodLength int `json:"registrationPeriodLength,omitempty"`
 }
 
-// Availability struct for Availability
+// Availability struct for an Availability
 type Availability struct {
 	// List of available actions to perform on this domain. Possible actions are: 'register', 'transfer', 'internalpull' and 'internalpush'
 	Actions []PerformAction `json:"actions"`
@@ -325,7 +325,7 @@ type Availability struct {
 	Status AvailabilityStatus `json:"status"`
 }
 
-// Nameserver struct for Nameserver
+// Nameserver struct for a Nameserver
 type Nameserver struct {
 	// The hostname of this nameserver
 	Hostname string `json:"hostname"`

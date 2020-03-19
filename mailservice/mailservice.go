@@ -12,7 +12,7 @@ type domainNamesWrapper struct {
 	DomainNames []string `json:"domainNames"`
 }
 
-// Information struct for Information
+// Information struct containing all of the mailservice information returned by the transip api
 type Information struct {
 	// x-transip-mail-auth DNS TXT record Value
 	DNSTxt string `json:"dnsTxt,omitempty"`

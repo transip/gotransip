@@ -18,27 +18,23 @@ import (
 )
 
 func main() {
-	// create new TransIP API client
-	file, err := os.Open("/path/to/api/private.key")
-	if err != nil {
-		panic(err.Error())
-	}
+	// create a new TransIP API client
 	client, err := gotransip.NewClient(gotransip.ClientConfiguration{
 		AccountName:      "accountName",
-		PrivateKeyReader: file,
+		PrivateKeyPath: "/path/to/api/private.key",
 	})
 	if err != nil {
 		panic(err.Error())
 	}
 	vpsRepo := vps.Repository{Client: client}
 
-	// get list of VPSes
+	// get a list of your VPSes
 	vpss, err := vpsRepo.GetAll()
 	if err != nil {
 		panic(err.Error())
 	}
 
-	// get list of private networks
+	// get a list of your private networks
 	pns, err := vpsRepo.GetPrivateNetworks()
 	if err != nil {
 		panic(err.Error())
@@ -54,6 +50,8 @@ func main() {
 		fmt.Printf("privatenetwork: %s (%s)\n", pn.Name, pn.Description)
 	}
 
+    // order a new ubuntu 18.04 x8 vps, specifying a custom description,
+    // so we can find out when the vps is delivered
 	err = vpsRepo.Order(vps.VpsOrder{
 		ProductName:       "vps-bladevps-x8",
 		OperatingSystem:   "ubuntu-18.04",

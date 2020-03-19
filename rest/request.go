@@ -13,8 +13,8 @@ const (
 	contentType = "application/json"
 )
 
-// Request will be used by all repositories and the client
-// in order to transform a request with endpoint to a http request with method, url and optional body
+// Request will be used by all repositories and the client.
+// The Request struct can be transformed to a http request with method, url and optional body.
 type Request struct {
 	// Endpoint is the api endpoint, without the server, which we will receive the request,
 	// like: '/products'
@@ -34,7 +34,7 @@ func (r *Request) GetJSONBody() ([]byte, error) {
 }
 
 // GetBodyReader returns an io.Reader for the json marshalled body of this request
-// this will be used by the writer used in the client
+// this will be used by the writer used in the client.
 func (r *Request) GetBodyReader() (io.Reader, error) {
 	// try to get the marshalled body
 	body, err := r.GetJSONBody()
@@ -45,9 +45,9 @@ func (r *Request) GetBodyReader() (io.Reader, error) {
 	return bytes.NewReader(body), nil
 }
 
-// GetHTTPRequest generates and returns a http.Request object
+// GetHTTPRequest generates and returns a http.Request object.
 // It does this with the Request struct and the basePath and method,
-// that are provided by the client itself
+// that are provided by the client itself.
 func (r *Request) GetHTTPRequest(basePath string, method string) (*http.Request, error) {
 	requestURL := basePath + r.Endpoint
 

@@ -1,15 +1,16 @@
 package product
 
-// ProductsResponse object for when calling /products
+// productsResponse object for when calling /products
 // used to unpack the rest response and return the encapsulated Products
 // this is just used internally for unpacking, this should not be exported
-// we want to return Products object not a ProductsResponse
-type ProductsResponse struct {
+// we want to return Products object not a productsResponse
+type productsResponse struct {
 	// Products contains all products as described in struct Products
 	Products Products `json:"products"`
 }
 
-// Products struct for Products
+// Products struct containing all of the products the transip api has to offer.
+// Grouped into subsections.
 type Products struct {
 	// A list of big storage products
 	BigStorage []Product `json:"bigStorage,omitempty"`
@@ -23,7 +24,7 @@ type Products struct {
 	VpsAddon []Product `json:"vpsAddon,omitempty"`
 }
 
-// Product struct for Product
+// Product struct for a Product
 type Product struct {
 	// Describes this product
 	Description string `json:"description,omitempty"`
@@ -43,7 +44,7 @@ type productElementsResponse struct {
 	ProductElements []Element `json:"productElements,omitempty"`
 }
 
-// Element struct for Element
+// Element struct contains one element specifying some product's specifications in a  Element
 type Element struct {
 	// Amount
 	Amount int64 `json:"amount,omitempty"`

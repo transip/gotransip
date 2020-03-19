@@ -5,7 +5,7 @@ import (
 	"net"
 )
 
-// Colocation struct for Colocation
+// Colocation struct for a Colocation
 type Colocation struct {
 	// List of IP ranges
 	IPRanges []ipaddress.IPRange `json:"ipRanges"`
@@ -48,7 +48,7 @@ type addIPRequest struct {
 	ReverseDNS string `json:"reverseDns,omitempty"`
 }
 
-// RemoteHandsRequest struct for RemoteHandsRequest
+// RemoteHandsRequest struct for a RemoteHandsRequest
 type RemoteHandsRequest struct {
 	// Name of the colocation contract
 	ColoName string `json:"coloName,omitempty"`

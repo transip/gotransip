@@ -7,8 +7,8 @@ import (
 	"strconv"
 )
 
-// SubnetMask is a wrapper around net.IPMask
-// This is needed as the transip api returns subnetmask strings that are not unmarshallable by default
+// SubnetMask is a wrapper around net.IPMask.
+// This is needed as the transip api returns subnetmask strings that are not unmarshallable by default.
 // So we need to do a little bit of magic to unmarshal either '255.255.255.0' and '/48' as net.IPMask type
 type SubnetMask struct {
 	IPType int

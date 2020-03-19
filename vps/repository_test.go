@@ -351,7 +351,7 @@ func TestRepository_GetUsageData(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	usageData, err := repo.GetUsageDataByVps("example-vps", []UsageType{UsageTypeCPU}, UsagePeriod{TimeStart: 1500538995, TimeEnd: 1500542619})
+	usageData, err := repo.GetUsage("example-vps", []UsageType{UsageTypeCPU}, UsagePeriod{TimeStart: 1500538995, TimeEnd: 1500542619})
 	require.NoError(t, err)
 
 	require.Equal(t, 1, len(usageData.CPU))
@@ -367,7 +367,7 @@ func TestRepository_GetAllUsageDataByVps(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	usageData, err := repo.GetAllUsageDataByVps("example-vps", UsagePeriod{TimeStart: 1500538995, TimeEnd: 1500542619})
+	usageData, err := repo.GetAllUsage("example-vps", UsagePeriod{TimeStart: 1500538995, TimeEnd: 1500542619})
 	require.NoError(t, err)
 
 	require.Equal(t, 1, len(usageData.CPU))
@@ -394,7 +394,7 @@ func TestRepository_GetAllUsageDataByVps24Hours(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	usageData, err := repo.GetAllUsageDataByVps24Hours("example-vps")
+	usageData, err := repo.GetAllUsage24Hours("example-vps")
 	require.NoError(t, err)
 
 	require.Equal(t, 1, len(usageData.CPU))

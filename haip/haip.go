@@ -9,7 +9,7 @@ import (
 // 'active', 'inactive', 'creating'
 type Status string
 
-// define all of the possible haip statuses
+// Definition of all of the possible haip statuses
 const (
 	// HaipStatusActive is the status field for an active Haip, ready to use
 	HaipStatusActive Status = "active"
@@ -23,7 +23,7 @@ const (
 // 'roundrobin', 'cookie', 'source'
 type LoadBalancingMode string
 
-// define all of the possible load balancing modes
+// Definition of all of the possible load balancing modes
 const (
 	// LoadBalancingModeRoundRobin is the LoadBalancing mode roundrobin for a Haip, forward to next address everytime
 	LoadBalancingModeRoundRobin LoadBalancingMode = "roundrobin"
@@ -37,7 +37,7 @@ const (
 // 'both', 'noipv6', 'ipv6to4'
 type IPSetup string
 
-// define all of the possible ip setup options
+// Definition of all of the possible ip setup options
 const (
 	// IPSetupBoth accept ipv4 and ipv6 and forward them to separate ipv4 and ipv6 addresses
 	IPSetupBoth IPSetup = "both"
@@ -51,7 +51,7 @@ const (
 // 'tcp', 'http', 'https', 'proxy', 'http2_https'
 type PortConfigurationMode string
 
-// define all of the possible port configuration modes
+// Definition of all of the possible port configuration modes
 const (
 	// PortConfigurationModeTCP plain TCP forward to your VPS
 	PortConfigurationModeTCP PortConfigurationMode = "tcp"
@@ -121,7 +121,7 @@ type statusReportsWrapper struct {
 	StatusReports []StatusReport `json:"statusReport"`
 }
 
-// Haip struct for Haip
+// Haip struct for a Haip
 type Haip struct {
 	// HA-IP name
 	Name string `json:"name"`
@@ -165,7 +165,7 @@ type Certificate struct {
 	ID int64 `json:"id,omitempty"`
 }
 
-// StatusReport struct for StatusReport
+// StatusReport struct for a StatusReport
 type StatusReport struct {
 	// Attached IP address this status report is for
 	IPAddress net.IP `json:"ipAddress,omitempty"`
@@ -183,7 +183,7 @@ type StatusReport struct {
 	State string `json:"state,omitempty"`
 }
 
-// PortConfiguration struct for PortConfiguration
+// PortConfiguration struct for a PortConfiguration
 type PortConfiguration struct {
 	// The port configuration ID
 	ID int64 `json:"id,omitempty"`

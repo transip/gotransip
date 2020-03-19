@@ -50,7 +50,7 @@ type invoiceItemsResponse struct {
 	InvoiceItems []Item `json:"invoiceItems"`
 }
 
-// Invoice struct for a invoice
+// Invoice struct for an a invoice
 type Invoice struct {
 	// Invoice creation date
 	CreationDate rest.Date `json:"creationDate"`
@@ -94,7 +94,7 @@ type Item struct {
 	VatPercentage int `json:"vatPercentage"`
 }
 
-// Discount struct for Discount
+// Discount struct for a Discount
 type Discount struct {
 	// Discounted amount (in cents)
 	Amount int `json:"amount"`

@@ -54,20 +54,20 @@ func (r *Repository) Order(productName string, description string) error {
 }
 
 // Update allows you to alter your Haip in several ways outlined below:
-// - Set the description of a HA-IP;
-// - Set the PTR record;
-// - Set the httpHealthCheckPath, must start with a /;
-// - Set the httpHealthCheckPort, the port must be configured on the HA-IP PortConfigurations.
+//   - Set the description of a HA-IP;
+//   - Set the PTR record;
+//   - Set the httpHealthCheckPath, must start with a /;
+//   - Set the httpHealthCheckPort, the port must be configured on the HA-IP PortConfigurations.
 //
 // Load balancing options (loadBalancingMode):
-// - roundrobin: forward to next address everytime;
-// - cookie: forward to a fixed server, based on the cookie;
-// - source: choose a server to forward to based on the source address.
+//   - roundrobin: forward to next address everytime;
+//   - cookie: forward to a fixed server, based on the cookie;
+//   - source: choose a server to forward to based on the source address.
 //
 // IP setup options (ipSetup):
-// - both: accept ipv4 and ipv6 and forward them to separate ipv4 and ipv6 addresses;
-// - noipv6: do not accept ipv6 traffic;
-// - ipv6to4: forward ipv6 traffic to ipv4.
+//   - both: accept ipv4 and ipv6 and forward them to separate ipv4 and ipv6 addresses;
+//   - noipv6: do not accept ipv6 traffic;
+//   - ipv6to4: forward ipv6 traffic to ipv4.
 //
 // For more information see: https://api.transip.nl/rest/docs.html#ha-ip-ha-ip-put
 func (r *Repository) Update(haip Haip) error {
@@ -102,17 +102,18 @@ func (r *Repository) AddCertificate(haipName string, sslCertificateID int64) err
 	return r.Client.Post(restRequest)
 }
 
-// AddLetsEncryptCertificate allows you to add a LetsEncrypt certificate to your HA-IP
-// We will take care of all the validation and renewals
+// AddLetsEncryptCertificate allows you to add a LetsEncrypt certificate to your HA-IP.
+// We will take care of all the validation and renewals.
+//
 // In order to provide free LetsEncrypt certificates for the domains on your HA-IP,
 // some requirements must be met in order to complete the certificate request:
-// - DNS: the given CommonName must resolve to the HA-IP IP.
-//     IPv6 is not required, but when set, it must resolve to the HA-IP IPv6;
-// - Configuration: LetsEncrypt verifies domains with a HTTP call to /.well-know.
-//     When requesting a LetsEncrypt certificate, our proxies will handle all ACME requests
-//     to automatically verify the certificate.
-//     To achieve this, the HA-IP must have a HTTP portConfiguration on port 80.
-//     When using this, you will also no longer be able to verify your own LetsEncrypt certificates via HA-IP.
+//   - DNS: the given CommonName must resolve to the HA-IP IP.
+//       IPv6 is not required, but when set, it must resolve to the HA-IP IPv6;
+//   - Configuration: LetsEncrypt verifies domains with a HTTP call to /.well-know.
+//       When requesting a LetsEncrypt certificate, our proxies will handle all ACME requests
+//       to automatically verify the certificate.
+//       To achieve this, the HA-IP must have a HTTP portConfiguration on port 80.
+//       When using this, you will also no longer be able to verify your own LetsEncrypt certificates via HA-IP.
 //
 // For more information, see: https://api.transip.nl/rest/docs.html#ha-ip-ha-ip-certificates-post-1
 func (r *Repository) AddLetsEncryptCertificate(haipName string, commonName string) error {
@@ -174,27 +175,20 @@ func (r *Repository) GetPortConfiguration(haipName string, portConfigurationID i
 // AddPortConfiguration allows you to Add PortConfigurations to your HA-IP to route traffic to your attached IP address(es)
 //
 // Mode options:
-//
-// - http: appends a X-Forwarded-For header to HTTP requests with the original remote IP;
-//
-// - https: same as HTTP, with SSL Certificate offloading;
-//
-// - http2_https: same as HTTPS, with http/2 support;
-//
-// - tcp: plain TCP forward to your attached IP address(es);
-//
-// - proxy: proxy protocol is also a way to retain the original remote IP, but also works for non HTTP traffic
-//   (note: the receiving application has to support this).
+//   - http: appends a X-Forwarded-For header to HTTP requests with the original remote IP;
+//   - https: same as HTTP, with SSL Certificate offloading;
+//   - http2_https: same as HTTPS, with http/2 support;
+//   - tcp: plain TCP forward to your attached IP address(es);
+//   - proxy: proxy protocol is also a way to retain the original remote IP, but also works for non HTTP traffic
+//     (note: the receiving application has to support this).
 //
 // Endpoint SSL mode options:
 //
-// - off: no SSL connection is established between our load balancers and your attached IP address(es);
-//
-// - on: an SSL connection is established between our load balancers your attached IP address(es),
-//   but the certificate is not validated;
-//
-// - strict: an SSL connection is established between our load balancers your attached IP address(es),
-//   and the certificate must signed by a trusted Certificate Authority.
+//   - off: no SSL connection is established between our load balancers and your attached IP address(es);
+//   - on: an SSL connection is established between our load balancers your attached IP address(es),
+//     but the certificate is not validated;
+//   - strict: an SSL connection is established between our load balancers your attached IP address(es),
+//     and the certificate must signed by a trusted Certificate Authority.
 //
 // For more information, see https://api.transip.nl/rest/docs.html#ha-ip-ha-ip-port-configurations-post
 func (r *Repository) AddPortConfiguration(haipName string, configuration PortConfiguration) error {
@@ -204,8 +198,8 @@ func (r *Repository) AddPortConfiguration(haipName string, configuration PortCon
 }
 
 // UpdatePortConfiguration allows you to update:
-// Name, SourcePort, TargetPort, Mode, or EndpointSslMode of a Configuration
-// for more information on these fields see the AddPortConfiguration method and: https://api.transip.nl/rest/docs.html#ha-ip-ha-ip-port-configurations-put
+//   Name, SourcePort, TargetPort, Mode, or EndpointSslMode of a Configuration
+// For more information on these fields see the AddPortConfiguration method and: https://api.transip.nl/rest/docs.html#ha-ip-ha-ip-port-configurations-put
 func (r *Repository) UpdatePortConfiguration(haipName string, configuration PortConfiguration) error {
 	requestBody := portConfigurationWrapper{Configuration: configuration}
 	restRequest := rest.Request{
@@ -223,8 +217,8 @@ func (r *Repository) RemovePortConfiguration(haipName string, portConfigurationI
 	return r.Client.Delete(restRequest)
 }
 
-// GetStatusReport returns a StatusReport per attached IP address, IP version, port and load balancer
-// you can use this method to monitor / verify the status of your HA-IP and attached IP addresses
+// GetStatusReport returns a StatusReport per attached IP address, IP version, port and load balancer.
+// You can use this method to monitor / verify the status of your HA-IP and attached IP addresses
 func (r *Repository) GetStatusReport(haipName string) ([]StatusReport, error) {
 	var response statusReportsWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/haips/%s/status-reports", haipName)}

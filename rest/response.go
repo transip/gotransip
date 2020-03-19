@@ -6,9 +6,9 @@ import (
 	"time"
 )
 
-// Error is used to unpack every error returned by the api contains
+// Error is used to unpack every error returned by the api
 type Error struct {
-	// Message contains the error from the api as string
+	// Message contains the error from the api as a string
 	Message string `json:"error"`
 	// StatusCode contains a HTTP status code that the api server responded with
 	StatusCode int
@@ -18,8 +18,8 @@ func (e *Error) Error() string {
 	return e.Message
 }
 
-// Response will contain a body (which can be empty), status code and the Method
-// this struct will be used to decode a response from the api server
+// Response will contain a body (which can be empty), status code and the Method.
+// This struct will be used to decode a response from the api server.
 type Response struct {
 	Body       []byte
 	StatusCode int
@@ -27,16 +27,15 @@ type Response struct {
 }
 
 // Time is defined because the transip api server does not return a rfc 3339 time string
-// and golang requires this, so we need to do manual time parsing, by defining our own time struct
-// encapsulating time.Time
+// and golang requires this. So we need to do manual time parsing, by defining our own time struct
+// encapsulating time.Time.
 type Time struct {
 	// Time item containing the actual parsed time object
 	time.Time
 }
 
-// Date is defined because the transip api server returns date strings, not parsed by golang by default
-// so we need to do manual time parsing, by defining our own date struct
-// encapsulating time.Time
+// Date is defined because the transip api server returns date strings, not parsed by golang by default.
+// So we need to do manual time parsing, by defining our own date struct encapsulating time.Time.
 type Date struct {
 	// Time item containing the actual parsed time object
 	time.Time
@@ -80,9 +79,8 @@ func (td *Date) UnmarshalJSON(input []byte) error {
 	return nil
 }
 
-// ParseResponse will convert a Response struct to the given interface
-// on error it will pass this back
-// when the rest response has no body it will return without filling the dest variable
+// ParseResponse will convert a Response struct to the given interface.
+// When the rest response has no body it will return without filling the dest variable.
 func (r *Response) ParseResponse(dest interface{}) error {
 	// do response error checking
 	if !r.Method.StatusCodeOK(r.StatusCode) {

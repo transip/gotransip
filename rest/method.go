@@ -1,8 +1,8 @@
 package rest
 
 // Method is a struct which is used by the client to present a HTTP method of choice
-// and the expected return status codes on which you can check to see if the response is correct
-// thus not an error
+// and the expected return status codes on which you can check to see if the response is correct,
+// thus not an error.
 type Method struct {
 	// Method is where a HTTP method like "GET" would go
 	Method string
@@ -24,8 +24,8 @@ var (
 	DeleteMethod = Method{Method: "DELETE", ExpectedStatusCodes: []int{204}}
 )
 
-// StatusCodeOK returns true when the status code
-// method used by the rest client to check if the given status code is correct
+// StatusCodeOK returns true when the status code is correct
+// This method used by the rest client to check if the given status code is correct.
 func (r *Method) StatusCodeOK(statusCode int) bool {
 	return contains(r.ExpectedStatusCodes, statusCode)
 }

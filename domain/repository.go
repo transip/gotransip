@@ -8,7 +8,7 @@ import (
 	"net/url"
 )
 
-// Repository can be used to get a list of your domains
+// Repository can be used to get a list of your domains,
 // order new ones and changing specific domain properties
 type Repository repository.RestRepository
 
@@ -44,8 +44,9 @@ func (r *Repository) GetSelection(page int, itemsPerPage int) ([]Domain, error) 
 	return response.Domains, err
 }
 
-// GetByDomainName returns an object for specific domain name]
-// requires a domainName, for example: 'example.com'
+// GetByDomainName returns a Domain struct for a specific domain name.
+//
+// Requires a domainName, for example: 'example.com'
 func (r *Repository) GetByDomainName(domainName string) (Domain, error) {
 	var response domainWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s", domainName)}
@@ -54,8 +55,8 @@ func (r *Repository) GetByDomainName(domainName string) (Domain, error) {
 	return response.Domain, err
 }
 
-// Register allows you to registers a new domain
-// You can set the contacts, nameservers and DNS entries immediately, but it’s not mandatory for registration
+// Register allows you to registers a new domain.
+// You can set the contacts, nameservers and DNS entries immediately, but it’s not mandatory for registration.
 func (r *Repository) Register(domainRegister Register) error {
 	restRequest := rest.Request{Endpoint: "/domains", Body: &domainRegister}
 
@@ -72,7 +73,7 @@ func (r *Repository) Transfer(domainTransfer Transfer) error {
 
 // Update an existing domain.
 // To apply or release a lock, change the IsTransferLocked property.
-// To change tags, update the tags property
+// To change tags, update the tags property.
 func (r *Repository) Update(domain Domain) error {
 	requestBody := domainWrapper{Domain: domain}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s", domain.Name), Body: &requestBody}
@@ -80,9 +81,9 @@ func (r *Repository) Update(domain Domain) error {
 	return r.Client.Put(restRequest)
 }
 
-// Cancel cancels the specified domain
+// Cancel cancels the specified domain.
 // Depending on the time you want to cancel the domain,
-// specify gotransip.CancellationTimeEnd or gotransip.CancellationTimeImmediately for the endTime attribute
+// specify gotransip.CancellationTimeEnd or gotransip.CancellationTimeImmediately for the endTime attribute.
 func (r *Repository) Cancel(domainName string, endTime gotransip.CancellationTime) error {
 	var requestBody gotransip.CancellationRequest
 	requestBody.EndTime = endTime
@@ -91,7 +92,7 @@ func (r *Repository) Cancel(domainName string, endTime gotransip.CancellationTim
 	return r.Client.Delete(restRequest)
 }
 
-// GetBranding returns a Branding struct for the given domain
+// GetBranding returns a Branding struct for the given domain.
 // Branding can be altered using the method below
 func (r *Repository) GetBranding(domainName string) (Branding, error) {
 	var response domainBrandingWrapper
@@ -202,8 +203,8 @@ func (r *Repository) UpdateNameservers(domainName string, nameservers []Nameserv
 	return r.Client.Put(restRequest)
 }
 
-// GetDomainAction allows you to get the current domain action running for the given domain
-// Domain actions are kept track of by TransIP. Domain actions include, for example, changing nameservers
+// GetDomainAction allows you to get the current domain action running for the given domain.
+// Domain actions are kept track of by TransIP. Domain actions include, for example, changing nameservers.
 func (r *Repository) GetDomainAction(domainName string) (Action, error) {
 	var response actionWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s/actions", domainName)}
@@ -212,8 +213,8 @@ func (r *Repository) GetDomainAction(domainName string) (Action, error) {
 	return response.Action, err
 }
 
-// RetryDomainAction allows you to retry a failed domain action
-// Domain actions can fail due to wrong information, this method allows you to retry an action
+// RetryDomainAction allows you to retry a failed domain action.
+// Domain actions can fail due to wrong information, this method allows you to retry an action.
 func (r *Repository) RetryDomainAction(domainName string, authCode string, dnsEntries []DNSEntry, nameservers []Nameserver, contacts []WhoisContact) error {
 	var requestBody retryActionWrapper
 	requestBody.AuthCode = authCode
@@ -259,8 +260,8 @@ func (r *Repository) GetWHOIS(domainName string) (string, error) {
 	return response.Whois, err
 }
 
-// OrderWhitelabel allows you to order a whitelabel account
-// Note that you do not need to order a whitelabel account for every registered domain name
+// OrderWhitelabel allows you to order a whitelabel account.
+// Note that you do not need to order a whitelabel account for every registered domain name.
 func (r *Repository) OrderWhitelabel() error {
 	restRequest := rest.Request{Endpoint: "/whitelabel"}
 
@@ -297,8 +298,8 @@ func (r *Repository) GetTLDs() ([]Tld, error) {
 	return response.Tlds, err
 }
 
-// GetTLDByTLD returns information about a specific TLD
-// General details such as price, renewal price and minimum registration length are outlined
+// GetTLDByTLD returns information about a specific TLD.
+// General details such as price, renewal price and minimum registration length are outlined.
 func (r *Repository) GetTLDByTLD(tld string) (Tld, error) {
 	var response tldWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/tlds/%s", tld)}
