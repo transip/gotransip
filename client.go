@@ -102,13 +102,15 @@ func newClient(config ClientConfiguration) (*client, error) {
 
 	return &client{
 		authenticator: &authenticator.Authenticator{
-			Login:          config.AccountName,
-			PrivateKeyBody: privateKeyBody,
-			Token:          token,
-			HTTPClient:     config.HTTPClient,
-			TokenCache:     config.TokenCache,
-			BasePath:       config.URL,
-			ReadOnly:       config.Mode == APIModeReadOnly,
+			Login:           config.AccountName,
+			PrivateKeyBody:  privateKeyBody,
+			Token:           token,
+			HTTPClient:      config.HTTPClient,
+			TokenCache:      config.TokenCache,
+			BasePath:        config.URL,
+			ReadOnly:        config.Mode == APIModeReadOnly,
+			TokenExpiration: config.TokenExpiration,
+			Whitelisted:     config.TokenWhitelisted,
 		},
 		config: config,
 	}, nil
