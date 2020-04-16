@@ -4,6 +4,7 @@ import (
 	"github.com/transip/gotransip/v6/authenticator"
 	"io"
 	"net/http"
+	"time"
 )
 
 const (
@@ -56,4 +57,11 @@ type ClientConfiguration struct {
 	// TokenCache is used to retrieve previously acquired tokens and saving new ones
 	// If not set we do not use a cache to store the new acquired tokens
 	TokenCache authenticator.TokenCache
+	// TokenExpiration defines the lifetime of new tokens requested by the authenticator.
+	// If unspecified, the default is 1 day.
+	// This has no effect for tokens provided via the Token field.
+	TokenExpiration time.Duration
+	// TokenWhitelisted is used to indicate only whitelisted IP's may use the new tokens requested by the authenticator.
+	// This has no effect for tokens provided via the Token field.
+	TokenWhitelisted bool
 }

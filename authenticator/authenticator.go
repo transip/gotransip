@@ -20,8 +20,9 @@ const (
 	// authenticationPath is the endpoint that the authenticator
 	// will communicate with
 	authenticationPath = "/auth"
-	// a requested Token expires after a day
-	tokenExpiration = "1 day"
+	// a requested Token expires after a day by default
+	// will be used if Authenticator.TokenExpiration is not set
+	defaultTokenExpiration = "1 day"
 	// DemoToken can be used to test with the api without using your own account
 	DemoToken = `eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6ImN3MiFSbDU2eDNoUnkjelM4YmdOIn0.` +
 		`eyJpc3MiOiJhcGkudHJhbnNpcC5ubCIsImF1ZCI6ImFwaS50cmFuc2lwLm5sIiwianRpIjoiY3cy` +
@@ -63,6 +64,10 @@ type Authenticator struct {
 	// TokenCache is used to retrieve previously acquired tokens and saving new ones
 	// If not set we do not use a cache to store the tokens
 	TokenCache TokenCache
+	// TokenExpiration defines lifetime of generated tokens.
+	// If unspecified, the default is 1 day.
+	// Has no effect for tokens provided via the Token field
+	TokenExpiration time.Duration
 }
 
 // AuthRequest will be transformed and send in order to request a new Token
@@ -212,7 +217,7 @@ func (a *Authenticator) getAuthRequest() (rest.Request, error) {
 		Nonce:          nonce,
 		Label:          fmt.Sprintf("%s-%d", labelPrefix, labelPostFix),
 		ReadOnly:       a.ReadOnly,
-		ExpirationTime: tokenExpiration,
+		ExpirationTime: a.getTokenExpirationString(),
 		GlobalKey:      !a.Whitelisted,
 	}
 
@@ -225,4 +230,12 @@ func (a *Authenticator) getAuthRequest() (rest.Request, error) {
 // getTokenCacheKey returns a name for the given Login and our authenticator name
 func (a *Authenticator) getTokenCacheKey() string {
 	return fmt.Sprintf("%s-%s-token", labelPrefix, a.Login)
+}
+
+// getTokenExpirationString returns the requested or default expiration in string format for the API
+func (a *Authenticator) getTokenExpirationString() string {
+	if a.TokenExpiration != time.Duration(0) {
+		return fmt.Sprintf("%0.0f seconds", a.TokenExpiration.Seconds())
+	}
+	return defaultTokenExpiration
 }
