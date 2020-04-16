@@ -153,10 +153,11 @@ func TestNonceIsNotStatic(t *testing.T) {
 
 func TestAuthenticator_getAuthRequest(t *testing.T) {
 	authenticator := Authenticator{
-		BasePath:    "http://api.transip.nl/v6",
-		Login:       "test-user1",
-		Whitelisted: true,
-		ReadOnly:    true,
+		BasePath:        "http://api.transip.nl/v6",
+		Login:           "test-user1",
+		Whitelisted:     true,
+		ReadOnly:        true,
+		TokenExpiration: time.Duration(30 * time.Second),
 	}
 
 	authRequest, err := authenticator.getAuthRequest()
@@ -170,7 +171,7 @@ func TestAuthenticator_getAuthRequest(t *testing.T) {
 	assert.Contains(t, stringBody, fmt.Sprintf(`"label":"gotransip-client-%d"`, time.Now().Unix()))
 	assert.Contains(t, stringBody, `"read_only":true,`)
 	assert.Contains(t, stringBody, `"global_key":false}`)
-	assert.Contains(t, stringBody, `"expiration_time":"1 day",`)
+	assert.Contains(t, stringBody, `"expiration_time":"30 seconds",`)
 	assert.Contains(t, stringBody, `"nonce":"`)
 }
 
@@ -189,4 +190,14 @@ func TestAuthenticator_getTokenCacheKey(t *testing.T) {
 	authenticator := Authenticator{Login: "test"}
 
 	assert.Equal(t, "gotransip-client-test-token", authenticator.getTokenCacheKey())
+}
+
+func TestAuthenticator_getTokenExpirationString(t *testing.T) {
+	// Default expiration
+	authenticator := Authenticator{}
+	assert.Equal(t, defaultTokenExpiration, authenticator.getTokenExpirationString())
+
+	// Custom expiration
+	authenticator.TokenExpiration = time.Duration(60 * time.Minute)
+	assert.Equal(t, "3600 seconds", authenticator.getTokenExpirationString())
 }

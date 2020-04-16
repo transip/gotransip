@@ -13,6 +13,7 @@ import (
 	"os"
 	"testing"
 	"testing/iotest"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -87,6 +88,26 @@ func TestNewClient(t *testing.T) {
 
 	// Check if private key read from file is the same as the key body on the authenticator
 	assert.Equal(t, privateKeyBody, clientAuthenticator.PrivateKeyBody)
+
+	// Test that the default expiration time is set on the authenticator
+	assert.Equal(t, time.Duration(0), clientAuthenticator.TokenExpiration)
+
+	// Test that the default whitelisted value is set on the authenticator
+	assert.False(t, clientAuthenticator.Whitelisted)
+
+	// Override TokenExpiration to 30 seconds
+	cc.TokenExpiration = time.Duration(30 * time.Second)
+	// Override TokenWhitelisted to true
+	cc.TokenWhitelisted = true
+	client, err = newClient(cc)
+	clientAuthenticator = client.GetAuthenticator()
+	assert.NoError(t, err)
+
+	// Test that the new expiration time is set on the authenticator
+	assert.Equal(t, cc.TokenExpiration, clientAuthenticator.TokenExpiration)
+
+	// Test that the new whitelisted value is set on the authenticator
+	assert.True(t, clientAuthenticator.Whitelisted)
 
 	// Also, with no mode set, it should default to APIModeReadWrite
 	assert.Equal(t, APIModeReadWrite, config.Mode)
