@@ -157,7 +157,7 @@ func TestAuthenticator_getAuthRequest(t *testing.T) {
 		Login:           "test-user1",
 		Whitelisted:     true,
 		ReadOnly:        true,
-		TokenExpiration: time.Duration(30 * time.Second),
+		TokenExpiration: 30 * time.Second,
 	}
 
 	authRequest, err := authenticator.getAuthRequest()
@@ -198,6 +198,6 @@ func TestAuthenticator_getTokenExpirationString(t *testing.T) {
 	assert.Equal(t, defaultTokenExpiration, authenticator.getTokenExpirationString())
 
 	// Custom expiration
-	authenticator.TokenExpiration = time.Duration(60 * time.Minute)
+	authenticator.TokenExpiration = 60 * time.Minute
 	assert.Equal(t, "3600 seconds", authenticator.getTokenExpirationString())
 }
