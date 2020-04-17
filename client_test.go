@@ -96,7 +96,7 @@ func TestNewClient(t *testing.T) {
 	assert.False(t, clientAuthenticator.Whitelisted)
 
 	// Override TokenExpiration to 30 seconds
-	cc.TokenExpiration = time.Duration(30 * time.Second)
+	cc.TokenExpiration = 30 * time.Second
 	// Override TokenWhitelisted to true
 	cc.TokenWhitelisted = true
 	client, err = newClient(cc)
