@@ -21,7 +21,7 @@ type Token struct {
 
 // Define a hard expiration skew in seconds,
 // so we will retrieve a new token way before the moment of expiration
-const expirationSkew = 1800
+const expirationSkew = 30
 
 // Expired returns true when the token expiry date is reached
 func (t *Token) Expired() bool {

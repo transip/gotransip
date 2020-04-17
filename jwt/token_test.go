@@ -36,6 +36,6 @@ func TestTokenIsExpired(t *testing.T) {
 }
 
 func TestTokenIsExpiredWithSkew(t *testing.T) {
-	expiredToken := Token{ExpiryDate: time.Now().Unix() + 60}
+	expiredToken := Token{ExpiryDate: time.Now().Unix() + 20}
 	assert.Equal(t, true, expiredToken.Expired(), "token is not expired when it should be")
 }
