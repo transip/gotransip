@@ -164,8 +164,14 @@ func (r *Repository) GetUsage(vpsName string, usageTypes []UsageType, period Usa
 	for _, usageType := range usageTypes {
 		types = append(types, string(usageType))
 	}
-	requestBody := vpsUsageRequest{Types: strings.Join(types, ","), UsagePeriod: period}
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/usage", vpsName), Body: &requestBody}
+
+	parameters := url.Values{
+		"dateTimeStart": []string{fmt.Sprintf("%d", period.TimeStart)},
+		"dateTimeEnd":   []string{fmt.Sprintf("%d", period.TimeEnd)},
+		"types":         []string{strings.Join(types, ",")},
+	}
+
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/usage", vpsName), Parameters: parameters}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Usage, err
@@ -184,7 +190,7 @@ func (r *Repository) GetAllUsage(vpsName string, period UsagePeriod) (Usage, err
 // GetAllUsage24Hours returns all usage data for a given Vps within the last 24 hours
 func (r *Repository) GetAllUsage24Hours(vpsName string) (Usage, error) {
 	// always define a period body, this way we don't have to depend on the empty body logic on the api server
-	period := UsagePeriod{TimeStart: time.Now().Unix() - 24*3600, TimeEnd: time.Now().Unix()}
+	period := UsagePeriod{TimeStart: time.Now().Add(-24 * time.Hour).Unix(), TimeEnd: time.Now().Unix()}
 
 	return r.GetAllUsage(vpsName, period)
 }

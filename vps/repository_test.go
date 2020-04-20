@@ -11,6 +11,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 )
@@ -345,8 +346,15 @@ func TestRepository_Cancel(t *testing.T) {
 
 func TestRepository_GetUsageData(t *testing.T) {
 	const apiResponse = `{"usage":{"cpu":[{"percentage":3.11,"date":1574783109}]}} `
-	const expectedRequest = `{"types":"cpu","dateTimeStart":1500538995,"dateTimeEnd":1500542619}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/usage", expectedMethod: "GET", statusCode: 200, expectedRequest: expectedRequest, response: apiResponse}
+
+	values := url.Values{
+		"dateTimeStart": []string{"1500538995"},
+		"dateTimeEnd":   []string{"1500542619"},
+		"types":         []string{"cpu"},
+	}
+
+	expectedUrl := "/vps/example-vps/usage?" + values.Encode()
+	server := mockServer{t: t, expectedURL: expectedUrl, expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -361,8 +369,15 @@ func TestRepository_GetUsageData(t *testing.T) {
 
 func TestRepository_GetAllUsageDataByVps(t *testing.T) {
 	const apiResponse = `{ "usage": { "cpu": [ { "percentage": 3.11, "date": 1574783109 } ], "disk": [ { "iopsRead": 0.27, "iopsWrite": 0.13, "date": 1574783109 } ], "network": [ { "mbitOut": 100.2, "mbitIn": 249.93, "date": 1574783109 } ] } } `
-	const expectedRequest = `{"types":"cpu,disk,network","dateTimeStart":1500538995,"dateTimeEnd":1500542619}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/usage", expectedMethod: "GET", statusCode: 200, expectedRequest: expectedRequest, response: apiResponse}
+
+	values := url.Values{
+		"dateTimeStart": []string{"1500538995"},
+		"dateTimeEnd":   []string{"1500542619"},
+		"types":         []string{"cpu,disk,network"},
+	}
+
+	expectedUrl := "/vps/example-vps/usage?" + values.Encode()
+	server := mockServer{t: t, expectedURL: expectedUrl, expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -388,8 +403,15 @@ func TestRepository_GetAllUsageDataByVps(t *testing.T) {
 
 func TestRepository_GetAllUsageDataByVps24Hours(t *testing.T) {
 	const apiResponse = `{ "usage": { "cpu": [ { "percentage": 3.11, "date": 1574783109 } ], "disk": [ { "iopsRead": 0.27, "iopsWrite": 0.13, "date": 1574783109 } ], "network": [ { "mbitOut": 100.2, "mbitIn": 249.93, "date": 1574783109 } ] } } `
-	expectedRequest := fmt.Sprintf(`{"types":"cpu,disk,network","dateTimeStart":%d,"dateTimeEnd":%d}`, time.Now().Unix()-24*3600, time.Now().Unix())
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/usage", expectedMethod: "GET", statusCode: 200, expectedRequest: expectedRequest, response: apiResponse}
+
+	values := url.Values{
+		"dateTimeStart": []string{fmt.Sprintf("%d", time.Now().Add(-24*time.Hour).Unix())},
+		"dateTimeEnd":   []string{fmt.Sprintf("%d", time.Now().Unix())},
+		"types":         []string{"cpu,disk,network"},
+	}
+
+	expectedUrl := "/vps/example-vps/usage?" + values.Encode()
+	server := mockServer{t: t, expectedURL: expectedUrl, expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
