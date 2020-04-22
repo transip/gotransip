@@ -5,11 +5,12 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6/jwt"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
 func TestFileTokenCache_New(t *testing.T) {
-	tmpFile := os.TempDir() + "/gotransip_test123"
+	tmpFile := filepath.Join(os.TempDir(), "gotransip_test123")
 	defer os.Remove(tmpFile)
 
 	_, err := NewFileTokenCache(tmpFile)
@@ -17,7 +18,7 @@ func TestFileTokenCache_New(t *testing.T) {
 }
 
 func TestFileTokenCache_Set(t *testing.T) {
-	tmpFile := os.TempDir() + "/gotransip_test123"
+	tmpFile := filepath.Join(os.TempDir(), "gotransip_test123")
 	defer os.Remove(tmpFile)
 
 	cache, err := NewFileTokenCache(tmpFile)

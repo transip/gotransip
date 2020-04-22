@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"path/filepath"
 	"testing"
 	"testing/iotest"
 	"time"
@@ -77,7 +78,7 @@ func TestNewClient(t *testing.T) {
 	require.NoError(t, err)
 
 	// Test that a tokencache is passed to the authenticator
-	cacheFile := os.TempDir() + "/gotransip_test_token_cache"
+	cacheFile := filepath.Join(os.TempDir(), "gotransip_test_token_cache")
 	defer os.Remove(cacheFile)
 	cache, err := authenticator.NewFileTokenCache(cacheFile)
 	require.NoError(t, err)
