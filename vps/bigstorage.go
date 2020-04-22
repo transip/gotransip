@@ -181,7 +181,11 @@ func (r *BigStorageRepository) RevertBackup(bigStorageName string, backupID int6
 // GetUsage allows you to query your bigstorage usage within a certain period
 func (r *BigStorageRepository) GetUsage(bigStorageName string, period UsagePeriod) ([]UsageDataDisk, error) {
 	var response usageDataDiskWrapper
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/usage", bigStorageName), Body: &period}
+	parameters := url.Values{
+		"dateTimeStart": []string{fmt.Sprintf("%d", period.TimeStart)},
+		"dateTimeEnd":   []string{fmt.Sprintf("%d", period.TimeEnd)},
+	}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/usage", bigStorageName), Parameters: parameters}
 
 	err := r.Client.Get(restRequest, &response)
 
@@ -191,7 +195,7 @@ func (r *BigStorageRepository) GetUsage(bigStorageName string, period UsagePerio
 // GetUsageLast24Hours allows you to get usage statistics for a given bigstorage within the last 24 hours
 func (r *BigStorageRepository) GetUsageLast24Hours(bigStorageName string) ([]UsageDataDisk, error) {
 	// always define a period body, this way we don't have to depend on the empty body logic on the api server
-	period := UsagePeriod{TimeStart: time.Now().Unix() - 24*3600, TimeEnd: time.Now().Unix()}
+	period := UsagePeriod{TimeStart: time.Now().Add(-24 * time.Hour).Unix(), TimeEnd: time.Now().Unix()}
 
 	return r.GetUsage(bigStorageName, period)
 }
