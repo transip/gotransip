@@ -353,8 +353,8 @@ func TestRepository_GetUsageData(t *testing.T) {
 		"types":         []string{"cpu"},
 	}
 
-	expectedUrl := "/vps/example-vps/usage?" + values.Encode()
-	server := mockServer{t: t, expectedURL: expectedUrl, expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	expectedURL := "/vps/example-vps/usage?" + values.Encode()
+	server := mockServer{t: t, expectedURL: expectedURL, expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -376,8 +376,8 @@ func TestRepository_GetAllUsageDataByVps(t *testing.T) {
 		"types":         []string{"cpu,disk,network"},
 	}
 
-	expectedUrl := "/vps/example-vps/usage?" + values.Encode()
-	server := mockServer{t: t, expectedURL: expectedUrl, expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	expectedURL := "/vps/example-vps/usage?" + values.Encode()
+	server := mockServer{t: t, expectedURL: expectedURL, expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
@@ -410,8 +410,8 @@ func TestRepository_GetAllUsageDataByVps24Hours(t *testing.T) {
 		"types":         []string{"cpu,disk,network"},
 	}
 
-	expectedUrl := "/vps/example-vps/usage?" + values.Encode()
-	server := mockServer{t: t, expectedURL: expectedUrl, expectedMethod: "GET", statusCode: 200, response: apiResponse}
+	expectedURL := "/vps/example-vps/usage?" + values.Encode()
+	server := mockServer{t: t, expectedURL: expectedURL, expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
