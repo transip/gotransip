@@ -363,12 +363,6 @@ type UsageDataNetwork struct {
 	MbitOut float32 `json:"mbitOut"`
 }
 
-// vpsUsageRequest is used to marshall a usage request struct
-type vpsUsageRequest struct {
-	Types string `json:"types,omitempty"`
-	UsagePeriod
-}
-
 // UsagePeriod is struct that can be used to query usage statistics for a certain period
 type UsagePeriod struct {
 	// TimeStart contains a unix timestamp for the start of the period
