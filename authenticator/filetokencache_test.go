@@ -5,20 +5,23 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6/jwt"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
 func TestFileTokenCache_New(t *testing.T) {
-	defer os.Remove("/tmp/gotransip_test123")
+	tmpFile := filepath.Join(os.TempDir(), "gotransip_test123")
+	defer os.Remove(tmpFile)
 
-	_, err := NewFileTokenCache("/tmp/gotransip_test123")
+	_, err := NewFileTokenCache(tmpFile)
 	require.NoError(t, err)
 }
 
 func TestFileTokenCache_Set(t *testing.T) {
-	defer os.Remove("/tmp/gotransip_test123")
+	tmpFile := filepath.Join(os.TempDir(), "gotransip_test123")
+	defer os.Remove(tmpFile)
 
-	cache, err := NewFileTokenCache("/tmp/gotransip_test123")
+	cache, err := NewFileTokenCache(tmpFile)
 	require.NoError(t, err)
 
 	tokenToCache := jwt.Token{ExpiryDate: 2118745550, RawToken: DemoToken}
@@ -31,9 +34,10 @@ func TestFileTokenCache_Set(t *testing.T) {
 }
 
 func TestFileTokenCache_SetGetFromFile(t *testing.T) {
-	defer os.Remove("/tmp/gotransip_cache_setgetfromfile")
+	cacheLocation := os.TempDir() + "/gotransip_cache_setgetfromfile"
+	defer os.Remove(cacheLocation)
 
-	cache, err := NewFileTokenCache("/tmp/gotransip_cache_setgetfromfile")
+	cache, err := NewFileTokenCache(cacheLocation)
 	require.NoError(t, err)
 
 	tokenToCache := jwt.Token{RawToken: DemoToken + DemoToken}
@@ -49,7 +53,7 @@ func TestFileTokenCache_SetGetFromFile(t *testing.T) {
 	err = cache.File.Close()
 	require.NoError(t, err)
 
-	cache, err = NewFileTokenCache("/tmp/gotransip_cache_setgetfromfile")
+	cache, err = NewFileTokenCache(cacheLocation)
 	require.NoError(t, err)
 
 	dataFromCache, err := cache.Get("testkey")

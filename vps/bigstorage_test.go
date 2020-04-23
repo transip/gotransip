@@ -5,6 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6"
+	"net/url"
 	"testing"
 	"time"
 )
@@ -201,7 +202,14 @@ func TestBigStorageRepository_RevertBigStorageBackup(t *testing.T) {
 func TestBigStorageRepository_GetBigStorageUsage(t *testing.T) {
 	const apiResponse = `{ "usage": [ { "iopsRead": 0.27, "iopsWrite": 0.13, "date": 1574783109 } ] }`
 	const expectedRequest = `{"dateTimeStart":1500538995,"dateTimeEnd":1500542619}`
-	server := mockServer{t: t, expectedURL: "/big-storages/example-bigstorage/usage", expectedMethod: "GET", statusCode: 200, expectedRequest: expectedRequest, response: apiResponse}
+
+	parameters := url.Values{
+		"dateTimeStart": []string{"1500538995"},
+		"dateTimeEnd":   []string{"1500542619"},
+	}
+
+	expectedUrl := "/big-storages/example-bigstorage/usage?" + parameters.Encode()
+	server := mockServer{t: t, expectedURL: expectedUrl, expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := BigStorageRepository{Client: *client}
@@ -217,8 +225,14 @@ func TestBigStorageRepository_GetBigStorageUsage(t *testing.T) {
 
 func TestBigStorageRepository_GetBigStorageUsageLast24Hours(t *testing.T) {
 	const apiResponse = `{ "usage": [ { "iopsRead": 0.27, "iopsWrite": 0.13, "date": 1574783109 } ] }`
-	expectedRequest := fmt.Sprintf(`{"dateTimeStart":%d,"dateTimeEnd":%d}`, time.Now().Unix()-24*3600, time.Now().Unix())
-	server := mockServer{t: t, expectedURL: "/big-storages/example-bigstorage/usage", expectedMethod: "GET", statusCode: 200, response: apiResponse, expectedRequest: expectedRequest}
+
+	parameters := url.Values{
+		"dateTimeStart": []string{fmt.Sprintf("%d", time.Now().Add(-24*time.Hour).Unix())},
+		"dateTimeEnd":   []string{fmt.Sprintf("%d", time.Now().Unix())},
+	}
+
+	expectedUrl := "/big-storages/example-bigstorage/usage?" + parameters.Encode()
+	server := mockServer{t: t, expectedURL: expectedUrl, expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := BigStorageRepository{Client: *client}
