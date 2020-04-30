@@ -541,7 +541,21 @@ func TestRepository_Upgrade(t *testing.T) {
 }
 
 func TestRepository_GetOperatingSystems(t *testing.T) {
-	const apiResponse = `{ "operatingSystems": [ { "name": "ubuntu-18.04", "description": "Ubuntu 18.04 LTS", "isPreinstallableImage": false, "version": "18.04 LTS", "price": 1250 } ] }`
+	const apiResponse = `{
+  "operatingSystems": [
+    {
+      "name": "ubuntu-18.04",
+      "description": "Ubuntu 18.04 LTS",
+      "version": "18.04 LTS",
+      "price": 1250,
+      "installFlavours": [
+        "installer",
+        "preinstallable",
+        "cloudinit"
+      ]
+    }
+  ]
+}`
 	server := mockServer{t: t, expectedURL: "/vps/example-vps/operating-systems", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -554,9 +568,11 @@ func TestRepository_GetOperatingSystems(t *testing.T) {
 	assert.Equal(t, "ubuntu-18.04", oses[0].Name)
 	assert.Equal(t, "Ubuntu 18.04 LTS", oses[0].Description)
 	assert.Equal(t, false, oses[0].IsPreinstallableImage)
+	assert.Contains(t, oses[0].InstallFlavours, InstallFlavourInstaller)
+	assert.Contains(t, oses[0].InstallFlavours, InstallFlavourPreinstallable)
+	assert.Contains(t, oses[0].InstallFlavours, InstallFlavourCloudInit)
 	assert.Equal(t, "18.04 LTS", oses[0].Version)
 	assert.Equal(t, 1250, oses[0].Price)
-
 }
 
 func TestRepository_InstallOperatingSystemOptionalFields(t *testing.T) {
@@ -578,6 +594,26 @@ func TestRepository_InstallOperatingSystem(t *testing.T) {
 	repo := Repository{Client: *client}
 
 	err := repo.InstallOperatingSystem("example-vps", "ubuntu-18.04", "test", "ZGFzaXN0YmFzZTY0")
+	require.NoError(t, err)
+}
+
+func TestRepository_InstallOperatingSystemWithOptions(t *testing.T) {
+	const expectedRequest = `{"operatingSystemName":"ubuntu-20.04","installFlavour":"cloudinit","username":"bob","sshKeys":["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDf2pxWX/yhUBDyk2LPhvRtI0LnVO8PyR5Zt6AHrnhtLGqK+8YG9EMlWbCCWrASR+Q1hFQG example"]}`
+	server := mockServer{t: t, expectedURL: "/vps/example-vps/operating-systems", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	options := InstallOptions{
+		OperatingSystemName: "ubuntu-20.04",
+		InstallFlavour:      "cloudinit",
+		Hostname:            "",
+		Username:            "bob",
+		SSHKeys:             []string{"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDf2pxWX/yhUBDyk2LPhvRtI0LnVO8PyR5Zt6AHrnhtLGqK+8YG9EMlWbCCWrASR+Q1hFQG example"},
+		Base64InstallText:   "",
+	}
+
+	err := repo.InstallOperatingSystemWithOptions("example-vps", options)
 	require.NoError(t, err)
 }
 

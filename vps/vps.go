@@ -83,6 +83,22 @@ const (
 	UsageTypeNetwork UsageType = "network"
 )
 
+// InstallFlavour can be one of the following strings
+// 'installer', 'preinstallable', 'cloudinit'
+type InstallFlavour string
+
+const (
+	// InstallFlavourInstaller is used to explicitly specify that the
+	// operating system will be provided through the standard installer
+	InstallFlavourInstaller InstallFlavour = "installer"
+	// InstallFlavourPreinstallable is used to explicitly specify that the
+	// operating system will be provided by a preinstalled image
+	InstallFlavourPreinstallable InstallFlavour = "preinstallable"
+	// InstallFlavourCloudInit is used to explicitly specify that the
+	// operating system will be provided by a cloudinit-enabled image
+	InstallFlavourCloudInit InstallFlavour = "cloudinit"
+)
+
 // vpsWrapper struct contains a Vps in it,
 // this is solely used for unmarshalling/marshalling
 type vpsWrapper struct {
@@ -245,10 +261,17 @@ type revertSnapshotRequest struct {
 // installRequest struct contains a list with OperatingSystems in it,
 // this is solely used for marshalling
 type installRequest struct {
-	OperatingSystemName string `json:"operatingSystemName"`
-	Hostname            string `json:"hostname,omitempty"`
-	Base64InstallText   string `json:"base64InstallText,omitempty"`
+	OperatingSystemName string         `json:"operatingSystemName"`
+	InstallFlavour      InstallFlavour `json:"installFlavour,omitempty"`
+	Hostname            string         `json:"hostname,omitempty"`
+	Username            string         `json:"username,omitempty"`
+	SSHKeys             []string       `json:"sshKeys,omitempty"`
+	Base64InstallText   string         `json:"base64InstallText,omitempty"`
 }
+
+// InstallOptions can be used to provide options to
+// the InstallOperatingSystemWithOptions method
+type InstallOptions installRequest
 
 // bigStorageWrapper struct contains a BigStorage in it,
 // this is solely used for marshalling/unmarshalling
@@ -454,7 +477,10 @@ type OperatingSystem struct {
 	// Description
 	Description string `json:"description,omitempty"`
 	// Is a preinstallable image
+	// Deprecated: Use the InstallFlavours field to determine this instead
 	IsPreinstallableImage bool `json:"isPreinstallableImage,omitempty"`
+	// List of supported install flavours for this operating system
+	InstallFlavours []InstallFlavour `json:"installFlavours"`
 	// The operating system name
 	Name string `json:"name"`
 	// The monthly price of the operating system in cents

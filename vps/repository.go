@@ -274,6 +274,16 @@ func (r *Repository) InstallOperatingSystem(vpsName string, operatingSystemName 
 	return r.Client.Post(restRequest)
 }
 
+// InstallOperatingSystemWithOptions allows you to install an operating system to a Vps,
+// in the options you can specify hostname, username, ssh keys, and base64InstallText,
+// which would be the automatic installation configuration of your Vps
+// for more information, see: https://api.transip.nl/rest/docs.html#vps-operatingsystems-post
+func (r *Repository) InstallOperatingSystemWithOptions(vpsName string, options InstallOptions) error {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/operating-systems", vpsName), Body: &options}
+
+	return r.Client.Post(restRequest)
+}
+
 // GetIPAddresses returns all IPv4 and IPv6 addresses attached to the VPS
 func (r *Repository) GetIPAddresses(vpsName string) ([]ipaddress.IPAddress, error) {
 	var response ipaddress.IPAddressesWrapper
