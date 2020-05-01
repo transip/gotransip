@@ -50,8 +50,8 @@ func main() {
 		fmt.Printf("privatenetwork: %s (%s)\n", pn.Name, pn.Description)
 	}
 
-    // order a new ubuntu 18.04 x8 vps, specifying a custom description,
-    // so we can find out when the vps is delivered
+	// order a new ubuntu 18.04 x8 vps, specifying a custom description,
+	// so we can find out when the vps is delivered
 	err = vpsRepo.Order(vps.Order{
 		ProductName:       "vps-bladevps-x8",
 		OperatingSystem:   "ubuntu-18.04",

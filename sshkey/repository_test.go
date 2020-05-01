@@ -86,7 +86,7 @@ func TestRepository_GetAll(t *testing.T) {
 	assert.Equal(t, "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDf2pxWX/yhUBDyk2LPhvRtI0LnVO8PyR5Zt6AHrnhtLGqK+8YG9EMlWbCCWrASR+Q1hFQG example", all[0].Key)
 	assert.Equal(t, "Jim key", all[0].Description)
 	assert.Equal(t, "2020-12-01 15:25:01", all[0].CreationDate.Format("2006-01-02 15:04:05"))
-	assert.Equal(t, "bb:22:43:69:2b:0d:3e:16:58:91:27:8a:62:29:97:d1", all[0].Fingerprint)
+	assert.Equal(t, "bb:22:43:69:2b:0d:3e:16:58:91:27:8a:62:29:97:d1", all[0].MD5Fingerprint)
 }
 
 func TestRepository_GetSelection(t *testing.T) {
@@ -115,7 +115,7 @@ func TestRepository_GetSelection(t *testing.T) {
 	assert.Equal(t, "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDf2pxWX/yhUBDyk2LPhvRtI0LnVO8PyR5Zt6AHrnhtLGqK+8YG9EMlWbCCWrASR+Q1hFQG example", all[0].Key)
 	assert.Equal(t, "Jim key", all[0].Description)
 	assert.Equal(t, "2020-12-01 15:25:01", all[0].CreationDate.Format("2006-01-02 15:04:05"))
-	assert.Equal(t, "bb:22:43:69:2b:0d:3e:16:58:91:27:8a:62:29:97:d1", all[0].Fingerprint)
+	assert.Equal(t, "bb:22:43:69:2b:0d:3e:16:58:91:27:8a:62:29:97:d1", all[0].MD5Fingerprint)
 }
 
 func TestRepository_GetById(t *testing.T) {
@@ -140,7 +140,7 @@ func TestRepository_GetById(t *testing.T) {
 	assert.Equal(t, "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDf2pxWX/yhUBDyk2LPhvRtI0LnVO8PyR5Zt6AHrnhtLGqK+8YG9EMlWbCCWrASR+Q1hFQG example", sshKey.Key)
 	assert.Equal(t, "Jim key", sshKey.Description)
 	assert.Equal(t, "2020-12-01 15:25:01", sshKey.CreationDate.Format("2006-01-02 15:04:05"))
-	assert.Equal(t, "bb:22:43:69:2b:0d:3e:16:58:91:27:8a:62:29:97:d1", sshKey.Fingerprint)
+	assert.Equal(t, "bb:22:43:69:2b:0d:3e:16:58:91:27:8a:62:29:97:d1", sshKey.MD5Fingerprint)
 }
 
 func TestRepository_Add(t *testing.T) {

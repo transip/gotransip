@@ -31,11 +31,11 @@ type SSHKey struct {
 	// The SSH key id
 	ID int64 `json:"id,omitempty"`
 	// Description
-	Description string `json:"description"`
+	Description string `json:"description,omitempty"`
 	// SSH key
 	Key string `json:"key"`
 	// SSH key fingerprint
-	Fingerprint string `json:"fingerprint"`
+	MD5Fingerprint string `json:"fingerprint"`
 	// Creation date of the SSH key
 	CreationDate rest.Time `json:"creationDate"`
 }
