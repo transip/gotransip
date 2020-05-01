@@ -188,7 +188,7 @@ func TestRepository_GetByName(t *testing.T) {
 }
 
 func TestRepository_Order(t *testing.T) {
-	const expectedRequestBody = `{"productName":"vps-bladevps-x8","operatingSystem":"ubuntu-18.04","availabilityZone":"ams0","addons":["vpsAddon-1-extra-cpu-core"],"hostname":"server01.example.com","description":"example vps description","base64InstallText":"testtext123"}`
+	const expectedRequestBody = `{"productName":"vps-bladevps-x8","operatingSystem":"ubuntu-18.04","availabilityZone":"ams0","description":"example vps description","addons":["vpsAddon-1-extra-cpu-core"],"installFlavour":"cloudinit","hostname":"server01.example.com","username":"bob","sshKeys":["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDf2pxWX/yhUBDyk2LPhvRtI0LnVO8PyR5Zt6AHrnhtLGqK+8YG9EMlWbCCWrASR+Q1hFQG example"],"base64InstallText":"testtext123"}`
 	server := mockServer{t: t, expectedURL: "/vps", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequestBody}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -199,7 +199,10 @@ func TestRepository_Order(t *testing.T) {
 		OperatingSystem:   "ubuntu-18.04",
 		AvailabilityZone:  "ams0",
 		Addons:            []string{"vpsAddon-1-extra-cpu-core"},
+		InstallFlavour:    InstallFlavourCloudInit,
 		Hostname:          "server01.example.com",
+		Username:          "bob",
+		SSHKeys:           []string{"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDf2pxWX/yhUBDyk2LPhvRtI0LnVO8PyR5Zt6AHrnhtLGqK+8YG9EMlWbCCWrASR+Q1hFQG example"},
 		Description:       "example vps description",
 		Base64InstallText: "testtext123",
 	}
@@ -209,7 +212,7 @@ func TestRepository_Order(t *testing.T) {
 }
 
 func TestRepository_OrderMultiple(t *testing.T) {
-	const expectedRequestBody = `{"vpss":[{"productName":"vps-bladevps-x8","operatingSystem":"ubuntu-18.04","availabilityZone":"ams0","addons":["vpsAddon-1-extra-cpu-core"],"hostname":"server01.example.com","description":"webserver01","base64InstallText":"testtext123"},{"productName":"vps-bladevps-x8","operatingSystem":"ubuntu-18.04","availabilityZone":"ams0","hostname":"server01.example.com","description":"backupserver01"}]}`
+	const expectedRequestBody = `{"vpss":[{"productName":"vps-bladevps-x8","operatingSystem":"ubuntu-18.04","availabilityZone":"ams0","description":"webserver01","addons":["vpsAddon-1-extra-cpu-core"],"hostname":"server01.example.com","base64InstallText":"testtext123"},{"productName":"vps-bladevps-x8","operatingSystem":"ubuntu-18.04","availabilityZone":"ams0","description":"backupserver01","hostname":"server01.example.com"}]}`
 	server := mockServer{t: t, expectedURL: "/vps", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequestBody}
 	client, tearDown := server.getClient()
 	defer tearDown()

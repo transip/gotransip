@@ -14,6 +14,8 @@ analyze:lint:
   image: golangci/golangci-lint:v1.19
   script:
     - golangci-lint run
+  tags:
+    - k8s
 
 lint:golint:
   stage: lint

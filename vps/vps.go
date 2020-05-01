@@ -259,14 +259,22 @@ type revertSnapshotRequest struct {
 }
 
 // installRequest struct contains a list with OperatingSystems in it,
-// this is solely used for marshalling
+// this is used for marshalling and aliased by InstallOptions
 type installRequest struct {
-	OperatingSystemName string         `json:"operatingSystemName"`
-	InstallFlavour      InstallFlavour `json:"installFlavour,omitempty"`
-	Hostname            string         `json:"hostname,omitempty"`
-	Username            string         `json:"username,omitempty"`
-	SSHKeys             []string       `json:"sshKeys,omitempty"`
-	Base64InstallText   string         `json:"base64InstallText,omitempty"`
+	// The name of the operating system to install
+	OperatingSystemName string `json:"operatingSystemName"`
+	// Install flavour to use for providing the operating system (optional)
+	// If the field is left empty, the default install flavour for the operating system will be used
+	InstallFlavour InstallFlavour `json:"installFlavour,omitempty"`
+	// The name for the host, only needed for the preinstallable and cloudinit install flavours
+	Hostname string `json:"hostname,omitempty"`
+	// Username used for account creating during cloudinit installation (max 32 chars)
+	Username string `json:"username,omitempty"`
+	// Array of public SSH keys to use for account creating during installation
+	// (currently only supported with the cloudinit flavour)
+	SSHKeys []string `json:"sshKeys,omitempty"`
+	// Base64 encoded preseed / kickstart / cloudinit instructions, when installing unattended
+	Base64InstallText string `json:"base64InstallText,omitempty"`
 }
 
 // InstallOptions can be used to provide options to
@@ -420,13 +428,21 @@ type Order struct {
 	OperatingSystem string `json:"operatingSystem"`
 	// The name of the availability zone where the vps should be created
 	AvailabilityZone string `json:"availabilityZone,omitempty"`
-	// Array with additional addons
-	Addons []string `json:"addons,omitempty"`
-	// The name for the host, only needed for installing a preinstallable control panel image
-	Hostname string `json:"hostname,omitempty"`
 	// The description of the VPS
 	Description string `json:"description,omitempty"`
-	// Base64 encoded preseed / kickstart instructions, when installing unattended
+	// Array with additional addons
+	Addons []string `json:"addons,omitempty"`
+	// Install flavour to use for providing the operating system (optional)
+	// If the field is left empty, the default install flavour for the operating system will be used
+	InstallFlavour InstallFlavour `json:"installFlavour,omitempty"`
+	// The name for the host, only needed for the preinstallable and cloudinit install flavours
+	Hostname string `json:"hostname,omitempty"`
+	// Username used for account creating during cloudinit installation (max 32 chars)
+	Username string `json:"username,omitempty"`
+	// Array of public SSH keys to use for account creating during installation
+	// (currently only supported with the cloudinit flavour)
+	SSHKeys []string `json:"sshKeys,omitempty"`
+	// Base64 encoded preseed / kickstart / cloudinit instructions, when installing unattended
 	Base64InstallText string `json:"base64InstallText,omitempty"`
 }
 
