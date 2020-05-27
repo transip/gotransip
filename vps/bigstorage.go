@@ -54,6 +54,11 @@ type BigStorage struct {
 	VpsName string `json:"vpsName"`
 	// Status of the big storage can be 'active', 'attaching' or 'detachting'
 	Status BigStorageStatus `json:"status,omitempty"`
+	// Serial of the big storage. This is a unique identifier that is visible by the vps it has been attached to. On
+	// linux servers it is visible using udevadm info /dev/vdb where it will be the value of ID_SERIAL. A symlink will
+	// also be created in /dev/disk-by-id/ containing the serial. This is useful if you want to map a disk inside a VPS
+	// to a big storage.
+	Serial string `json:"serial"`
 	// Lock status of the big storage, when it is locked, it cannot be attached or detached.
 	IsLocked bool `json:"isLocked"`
 	// The availability zone the bigstorage is located in

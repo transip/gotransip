@@ -11,7 +11,7 @@ import (
 )
 
 func TestBigStorageRepository_GetBigStorages(t *testing.T) {
-	const apiResponse = `{ "bigStorages": [ { "name": "example-bigstorage", "description": "Big storage description", "diskSize": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0" } ] } `
+	const apiResponse = `{ "bigStorages": [ { "name": "example-bigstorage", "description": "Big storage description", "diskSize": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0", "serial": "e7e12b3c7c6602973ac7" } ] } `
 	server := mockServer{t: t, expectedURL: "/big-storages", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -29,10 +29,11 @@ func TestBigStorageRepository_GetBigStorages(t *testing.T) {
 	assert.EqualValues(t, "active", all[0].Status)
 	assert.Equal(t, false, all[0].IsLocked)
 	assert.Equal(t, "ams0", all[0].AvailabilityZone)
+	assert.Equal(t, "e7e12b3c7c6602973ac7", all[0].Serial)
 }
 
 func TestBigStorageRepository_GetSelection(t *testing.T) {
-	const apiResponse = `{ "bigStorages": [ { "name": "example-bigstorage", "description": "Big storage description", "diskSize": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0" } ] } `
+	const apiResponse = `{ "bigStorages": [ { "name": "example-bigstorage", "description": "Big storage description", "diskSize": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0", "serial": "e7e12b3c7c6602973ac7"} ] } `
 	server := mockServer{t: t, expectedURL: "/big-storages?page=1&pageSize=25", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -50,10 +51,11 @@ func TestBigStorageRepository_GetSelection(t *testing.T) {
 	assert.EqualValues(t, "active", all[0].Status)
 	assert.Equal(t, false, all[0].IsLocked)
 	assert.Equal(t, "ams0", all[0].AvailabilityZone)
+	assert.Equal(t, "e7e12b3c7c6602973ac7", all[0].Serial)
 }
 
 func TestBigStorageRepository_GetBigStorageByName(t *testing.T) {
-	const apiResponse = `{ "bigStorage": { "name": "example-bigstorage", "description": "Big storage description", "diskSize": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0" } } `
+	const apiResponse = `{ "bigStorage": { "name": "example-bigstorage", "description": "Big storage description", "diskSize": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0", "serial": "e7e12b3c7c6602973ac7" } } `
 	server := mockServer{t: t, expectedURL: "/big-storages/example-bigstorage", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -69,6 +71,7 @@ func TestBigStorageRepository_GetBigStorageByName(t *testing.T) {
 	assert.EqualValues(t, "active", bigstorage.Status)
 	assert.Equal(t, false, bigstorage.IsLocked)
 	assert.Equal(t, "ams0", bigstorage.AvailabilityZone)
+	assert.Equal(t, "e7e12b3c7c6602973ac7", bigstorage.Serial)
 }
 
 func TestBigStorageRepository_OrderBigStorage(t *testing.T) {
@@ -97,7 +100,7 @@ func TestBigStorageRepository_UpgradeBigStorage(t *testing.T) {
 }
 
 func TestBigStorageRepository_UpdateBigStorage(t *testing.T) {
-	const expectedRequest = `{"bigStorage":{"name":"example-bigstorage","description":"Big storage description","diskSize":2147483648,"offsiteBackups":true,"vpsName":"example-vps","status":"active","isLocked":false,"availabilityZone":"ams0"}}`
+	const expectedRequest = `{"bigStorage":{"name":"example-bigstorage","description":"Big storage description","diskSize":2147483648,"offsiteBackups":true,"vpsName":"example-vps","status":"active","serial":"e7e12b3c7c6602973ac7","isLocked":false,"availabilityZone":"ams0"}}`
 	server := mockServer{t: t, expectedURL: "/big-storages/example-bigstorage", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -112,6 +115,7 @@ func TestBigStorageRepository_UpdateBigStorage(t *testing.T) {
 		Status:           BigStorageStatusActive,
 		IsLocked:         false,
 		AvailabilityZone: "ams0",
+		Serial:           "e7e12b3c7c6602973ac7",
 	}
 	err := repo.Update(bigStorage)
 
@@ -119,7 +123,7 @@ func TestBigStorageRepository_UpdateBigStorage(t *testing.T) {
 }
 
 func TestBigStorageRepository_DetachVpsFromBigStorage(t *testing.T) {
-	const expectedRequest = `{"bigStorage":{"name":"example-bigstorage","description":"Big storage description","diskSize":2147483648,"offsiteBackups":true,"vpsName":"example-vps","status":"active","isLocked":false,"availabilityZone":"ams0"}}`
+	const expectedRequest = `{"bigStorage":{"name":"example-bigstorage","description":"Big storage description","diskSize":2147483648,"offsiteBackups":true,"vpsName":"example-vps","status":"active","serial":"e7e12b3c7c6602973ac7","isLocked":false,"availabilityZone":"ams0"}}`
 	server := mockServer{t: t, expectedURL: "/big-storages/example-bigstorage", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -133,13 +137,14 @@ func TestBigStorageRepository_DetachVpsFromBigStorage(t *testing.T) {
 		Status:           "active",
 		IsLocked:         false,
 		AvailabilityZone: "ams0",
+		Serial:           "e7e12b3c7c6602973ac7",
 	}
 	err := repo.AttachToVps("example-vps", bigStorage)
 	require.NoError(t, err)
 }
 
 func TestBigStorageRepository_AttachVpsToBigStorage(t *testing.T) {
-	const expectedRequest = `{"bigStorage":{"name":"example-bigstorage","description":"Big storage description","diskSize":2147483648,"offsiteBackups":true,"vpsName":"","status":"active","isLocked":false,"availabilityZone":"ams0"}}`
+	const expectedRequest = `{"bigStorage":{"name":"example-bigstorage","description":"Big storage description","diskSize":2147483648,"offsiteBackups":true,"vpsName":"","status":"active","serial":"e7e12b3c7c6602973ac7","isLocked":false,"availabilityZone":"ams0"}}`
 	server := mockServer{t: t, expectedURL: "/big-storages/example-bigstorage", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -154,6 +159,7 @@ func TestBigStorageRepository_AttachVpsToBigStorage(t *testing.T) {
 		Status:           "active",
 		IsLocked:         false,
 		AvailabilityZone: "ams0",
+		Serial:           "e7e12b3c7c6602973ac7",
 	}
 	err := repo.DetachFromVps(bigStorage)
 	require.NoError(t, err)
