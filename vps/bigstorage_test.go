@@ -75,13 +75,13 @@ func TestBigStorageRepository_GetBigStorageByName(t *testing.T) {
 }
 
 func TestBigStorageRepository_OrderBigStorage(t *testing.T) {
-	const expectedRequest = `{"size":8,"offsiteBackups":true,"availabilityZone":"ams0","vpsName":"example-vps"}`
+	const expectedRequest = `{"size":8,"offsiteBackups":true,"availabilityZone":"ams0","vpsName":"example-vps","description":"test-description"}`
 	server := mockServer{t: t, expectedURL: "/big-storages", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
 	repo := BigStorageRepository{Client: *client}
 
-	order := BigStorageOrder{Size: 8, OffsiteBackups: true, AvailabilityZone: "ams0", VpsName: "example-vps"}
+	order := BigStorageOrder{Size: 8, OffsiteBackups: true, AvailabilityZone: "ams0", VpsName: "example-vps", Description: "test-description"}
 	err := repo.Order(order)
 
 	require.NoError(t, err)

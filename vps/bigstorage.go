@@ -24,6 +24,8 @@ type BigStorageOrder struct {
 	AvailabilityZone string `json:"availabilityZone,omitempty"`
 	// The name of the VPS to attach the big storage to
 	VpsName string `json:"vpsName"`
+	// Description that the big storage should have after ordering
+	Description string `json:"description,omitempty"`
 }
 
 // BigStorageStatus is one of the following strings
