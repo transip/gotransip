@@ -66,6 +66,20 @@ const (
 	PortConfigurationModeHTTP2HTTPS PortConfigurationMode = "http2_https"
 )
 
+// TLSMode is one of the following strings
+// 'tls10_11_12', 'tls11_12', 'tls12'
+type TLSMode string
+
+// Definition of all of the possible tls mode options
+const (
+	// TLSModeMinTLS10 only allow incoming tls traffic with versions 1.0, 1.1 and 1.2
+	TLSModeMinTLS10 TLSMode = "tls10_11_12"
+	// TLSModeMinTLS11 only allow incoming tls traffic with version 1.1 or 1.2
+	TLSModeMinTLS11 TLSMode = "tls11_12"
+	// TLSModeMinTLS12 only allow incoming traffic with tls version 1.2
+	TLSModeMinTLS12 TLSMode = "tls12"
+)
+
 // haipsWrapper is a wrapper used to unpack the server response
 // it contains a list of haips
 type haipsWrapper struct {
@@ -153,6 +167,8 @@ type Haip struct {
 	PtrRecord string `json:"ptrRecord,omitempty"`
 	// The IPs attached to this haip
 	IPAddresses []net.IP `json:"ipAddresses,omitempty"`
+	// HA-IP TLS Mode: 'tls10_11_12', 'tls11_12', 'tls12'
+	TLSMode TLSMode `json:"tlsMode"`
 }
 
 // Certificate struct for haip certificates it contains an ID, expiration date and common name

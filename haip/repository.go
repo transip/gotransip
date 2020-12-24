@@ -69,6 +69,11 @@ func (r *Repository) Order(productName string, description string) error {
 //   - noipv6: do not accept ipv6 traffic;
 //   - ipv6to4: forward ipv6 traffic to ipv4.
 //
+// TLS options (tlsMode):
+//   - tls10_11_12: only allow incoming tls traffic with versions 1.0, 1.1 and 1.2;
+//   - tls11_12: only allow incoming tls traffic with version 1.1 or 1.2;
+//   - tls12: only allow incoming traffic with tls version 1.2.
+//
 // For more information see: https://api.transip.nl/rest/docs.html#ha-ip-ha-ip-put
 func (r *Repository) Update(haip Haip) error {
 	requestBody := haipWrapper{Haip: haip}

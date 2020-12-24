@@ -62,7 +62,7 @@ func (m *mockServer) getClient() (*repository.Client, func()) {
 }
 
 func TestRepository_GetAll(t *testing.T) {
-	const apiResponse = `{ "haips": [ { "name": "example-haip", "description": "frontend cluster", "status": "active", "isLoadBalancingEnabled": true, "loadBalancingMode": "cookie", "stickyCookieName": "PHPSESSID", "healthCheckInterval": 3000, "httpHealthCheckPath": "/status.php", "httpHealthCheckPort": 443, "httpHealthCheckSsl": true, "ipv4Address": "37.97.254.7", "ipv6Address": "2a01:7c8:3:1337::1", "ipSetup": "ipv6to4", "ptrRecord": "frontend.example.com", "ipAddresses": [ "10.3.37.1", "10.3.38.1" ] } ] } `
+	const apiResponse = `{ "haips": [ { "name": "example-haip", "description": "frontend cluster", "status": "active", "isLoadBalancingEnabled": true, "loadBalancingMode": "cookie", "stickyCookieName": "PHPSESSID", "healthCheckInterval": 3000, "httpHealthCheckPath": "/status.php", "httpHealthCheckPort": 443, "httpHealthCheckSsl": true, "ipv4Address": "37.97.254.7", "ipv6Address": "2a01:7c8:3:1337::1", "ipSetup": "ipv6to4", "ptrRecord": "frontend.example.com", "ipAddresses": [ "10.3.37.1", "10.3.38.1" ], "tlsMode": "tls12" } ] } `
 	server := mockServer{t: t, expectedURL: "/haips", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -86,14 +86,14 @@ func TestRepository_GetAll(t *testing.T) {
 	assert.Equal(t, "2a01:7c8:3:1337::1", all[0].IPv6Address.String())
 	assert.EqualValues(t, "ipv6to4", all[0].IPSetup)
 	assert.Equal(t, "frontend.example.com", all[0].PtrRecord)
-
 	require.Equal(t, 2, len(all[0].IPAddresses))
 	assert.Equal(t, "10.3.37.1", all[0].IPAddresses[0].String())
 	assert.Equal(t, "10.3.38.1", all[0].IPAddresses[1].String())
+	assert.EqualValues(t, "tls12", all[0].TLSMode)
 }
 
 func TestRepository_GetSelection(t *testing.T) {
-	const apiResponse = `{ "haips": [ { "name": "example-haip", "description": "frontend cluster", "status": "active", "isLoadBalancingEnabled": true, "loadBalancingMode": "cookie", "stickyCookieName": "PHPSESSID", "healthCheckInterval": 3000, "httpHealthCheckPath": "/status.php", "httpHealthCheckPort": 443, "httpHealthCheckSsl": true, "ipv4Address": "37.97.254.7", "ipv6Address": "2a01:7c8:3:1337::1", "ipSetup": "ipv6to4", "ptrRecord": "frontend.example.com", "ipAddresses": [ "10.3.37.1", "10.3.38.1" ] } ] } `
+	const apiResponse = `{ "haips": [ { "name": "example-haip", "description": "frontend cluster", "status": "active", "isLoadBalancingEnabled": true, "loadBalancingMode": "cookie", "stickyCookieName": "PHPSESSID", "healthCheckInterval": 3000, "httpHealthCheckPath": "/status.php", "httpHealthCheckPort": 443, "httpHealthCheckSsl": true, "ipv4Address": "37.97.254.7", "ipv6Address": "2a01:7c8:3:1337::1", "ipSetup": "ipv6to4", "ptrRecord": "frontend.example.com", "ipAddresses": [ "10.3.37.1", "10.3.38.1" ], "tlsMode": "tls12" } ] } `
 	server := mockServer{t: t, expectedURL: "/haips?page=1&pageSize=25", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -117,14 +117,14 @@ func TestRepository_GetSelection(t *testing.T) {
 	assert.Equal(t, "2a01:7c8:3:1337::1", all[0].IPv6Address.String())
 	assert.EqualValues(t, "ipv6to4", all[0].IPSetup)
 	assert.Equal(t, "frontend.example.com", all[0].PtrRecord)
-
 	require.Equal(t, 2, len(all[0].IPAddresses))
 	assert.Equal(t, "10.3.37.1", all[0].IPAddresses[0].String())
 	assert.Equal(t, "10.3.38.1", all[0].IPAddresses[1].String())
+	assert.EqualValues(t, "tls12", all[0].TLSMode)
 }
 
 func TestRepository_GetByName(t *testing.T) {
-	const apiResponse = `{ "haip": { "name": "example-haip", "description": "frontend cluster", "status": "active", "isLoadBalancingEnabled": true, "loadBalancingMode": "cookie", "stickyCookieName": "PHPSESSID", "healthCheckInterval": 3000, "httpHealthCheckPath": "/status.php", "httpHealthCheckPort": 443, "httpHealthCheckSsl": true, "ipv4Address": "37.97.254.7", "ipv6Address": "2a01:7c8:3:1337::1", "ipSetup": "ipv6to4", "ptrRecord": "frontend.example.com", "ipAddresses": [ "10.3.37.1", "10.3.38.1" ] } }`
+	const apiResponse = `{ "haip": { "name": "example-haip", "description": "frontend cluster", "status": "active", "isLoadBalancingEnabled": true, "loadBalancingMode": "cookie", "stickyCookieName": "PHPSESSID", "healthCheckInterval": 3000, "httpHealthCheckPath": "/status.php", "httpHealthCheckPort": 443, "httpHealthCheckSsl": true, "ipv4Address": "37.97.254.7", "ipv6Address": "2a01:7c8:3:1337::1", "ipSetup": "ipv6to4", "ptrRecord": "frontend.example.com", "ipAddresses": [ "10.3.37.1", "10.3.38.1" ], "tlsMode": "tls12" } }`
 	server := mockServer{t: t, expectedURL: "/haips/example-haip", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -147,10 +147,10 @@ func TestRepository_GetByName(t *testing.T) {
 	assert.Equal(t, "2a01:7c8:3:1337::1", haip.IPv6Address.String())
 	assert.EqualValues(t, "ipv6to4", haip.IPSetup)
 	assert.Equal(t, "frontend.example.com", haip.PtrRecord)
-
 	require.Equal(t, 2, len(haip.IPAddresses))
 	assert.Equal(t, "10.3.37.1", haip.IPAddresses[0].String())
 	assert.Equal(t, "10.3.38.1", haip.IPAddresses[1].String())
+	assert.EqualValues(t, "tls12", haip.TLSMode)
 }
 
 func TestRepository_Order(t *testing.T) {
@@ -165,7 +165,7 @@ func TestRepository_Order(t *testing.T) {
 }
 
 func TestRepository_Update(t *testing.T) {
-	const expectedRequestBody = `{"haip":{"name":"example-haip","description":"frontend cluster","status":"active","isLoadBalancingEnabled":true,"loadBalancingMode":"cookie","stickyCookieName":"PHPSESSID","healthCheckInterval":3000,"httpHealthCheckPath":"/status.php","httpHealthCheckPort":443,"httpHealthCheckSsl":true,"ipv4Address":"37.97.254.7","ipv6Address":"2a01:7c8:3:1337::1","ipSetup":"ipv6to4","ptrRecord":"frontend.example.com","ipAddresses":["10.3.37.1","10.3.38.1"]}}`
+	const expectedRequestBody = `{"haip":{"name":"example-haip","description":"frontend cluster","status":"active","isLoadBalancingEnabled":true,"loadBalancingMode":"cookie","stickyCookieName":"PHPSESSID","healthCheckInterval":3000,"httpHealthCheckPath":"/status.php","httpHealthCheckPort":443,"httpHealthCheckSsl":true,"ipv4Address":"37.97.254.7","ipv6Address":"2a01:7c8:3:1337::1","ipSetup":"ipv6to4","ptrRecord":"frontend.example.com","ipAddresses":["10.3.37.1","10.3.38.1"],"tlsMode":"tls10_11_12"}}`
 	server := mockServer{t: t, expectedURL: "/haips/example-haip", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequestBody}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -187,6 +187,7 @@ func TestRepository_Update(t *testing.T) {
 		IPSetup:                "ipv6to4",
 		PtrRecord:              "frontend.example.com",
 		IPAddresses:            []net.IP{net.ParseIP("10.3.37.1"), net.ParseIP("10.3.38.1")},
+		TLSMode:                TLSModeMinTLS10,
 	}
 
 	err := repo.Update(haip)
