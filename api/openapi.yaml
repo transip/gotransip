@@ -3335,7 +3335,7 @@ paths:
                         items: {}
                         type: array
                       ipSetup:
-                        description: 'HA-IP IP setup: ''both'', ''noipv6'', ''ipv6to4'''
+                        description: 'HA-IP IP setup: ''both'', ''noipv6'', ''ipv6to4'', ''ipv4to6'''
                         type: string
                       ipv4Address:
                         description: HA-IP IPv4 address
@@ -3492,6 +3492,9 @@ paths:
 
 
         * **ipv6to4**: forward ipv6 traffic to ipv4.
+
+
+        * **ipv4to6**: forward ipv4 traffic to ipv6.
       operationId: Update a HA-IP
       requestBody:
         content:
@@ -3540,7 +3543,7 @@ paths:
                       description: The IPs attached to this haip
                       type: array
                     ipSetup:
-                      description: 'HA-IP IP setup: ''both'', ''noipv6'', ''ipv6to4'''
+                      description: 'HA-IP IP setup: ''both'', ''noipv6'', ''ipv6to4'', ''ipv4to6'''
                       type: string
                     ipv4Address:
                       description: HA-IP IPv4 address
@@ -9457,7 +9460,7 @@ components:
           items: {}
           type: array
         ipSetup:
-          description: 'HA-IP IP setup: ''both'', ''noipv6'', ''ipv6to4'''
+          description: 'HA-IP IP setup: ''both'', ''noipv6'', ''ipv6to4'', ''ipv4to6'''
           type: string
         ipv4Address:
           description: HA-IP IPv4 address

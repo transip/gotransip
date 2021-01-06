@@ -34,7 +34,7 @@ const (
 )
 
 // IPSetup is one of the following strings
-// 'both', 'noipv6', 'ipv6to4'
+// 'both', 'noipv6', 'ipv6to4', 'ipv4to6'
 type IPSetup string
 
 // Definition of all of the possible ip setup options
@@ -45,6 +45,8 @@ const (
 	IPSetupNoIPv6 IPSetup = "noipv6"
 	// IPSetupIPv6to4 forward ipv6 traffic to ipv4
 	IPSetupIPv6to4 IPSetup = "ipv6to4"
+	// IPSetupIPv4to6 forward ipv4 traffic to ipv6
+	IPSetupIPv4to6 IPSetup = "ipv4to6"
 )
 
 // PortConfigurationMode is one of the following strings
@@ -161,7 +163,7 @@ type Haip struct {
 	IPv4Address net.IP `json:"ipv4Address,omitempty"`
 	// HA-IP IPv6 address
 	IPv6Address net.IP `json:"ipv6Address,omitempty"`
-	// HA-IP IP setup: 'both', 'noipv6', 'ipv6to4'
+	// HA-IP IP setup: 'both', 'noipv6', 'ipv6to4', 'ipv4to6'
 	IPSetup IPSetup `json:"ipSetup"`
 	// The PTR record for the HA-IP
 	PtrRecord string `json:"ptrRecord,omitempty"`

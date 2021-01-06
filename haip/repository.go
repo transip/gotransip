@@ -68,6 +68,7 @@ func (r *Repository) Order(productName string, description string) error {
 //   - both: accept ipv4 and ipv6 and forward them to separate ipv4 and ipv6 addresses;
 //   - noipv6: do not accept ipv6 traffic;
 //   - ipv6to4: forward ipv6 traffic to ipv4.
+//   - ipv4to6: forward ipv4 traffic to ipv6.
 //
 // TLS options (tlsMode):
 //   - tls10_11_12: only allow incoming tls traffic with versions 1.0, 1.1 and 1.2;
