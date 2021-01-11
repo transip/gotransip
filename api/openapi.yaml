@@ -6217,6 +6217,7 @@ paths:
                         operatingSystem: ubuntu-18.04
                         productName: vps-bladevps-x1
                         status: running
+                        uuid: bfa08ad9-6c12-4e03-95dd-a888b97ffe49
               schema:
                 properties:
                   vpss:
@@ -6452,6 +6453,7 @@ paths:
                       operatingSystem: ubuntu-18.04
                       productName: vps-bladevps-x1
                       status: running
+                      uuid: bfa08ad9-6c12-4e03-95dd-a888b97ffe49
               schema:
                 properties:
                   vps:
@@ -6514,8 +6516,12 @@ paths:
                           The VPS status, either 'created', 'installing',
                           'running', 'stopped' or 'paused'
                         type: string
+                      uuid:
+                        description: The unique identifier for the VPS
+                        type: string
                     required:
                       - name
+                      - uuid
                       - tags
                     type: object
                 type: object
@@ -6733,6 +6739,7 @@ paths:
                   operatingSystem: ubuntu-18.04
                   productName: vps-bladevps-x1
                   status: running
+                  uuid: bfa08ad9-6c12-4e03-95dd-a888b97ffe49
               properties:
                 vps:
                   properties:
@@ -6793,8 +6800,12 @@ paths:
                         The VPS status, either 'created', 'installing',
                         'running', 'stopped' or 'paused'
                       type: string
+                    uuid:
+                      description: The unique identifier for the VPS
+                      type: string
                   required:
                     - name
+                    - uuid
                     - tags
                   type: object
               type: object
@@ -10082,8 +10093,12 @@ components:
             The VPS status, either 'created', 'installing', 'running', 'stopped'
             or 'paused'
           type: string
+        uuid:
+          description: The unique identifier for the VPS
+          type: string
       required:
         - name
+        - uuid
         - tags
       type: object
     VpsBackup:

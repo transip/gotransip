@@ -97,7 +97,7 @@ func TestRepository_GetAll(t *testing.T) {
 }
 
 func TestRepository_GetAllByTags(t *testing.T) {
-	const apiResponse = `{ "vpss": [ { "name": "example-vps", "description": "example VPS", "productName": "vps-bladevps-x1", "operatingSystem": "ubuntu-18.04", "diskSize": 157286400, "memorySize": 4194304, "cpus": 2, "status": "running", "ipAddress": "37.97.254.6", "macAddress": "52:54:00:3b:52:65", "currentSnapshots": 1, "maxSnapshots": 10, "isLocked": false, "isBlocked": false, "isCustomerLocked": false, "availabilityZone": "ams0", "tags": [ "customTag", "anotherTag" ] } ] }`
+	const apiResponse = `{ "vpss": [ { "name": "example-vps", "uuid": "bfa08ad9-6c12-4e03-95dd-a888b97ffe49", "description": "example VPS", "productName": "vps-bladevps-x1", "operatingSystem": "ubuntu-18.04", "diskSize": 157286400, "memorySize": 4194304, "cpus": 2, "status": "running", "ipAddress": "37.97.254.6", "macAddress": "52:54:00:3b:52:65", "currentSnapshots": 1, "maxSnapshots": 10, "isLocked": false, "isBlocked": false, "isCustomerLocked": false, "availabilityZone": "ams0", "tags": [ "customTag", "anotherTag" ] } ] }`
 
 	server := mockServer{t: t, expectedURL: "/vps?tags=customTag", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
@@ -110,6 +110,7 @@ func TestRepository_GetAllByTags(t *testing.T) {
 
 	assert.Equal(t, "example-vps", all[0].Name)
 	assert.Equal(t, "example VPS", all[0].Description)
+	assert.Equal(t, "bfa08ad9-6c12-4e03-95dd-a888b97ffe49", all[0].UUID)
 	assert.Equal(t, "vps-bladevps-x1", all[0].ProductName)
 	assert.Equal(t, "ubuntu-18.04", all[0].OperatingSystem)
 	assert.EqualValues(t, 157286400, all[0].DiskSize)
@@ -128,7 +129,7 @@ func TestRepository_GetAllByTags(t *testing.T) {
 }
 
 func TestRepository_GetSelection(t *testing.T) {
-	const apiResponse = `{ "vpss": [ { "name": "example-vps", "description": "example VPS", "productName": "vps-bladevps-x1", "operatingSystem": "ubuntu-18.04", "diskSize": 157286400, "memorySize": 4194304, "cpus": 2, "status": "running", "ipAddress": "37.97.254.6", "macAddress": "52:54:00:3b:52:65", "currentSnapshots": 1, "maxSnapshots": 10, "isLocked": false, "isBlocked": false, "isCustomerLocked": false, "availabilityZone": "ams0", "tags": [ "customTag", "anotherTag" ] } ] }`
+	const apiResponse = `{ "vpss": [ { "name": "example-vps", "uuid": "bfa08ad9-6c12-4e03-95dd-a888b97ffe49", "description": "example VPS", "productName": "vps-bladevps-x1", "operatingSystem": "ubuntu-18.04", "diskSize": 157286400, "memorySize": 4194304, "cpus": 2, "status": "running", "ipAddress": "37.97.254.6", "macAddress": "52:54:00:3b:52:65", "currentSnapshots": 1, "maxSnapshots": 10, "isLocked": false, "isBlocked": false, "isCustomerLocked": false, "availabilityZone": "ams0", "tags": [ "customTag", "anotherTag" ] } ] }`
 
 	server := mockServer{t: t, expectedURL: "/vps?page=1&pageSize=25", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
@@ -140,6 +141,7 @@ func TestRepository_GetSelection(t *testing.T) {
 	require.Equal(t, 1, len(all))
 
 	assert.Equal(t, "example-vps", all[0].Name)
+	assert.Equal(t, "bfa08ad9-6c12-4e03-95dd-a888b97ffe49", all[0].UUID)
 	assert.Equal(t, "example VPS", all[0].Description)
 	assert.Equal(t, "vps-bladevps-x1", all[0].ProductName)
 	assert.Equal(t, "ubuntu-18.04", all[0].OperatingSystem)
@@ -159,7 +161,7 @@ func TestRepository_GetSelection(t *testing.T) {
 }
 
 func TestRepository_GetByName(t *testing.T) {
-	const apiResponse = `{ "vps": { "name": "example-vps", "description": "example VPS", "productName": "vps-bladevps-x1", "operatingSystem": "ubuntu-18.04", "diskSize": 157286400, "memorySize": 4194304, "cpus": 2, "status": "running", "ipAddress": "37.97.254.6", "macAddress": "52:54:00:3b:52:65", "currentSnapshots": 1, "maxSnapshots": 10, "isLocked": false, "isBlocked": false, "isCustomerLocked": false, "availabilityZone": "ams0", "tags": [ "customTag", "anotherTag" ] } }`
+	const apiResponse = `{ "vps": { "name": "example-vps", "uuid": "bfa08ad9-6c12-4e03-95dd-a888b97ffe49", "description": "example VPS", "productName": "vps-bladevps-x1", "operatingSystem": "ubuntu-18.04", "diskSize": 157286400, "memorySize": 4194304, "cpus": 2, "status": "running", "ipAddress": "37.97.254.6", "macAddress": "52:54:00:3b:52:65", "currentSnapshots": 1, "maxSnapshots": 10, "isLocked": false, "isBlocked": false, "isCustomerLocked": false, "availabilityZone": "ams0", "tags": [ "customTag", "anotherTag" ] } }`
 	server := mockServer{t: t, expectedURL: "/vps/example-vps", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -169,6 +171,7 @@ func TestRepository_GetByName(t *testing.T) {
 	require.NoError(t, err)
 
 	assert.Equal(t, "example-vps", vps.Name)
+	assert.Equal(t, "bfa08ad9-6c12-4e03-95dd-a888b97ffe49", vps.UUID)
 	assert.Equal(t, "example VPS", vps.Description)
 	assert.Equal(t, "vps-bladevps-x1", vps.ProductName)
 	assert.Equal(t, "ubuntu-18.04", vps.OperatingSystem)
@@ -261,7 +264,7 @@ func TestRepository_CloneToAvailabilityZone(t *testing.T) {
 }
 
 func TestRepository_Update(t *testing.T) {
-	const expectedRequest = `{"vps":{"name":"example-vps","description":"example VPS","productName":"vps-bladevps-x1","operatingSystem":"ubuntu-18.04","diskSize":157286400,"memorySize":4194304,"cpus":2,"status":"running","ipAddress":"37.97.254.6","macAddress":"52:54:00:3b:52:65","currentSnapshots":1,"maxSnapshots":10,"availabilityZone":"ams0","tags":["customTag","anotherTag"]}}`
+	const expectedRequest = `{"vps":{"name":"example-vps","uuid":"bfa08ad9-6c12-4e03-95dd-a888b97ffe49","description":"example VPS","productName":"vps-bladevps-x1","operatingSystem":"ubuntu-18.04","diskSize":157286400,"memorySize":4194304,"cpus":2,"status":"running","ipAddress":"37.97.254.6","macAddress":"52:54:00:3b:52:65","currentSnapshots":1,"maxSnapshots":10,"availabilityZone":"ams0","tags":["customTag","anotherTag"]}}`
 	server := mockServer{t: t, expectedURL: "/vps/example-vps", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
@@ -269,6 +272,7 @@ func TestRepository_Update(t *testing.T) {
 
 	vpsToUpdate := Vps{
 		Name:             "example-vps",
+		UUID:             "bfa08ad9-6c12-4e03-95dd-a888b97ffe49",
 		Description:      "example VPS",
 		ProductName:      "vps-bladevps-x1",
 		OperatingSystem:  "ubuntu-18.04",

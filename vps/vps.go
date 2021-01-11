@@ -336,6 +336,8 @@ type contactWrapper struct {
 type Vps struct {
 	// The unique VPS name
 	Name string `json:"name"`
+	// The unique identifier for the VPS
+	UUID string `json:"uuid"`
 	// The name that can be set by customer
 	Description string `json:"description,omitempty"`
 	// The product name
