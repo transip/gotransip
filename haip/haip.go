@@ -171,6 +171,8 @@ type Haip struct {
 	IPAddresses []net.IP `json:"ipAddresses,omitempty"`
 	// HA-IP TLS Mode: 'tls10_11_12', 'tls11_12', 'tls12'
 	TLSMode TLSMode `json:"tlsMode"`
+	// Whether or not another process is already doing stuff with this HA-IP
+	IsLocked bool `json:"isLocked,omitempty"`
 }
 
 // Certificate struct for haip certificates it contains an ID, expiration date and common name

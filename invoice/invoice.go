@@ -50,7 +50,7 @@ type invoiceItemsResponse struct {
 	InvoiceItems []Item `json:"invoiceItems"`
 }
 
-// Invoice struct for an a invoice
+// Invoice struct for an invoice
 type Invoice struct {
 	// Invoice creation date
 	CreationDate rest.Date `json:"creationDate"`
