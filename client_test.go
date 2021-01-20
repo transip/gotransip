@@ -231,7 +231,7 @@ func (m *mockServer) getHTTPServer() *httptest.Server {
 		// check if the request has the right content-type
 		assert.Equal(m.t, req.Header.Get("Accept"), "application/json")
 		// check if the request has the right user-agent
-		assert.Equal(m.t, req.Header.Get("User-Agent"), "go-client-gotransip/6.5.0")
+		assert.Equal(m.t, req.Header.Get("User-Agent"), "go-client-gotransip/6.6.0")
 		// check if the request has the right content-type
 		assert.Equal(m.t, req.Header.Get("Content-Type"), "application/json")
 

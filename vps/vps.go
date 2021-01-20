@@ -450,7 +450,7 @@ type Order struct {
 
 // Addons struct for an Addons
 type Addons struct {
-	// A list of non cancellable active addons
+	// A list of all active addons
 	Active []product.Product `json:"active,omitempty"`
 	// A list of available addons that you can order
 	Available []product.Product `json:"available,omitempty"`
@@ -505,6 +505,8 @@ type OperatingSystem struct {
 	Price int `json:"price,omitempty"`
 	// The version of the operating system
 	Version string `json:"version,omitempty"`
+	// available licenses for this operating system
+	Licenses []LicenseProduct `json:"licenses,omitempty"`
 }
 
 // Usage struct for an Usage
