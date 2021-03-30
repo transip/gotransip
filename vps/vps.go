@@ -339,7 +339,7 @@ type Vps struct {
 	// The unique identifier for the VPS
 	UUID string `json:"uuid"`
 	// The name that can be set by customer
-	Description string `json:"description,omitempty"`
+	Description string `json:"description"`
 	// The product name
 	ProductName string `json:"productName,omitempty"`
 	// The VPS OperatingSystem
@@ -365,7 +365,7 @@ type Vps struct {
 	// If the VPS is administratively blocked
 	IsBlocked bool `json:"isBlocked,omitempty"`
 	// If this VPS is locked by the customer
-	IsCustomerLocked bool `json:"isCustomerLocked,omitempty"`
+	IsCustomerLocked bool `json:"isCustomerLocked"`
 	// The name of the availability zone the VPS is in
 	AvailabilityZone string `json:"availabilityZone,omitempty"`
 	// The custom tags added to this VPS

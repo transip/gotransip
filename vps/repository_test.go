@@ -264,7 +264,7 @@ func TestRepository_CloneToAvailabilityZone(t *testing.T) {
 }
 
 func TestRepository_Update(t *testing.T) {
-	const expectedRequest = `{"vps":{"name":"example-vps","uuid":"bfa08ad9-6c12-4e03-95dd-a888b97ffe49","description":"example VPS","productName":"vps-bladevps-x1","operatingSystem":"ubuntu-18.04","diskSize":157286400,"memorySize":4194304,"cpus":2,"status":"running","ipAddress":"37.97.254.6","macAddress":"52:54:00:3b:52:65","currentSnapshots":1,"maxSnapshots":10,"availabilityZone":"ams0","tags":["customTag","anotherTag"]}}`
+	const expectedRequest = `{"vps":{"name":"example-vps","uuid":"bfa08ad9-6c12-4e03-95dd-a888b97ffe49","description":"example VPS","productName":"vps-bladevps-x1","operatingSystem":"ubuntu-18.04","diskSize":157286400,"memorySize":4194304,"cpus":2,"status":"running","ipAddress":"37.97.254.6","macAddress":"52:54:00:3b:52:65","currentSnapshots":1,"maxSnapshots":10,"isCustomerLocked":false,"availabilityZone":"ams0","tags":["customTag","anotherTag"]}}`
 	server := mockServer{t: t, expectedURL: "/vps/example-vps", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
