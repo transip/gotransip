@@ -168,7 +168,7 @@ func TestAuthenticator_getAuthRequest(t *testing.T) {
 	stringBody := string(body)
 
 	assert.Contains(t, stringBody, `{"login":"test-user1",`)
-	assert.Contains(t, stringBody, fmt.Sprintf(`"label":"gotransip-client-%d"`, time.Now().Unix()))
+	assert.Contains(t, stringBody, "gotransip-client-")
 	assert.Contains(t, stringBody, `"read_only":true,`)
 	assert.Contains(t, stringBody, `"global_key":false}`)
 	assert.Contains(t, stringBody, `"expiration_time":"30 seconds",`)
