@@ -178,8 +178,17 @@ func (r *BigStorageRepository) GetBackups(bigStorageName string) ([]BigStorageBa
 }
 
 // RevertBackup allows you to revert a bigstorage by bigstorage name and backupID
+// if you want to revert a backup to a different big storage you can use the RevertBackupToOtherBigStorage method
 func (r *BigStorageRepository) RevertBackup(bigStorageName string, backupID int64) error {
 	requestBody := actionWrapper{Action: "revert"}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupID), Body: &requestBody}
+
+	return r.Client.Patch(restRequest)
+}
+
+// RevertBackupToOtherBigStorage allows you to revert a backup to a different big storage
+func (r *BigStorageRepository) RevertBackupToOtherBigStorage(bigStorageName string, backupID int64, destinationBigStorageName string) error {
+	requestBody := bigStorageRestoreBackupsWrapper{Action: "revert", DestinationBigStorageName: destinationBigStorageName}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupID), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)

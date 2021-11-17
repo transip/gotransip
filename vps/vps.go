@@ -307,6 +307,13 @@ type bigStorageBackupsWrapper struct {
 	BigStorageBackups []BigStorageBackup `json:"backups"`
 }
 
+// bigStorageRestoreBackupsWrapper is used to marshal a request for reverting a backup to a big storage
+// this is solely used for unmarshalling
+type bigStorageRestoreBackupsWrapper struct {
+	Action                    string `json:"action"`
+	DestinationBigStorageName string `json:"destinationBigStorageName"`
+}
+
 // usageDataDiskWrapper struct contains UsageDataDisk struct in it
 type usageDataDiskWrapper struct {
 	Usage []UsageDataDisk `json:"usage"`

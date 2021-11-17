@@ -205,6 +205,17 @@ func TestBigStorageRepository_RevertBigStorageBackup(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestBigStorageRepository_RevertBackupToOtherBigStorage(t *testing.T) {
+	const expectedRequest = `{"action":"revert","destinationBigStorageName":"example-bigStorage2"}`
+	server := mockServer{t: t, expectedURL: "/big-storages/example-bigstorage/backups/123", expectedMethod: "PATCH", statusCode: 204, expectedRequest: expectedRequest}
+	client, tearDown := server.getClient()
+	defer tearDown()
+	repo := BigStorageRepository{Client: *client}
+
+	err := repo.RevertBackupToOtherBigStorage("example-bigstorage", 123, "example-bigStorage2")
+	require.NoError(t, err)
+}
+
 func TestBigStorageRepository_GetBigStorageUsage(t *testing.T) {
 	const apiResponse = `{ "usage": [ { "iopsRead": 0.27, "iopsWrite": 0.13, "date": 1574783109 } ] }`
 
