@@ -618,6 +618,7 @@ func TestRepository_InstallOperatingSystemWithOptions(t *testing.T) {
 		Username:            "bob",
 		SSHKeys:             []string{"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDf2pxWX/yhUBDyk2LPhvRtI0LnVO8PyR5Zt6AHrnhtLGqK+8YG9EMlWbCCWrASR+Q1hFQG example"},
 		Base64InstallText:   "",
+		Licenses:            []string{},
 	}
 
 	err := repo.InstallOperatingSystemWithOptions("example-vps", options)

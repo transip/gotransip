@@ -275,6 +275,8 @@ type installRequest struct {
 	SSHKeys []string `json:"sshKeys,omitempty"`
 	// Base64 encoded preseed / kickstart / cloudinit instructions, when installing unattended
 	Base64InstallText string `json:"base64InstallText,omitempty"`
+	// Array of licenses for preinstallable install flavor
+	Licenses []string `json:"licenses,omitempty"`
 }
 
 // InstallOptions can be used to provide options to
@@ -453,6 +455,8 @@ type Order struct {
 	SSHKeys []string `json:"sshKeys,omitempty"`
 	// Base64 encoded preseed / kickstart / cloudinit instructions, when installing unattended
 	Base64InstallText string `json:"base64InstallText,omitempty"`
+	// Array of licenses for preinstallable install flavor
+	Licenses []string `json:"licenses,omitempty"`
 }
 
 // Addons struct for an Addons
