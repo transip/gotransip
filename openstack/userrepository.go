@@ -63,9 +63,9 @@ func (r *UserRepository) Create(request CreateUserRequest) error {
 
 // Update can be used to update the description and email of user. To change the password of
 // as user see ChangePassword
-func (r *UserRepository) Update(User User) error {
-	requestBody := userWrapper{User: User}
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/openstack/users/%s", User.ID), Body: requestBody}
+func (r *UserRepository) Update(user User) error {
+	requestBody := userWrapper{User: user}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/openstack/users/%s", user.ID), Body: requestBody}
 
 	return r.Client.Put(restRequest)
 }
@@ -79,8 +79,8 @@ func (r *UserRepository) ChangePassword(userID string, newPassword string) error
 }
 
 // Delete removes an OpenStack user entirely
-func (r *UserRepository) Delete(UserID string) error {
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/openstack/users/%s", UserID)}
+func (r *UserRepository) Delete(userID string) error {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/openstack/users/%s", userID)}
 
 	return r.Client.Delete(restRequest)
 }

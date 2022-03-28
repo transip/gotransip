@@ -160,9 +160,9 @@ func (r *Repository) Cancel(vpsName string, endTime gotransip.CancellationTime) 
 // for convenience you can also use the GetUsages or GetUsagesLast24Hours
 func (r *Repository) GetUsage(vpsName string, usageTypes []UsageType, period UsagePeriod) (Usage, error) {
 	var response usageWrapper
-	var types []string
-	for _, usageType := range usageTypes {
-		types = append(types, string(usageType))
+	types := make([]string, len(usageTypes))
+	for i, usageType := range usageTypes {
+		types[i] = string(usageType)
 	}
 
 	parameters := url.Values{

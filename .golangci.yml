@@ -32,35 +32,59 @@ linters:
     - bodyclose
     - contextcheck
     - deadcode
+    - decorder
+    - depguard
+    - dogsled
+    - dupl
     - durationcheck
     - errcheck
     - errchkjson
+    - errname
     - errorlint
     - exhaustive
     - exportloopref
+    - forcetypeassert
+    - gocognit
     - goconst
+    - gocritic
     - gocyclo
+    - godox
     - gofmt
+    - goheader
+    - gomoddirectives
+    - gomodguard
+    - goprintffuncname
     - gosec
     - gosimple
     - govet
+    - grouper
+    - ifshort
+    - importas
     - ineffassign
     - lll
+    - maintidx
     - makezero
     - misspell
     - nakedret
+    - nestif
     - nilerr
+    - nilnil
+    - nolintlint
+    - prealloc
+    - predeclared
     - revive
     - rowserrcheck
-    - exportloopref
     - sqlclosecheck
     - staticcheck
     - structcheck
+    - stylecheck
+    - tenv
     - typecheck
     - unconvert
     - unparam
     - unused
     - varcheck
+    - wastedassign
   enable-all: false
   disable-all: false
   fast: false
@@ -70,8 +94,10 @@ issues:
     # Exclude some linters from running on tests files.
     - path: _test\.go
       linters:
-        - lll
+        - dupl
         - goconst
+        - ifshort
+        - lll
     - path: jwt/token_test.go
       linters:
         - gosec

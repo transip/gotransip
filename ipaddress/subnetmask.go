@@ -20,7 +20,7 @@ type SubnetMask struct {
 // e.g.: '255.255.255.0' or '/48' for IPv6
 func (mask *SubnetMask) UnmarshalText(input []byte) error {
 	if len(input) < 2 {
-		return errors.New("Subnet mask cannot be empty")
+		return errors.New("subnet mask cannot be empty")
 	}
 
 	// if the string starts with a '/' we generate an ipv6 mask from the given prefix length,
@@ -86,7 +86,7 @@ func parseIPv6Mask(input string) (net.IPMask, error) {
 		return nil, err
 	}
 	if prefixLength < 0 || prefixLength > 128 {
-		return nil, errors.New("Invalid prefixLength provided")
+		return nil, errors.New("invalid prefixLength provided")
 	}
 
 	return net.CIDRMask(prefixLength, 8*net.IPv6len), nil
