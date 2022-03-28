@@ -19,7 +19,7 @@ linters-settings:
   goconst:
     min-len: 3
     min-occurrences: 2
-  depguard:
+  depguard: {}
   lll:
     line-length: 160
   nakedret:
@@ -27,23 +27,42 @@ linters-settings:
 
 linters:
   enable:
-    - megacheck
-    - govet
-    - golint
-    - gosec
-    - unconvert
+    - asciicheck
+    - bidichk
+    - bodyclose
+    - contextcheck
+    - deadcode
+    - durationcheck
+    - errcheck
+    - errchkjson
+    - errorlint
+    - exhaustive
+    - exportloopref
     - goconst
     - gocyclo
     - gofmt
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
     - lll
-    - unparam
-    - nakedret
+    - makezero
     - misspell
+    - nakedret
+    - nilerr
+    - revive
+    - rowserrcheck
+    - exportloopref
+    - sqlclosecheck
+    - staticcheck
+    - structcheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
   enable-all: false
   disable-all: false
-  presets:
-    - bugs
-    - unused
   fast: false
 
 issues:
@@ -56,3 +75,6 @@ issues:
     - path: jwt/token_test.go
       linters:
         - gosec
+    - path: mocks/*
+      linters:
+        - typecheck
