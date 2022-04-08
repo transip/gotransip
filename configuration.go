@@ -1,14 +1,15 @@
 package gotransip
 
 import (
-	"github.com/transip/gotransip/v6/authenticator"
 	"io"
 	"net/http"
 	"time"
+
+	"github.com/transip/gotransip/v6/authenticator"
 )
 
 const (
-	libraryVersion  = "6.14.0"
+	libraryVersion  = "6.16.0"
 	defaultBasePath = "https://api.transip.nl/v6"
 	userAgent       = "go-client-gotransip/" + libraryVersion
 )
