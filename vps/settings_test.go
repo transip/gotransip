@@ -63,7 +63,7 @@ func TestSettingsRepository_GetByName(t *testing.T) {
 }
 
 func TestSettingsRepository_Update(t *testing.T) {
-	const apiRequest = `{"setting":{"name":"blockVpsMailPorts","dataType":"boolean","readOnly":false,"value":{"valueBoolean":true,"valueString":""}}}` //nolint
+	const apiRequest = `{"setting":{"name":"blockVpsMailPorts","dataType":"boolean","readOnly":false,"value":{"valueBoolean":true,"valueString":""}}}`
 	server := mockServer{t: t, expectedURL: "/vps/example-vps/settings/blockVpsMailPorts", expectedMethod: "PUT", statusCode: 204, expectedRequest: apiRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()

@@ -30,7 +30,7 @@ type rescueImageWrapper struct {
 }
 
 // bootRescueImageRequest struct contains the data needed to
-// perform a BootRescueImage call. It exists soley for marshalling
+// perform a BootRescueImage call. It exists solely for marshalling
 type bootRescueImageRequest struct {
 	Name string `json:"name"`
 }
