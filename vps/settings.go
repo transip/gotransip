@@ -7,7 +7,7 @@ import (
 	"github.com/transip/gotransip/v6/rest"
 )
 
-// SettingsRepository allows you to get and modify settings a VPS. These include
+// SettingRepository allows you to get and modify settings a VPS. These include
 // the `blockVpsMailPorts` and `tcpMonitoringAvailable` settings
 type SettingRepository repository.RestRepository
 
@@ -18,20 +18,18 @@ const (
 	SettingTCPMonitoringAvailable = "tcpMonitoringAvailable"
 )
 
-// SettingDataType are the data types supported by the settings endpoint
-type SettingDataType string
-
+// These constants define which data types can be returned by the api
 const (
-	SettingDataTypeString  SettingDataType = "string"
-	SettingDataTypeBoolean SettingDataType = "boolean"
+	SettingDataTypeString  = "string"
+	SettingDataTypeBoolean = "boolean"
 )
 
 // Setting is a struct that describes a vps setting
 type Setting struct {
-	Name     string          `json:"name"`
-	DataType SettingDataType `json:"dataType"`
-	ReadOnly bool            `json:"readOnly"`
-	Value    SettingValue    `json:"value"`
+	Name     string       `json:"name"`
+	DataType string       `json:"dataType"`
+	ReadOnly bool         `json:"readOnly"`
+	Value    SettingValue `json:"value"`
 }
 
 // SettingValue contains the value of a setting. Only one the fields will contain the
