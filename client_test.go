@@ -3,9 +3,6 @@ package gotransip
 import (
 	"bytes"
 	"errors"
-	"github.com/transip/gotransip/v6/authenticator"
-	"github.com/transip/gotransip/v6/repository"
-	"github.com/transip/gotransip/v6/rest"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -18,6 +15,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/transip/gotransip/v6/authenticator"
+	"github.com/transip/gotransip/v6/repository"
+	"github.com/transip/gotransip/v6/rest"
 )
 
 func TestNewClient(t *testing.T) {
@@ -231,7 +231,7 @@ func (m *mockServer) getHTTPServer() *httptest.Server {
 		// check if the request has the right content-type
 		assert.Equal(m.t, req.Header.Get("Accept"), "application/json")
 		// check if the request has the right user-agent
-		assert.Equal(m.t, req.Header.Get("User-Agent"), "go-client-gotransip/6.17.0")
+		assert.Equal(m.t, req.Header.Get("User-Agent"), userAgent)
 		// check if the request has the right content-type
 		assert.Equal(m.t, req.Header.Get("Content-Type"), "application/json")
 
