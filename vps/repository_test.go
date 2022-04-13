@@ -2,11 +2,6 @@ package vps
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"github.com/transip/gotransip/v6"
-	"github.com/transip/gotransip/v6/ipaddress"
-	"github.com/transip/gotransip/v6/repository"
 	"io/ioutil"
 	"net"
 	"net/http"
@@ -14,6 +9,12 @@ import (
 	"net/url"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/transip/gotransip/v6"
+	"github.com/transip/gotransip/v6/ipaddress"
+	"github.com/transip/gotransip/v6/repository"
 )
 
 // mockServer struct is used to test the how the client sends a request
