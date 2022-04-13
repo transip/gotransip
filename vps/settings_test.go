@@ -7,11 +7,11 @@ import (
 )
 
 func TestSettingsRepository_GetAll(t *testing.T) {
-	const apiResponse = `{"settings":[{"name":"blockVpsMailPorts","dataType":"boolean","readOnly":false,"value":{"valueString":"","valueBoolean":true}},{"name":"tcpMonitoringAvailable","dataType":"boolean","readOnly":true,"value":{"valueString":"","valueBoolean":true}}]}` //nolint
+	const apiResponse = `{"settings":[{"name":"blockVpsMailPorts","dataType":"boolean","readOnly":false,"value":{"valueString":"","valueBoolean":true}},{"name":"tcpMonitoringAvailable","dataType":"boolean","readOnly":true,"value":{"valueString":"","valueBoolean":true}}]}`
 	server := mockServer{t: t, expectedURL: "/vps/example-vps/settings", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := SettingsRepository{Client: *client}
+	repo := SettingRepository{Client: *client}
 
 	settings, err := repo.GetAll("example-vps")
 
@@ -41,11 +41,11 @@ func TestSettingsRepository_GetAll(t *testing.T) {
 }
 
 func TestSettingsRepository_GetByName(t *testing.T) {
-	const apiResponse = `{"setting":{"name":"blockVpsMailPorts","dataType":"boolean","readOnly":false,"value":{"valueString":"","valueBoolean":true}}}` //nolint
+	const apiResponse = `{"setting":{"name":"blockVpsMailPorts","dataType":"boolean","readOnly":false,"value":{"valueString":"","valueBoolean":true}}}`
 	server := mockServer{t: t, expectedURL: "/vps/example-vps/settings/blockVpsMailPorts", expectedMethod: "GET", statusCode: 200, response: apiResponse}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := SettingsRepository{Client: *client}
+	repo := SettingRepository{Client: *client}
 
 	setting, err := repo.GetByName("example-vps", SettingBlockVPSMailPorts)
 
@@ -67,7 +67,7 @@ func TestSettingsRepository_Update(t *testing.T) {
 	server := mockServer{t: t, expectedURL: "/vps/example-vps/settings/blockVpsMailPorts", expectedMethod: "PUT", statusCode: 204, expectedRequest: apiRequest}
 	client, tearDown := server.getClient()
 	defer tearDown()
-	repo := SettingsRepository{Client: *client}
+	repo := SettingRepository{Client: *client}
 
 	setting := Setting{
 		Name:     "blockVpsMailPorts",

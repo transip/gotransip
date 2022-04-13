@@ -9,7 +9,7 @@ import (
 
 // SettingsRepository allows you to get and modify settings a VPS. These include
 // the `blockVpsMailPorts` and `tcpMonitoringAvailable` settings
-type SettingsRepository repository.RestRepository
+type SettingRepository repository.RestRepository
 
 const (
 	// SettingBlockVPSMailPorts describes if the mail ports (25,465,465) are blocked for a VPS
@@ -54,7 +54,7 @@ type settingWrapper struct {
 }
 
 // GetAll returns all the Settings for a vps
-func (r *SettingsRepository) GetAll(vpsName string) ([]Setting, error) {
+func (r *SettingRepository) GetAll(vpsName string) ([]Setting, error) {
 	var response settingsWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/settings", vpsName)}
 	err := r.Client.Get(restRequest, &response)
@@ -63,7 +63,7 @@ func (r *SettingsRepository) GetAll(vpsName string) ([]Setting, error) {
 }
 
 // GetByName returns a setting by name
-func (r *SettingsRepository) GetByName(vpsName string, settingName string) (Setting, error) {
+func (r *SettingRepository) GetByName(vpsName string, settingName string) (Setting, error) {
 	var response settingWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/settings/%s", vpsName, settingName)}
 	err := r.Client.Get(restRequest, &response)
@@ -71,7 +71,7 @@ func (r *SettingsRepository) GetByName(vpsName string, settingName string) (Sett
 }
 
 // Update updates a setting for a vps
-func (r *SettingsRepository) Update(vpsName string, setting Setting) error {
+func (r *SettingRepository) Update(vpsName string, setting Setting) error {
 	requestBody := settingWrapper{setting}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/settings/%s", vpsName, setting.Name), Body: requestBody}
 	return r.Client.Put(restRequest)
