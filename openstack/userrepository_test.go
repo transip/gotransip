@@ -5,12 +5,13 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/transip/gotransip/v6/internal/testutil"
 )
 
 func TestUserRepository_GetAll(t *testing.T) {
 	const apiResponse = `{"users":[{"id":"6322872d9c7e445dbbb49c1f9ca28adc","username":"example-support","description":"Supporter account","email":"support@example.com"}]}`
-	server := mockServer{t: t, expectedURL: "/openstack/users", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/openstack/users", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := UserRepository{Client: *client}
 
@@ -26,8 +27,8 @@ func TestUserRepository_GetAll(t *testing.T) {
 
 func TestUserRepository_GetByProjectID(t *testing.T) {
 	const apiResponse = `{"users":[{"id":"6322872d9c7e445dbbb49c1f9ca28adc","username":"example-support","description":"Supporter account","email":"support@example.com"}]}`
-	server := mockServer{t: t, expectedURL: "/openstack/projects/6322872d9c7e445dbbb49c1f9ca28adc/users", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/openstack/projects/6322872d9c7e445dbbb49c1f9ca28adc/users", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := UserRepository{Client: *client}
 
@@ -43,8 +44,8 @@ func TestUserRepository_GetByProjectID(t *testing.T) {
 
 func TestUserRepository_GetByID(t *testing.T) {
 	const apiResponse = `{"user":{"id":"6322872d9c7e445dbbb49c1f9ca28adc","username":"example-support","description":"Supporter account","email":"support@example.com"}}`
-	server := mockServer{t: t, expectedURL: "/openstack/users/6322872d9c7e445dbbb49c1f9ca28adc", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/openstack/users/6322872d9c7e445dbbb49c1f9ca28adc", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := UserRepository{Client: *client}
 
@@ -59,8 +60,8 @@ func TestUserRepository_GetByID(t *testing.T) {
 
 func TestUserRepository_Create(t *testing.T) {
 	const expectedBody = `{"projectId":"6322872d9c7e445dbbb49c1f9ca28adc","username":"example-support","password":"banaan","description":"Supporter account","email":"support@example.com"}`
-	server := mockServer{t: t, expectedURL: "/openstack/users", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedBody}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/openstack/users", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedBody}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := UserRepository{Client: *client}
 
@@ -76,8 +77,8 @@ func TestUserRepository_Create(t *testing.T) {
 
 func TestUserRepository_Update(t *testing.T) {
 	const expectedBody = `{"user":{"id":"6322872d9c7e445dbbb49c1f9ca28adc","username":"example-support","description":"Supporter account","email":"support@example.com"}}`
-	server := mockServer{t: t, expectedURL: "/openstack/users/6322872d9c7e445dbbb49c1f9ca28adc", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedBody}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/openstack/users/6322872d9c7e445dbbb49c1f9ca28adc", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedBody}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := UserRepository{Client: *client}
 
@@ -92,8 +93,8 @@ func TestUserRepository_Update(t *testing.T) {
 
 func TestUserRepository_ChangePassword(t *testing.T) {
 	const expectedBody = `{"newPassword":"banaan"}`
-	server := mockServer{t: t, expectedURL: "/openstack/users/6322872d9c7e445dbbb49c1f9ca28adc", expectedMethod: "PATCH", statusCode: 204, expectedRequest: expectedBody}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/openstack/users/6322872d9c7e445dbbb49c1f9ca28adc", ExpectedMethod: "PATCH", StatusCode: 204, ExpectedRequest: expectedBody}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := UserRepository{Client: *client}
 
@@ -102,8 +103,8 @@ func TestUserRepository_ChangePassword(t *testing.T) {
 }
 
 func TestUserRepository_Delete(t *testing.T) {
-	server := mockServer{t: t, expectedURL: "/openstack/users/6322872d9c7e445dbbb49c1f9ca28adc", expectedMethod: "DELETE", statusCode: 204}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/openstack/users/6322872d9c7e445dbbb49c1f9ca28adc", ExpectedMethod: "DELETE", StatusCode: 204}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := UserRepository{Client: *client}
 
@@ -113,8 +114,8 @@ func TestUserRepository_Delete(t *testing.T) {
 
 func TestUserRepository_AddToProject(t *testing.T) {
 	const expectedBody = `{"userId":"6322872d9c7e445dbbb49c1f9ca28adc"}`
-	server := mockServer{t: t, expectedURL: "/openstack/projects/6322872d9c7e445dbbb49c1f9ca28adc/users", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedBody}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/openstack/projects/6322872d9c7e445dbbb49c1f9ca28adc/users", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedBody}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := UserRepository{Client: *client}
 
@@ -123,8 +124,8 @@ func TestUserRepository_AddToProject(t *testing.T) {
 }
 
 func TestUserRepository_RemoveFromProject(t *testing.T) {
-	server := mockServer{t: t, expectedURL: "/openstack/projects/6322872d9c7e445dbbb49c1f9ca28adc/users/6322872d9c7e445dbbb49c1f9ca28adc", expectedMethod: "DELETE", statusCode: 204}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/openstack/projects/6322872d9c7e445dbbb49c1f9ca28adc/users/6322872d9c7e445dbbb49c1f9ca28adc", ExpectedMethod: "DELETE", StatusCode: 204}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := UserRepository{Client: *client}
 

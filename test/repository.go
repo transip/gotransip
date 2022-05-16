@@ -2,6 +2,7 @@ package test
 
 import (
 	"errors"
+
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
 )

@@ -1,17 +1,19 @@
 package vps
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"github.com/transip/gotransip/v6/ipaddress"
 	"net"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/transip/gotransip/v6/internal/testutil"
+	"github.com/transip/gotransip/v6/ipaddress"
 )
 
 func TestFirewallRepository_GetFirewall(t *testing.T) {
 	const apiResponse = `{"vpsFirewall":{"isEnabled":true,"ruleSet":[{"description":"HTTP","startPort":80,"endPort":80,"protocol":"tcp","whitelist":["80.69.69.80/32","80.69.69.100/32","2a01:7c8:3:1337::1/128"]}]}}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/firewall", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/firewall", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := FirewallRepository{Client: *client}
 
@@ -34,8 +36,8 @@ func TestFirewallRepository_GetFirewall(t *testing.T) {
 
 func TestFirewallRepository_UpdateFirewall(t *testing.T) {
 	const expectedRequest = `{"vpsFirewall":{"isEnabled":true,"ruleSet":[{"description":"HTTP","startPort":80,"endPort":80,"protocol":"tcp","whitelist":["80.69.69.80/32","80.69.69.100/32","2a01:7c8:3:1337::1/128"]}]}}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/firewall", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/firewall", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := FirewallRepository{Client: *client}
 

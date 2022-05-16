@@ -4,12 +4,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/transip/gotransip/v6/internal/testutil"
 )
 
 func TestSettingsRepository_GetAll(t *testing.T) {
 	const apiResponse = `{"settings":[{"name":"blockVpsMailPorts","dataType":"boolean","readOnly":false,"value":{"valueString":"","valueBoolean":true}},{"name":"tcpMonitoringAvailable","dataType":"boolean","readOnly":true,"value":{"valueString":"","valueBoolean":true}}]}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/settings", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/settings", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := SettingRepository{Client: *client}
 
@@ -42,8 +43,8 @@ func TestSettingsRepository_GetAll(t *testing.T) {
 
 func TestSettingsRepository_GetByName(t *testing.T) {
 	const apiResponse = `{"setting":{"name":"blockVpsMailPorts","dataType":"boolean","readOnly":false,"value":{"valueString":"","valueBoolean":true}}}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/settings/blockVpsMailPorts", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/settings/blockVpsMailPorts", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := SettingRepository{Client: *client}
 
@@ -64,8 +65,8 @@ func TestSettingsRepository_GetByName(t *testing.T) {
 
 func TestSettingsRepository_Update(t *testing.T) {
 	const apiRequest = `{"setting":{"name":"blockVpsMailPorts","dataType":"boolean","readOnly":false,"value":{"valueBoolean":true,"valueString":""}}}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/settings/blockVpsMailPorts", expectedMethod: "PUT", statusCode: 204, expectedRequest: apiRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/settings/blockVpsMailPorts", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: apiRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := SettingRepository{Client: *client}
 
