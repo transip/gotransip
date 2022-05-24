@@ -209,3 +209,69 @@ func TestRepository_CancelNodePool(t *testing.T) {
 	err := repo.CancelNodePool("paeweeth", "402c2f84-c37d-9388-634d-00002b7c6a82")
 	require.NoError(t, err)
 }
+
+func TestRepository_GetNodes(t *testing.T) {
+	const apiResponse = `{"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","status":"active"}]}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/nodes", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	all, err := repo.GetNodes()
+	require.NoError(t, err)
+
+	if assert.Equal(t, 1, len(all)) {
+		assert.Equal(t, NodeStatusActive, all[0].Status)
+		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", all[0].UUID)
+	}
+}
+
+func TestRepository_GetNodesByClusterName(t *testing.T) {
+	const apiResponse = `{"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","status":"active"}]}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/nodes?clusterName=paeweeth", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	all, err := repo.GetNodesByClusterName("paeweeth")
+	require.NoError(t, err)
+
+	if assert.Equal(t, 1, len(all)) {
+		assert.Equal(t, NodeStatusActive, all[0].Status)
+		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", all[0].UUID)
+	}
+}
+
+func TestRepository_GetNodesByNodePoolUUID(t *testing.T) {
+	const apiResponse = `{"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","status":"active"}]}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/nodes?nodePoolUuid=402c2f84-c37d-9388-634d-00002b7c6a82", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	all, err := repo.GetNodesByNodePoolUUID("402c2f84-c37d-9388-634d-00002b7c6a82")
+	require.NoError(t, err)
+
+	if assert.Equal(t, 1, len(all)) {
+		assert.Equal(t, NodeStatusActive, all[0].Status)
+		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", all[0].UUID)
+	}
+}
+
+func TestRepository_GetNode(t *testing.T) {
+	const apiResponse = `{"node":{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","status":"active"}}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/nodes/76743b28-f779-3e68-6aa1-00007fbb911d", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	node, err := repo.GetNode("76743b28-f779-3e68-6aa1-00007fbb911d")
+	require.NoError(t, err)
+
+	assert.Equal(t, NodeStatusActive, node.Status)
+	assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", node.UUID)
+}

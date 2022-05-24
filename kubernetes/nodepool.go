@@ -26,24 +26,6 @@ type NodePool struct {
 	Nodes []Node `json:"nodes,omitempty"`
 }
 
-// Node struct is a single node in a kubernetes cluster node pool
-type Node struct {
-	// The unique identifier for the node
-	UUID string `json:"uuid"`
-	// The VPS status, either 'created', 'installing', 'running', 'stopped' or 'paused'
-	Status NodeStatus `json:"status,omitempty"`
-}
-
-// NodeStatus is one of the following strings
-// 'active'
-type NodeStatus string
-
-// Definition of all of the possible vps statuses
-const (
-	// NodeStatusActive is the status for an active node ready for workload
-	NodeStatusActive NodeStatus = "active"
-)
-
 // NodePoolOrder struct can be used to order a new node pool to a cluster
 type NodePoolOrder struct {
 	// The description of the node pool

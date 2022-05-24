@@ -3,6 +3,7 @@ package kubernetes
 import (
 	"encoding/base64"
 	"fmt"
+	"net/url"
 
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
@@ -117,4 +118,40 @@ func (r *Repository) CancelNodePool(clusterName, nodePoolUUID string) error {
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s", clusterName, nodePoolUUID)}
 
 	return r.Client.Delete(restRequest)
+}
+
+// GetNodes returns all nodes
+func (r *Repository) GetNodes() ([]Node, error) {
+	var response nodesWrapper
+	restRequest := rest.Request{Endpoint: "/kubernetes/nodes"}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Nodes, err
+}
+
+// GetNodesByClusterName returns all nodes for a cluster
+func (r *Repository) GetNodesByClusterName(clusterName string) ([]Node, error) {
+	var response nodesWrapper
+	restRequest := rest.Request{Endpoint: "/kubernetes/nodes", Parameters: url.Values{"clusterName": []string{clusterName}}}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Nodes, err
+}
+
+// GetNodesByNodePoolUUID returns all nodes for a node pool
+func (r *Repository) GetNodesByNodePoolUUID(nodePoolUUID string) ([]Node, error) {
+	var response nodesWrapper
+	restRequest := rest.Request{Endpoint: "/kubernetes/nodes", Parameters: url.Values{"nodePoolUuid": []string{nodePoolUUID}}}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Nodes, err
+}
+
+// GetNode return a node
+func (r *Repository) GetNode(nodeUUID string) (Node, error) {
+	var response nodeWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/nodes/%s", nodeUUID)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Node, err
 }
