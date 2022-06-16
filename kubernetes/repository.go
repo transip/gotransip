@@ -66,7 +66,7 @@ func (r *Repository) CancelCluster(clusterName string) error {
 func (r *Repository) GetKubeConfig(clusterName string) (string, error) {
 	var response struct {
 		Config struct {
-			YAML string `json:"yaml"`
+			YAML string `json:"encodedYaml"`
 		} `json:"kubeConfig"`
 	}
 

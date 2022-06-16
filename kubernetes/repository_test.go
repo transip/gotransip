@@ -105,7 +105,7 @@ func TestRepository_CancelCluster(t *testing.T) {
 }
 
 func TestRepository_GetKubeConfig(t *testing.T) {
-	const apiResponse = `{"kubeConfig": {"yaml": "YXBpVmVyc2lvbjogdjEKY2x1c3RlcnM6IFtdCmNvbnRleHRzOiBbXQpraW5kOiBDb25maWcKcHJlZmVyZW5jZXM6IHt9CnVzZXJzOiBbXQoK"}}`
+	const apiResponse = `{"kubeConfig": {"encodedYaml": "YXBpVmVyc2lvbjogdjEKY2x1c3RlcnM6IFtdCmNvbnRleHRzOiBbXQpraW5kOiBDb25maWcKcHJlZmVyZW5jZXM6IHt9CnVzZXJzOiBbXQoK"}}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/paeweeth/kubeconfig", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
