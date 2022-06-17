@@ -80,42 +80,51 @@ func (r *Repository) GetKubeConfig(clusterName string) (string, error) {
 	return string(yaml), err
 }
 
-// GetNodePools returns all node pools for a cluster
-func (r *Repository) GetNodePools(clusterName string) ([]NodePool, error) {
+// GetNodePools returns all node pools
+func (r *Repository) GetNodePools() ([]NodePool, error) {
 	var response nodePoolsWrapper
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools", clusterName)}
+	restRequest := rest.Request{Endpoint: "/kubernetes/node-pools"}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.NodePools, err
 }
 
-// GetNodePool returns the NodePool for given clusterName and nodePoolUUID
-func (r *Repository) GetNodePool(clusterName, nodePoolUUID string) (NodePool, error) {
+// GetNodePoolsByClusterName returns all node pools for a given clusterName
+func (r *Repository) GetNodePoolsByClusterName(clusterName string) ([]NodePool, error) {
+	var response nodePoolsWrapper
+	restRequest := rest.Request{Endpoint: "/kubernetes/node-pools", Parameters: url.Values{"clusterName": []string{clusterName}}}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.NodePools, err
+}
+
+// GetNodePool returns the NodePool for given nodePoolUUID
+func (r *Repository) GetNodePool(nodePoolUUID string) (NodePool, error) {
 	var response nodePoolWrapper
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s", clusterName, nodePoolUUID)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/node-pools/%s", nodePoolUUID)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.NodePool, err
 }
 
 // OrderNodePool allows you to order a new node pool to a cluster
-func (r *Repository) OrderNodePool(clusterName string, nodePoolOrder NodePoolOrder) error {
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools", clusterName), Body: &nodePoolOrder}
+func (r *Repository) OrderNodePool(nodePoolOrder NodePoolOrder) error {
+	restRequest := rest.Request{Endpoint: "/kubernetes/node-pools", Body: &nodePoolOrder}
 
 	return r.Client.Post(restRequest)
 }
 
 // UpdateNodePool allows you to update the description and desired node count of a node pool
-func (r *Repository) UpdateNodePool(clusterName string, nodePool NodePool) error {
+func (r *Repository) UpdateNodePool(nodePool NodePool) error {
 	requestBody := nodePoolWrapper{NodePool: nodePool}
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s", clusterName, nodePool.UUID), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/node-pools/%s", nodePool.UUID), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
 
-// CancelNodePool will cancel the node pool of a cluster, thus deleting it
-func (r *Repository) CancelNodePool(clusterName, nodePoolUUID string) error {
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s", clusterName, nodePoolUUID)}
+// CancelNodePool will cancel the node pool, thus deleting it
+func (r *Repository) CancelNodePool(nodePoolUUID string) error {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/node-pools/%s", nodePoolUUID)}
 
 	return r.Client.Delete(restRequest)
 }

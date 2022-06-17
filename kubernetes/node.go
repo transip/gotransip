@@ -16,6 +16,10 @@ type nodeWrapper struct {
 type Node struct {
 	// The unique identifier for the node
 	UUID string `json:"uuid"`
+	// The unique identifier for the node pool this node belongs to
+	NodePoolUUID string `json:"nodePoolUUID"`
+	// The name of the cluster this node belongs to
+	ClusterName string `json:"clusterName"`
 	// The VPS status, either 'created', 'installing', 'running', 'stopped' or 'paused'
 	Status NodeStatus `json:"status,omitempty"`
 }
