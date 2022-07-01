@@ -3,14 +3,15 @@ package authenticator
 import (
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"github.com/transip/gotransip/v6/jwt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/transip/gotransip/v6/jwt"
 )
 
 const amountOfNoncesToGet = 10
@@ -112,7 +113,7 @@ func TestAuthenticator_ReturnsSigningError(t *testing.T) {
 
 	_, err := authenticator.requestNewToken()
 	if assert.Errorf(t, err, "private key decode error not returned") {
-		assert.Equal(t, err, errors.New("could not decode private key"))
+		assert.Equal(t, err, ErrDecodingPrivateKey)
 	}
 }
 
@@ -125,7 +126,7 @@ func TestAuthenticator_HttpRequestMarshalingError(t *testing.T) {
 
 	_, err := authenticator.requestNewToken()
 	if assert.Errorf(t, err, "decode private key error not returned") {
-		assert.Equal(t, err, errors.New("could not decode private key"))
+		assert.Equal(t, err, ErrDecodingPrivateKey)
 	}
 }
 
@@ -134,7 +135,7 @@ func TestAuthenticator_GetTokenNoPrivateKey(t *testing.T) {
 	_, err := authenticator.GetToken()
 
 	if assert.Errorf(t, err, "token expired error not returned") {
-		assert.Equal(t, err, errors.New("token expired and no private key is set"))
+		assert.Equal(t, err, ErrTokenExpired)
 	}
 }
 
