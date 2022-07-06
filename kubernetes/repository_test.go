@@ -314,3 +314,98 @@ func TestRepository_GetNode(t *testing.T) {
 	assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", node.NodePoolUUID)
 	assert.Equal(t, "k888k", node.ClusterName)
 }
+
+func TestRepository_GetBlockStorageVolumes(t *testing.T) {
+	const apiResponse = `{"volumes":[{"uuid":"220887f0-db1a-76a9-2332-00004f589b19","name":"custom-2c3501ab-5a45-34e9-c289-00002b084a0c","sizeInGib":20,"type":"hdd","availabilityZone":"ams0","status":"available","nodeUuid":"76743b28-f779-3e68-6aa1-00007fbb911d","serial":"a4d857d3fe5e814f34bb"}]}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/block-storages", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	all, err := repo.GetBlockStorageVolumes()
+	require.NoError(t, err)
+
+	if assert.Equal(t, 1, len(all)) {
+		assert.Equal(t, "220887f0-db1a-76a9-2332-00004f589b19", all[0].UUID)
+		assert.Equal(t, "custom-2c3501ab-5a45-34e9-c289-00002b084a0c", all[0].Name)
+		assert.Equal(t, 20, all[0].SizeInGiB)
+		assert.Equal(t, "hdd", all[0].Type)
+		assert.Equal(t, "ams0", all[0].AvailabilityZone)
+		assert.Equal(t, BlockStorageStatusAvailable, all[0].Status)
+		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", all[0].NodeUUID)
+		assert.Equal(t, "a4d857d3fe5e814f34bb", all[0].Serial)
+	}
+}
+
+func TestRepository_GetBlockStorageVolume(t *testing.T) {
+	const apiResponse = `{"volume":{"uuid":"220887f0-db1a-76a9-2332-00004f589b19","name":"custom-2c3501ab-5a45-34e9-c289-00002b084a0c","sizeInGib":20,"type":"hdd","availabilityZone":"ams0","status":"available","nodeUuid":"76743b28-f779-3e68-6aa1-00007fbb911d","serial":"a4d857d3fe5e814f34bb"}}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/block-storages/custom-2c3501ab-5a45-34e9-c289-00002b084a0c", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	volume, err := repo.GetBlockStorageVolume("custom-2c3501ab-5a45-34e9-c289-00002b084a0c")
+	require.NoError(t, err)
+
+	assert.Equal(t, "220887f0-db1a-76a9-2332-00004f589b19", volume.UUID)
+	assert.Equal(t, "custom-2c3501ab-5a45-34e9-c289-00002b084a0c", volume.Name)
+	assert.Equal(t, 20, volume.SizeInGiB)
+	assert.Equal(t, "hdd", volume.Type)
+	assert.Equal(t, "ams0", volume.AvailabilityZone)
+	assert.Equal(t, BlockStorageStatusAvailable, volume.Status)
+	assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", volume.NodeUUID)
+	assert.Equal(t, "a4d857d3fe5e814f34bb", volume.Serial)
+}
+
+func TestRepository_AddBlockStorageVolume(t *testing.T) {
+	const expectedRequestBody = `{"name":"custom-2c3501ab-5a45-34e9-c289-00002b084a0c","sizeInGib":200,"type":"hdd","availabilityZone":"ams0"}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/block-storages", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequestBody}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	order := BlockStorageOrder{
+		Name:             "custom-2c3501ab-5a45-34e9-c289-00002b084a0c",
+		SizeInGiB:        200,
+		Type:             "hdd",
+		AvailabilityZone: "ams0",
+	}
+
+	err := repo.AddBlockStorageVolume(order)
+	require.NoError(t, err)
+}
+
+func TestRepository_UpdateBlockStorageVolume(t *testing.T) {
+	const expectedRequest = `{"volume":{"uuid":"220887f0-db1a-76a9-2332-00004f589b19","name":"custom-2c3501ab-5a45-34e9-c289-00002b084a0c","sizeInGib":20,"type":"hdd","availabilityZone":"ams0","status":"available","nodeUuid":"76743b28-f779-3e68-6aa1-00007fbb911d","serial":"a4d857d3fe5e814f34bb"}}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/block-storages/custom-2c3501ab-5a45-34e9-c289-00002b084a0c", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	err := repo.UpdateBlockStorageVolume(BlockStorage{
+		UUID:             "220887f0-db1a-76a9-2332-00004f589b19",
+		Name:             "custom-2c3501ab-5a45-34e9-c289-00002b084a0c",
+		SizeInGiB:        20,
+		Type:             "hdd",
+		AvailabilityZone: "ams0",
+		Status:           BlockStorageStatusAvailable,
+		NodeUUID:         "76743b28-f779-3e68-6aa1-00007fbb911d",
+		Serial:           "a4d857d3fe5e814f34bb",
+	})
+
+	require.NoError(t, err)
+}
+
+func TestRepository_RemoveBlockStorageVolume(t *testing.T) {
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/block-storages/custom-2c3501ab-5a45-34e9-c289-00002b084a0c", ExpectedMethod: "DELETE", StatusCode: 204}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	err := repo.RemoveBlockStorageVolume("custom-2c3501ab-5a45-34e9-c289-00002b084a0c")
+	require.NoError(t, err)
+}

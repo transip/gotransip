@@ -164,3 +164,43 @@ func (r *Repository) GetNode(nodeUUID string) (Node, error) {
 
 	return response.Node, err
 }
+
+// GetBlockStorageVolumes returns all block storage volumes
+func (r *Repository) GetBlockStorageVolumes() ([]BlockStorage, error) {
+	var response blockStoragesWrapper
+	restRequest := rest.Request{Endpoint: "/kubernetes/block-storages"}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.BlockStorages, err
+}
+
+// GetBlockStorageVolume returns a specific block storage volume
+func (r *Repository) GetBlockStorageVolume(name string) (BlockStorage, error) {
+	var response blockStorageWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/block-storages/%s", name)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.BlockStorage, err
+}
+
+// AddBlockStorageVolume creates a block storage volume
+func (r *Repository) AddBlockStorageVolume(order BlockStorageOrder) error {
+	restRequest := rest.Request{Endpoint: "/kubernetes/block-storages", Body: &order}
+
+	return r.Client.Post(restRequest)
+}
+
+// UpdateBlockStorageVolume allows you to update the name and attached node for a block storage volumes
+func (r *Repository) UpdateBlockStorageVolume(volume BlockStorage) error {
+	requestBody := blockStorageWrapper{BlockStorage: volume}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/block-storages/%s", volume.Name), Body: &requestBody}
+
+	return r.Client.Put(restRequest)
+}
+
+// RemoveBlockStorageVolume will remove a block storage volume
+func (r *Repository) RemoveBlockStorageVolume(name string) error {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/block-storages/%s", name)}
+
+	return r.Client.Delete(restRequest)
+}

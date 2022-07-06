@@ -20,7 +20,7 @@ type Node struct {
 	NodePoolUUID string `json:"nodePoolUUID"`
 	// The name of the cluster this node belongs to
 	ClusterName string `json:"clusterName"`
-	// The VPS status, either 'created', 'installing', 'running', 'stopped' or 'paused'
+	// The node's status
 	Status NodeStatus `json:"status,omitempty"`
 }
 
