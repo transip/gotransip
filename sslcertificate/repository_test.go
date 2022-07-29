@@ -117,3 +117,19 @@ func TestSslcertificateRepository_Order(t *testing.T) {
 	err := repo.Order(request)
 	require.NoError(t, err)
 }
+
+func TestSslcertificateRepository_Download(t *testing.T) {
+	const apiResponse = `{"certificateData": {"caBundleCrt": "ca-bundle-crt","certificateCrt": "certificate-crt","certificateP7b": "certificate-p7b","certificateKey": "certificate-key"}}`
+	server := testutil.MockServer{T: t, ExpectedURL: "/ssl-certificates/1/download", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	sslcertificate, err := repo.Download(1)
+	require.NoError(t, err)
+
+	assert.Equal(t, "ca-bundle-crt", sslcertificate.CaBundleCrt)
+	assert.Equal(t, "certificate-crt", sslcertificate.CertificateCrt)
+	assert.Equal(t, "certificate-p7b", sslcertificate.CertificateP7b)
+	assert.Equal(t, "certificate-key", sslcertificate.CertificateKey)
+}
