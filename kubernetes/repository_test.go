@@ -330,7 +330,7 @@ func TestRepository_GetBlockStorageVolumes(t *testing.T) {
 		assert.Equal(t, "220887f0-db1a-76a9-2332-00004f589b19", all[0].UUID)
 		assert.Equal(t, "custom-2c3501ab-5a45-34e9-c289-00002b084a0c", all[0].Name)
 		assert.Equal(t, 20, all[0].SizeInGiB)
-		assert.Equal(t, "hdd", all[0].Type)
+		assert.Equal(t, BlockStorageTypeHDD, all[0].Type)
 		assert.Equal(t, "ams0", all[0].AvailabilityZone)
 		assert.Equal(t, BlockStorageStatusAvailable, all[0].Status)
 		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", all[0].NodeUUID)
@@ -352,7 +352,7 @@ func TestRepository_GetBlockStorageVolume(t *testing.T) {
 	assert.Equal(t, "220887f0-db1a-76a9-2332-00004f589b19", volume.UUID)
 	assert.Equal(t, "custom-2c3501ab-5a45-34e9-c289-00002b084a0c", volume.Name)
 	assert.Equal(t, 20, volume.SizeInGiB)
-	assert.Equal(t, "hdd", volume.Type)
+	assert.Equal(t, BlockStorageTypeHDD, volume.Type)
 	assert.Equal(t, "ams0", volume.AvailabilityZone)
 	assert.Equal(t, BlockStorageStatusAvailable, volume.Status)
 	assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", volume.NodeUUID)
@@ -370,7 +370,7 @@ func TestRepository_AddBlockStorageVolume(t *testing.T) {
 	order := BlockStorageOrder{
 		Name:             "custom-2c3501ab-5a45-34e9-c289-00002b084a0c",
 		SizeInGiB:        200,
-		Type:             "hdd",
+		Type:             BlockStorageTypeHDD,
 		AvailabilityZone: "ams0",
 	}
 
@@ -390,7 +390,7 @@ func TestRepository_UpdateBlockStorageVolume(t *testing.T) {
 		UUID:             "220887f0-db1a-76a9-2332-00004f589b19",
 		Name:             "custom-2c3501ab-5a45-34e9-c289-00002b084a0c",
 		SizeInGiB:        20,
-		Type:             "hdd",
+		Type:             BlockStorageTypeHDD,
 		AvailabilityZone: "ams0",
 		Status:           BlockStorageStatusAvailable,
 		NodeUUID:         "76743b28-f779-3e68-6aa1-00007fbb911d",

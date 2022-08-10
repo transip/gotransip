@@ -21,7 +21,7 @@ type BlockStorage struct {
 	// The volume's size in gibibytes
 	SizeInGiB int `json:"sizeInGib"`
 	// Type of storage
-	Type string `json:"type"`
+	Type BlockStorageType `json:"type"`
 	// AvailabilityZone where this volume is located
 	AvailabilityZone string `json:"availabilityZone"`
 	// Status of the volume 'attached', 'attaching', 'available', 'creating',
@@ -53,6 +53,16 @@ const (
 	BlockStorageStatusDetaching BlockStorageStatus = "detaching"
 )
 
+// BlockStorageType is one of the following types
+// 'hdd'
+type BlockStorageType string
+
+// Description of all the possible block storage types
+const (
+	// BlockStorageTypeHDD reflects a block storage volume of type HDD
+	BlockStorageTypeHDD BlockStorageType = "hdd"
+)
+
 // BlockStorageOrder struct can be used to order a new block storage volume
 type BlockStorageOrder struct {
 	// user adjustable unique identifier for volume (max 64 chars), when none is given, the uuid will be used.
@@ -60,7 +70,7 @@ type BlockStorageOrder struct {
 	// amount of storage in gibibytes
 	SizeInGiB int `json:"sizeInGib"`
 	// type of storage
-	Type string `json:"type"`
+	Type BlockStorageType `json:"type"`
 	// location of the volume
 	AvailabilityZone string `json:"availabilityZone"`
 }
