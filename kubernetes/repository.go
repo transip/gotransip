@@ -31,8 +31,8 @@ func (r *Repository) GetClusterByName(clusterName string) (Cluster, error) {
 	return response.Cluster, err
 }
 
-// OrderCluster allows you to order a new cluster
-func (r *Repository) OrderCluster(clusterOrder ClusterOrder) error {
+// CreateCluster allows you to order a new cluster
+func (r *Repository) CreateCluster(clusterOrder ClusterOrder) error {
 	restRequest := rest.Request{Endpoint: "/kubernetes/clusters", Body: &clusterOrder}
 
 	return r.Client.Post(restRequest)
@@ -55,8 +55,8 @@ func (r *Repository) HandoverCluster(clusterName string, targetCustomerName stri
 	return r.Client.Patch(restRequest)
 }
 
-// CancelCluster will cancel the cluster, thus deleting it
-func (r *Repository) CancelCluster(clusterName string) error {
+// RemoveCluster will cancel the cluster, thus deleting it
+func (r *Repository) RemoveCluster(clusterName string) error {
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s", clusterName)}
 
 	return r.Client.Delete(restRequest)
@@ -107,8 +107,8 @@ func (r *Repository) GetNodePool(nodePoolUUID string) (NodePool, error) {
 	return response.NodePool, err
 }
 
-// OrderNodePool allows you to order a new node pool to a cluster
-func (r *Repository) OrderNodePool(nodePoolOrder NodePoolOrder) error {
+// AddNodePool allows you to order a new node pool to a cluster
+func (r *Repository) AddNodePool(nodePoolOrder NodePoolOrder) error {
 	restRequest := rest.Request{Endpoint: "/kubernetes/node-pools", Body: &nodePoolOrder}
 
 	return r.Client.Post(restRequest)
@@ -122,8 +122,8 @@ func (r *Repository) UpdateNodePool(nodePool NodePool) error {
 	return r.Client.Put(restRequest)
 }
 
-// CancelNodePool will cancel the node pool, thus deleting it
-func (r *Repository) CancelNodePool(nodePoolUUID string) error {
+// RemoveNodePool will cancel the node pool, thus deleting it
+func (r *Repository) RemoveNodePool(nodePoolUUID string) error {
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/node-pools/%s", nodePoolUUID)}
 
 	return r.Client.Delete(restRequest)

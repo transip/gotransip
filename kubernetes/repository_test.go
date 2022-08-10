@@ -60,7 +60,7 @@ func TestRepository_OrderCluster(t *testing.T) {
 		Description: "production cluster",
 	}
 
-	err := repo.OrderCluster(order)
+	err := repo.CreateCluster(order)
 	require.NoError(t, err)
 }
 
@@ -100,7 +100,7 @@ func TestRepository_CancelCluster(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	err := repo.CancelCluster("k888k")
+	err := repo.RemoveCluster("k888k")
 	require.NoError(t, err)
 }
 
@@ -206,7 +206,7 @@ func TestRepository_OrderNodePool(t *testing.T) {
 		NodeSpec:         "vps-bladevps-x4",
 	}
 
-	err := repo.OrderNodePool(order)
+	err := repo.AddNodePool(order)
 	require.NoError(t, err)
 }
 
@@ -237,7 +237,7 @@ func TestRepository_CancelNodePool(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	err := repo.CancelNodePool("402c2f84-c37d-9388-634d-00002b7c6a82")
+	err := repo.RemoveNodePool("402c2f84-c37d-9388-634d-00002b7c6a82")
 	require.NoError(t, err)
 }
 
