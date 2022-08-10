@@ -24,7 +24,8 @@ type BlockStorage struct {
 	Type string `json:"type"`
 	// AvailabilityZone where this volume is located
 	AvailabilityZone string `json:"availabilityZone"`
-	// Status of the volume ‘available’, ‘attached’
+	// Status of the volume 'attached', 'attaching', 'available', 'creating',
+	// 'deleting' or 'detaching'
 	Status BlockStorageStatus `json:"status,omitempty"`
 	// UUID of node this volume is attached to
 	NodeUUID string `json:"nodeUuid"`
@@ -32,16 +33,24 @@ type BlockStorage struct {
 	Serial string `json:"serial"`
 }
 
-// BlockStorageStatus is one of the following strings
-// 'available', 'attached'
+// BlockStorageStatus is one of the following statuses
+// 'attached', 'attaching', 'available', 'creating', 'deleting' or 'detaching'
 type BlockStorageStatus string
 
 // Definition of all of the possible block storage statuses
 const (
+	// BlockStorageStatusAttached is the status for a volume that currently is attached to a node
+	BlockStorageStatusAttached BlockStorageStatus = "attached"
+	// BlockStorageStatusAttaching is the status for a volume that is being attached to a node
+	BlockStorageStatusAttaching BlockStorageStatus = "attaching"
 	// BlockStorageStatusAvailable is the status for a volume that is available
 	BlockStorageStatusAvailable BlockStorageStatus = "available"
-	// BlockStorageStatusAttached is the status for a volume that currently attached to a node
-	BlockStorageStatusAttached BlockStorageStatus = "attached"
+	// BlockStorageStatusCreating is the status for a volume that is being created
+	BlockStorageStatusCreating BlockStorageStatus = "creating"
+	// BlockStorageStatusDeleting is the status for a volume that is being deleted
+	BlockStorageStatusDeleting BlockStorageStatus = "deleting"
+	// BlockStorageStatusDetaching is the status for a volume that is being detached from a node
+	BlockStorageStatusDetaching BlockStorageStatus = "detaching"
 )
 
 // BlockStorageOrder struct can be used to order a new block storage volume
