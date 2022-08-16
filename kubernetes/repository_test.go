@@ -48,7 +48,7 @@ func TestRepository_GetClusterByName(t *testing.T) {
 	assert.False(t, cluster.IsBlocked)
 }
 
-func TestRepository_OrderCluster(t *testing.T) {
+func TestRepository_CreateCluster(t *testing.T) {
 	const expectedRequestBody = `{"description":"production cluster"}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequestBody}
@@ -94,7 +94,7 @@ func TestRepository_HandoverCluster(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestRepository_CancelCluster(t *testing.T) {
+func TestRepository_RemoveCluster(t *testing.T) {
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k", ExpectedMethod: "DELETE", StatusCode: 204}
 	client, tearDown := server.GetClient()
 	defer tearDown()
@@ -191,7 +191,7 @@ func TestRepository_GetNodePool(t *testing.T) {
 	}
 }
 
-func TestRepository_OrderNodePool(t *testing.T) {
+func TestRepository_AddNodePool(t *testing.T) {
 	const expectedRequestBody = `{"clusterName":"k888k","description":"frontend","desiredNodeCount":3,"nodeSpec":"vps-bladevps-x4"}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/node-pools", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequestBody}
@@ -231,7 +231,7 @@ func TestRepository_UpdateNodePool(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestRepository_CancelNodePool(t *testing.T) {
+func TestRepository_RemoveNodePool(t *testing.T) {
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/node-pools/402c2f84-c37d-9388-634d-00002b7c6a82", ExpectedMethod: "DELETE", StatusCode: 204}
 	client, tearDown := server.GetClient()
 	defer tearDown()
