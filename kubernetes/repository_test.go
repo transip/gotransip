@@ -285,7 +285,7 @@ func TestRepository_RemoveNodePool(t *testing.T) {
 }
 
 func TestRepository_GetNodes(t *testing.T) {
-	const apiResponse = `{"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}]}`
+	const apiResponse = `{"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active","ipAddresses":[{"address":"37.97.254.6","subnetMask":"255.255.255.0","type":"external"}]}]}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/nodes", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
@@ -300,11 +300,16 @@ func TestRepository_GetNodes(t *testing.T) {
 		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", list[0].UUID)
 		assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", list[0].NodePoolUUID)
 		assert.Equal(t, "k888k", list[0].ClusterName)
+		if assert.Equal(t, 1, len(list[0].IPAddresses)) {
+			assert.Equal(t, "37.97.254.6", list[0].IPAddresses[0].Address.String())
+			assert.Equal(t, "255.255.255.0", list[0].IPAddresses[0].Netmask.String())
+			assert.Equal(t, NodeAddressTypeExternal, list[0].IPAddresses[0].Type)
+		}
 	}
 }
 
 func TestRepository_GetNodesByClusterName(t *testing.T) {
-	const apiResponse = `{"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}]}`
+	const apiResponse = `{"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active","ipAddresses":[{"address":"37.97.254.6","subnetMask":"255.255.255.0","type":"external"}]}]}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/nodes?clusterName=k888k", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
@@ -319,11 +324,16 @@ func TestRepository_GetNodesByClusterName(t *testing.T) {
 		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", list[0].UUID)
 		assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", list[0].NodePoolUUID)
 		assert.Equal(t, "k888k", list[0].ClusterName)
+		if assert.Equal(t, 1, len(list[0].IPAddresses)) {
+			assert.Equal(t, "37.97.254.6", list[0].IPAddresses[0].Address.String())
+			assert.Equal(t, "255.255.255.0", list[0].IPAddresses[0].Netmask.String())
+			assert.Equal(t, NodeAddressTypeExternal, list[0].IPAddresses[0].Type)
+		}
 	}
 }
 
 func TestRepository_GetNodesByNodePoolUUID(t *testing.T) {
-	const apiResponse = `{"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}]}`
+	const apiResponse = `{"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active","ipAddresses":[{"address":"37.97.254.6","subnetMask":"255.255.255.0","type":"external"}]}]}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/nodes?nodePoolUuid=402c2f84-c37d-9388-634d-00002b7c6a82", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
@@ -338,11 +348,16 @@ func TestRepository_GetNodesByNodePoolUUID(t *testing.T) {
 		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", list[0].UUID)
 		assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", list[0].NodePoolUUID)
 		assert.Equal(t, "k888k", list[0].ClusterName)
+		if assert.Equal(t, 1, len(list[0].IPAddresses)) {
+			assert.Equal(t, "37.97.254.6", list[0].IPAddresses[0].Address.String())
+			assert.Equal(t, "255.255.255.0", list[0].IPAddresses[0].Netmask.String())
+			assert.Equal(t, NodeAddressTypeExternal, list[0].IPAddresses[0].Type)
+		}
 	}
 }
 
 func TestRepository_GetNode(t *testing.T) {
-	const apiResponse = `{"node":{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}}`
+	const apiResponse = `{"node":{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active","ipAddresses":[{"address":"37.97.254.6","subnetMask":"255.255.255.0","type":"external"}]}}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/nodes/76743b28-f779-3e68-6aa1-00007fbb911d", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
@@ -356,6 +371,11 @@ func TestRepository_GetNode(t *testing.T) {
 	assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", node.UUID)
 	assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", node.NodePoolUUID)
 	assert.Equal(t, "k888k", node.ClusterName)
+	if assert.Equal(t, 1, len(node.IPAddresses)) {
+		assert.Equal(t, "37.97.254.6", node.IPAddresses[0].Address.String())
+		assert.Equal(t, "255.255.255.0", node.IPAddresses[0].Netmask.String())
+		assert.Equal(t, NodeAddressTypeExternal, node.IPAddresses[0].Type)
+	}
 }
 
 func TestRepository_GetBlockStorageVolumes(t *testing.T) {
