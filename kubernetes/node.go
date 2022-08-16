@@ -29,13 +29,17 @@ type Node struct {
 }
 
 // NodeStatus is one of the following strings
-// 'active'
+// 'active', 'creating', 'deleting'
 type NodeStatus string
 
 // Definition of all of the possible node statuses
 const (
 	// NodeStatusActive is the status for an active node ready for workload
 	NodeStatusActive NodeStatus = "active"
+	// NodeStatusCreating is the status for a node that is being provisioned
+	NodeStatusCreating NodeStatus = "creating"
+	// NodeStatusDeleting is the status for a node that is being shutdown for removal
+	NodeStatusDeleting NodeStatus = "deleting"
 )
 
 // NodeAddress defines the structure of 1 single node address
