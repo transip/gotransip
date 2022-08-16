@@ -120,7 +120,7 @@ func TestRepository_GetKubeConfig(t *testing.T) {
 }
 
 func TestRepository_GetNodePools(t *testing.T) {
-	const apiResponse = `{"nodePools":[{"uuid":"402c2f84-c37d-9388-634d-00002b7c6a82","description":"frontend","desiredNodeCount":3,"nodeSpec":"vps-bladevps-x4","labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}],"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}]}]}`
+	const apiResponse = `{"nodePools":[{"uuid":"402c2f84-c37d-9388-634d-00002b7c6a82","description":"frontend","desiredNodeCount":3,"nodeSpec":"vps-bladevps-x4","availabilityZone":"ams0","labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}],"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}]}]}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/node-pools", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
@@ -135,6 +135,7 @@ func TestRepository_GetNodePools(t *testing.T) {
 		assert.Equal(t, "frontend", list[0].Description)
 		assert.Equal(t, 3, list[0].DesiredNodeCount)
 		assert.Equal(t, "vps-bladevps-x4", list[0].NodeSpec)
+		assert.Equal(t, "ams0", list[0].AvailabilityZone)
 		assert.Equal(t, "bar", list[0].Labels["foo"])
 		if assert.Equal(t, 1, len(list[0].Taints)) {
 			assert.Equal(t, "foo", list[0].Taints[0].Key)
@@ -151,7 +152,7 @@ func TestRepository_GetNodePools(t *testing.T) {
 }
 
 func TestRepository_GetNodePoolsByClusterName(t *testing.T) {
-	const apiResponse = `{"nodePools":[{"uuid":"402c2f84-c37d-9388-634d-00002b7c6a82","description":"frontend","desiredNodeCount":3,"nodeSpec":"vps-bladevps-x4","labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}],"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}]}]}`
+	const apiResponse = `{"nodePools":[{"uuid":"402c2f84-c37d-9388-634d-00002b7c6a82","description":"frontend","desiredNodeCount":3,"nodeSpec":"vps-bladevps-x4","availabilityZone":"ams0","labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}],"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}]}]}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/node-pools?clusterName=k888k", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
@@ -166,6 +167,7 @@ func TestRepository_GetNodePoolsByClusterName(t *testing.T) {
 		assert.Equal(t, "frontend", list[0].Description)
 		assert.Equal(t, 3, list[0].DesiredNodeCount)
 		assert.Equal(t, "vps-bladevps-x4", list[0].NodeSpec)
+		assert.Equal(t, "ams0", list[0].AvailabilityZone)
 		if assert.Equal(t, 1, len(list[0].Taints)) {
 			assert.Equal(t, "foo", list[0].Taints[0].Key)
 			assert.Equal(t, "bar", list[0].Taints[0].Value)
@@ -181,7 +183,7 @@ func TestRepository_GetNodePoolsByClusterName(t *testing.T) {
 }
 
 func TestRepository_GetNodePool(t *testing.T) {
-	const apiResponse = `{"nodePool":{"uuid":"402c2f84-c37d-9388-634d-00002b7c6a82","description":"frontend","desiredNodeCount":3,"nodeSpec":"vps-bladevps-x4","labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}],"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}]}}`
+	const apiResponse = `{"nodePool":{"uuid":"402c2f84-c37d-9388-634d-00002b7c6a82","description":"frontend","desiredNodeCount":3,"nodeSpec":"vps-bladevps-x4","availabilityZone":"ams0","labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}],"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}]}}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/node-pools/402c2f84-c37d-9388-634d-00002b7c6a82", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
@@ -195,6 +197,7 @@ func TestRepository_GetNodePool(t *testing.T) {
 	assert.Equal(t, "frontend", nodePool.Description)
 	assert.Equal(t, 3, nodePool.DesiredNodeCount)
 	assert.Equal(t, "vps-bladevps-x4", nodePool.NodeSpec)
+	assert.Equal(t, "ams0", nodePool.AvailabilityZone)
 	assert.Equal(t, "bar", nodePool.Labels["foo"])
 	if assert.Equal(t, 1, len(nodePool.Taints)) {
 		assert.Equal(t, "foo", nodePool.Taints[0].Key)
@@ -210,7 +213,7 @@ func TestRepository_GetNodePool(t *testing.T) {
 }
 
 func TestRepository_AddNodePool(t *testing.T) {
-	const expectedRequestBody = `{"clusterName":"k888k","description":"frontend","desiredNodeCount":3,"nodeSpec":"vps-bladevps-x4","labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}]}`
+	const expectedRequestBody = `{"clusterName":"k888k","description":"frontend","desiredNodeCount":3,"nodeSpec":"vps-bladevps-x4","availabilityZone":"ams0","labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}]}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/node-pools", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequestBody}
 	client, tearDown := server.GetClient()
@@ -222,6 +225,7 @@ func TestRepository_AddNodePool(t *testing.T) {
 		Description:      "frontend",
 		DesiredNodeCount: 3,
 		NodeSpec:         "vps-bladevps-x4",
+		AvailabilityZone: "ams0",
 		Labels: map[string]string{
 			"foo": "bar",
 		},
@@ -239,7 +243,7 @@ func TestRepository_AddNodePool(t *testing.T) {
 }
 
 func TestRepository_UpdateNodePool(t *testing.T) {
-	const expectedRequest = `{"nodePool":{"uuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","description":"backend","desiredNodeCount":4,"nodeSpec":"vps-bladevps-x8","labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}]}}`
+	const expectedRequest = `{"nodePool":{"uuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","description":"backend","desiredNodeCount":4,"nodeSpec":"vps-bladevps-x8","availabilityZone":"ams0","labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}]}}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/node-pools/402c2f84-c37d-9388-634d-00002b7c6a82", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedRequest}
 	client, tearDown := server.GetClient()
@@ -252,6 +256,7 @@ func TestRepository_UpdateNodePool(t *testing.T) {
 		Description:      "backend",
 		DesiredNodeCount: 4,
 		NodeSpec:         "vps-bladevps-x8",
+		AvailabilityZone: "ams0",
 		Labels: map[string]string{
 			"foo": "bar",
 		},

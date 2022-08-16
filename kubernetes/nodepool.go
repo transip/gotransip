@@ -28,6 +28,8 @@ type NodePool struct {
 	DesiredNodeCount int `json:"desiredNodeCount"`
 	// Specification for nodes in this node pool
 	NodeSpec string `json:"nodeSpec"`
+	// Availability zone of the node pool
+	AvailabilityZone string `json:"availabilityZone"`
 	// Labels to be set on new nodes in the node pool
 	Labels map[string]string `json:"labels"`
 	// Taints to be set on new nodes in the node pool
@@ -46,6 +48,8 @@ type NodePoolOrder struct {
 	DesiredNodeCount int `json:"desiredNodeCount"`
 	// Specification for nodes in this node pool
 	NodeSpec string `json:"nodeSpec"`
+	// Availability zone of the node pool
+	AvailabilityZone string `json:"availabilityZone"`
 	// Labels to be set on new nodes in the node pool
 	Labels map[string]string `json:"labels"`
 	// Taints to be set on new nodes in the node pool
