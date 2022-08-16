@@ -16,18 +16,18 @@ func TestRepository_GetClusters(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	all, err := repo.GetClusters()
+	list, err := repo.GetClusters()
 	require.NoError(t, err)
 
-	if assert.Equal(t, 2, len(all)) {
-		assert.Equal(t, "k888k", all[0].Name)
-		assert.Equal(t, "production cluster", all[0].Description)
-		assert.True(t, all[0].IsLocked)
-		assert.False(t, all[0].IsBlocked)
-		assert.Equal(t, "aiceayoo", all[1].Name)
-		assert.Equal(t, "development cluster", all[1].Description)
-		assert.False(t, all[1].IsLocked)
-		assert.True(t, all[1].IsBlocked)
+	if assert.Equal(t, 2, len(list)) {
+		assert.Equal(t, "k888k", list[0].Name)
+		assert.Equal(t, "production cluster", list[0].Description)
+		assert.True(t, list[0].IsLocked)
+		assert.False(t, list[0].IsBlocked)
+		assert.Equal(t, "aiceayoo", list[1].Name)
+		assert.Equal(t, "development cluster", list[1].Description)
+		assert.False(t, list[1].IsLocked)
+		assert.True(t, list[1].IsBlocked)
 	}
 }
 
@@ -126,19 +126,19 @@ func TestRepository_GetNodePools(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	all, err := repo.GetNodePools()
+	list, err := repo.GetNodePools()
 	require.NoError(t, err)
 
-	if assert.Equal(t, 1, len(all)) {
-		assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", all[0].UUID)
-		assert.Equal(t, "frontend", all[0].Description)
-		assert.Equal(t, 3, all[0].DesiredNodeCount)
-		assert.Equal(t, "vps-bladevps-x4", all[0].NodeSpec)
-		if assert.Equal(t, 1, len(all[0].Nodes)) {
-			assert.Equal(t, NodeStatusActive, all[0].Nodes[0].Status)
-			assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", all[0].Nodes[0].UUID)
-			assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", all[0].Nodes[0].NodePoolUUID)
-			assert.Equal(t, "k888k", all[0].Nodes[0].ClusterName)
+	if assert.Equal(t, 1, len(list)) {
+		assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", list[0].UUID)
+		assert.Equal(t, "frontend", list[0].Description)
+		assert.Equal(t, 3, list[0].DesiredNodeCount)
+		assert.Equal(t, "vps-bladevps-x4", list[0].NodeSpec)
+		if assert.Equal(t, 1, len(list[0].Nodes)) {
+			assert.Equal(t, NodeStatusActive, list[0].Nodes[0].Status)
+			assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", list[0].Nodes[0].UUID)
+			assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", list[0].Nodes[0].NodePoolUUID)
+			assert.Equal(t, "k888k", list[0].Nodes[0].ClusterName)
 		}
 	}
 }
@@ -151,19 +151,19 @@ func TestRepository_GetNodePoolsByClusterName(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	all, err := repo.GetNodePoolsByClusterName("k888k")
+	list, err := repo.GetNodePoolsByClusterName("k888k")
 	require.NoError(t, err)
 
-	if assert.Equal(t, 1, len(all)) {
-		assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", all[0].UUID)
-		assert.Equal(t, "frontend", all[0].Description)
-		assert.Equal(t, 3, all[0].DesiredNodeCount)
-		assert.Equal(t, "vps-bladevps-x4", all[0].NodeSpec)
-		if assert.Equal(t, 1, len(all[0].Nodes)) {
-			assert.Equal(t, NodeStatusActive, all[0].Nodes[0].Status)
-			assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", all[0].Nodes[0].UUID)
-			assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", all[0].Nodes[0].NodePoolUUID)
-			assert.Equal(t, "k888k", all[0].Nodes[0].ClusterName)
+	if assert.Equal(t, 1, len(list)) {
+		assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", list[0].UUID)
+		assert.Equal(t, "frontend", list[0].Description)
+		assert.Equal(t, 3, list[0].DesiredNodeCount)
+		assert.Equal(t, "vps-bladevps-x4", list[0].NodeSpec)
+		if assert.Equal(t, 1, len(list[0].Nodes)) {
+			assert.Equal(t, NodeStatusActive, list[0].Nodes[0].Status)
+			assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", list[0].Nodes[0].UUID)
+			assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", list[0].Nodes[0].NodePoolUUID)
+			assert.Equal(t, "k888k", list[0].Nodes[0].ClusterName)
 		}
 	}
 }
@@ -249,14 +249,14 @@ func TestRepository_GetNodes(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	all, err := repo.GetNodes()
+	list, err := repo.GetNodes()
 	require.NoError(t, err)
 
-	if assert.Equal(t, 1, len(all)) {
-		assert.Equal(t, NodeStatusActive, all[0].Status)
-		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", all[0].UUID)
-		assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", all[0].NodePoolUUID)
-		assert.Equal(t, "k888k", all[0].ClusterName)
+	if assert.Equal(t, 1, len(list)) {
+		assert.Equal(t, NodeStatusActive, list[0].Status)
+		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", list[0].UUID)
+		assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", list[0].NodePoolUUID)
+		assert.Equal(t, "k888k", list[0].ClusterName)
 	}
 }
 
@@ -268,14 +268,14 @@ func TestRepository_GetNodesByClusterName(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	all, err := repo.GetNodesByClusterName("k888k")
+	list, err := repo.GetNodesByClusterName("k888k")
 	require.NoError(t, err)
 
-	if assert.Equal(t, 1, len(all)) {
-		assert.Equal(t, NodeStatusActive, all[0].Status)
-		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", all[0].UUID)
-		assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", all[0].NodePoolUUID)
-		assert.Equal(t, "k888k", all[0].ClusterName)
+	if assert.Equal(t, 1, len(list)) {
+		assert.Equal(t, NodeStatusActive, list[0].Status)
+		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", list[0].UUID)
+		assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", list[0].NodePoolUUID)
+		assert.Equal(t, "k888k", list[0].ClusterName)
 	}
 }
 
@@ -287,14 +287,14 @@ func TestRepository_GetNodesByNodePoolUUID(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	all, err := repo.GetNodesByNodePoolUUID("402c2f84-c37d-9388-634d-00002b7c6a82")
+	list, err := repo.GetNodesByNodePoolUUID("402c2f84-c37d-9388-634d-00002b7c6a82")
 	require.NoError(t, err)
 
-	if assert.Equal(t, 1, len(all)) {
-		assert.Equal(t, NodeStatusActive, all[0].Status)
-		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", all[0].UUID)
-		assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", all[0].NodePoolUUID)
-		assert.Equal(t, "k888k", all[0].ClusterName)
+	if assert.Equal(t, 1, len(list)) {
+		assert.Equal(t, NodeStatusActive, list[0].Status)
+		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", list[0].UUID)
+		assert.Equal(t, "402c2f84-c37d-9388-634d-00002b7c6a82", list[0].NodePoolUUID)
+		assert.Equal(t, "k888k", list[0].ClusterName)
 	}
 }
 
@@ -323,18 +323,18 @@ func TestRepository_GetBlockStorageVolumes(t *testing.T) {
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	all, err := repo.GetBlockStorageVolumes()
+	list, err := repo.GetBlockStorageVolumes()
 	require.NoError(t, err)
 
-	if assert.Equal(t, 1, len(all)) {
-		assert.Equal(t, "220887f0-db1a-76a9-2332-00004f589b19", all[0].UUID)
-		assert.Equal(t, "custom-2c3501ab-5a45-34e9-c289-00002b084a0c", all[0].Name)
-		assert.Equal(t, 20, all[0].SizeInGiB)
-		assert.Equal(t, BlockStorageTypeHDD, all[0].Type)
-		assert.Equal(t, "ams0", all[0].AvailabilityZone)
-		assert.Equal(t, BlockStorageStatusAvailable, all[0].Status)
-		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", all[0].NodeUUID)
-		assert.Equal(t, "a4d857d3fe5e814f34bb", all[0].Serial)
+	if assert.Equal(t, 1, len(list)) {
+		assert.Equal(t, "220887f0-db1a-76a9-2332-00004f589b19", list[0].UUID)
+		assert.Equal(t, "custom-2c3501ab-5a45-34e9-c289-00002b084a0c", list[0].Name)
+		assert.Equal(t, 20, list[0].SizeInGiB)
+		assert.Equal(t, BlockStorageTypeHDD, list[0].Type)
+		assert.Equal(t, "ams0", list[0].AvailabilityZone)
+		assert.Equal(t, BlockStorageStatusAvailable, list[0].Status)
+		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", list[0].NodeUUID)
+		assert.Equal(t, "a4d857d3fe5e814f34bb", list[0].Serial)
 	}
 }
 
