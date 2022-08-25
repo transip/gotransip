@@ -474,6 +474,26 @@ func TestRepository_RemoveBlockStorageVolume(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestRepository_GetLoadBalancers(t *testing.T) {
+	const apiResponse = `{"loadBalancers":[{"uuid":"220887f0-db1a-76a9-2332-00004f589b19","name":"lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80","status":"active","ipv4Address":"37.97.254.7","ipv6Address":"2a01:7c8:3:1337::1"}]}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/load-balancers", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	list, err := repo.GetLoadBalancers()
+	require.NoError(t, err)
+
+	if assert.Equal(t, 1, len(list)) {
+		assert.Equal(t, "220887f0-db1a-76a9-2332-00004f589b19", list[0].UUID)
+		assert.Equal(t, "lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80", list[0].Name)
+		assert.Equal(t, LoadBalancerStatusActive, list[0].Status)
+		assert.Equal(t, "37.97.254.7", list[0].IPv4Address.String())
+		assert.Equal(t, "2a01:7c8:3:1337::1", list[0].IPv6Address.String())
+	}
+}
+
 func TestRepository_GetLoadBalancer(t *testing.T) {
 	const apiResponse = `{"loadBalancer":{"uuid":"220887f0-db1a-76a9-2332-00004f589b19","name":"lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80","status":"active","ipv4Address":"37.97.254.7","ipv6Address":"2a01:7c8:3:1337::1"}}`
 
@@ -505,25 +525,20 @@ func TestRepository_CreateLoadBalancer(t *testing.T) {
 }
 
 func TestRepository_UpdateLoadBalanmcer(t *testing.T) {
-	const expectedRequest = `{"loadBalancer":{"uuid":"220887f0-db1a-76a9-2332-00004f589b19","name":"lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80","status":"active","loadBalancingMode":"cookie","stickyCookieName":"PHPSESSID","healthCheckInterval":3000,"httpHealthCheckPath":"/status.php","httpHealthCheckPort":443,"httpHealthCheckSsl":true,"ipv4Address":"37.97.254.7","ipv6Address":"2a01:7c8:3:1337::1","ipSetup":"ipv6to4","ptrRecord":"frontend.example.com","tlsMode":"tls12","ipAddresses":["10.3.37.1","10.3.38.1"],"portConfiguration":[{"name":"Website Traffic","sourcePort":80,"targetPort":8080,"mode":"http","endpointSslMode":"off"}]}}`
+	const expectedRequest = `{"loadBalancerConfig":{"loadBalancingMode":"cookie","stickyCookieName":"PHPSESSID","healthCheckInterval":3000,"httpHealthCheckPath":"/status.php","httpHealthCheckPort":443,"httpHealthCheckSsl":true,"ipSetup":"ipv6to4","ptrRecord":"frontend.example.com","tlsMode":"tls12","ipAddresses":["10.3.37.1","10.3.38.1"],"portConfiguration":[{"name":"Website Traffic","sourcePort":80,"targetPort":8080,"mode":"http","endpointSslMode":"off"}]}}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/load-balancers/lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedRequest}
 	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	err := repo.UpdateLoadBalancer(LoadBalancer{
-		UUID:                "220887f0-db1a-76a9-2332-00004f589b19",
-		Name:                "lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80",
-		Status:              LoadBalancerStatusActive,
+	err := repo.UpdateLoadBalancer("lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80", LoadBalancerConfig{
 		LoadBalancingMode:   LoadBalancingModeCookie,
 		StickyCookieName:    "PHPSESSID",
 		HealthCheckInterval: 3000,
 		HTTPHealthCheckPath: "/status.php",
 		HTTPHealthCheckPort: 443,
 		HTTPHealthCheckSSL:  true,
-		IPv4Address:         net.IPv4(37, 97, 254, 7),
-		IPv6Address:         net.ParseIP("2a01:7c8:3:1337::1"),
 		IPSetup:             IPSetupIPv6to4,
 		PTRRecord:           "frontend.example.com",
 		TLSMode:             TLSModeMinTLS12,

@@ -2,6 +2,12 @@ package kubernetes
 
 import "net"
 
+// lbsWrapper struct contains a list of LoadBalancers in it,
+// this is solely used for unmarshalling/marshalling
+type lbsWrapper struct {
+	LoadBalancers []LoadBalancer `json:"loadBalancers"`
+}
+
 // lbWrapper struct contains a LoadBalancer in it,
 // this is solely used for unmarshalling/marshalling
 type lbWrapper struct {
@@ -13,6 +19,11 @@ type lbOrder struct {
 	Name string `json:"name"`
 }
 
+// lbcWrapper struct is used to wrap configuring a LoadBalancer
+type lbcWrapper struct {
+	Config LoadBalancerConfig `json:"loadBalancerConfig"`
+}
+
 // LoadBalancer struct for a kubernetes loadbalancer
 type LoadBalancer struct {
 	// The unique identifier for the loadbalancer
@@ -21,32 +32,11 @@ type LoadBalancer struct {
 	Name string `json:"name"`
 	// LoadBalancer status, either ‘active’, ‘inactive’, ‘creating’
 	Status LoadBalancerStatus `json:"status"`
-	// HA-IP load balancing mode: 'roundrobin', 'cookie', 'source'
-	LoadBalancingMode LoadBalancingMode `json:"loadBalancingMode,omitempty"`
-	// Cookie name to pin sessions on when using cookie balancing mode
-	StickyCookieName string `json:"stickyCookieName,omitempty"`
-	// The interval in milliseconds at which health checks are performed. The interval may not be smaller than 2000ms.
-	HealthCheckInterval int64 `json:"healthCheckInterval,omitempty"`
-	// The path (URI) of the page to check HTTP status code on
-	HTTPHealthCheckPath string `json:"httpHealthCheckPath,omitempty"`
-	// The port to perform the HTTP check on
-	HTTPHealthCheckPort int `json:"httpHealthCheckPort,omitempty"`
-	// Whether to use SSL when performing the HTTP check
-	HTTPHealthCheckSSL bool `json:"httpHealthCheckSsl"`
+
 	// HA-IP IPv4 address
 	IPv4Address net.IP `json:"ipv4Address,omitempty"`
 	// HA-IP IPv6 address
 	IPv6Address net.IP `json:"ipv6Address,omitempty"`
-	// HA-IP IP setup: 'both', 'noipv6', 'ipv6to4', 'ipv4to6'
-	IPSetup IPSetup `json:"ipSetup"`
-	// The PTR record for the HA-IP
-	PTRRecord string `json:"ptrRecord,omitempty"`
-	// HA-IP TLS Mode: 'tls10_11_12', 'tls11_12', 'tls12'
-	TLSMode TLSMode `json:"tlsMode"`
-	// The IPs attached to this haip
-	IPAddresses []net.IP `json:"ipAddresses,omitempty"`
-	// Array with port configurations for this LoadBalancer
-	PortConfigurations []PortConfiguration `json:"portConfiguration,omitempty"`
 }
 
 // LoadBalancerStatus status, either ‘active’, ‘inactive’, ‘creating’
@@ -61,6 +51,31 @@ const (
 	// LoadBalancerStatusCreating means the load balancer is being created
 	LoadBalancerStatusCreating LoadBalancerStatus = "creating"
 )
+
+type LoadBalancerConfig struct {
+	// HA-IP load balancing mode: 'roundrobin', 'cookie', 'source'
+	LoadBalancingMode LoadBalancingMode `json:"loadBalancingMode,omitempty"`
+	// Cookie name to pin sessions on when using cookie balancing mode
+	StickyCookieName string `json:"stickyCookieName,omitempty"`
+	// The interval in milliseconds at which health checks are performed. The interval may not be smaller than 2000ms.
+	HealthCheckInterval int64 `json:"healthCheckInterval,omitempty"`
+	// The path (URI) of the page to check HTTP status code on
+	HTTPHealthCheckPath string `json:"httpHealthCheckPath,omitempty"`
+	// The port to perform the HTTP check on
+	HTTPHealthCheckPort int `json:"httpHealthCheckPort,omitempty"`
+	// Whether to use SSL when performing the HTTP check
+	HTTPHealthCheckSSL bool `json:"httpHealthCheckSsl"`
+	// HA-IP IP setup: 'both', 'noipv6', 'ipv6to4', 'ipv4to6'
+	IPSetup IPSetup `json:"ipSetup"`
+	// The PTR record for the HA-IP
+	PTRRecord string `json:"ptrRecord,omitempty"`
+	// HA-IP TLS Mode: 'tls10_11_12', 'tls11_12', 'tls12'
+	TLSMode TLSMode `json:"tlsMode"`
+	// The IPs attached to this haip
+	IPAddresses []net.IP `json:"ipAddresses,omitempty"`
+	// Array with port configurations for this LoadBalancer
+	PortConfigurations []PortConfiguration `json:"portConfiguration,omitempty"`
+}
 
 // LoadBalancingMode is one of the following strings
 // 'roundrobin', 'cookie', 'source'
