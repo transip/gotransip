@@ -204,3 +204,33 @@ func (r *Repository) RemoveBlockStorageVolume(name string) error {
 
 	return r.Client.Delete(restRequest)
 }
+
+// GetLoadBalancer returns a load balancer
+func (r *Repository) GetLoadBalancer(name string) (LoadBalancer, error) {
+	var response lbWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/load-balancers/%s", name)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.LoadBalancer, err
+}
+
+// CreateLoadBalancer creates a new load balancer
+func (r *Repository) CreateLoadBalancer(name string) error {
+	restRequest := rest.Request{Endpoint: "/kubernetes/load-balancers", Body: &lbOrder{Name: name}}
+
+	return r.Client.Post(restRequest)
+}
+
+// UpdateLoadBalancer updates the entire state of the load balancer
+func (r *Repository) UpdateLoadBalancer(lb LoadBalancer) error {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/load-balancers/%s", lb.Name), Body: &lbWrapper{LoadBalancer: lb}}
+
+	return r.Client.Put(restRequest)
+}
+
+// RemoveLoadBalancer will remove a load balancer
+func (r *Repository) RemoveLoadBalancer(name string) error {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/load-balancers/%s", name)}
+
+	return r.Client.Delete(restRequest)
+}

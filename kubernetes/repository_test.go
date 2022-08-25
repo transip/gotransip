@@ -1,6 +1,7 @@
 package kubernetes
 
 import (
+	"net"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -470,5 +471,83 @@ func TestRepository_RemoveBlockStorageVolume(t *testing.T) {
 	repo := Repository{Client: *client}
 
 	err := repo.RemoveBlockStorageVolume("custom-2c3501ab-5a45-34e9-c289-00002b084a0c")
+	require.NoError(t, err)
+}
+
+func TestRepository_GetLoadBalancer(t *testing.T) {
+	const apiResponse = `{"loadBalancer":{"uuid":"220887f0-db1a-76a9-2332-00004f589b19","name":"lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80","status":"active","ipv4Address":"37.97.254.7","ipv6Address":"2a01:7c8:3:1337::1"}}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/load-balancers/lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	lb, err := repo.GetLoadBalancer("lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80")
+	require.NoError(t, err)
+
+	assert.Equal(t, "220887f0-db1a-76a9-2332-00004f589b19", lb.UUID)
+	assert.Equal(t, "lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80", lb.Name)
+	assert.Equal(t, LoadBalancerStatusActive, lb.Status)
+	assert.Equal(t, "37.97.254.7", lb.IPv4Address.String())
+	assert.Equal(t, "2a01:7c8:3:1337::1", lb.IPv6Address.String())
+}
+
+func TestRepository_CreateLoadBalancer(t *testing.T) {
+	const expectedRequestBody = `{"name":"lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80"}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/load-balancers", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequestBody}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	err := repo.CreateLoadBalancer("lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80")
+	require.NoError(t, err)
+}
+
+func TestRepository_UpdateLoadBalanmcer(t *testing.T) {
+	const expectedRequest = `{"loadBalancer":{"uuid":"220887f0-db1a-76a9-2332-00004f589b19","name":"lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80","status":"active","loadBalancingMode":"cookie","stickyCookieName":"PHPSESSID","healthCheckInterval":3000,"httpHealthCheckPath":"/status.php","httpHealthCheckPort":443,"httpHealthCheckSsl":true,"ipv4Address":"37.97.254.7","ipv6Address":"2a01:7c8:3:1337::1","ipSetup":"ipv6to4","ptrRecord":"frontend.example.com","tlsMode":"tls12","ipAddresses":["10.3.37.1","10.3.38.1"],"portConfiguration":[{"name":"Website Traffic","sourcePort":80,"targetPort":8080,"mode":"http","endpointSslMode":"off"}]}}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/load-balancers/lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	err := repo.UpdateLoadBalancer(LoadBalancer{
+		UUID:                "220887f0-db1a-76a9-2332-00004f589b19",
+		Name:                "lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80",
+		Status:              LoadBalancerStatusActive,
+		LoadBalancingMode:   LoadBalancingModeCookie,
+		StickyCookieName:    "PHPSESSID",
+		HealthCheckInterval: 3000,
+		HTTPHealthCheckPath: "/status.php",
+		HTTPHealthCheckPort: 443,
+		HTTPHealthCheckSSL:  true,
+		IPv4Address:         net.IPv4(37, 97, 254, 7),
+		IPv6Address:         net.ParseIP("2a01:7c8:3:1337::1"),
+		IPSetup:             IPSetupIPv6to4,
+		PTRRecord:           "frontend.example.com",
+		TLSMode:             TLSModeMinTLS12,
+		IPAddresses:         []net.IP{net.ParseIP("10.3.37.1"), net.ParseIP("10.3.38.1")},
+		PortConfigurations: []PortConfiguration{
+			{
+				Name:            "Website Traffic",
+				SourcePort:      80,
+				TargetPort:      8080,
+				Mode:            PortConfigurationModeHTTP,
+				EndpointSSLMode: PortConfigurationEndpointSSLModeOff,
+			},
+		},
+	})
+
+	require.NoError(t, err)
+}
+
+func TestRepository_RemoveLoadBalancer(t *testing.T) {
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/load-balancers/lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80", ExpectedMethod: "DELETE", StatusCode: 204}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	err := repo.RemoveLoadBalancer("lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80")
 	require.NoError(t, err)
 }
