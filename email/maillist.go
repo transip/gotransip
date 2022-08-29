@@ -1,34 +1,33 @@
 package email
 
-// Maillist struct of a maillist
-type Maillist struct {
+// MailList struct of a maillist
+type MailList struct {
 	ID           int      `json:"id"`
 	Name         string   `json:"name"`
 	EmailAddress string   `json:"emailAddress"`
 	Entries      []string `json:"entries"`
 }
 
-// maillistWrapper struct contains a Maillist in it,
+// mailListWrapper struct contains a MailList in it,
 // this is solely used for unmarshalling/marshalling
-type maillistWrapper struct {
-	Maillist Maillist `json:"list"`
+type mailListWrapper struct {
+	MailList MailList `json:"mailList"`
 }
 
-// maillistsWrapper struct contains a list of Maillist in it,
+// mailListsWrapper struct contains a list of MailList in it,
 // this is solely used for unmarshalling/marshalling
-type maillistsWrapper struct {
-	Maillists []Maillist `json:"lists"`
+type mailListsWrapper struct {
+	MailLists []MailList `json:"mailLists"`
 }
 
-// CreateMaillistRequest struct of a maillist
-type CreateMaillistRequest struct {
+// CreateMailListRequest struct of a maillist
+type CreateMailListRequest struct {
 	EmailAddress string   `json:"emailAddress"`
 	Entries      []string `json:"entries"`
 	Name         string   `json:"name"`
 }
 
-// UpdateMaillistRequest struct of a maillist
-type UpdateMaillistRequest struct {
-	EmailAddress string   `json:"emailAddress"`
-	Entries      []string `json:"entries"`
+// UpdateMailListRequest struct of a maillist
+type UpdateMailListRequest struct {
+	MailList MailList `json:"mailList"`
 }

@@ -183,14 +183,14 @@ func TestRepository_DeleteMailforward(t *testing.T) {
 	require.NoError(t, err)
 }
 
-func TestRepository_GetMaillistsByDomainName(t *testing.T) {
-	const apiResponse = `{"lists":[{"id":1,"name":"test","emailAddress":"test@example.com"}]}`
+func TestRepository_GetMailListsByDomainName(t *testing.T) {
+	const apiResponse = `{"mailLists":[{"id":1,"name":"test","emailAddress":"test@example.com"}]}`
 	server := testutil.MockServer{T: t, ExpectedURL: "/email/example.com/mail-lists", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	all, err := repo.GetMaillistsByDomainName("example.com")
+	all, err := repo.GetMailListsByDomainName("example.com")
 	require.NoError(t, err)
 	require.Equal(t, 1, len(all))
 
@@ -199,14 +199,14 @@ func TestRepository_GetMaillistsByDomainName(t *testing.T) {
 	assert.Equal(t, "test@example.com", all[0].EmailAddress)
 }
 
-func TestRepository_GetMaillistByDomainNameAndID(t *testing.T) {
-	const apiResponse = `{"list":{"id":1,"name":"test","emailAddress":"test@example.com","entries":["test1@example.com","test2@example.com"]}}`
+func TestRepository_GetMailListByDomainNameAndID(t *testing.T) {
+	const apiResponse = `{"mailList":{"id":1,"name":"test","emailAddress":"test@example.com","entries":["test1@example.com","test2@example.com"]}}`
 	server := testutil.MockServer{T: t, ExpectedURL: "/email/example.com/mail-lists/1", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	maillist, err := repo.GetMaillistByDomainNameAndID("example.com", 1)
+	maillist, err := repo.GetMailListByDomainNameAndID("example.com", 1)
 	require.NoError(t, err)
 
 	assert.Equal(t, 1, maillist.ID)
@@ -214,45 +214,49 @@ func TestRepository_GetMaillistByDomainNameAndID(t *testing.T) {
 	assert.Equal(t, "test@example.com", maillist.EmailAddress)
 }
 
-func TestRepository_CreateMaillist(t *testing.T) {
+func TestRepository_CreateMailList(t *testing.T) {
 	const expectedRequestBody = `{"emailAddress":"test@example.com","entries":["test1@example.com","test2@example.com"],"name":"test"}`
 	server := testutil.MockServer{T: t, ExpectedURL: "/email/example.com/mail-lists", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequestBody}
 	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	m := CreateMaillistRequest{
+	m := CreateMailListRequest{
 		Name:         "test",
 		EmailAddress: "test@example.com",
 		Entries:      []string{"test1@example.com", "test2@example.com"},
 	}
 
-	err := repo.CreateMaillist("example.com", m)
+	err := repo.CreateMailList("example.com", m)
 	require.NoError(t, err)
 }
 
-func TestRepository_UpdateMaillist(t *testing.T) {
-	const expectedRequestBody = `{"emailAddress":"test@example.com","entries":["test1@example.com","test2@example.com"]}`
+func TestRepository_UpdateMailList(t *testing.T) {
+	const expectedRequestBody = `{"mailList":{"id":0,"name":"example","emailAddress":"test@example.com","entries":["test1@example.com","test2@example.com"]}}`
 	server := testutil.MockServer{T: t, ExpectedURL: "/email/example.com/mail-lists/1", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedRequestBody}
 	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	m := UpdateMaillistRequest{
-		EmailAddress: "test@example.com",
-		Entries:      []string{"test1@example.com", "test2@example.com"},
+	m := UpdateMailListRequest{
+		MailList: MailList{
+			ID:           0,
+			Name:         "example",
+			EmailAddress: "test@example.com",
+			Entries:      []string{"test1@example.com", "test2@example.com"},
+		},
 	}
 
-	err := repo.UpdateMaillist("example.com", 1, m)
+	err := repo.UpdateMailList("example.com", 1, m)
 	require.NoError(t, err)
 }
 
-func TestRepository_DeleteMaillist(t *testing.T) {
+func TestRepository_DeleteMailList(t *testing.T) {
 	server := testutil.MockServer{T: t, ExpectedURL: "/email/example.com/mail-lists/1", ExpectedMethod: "DELETE", StatusCode: 204}
 	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
-	err := repo.DeleteMaillist("example.com", 1)
+	err := repo.DeleteMailList("example.com", 1)
 	require.NoError(t, err)
 }

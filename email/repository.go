@@ -117,40 +117,40 @@ func (r *Repository) DeleteMailforward(domainName string, forwardID int) error {
 	return r.Client.Delete(restRequest)
 }
 
-// GetMaillistsByDomainName returns all maillists by domain name
-func (r *Repository) GetMaillistsByDomainName(domainName string) ([]Maillist, error) {
-	var response maillistsWrapper
+// GetMailListsByDomainName returns all maillists by domain name
+func (r *Repository) GetMailListsByDomainName(domainName string) ([]MailList, error) {
+	var response mailListsWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/email/%s/mail-lists", domainName)}
 	err := r.Client.Get(restRequest, &response)
 
-	return response.Maillists, err
+	return response.MailLists, err
 }
 
-// GetMaillistByDomainNameAndID returns a mail list by domain name and ID
-func (r *Repository) GetMaillistByDomainNameAndID(domainName string, maillistID int) (Maillist, error) {
-	var response maillistWrapper
+// GetMailListByDomainNameAndID returns a mail list by domain name and ID
+func (r *Repository) GetMailListByDomainNameAndID(domainName string, maillistID int) (MailList, error) {
+	var response mailListWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/email/%s/mail-lists/%d", domainName, maillistID)}
 	err := r.Client.Get(restRequest, &response)
 
-	return response.Maillist, err
+	return response.MailList, err
 }
 
-// CreateMaillist creates a mail list
-func (r *Repository) CreateMaillist(domainName string, createRequest CreateMaillistRequest) error {
+// CreateMailList creates a mail list
+func (r *Repository) CreateMailList(domainName string, createRequest CreateMailListRequest) error {
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/email/%s/mail-lists", domainName), Body: createRequest}
 
 	return r.Client.Post(restRequest)
 }
 
-// UpdateMaillist updates a mail list
-func (r *Repository) UpdateMaillist(domainName string, maillistID int, updateRequest UpdateMaillistRequest) error {
+// UpdateMailList updates a mail list
+func (r *Repository) UpdateMailList(domainName string, maillistID int, updateRequest UpdateMailListRequest) error {
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/email/%s/mail-lists/%d", domainName, maillistID), Body: updateRequest}
 
 	return r.Client.Put(restRequest)
 }
 
-// DeleteMaillist deletes a mail list
-func (r *Repository) DeleteMaillist(domainName string, maillistID int) error {
+// DeleteMailList deletes a mail list
+func (r *Repository) DeleteMailList(domainName string, maillistID int) error {
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/email/%s/mail-lists/%d", domainName, maillistID)}
 
 	return r.Client.Delete(restRequest)
