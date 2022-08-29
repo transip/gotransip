@@ -114,12 +114,12 @@ func (r *Repository) AddCertificate(haipName string, sslCertificateID int64) err
 // In order to provide free LetsEncrypt certificates for the domains on your HA-IP,
 // some requirements must be met in order to complete the certificate request:
 //   - DNS: the given CommonName must resolve to the HA-IP IP.
-//       IPv6 is not required, but when set, it must resolve to the HA-IP IPv6;
+//     IPv6 is not required, but when set, it must resolve to the HA-IP IPv6;
 //   - Configuration: LetsEncrypt verifies domains with a HTTP call to /.well-know.
-//       When requesting a LetsEncrypt certificate, our proxies will handle all ACME requests
-//       to automatically verify the certificate.
-//       To achieve this, the HA-IP must have a HTTP portConfiguration on port 80.
-//       When using this, you will also no longer be able to verify your own LetsEncrypt certificates via HA-IP.
+//     When requesting a LetsEncrypt certificate, our proxies will handle all ACME requests
+//     to automatically verify the certificate.
+//     To achieve this, the HA-IP must have a HTTP portConfiguration on port 80.
+//     When using this, you will also no longer be able to verify your own LetsEncrypt certificates via HA-IP.
 //
 // For more information, see: https://api.transip.nl/rest/docs.html#ha-ip-ha-ip-certificates-post-1
 func (r *Repository) AddLetsEncryptCertificate(haipName string, commonName string) error {
@@ -204,7 +204,9 @@ func (r *Repository) AddPortConfiguration(haipName string, configuration PortCon
 }
 
 // UpdatePortConfiguration allows you to update:
-//   Name, SourcePort, TargetPort, Mode, or EndpointSslMode of a Configuration
+//
+//	Name, SourcePort, TargetPort, Mode, or EndpointSslMode of a Configuration
+//
 // For more information on these fields see the AddPortConfiguration method and: https://api.transip.nl/rest/docs.html#ha-ip-ha-ip-port-configurations-put
 func (r *Repository) UpdatePortConfiguration(haipName string, configuration PortConfiguration) error {
 	requestBody := portConfigurationWrapper{Configuration: configuration}
