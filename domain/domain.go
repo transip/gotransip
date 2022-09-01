@@ -370,7 +370,7 @@ type Transfer struct {
 	Nameservers []Nameserver `json:"nameservers,omitempty"`
 }
 
-//AdditionalContactFieldData as filled in for the domain
+// AdditionalContactFieldData as filled in for the domain
 type AdditionalContactFieldData struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
