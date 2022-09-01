@@ -158,6 +158,12 @@ type tldWrapper struct {
 	Tld Tld `json:"tld"`
 }
 
+// additionaContactFieldDataWrapper struct containst a list of AdditionalContactFieldData structs in it
+// this is soley used for unmarshalling
+type additionalContactFieldDataWrapper struct {
+	AdditionalContactFieldDataList []AdditionalContactFieldData `json:"additionalContactFieldData"`
+}
+
 // Contact struct for a Contact
 type Contact struct {
 	// Email address of the contact
@@ -362,4 +368,10 @@ type Transfer struct {
 	DNSEntries []DNSEntry `json:"dnsEntries,omitempty"`
 	// Optionally you can set the domain nameservers before transferring
 	Nameservers []Nameserver `json:"nameservers,omitempty"`
+}
+
+//AdditionalContactFieldData as filled in for the domain
+type AdditionalContactFieldData struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
 }

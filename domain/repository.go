@@ -2,10 +2,11 @@ package domain
 
 import (
 	"fmt"
+	"net/url"
+
 	"github.com/transip/gotransip/v6"
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
-	"net/url"
 )
 
 // Repository can be used to get a list of your domains,
@@ -306,4 +307,14 @@ func (r *Repository) GetTLDByTLD(tld string) (Tld, error) {
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Tld, err
+}
+
+// GetAdditionalContactFieldData returns a list of AdditionalContactFieldData for the given domain.
+func (r *Repository) GetAdditionalContactFieldData(domainName string) ([]AdditionalContactFieldData, error) {
+	fmt.Printf("/domains/%s/additional-contact-field-data", domainName)
+	var response additionalContactFieldDataWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/domains/%s/additional-contact-field-data", domainName)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.AdditionalContactFieldDataList, err
 }
