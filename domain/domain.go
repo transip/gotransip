@@ -159,7 +159,7 @@ type tldWrapper struct {
 }
 
 // additionaContactFieldDataWrapper struct containst a list of AdditionalContactFieldData structs in it
-// this is soley used for unmarshalling
+// this is solely used for unmarshalling
 type additionalContactFieldDataWrapper struct {
 	AdditionalContactFieldDataList []AdditionalContactFieldData `json:"additionalContactFieldData"`
 }
