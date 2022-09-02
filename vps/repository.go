@@ -2,15 +2,16 @@ package vps
 
 import (
 	"fmt"
+	"net"
+	"net/url"
+	"strings"
+	"time"
+
 	"github.com/transip/gotransip/v6"
 	"github.com/transip/gotransip/v6/ipaddress"
 	"github.com/transip/gotransip/v6/product"
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
-	"net"
-	"net/url"
-	"strings"
-	"time"
 )
 
 // Repository is the vps repository
@@ -79,14 +80,14 @@ func (r *Repository) OrderMultiple(orders []Order) error {
 //
 // - If the original VPS (which you’re going to clone) is currently locked, the clone will fail;
 //
-// - Cloned control panels can be used on the VPS, but as the IP address changes, this does require you to synchronise
+//   - Cloned control panels can be used on the VPS, but as the IP address changes, this does require you to synchronise
 //   the new license on the new VPS (licenses are often IP-based);
 //
-// - Possibly, your VPS has its network interface(s) configured using (a) static IP(‘s) rather than a dynamic allocation
+//   - Possibly, your VPS has its network interface(s) configured using (a) static IP(‘s) rather than a dynamic allocation
 //   using DHCP. If this is the case, you have to configure the new IP(‘s) on the new VPS.
 //   Do note that this is not the case with our pre-installed control panel images;
 //
-// - VPS add-ons such as Big Storage aren’t affected by cloning - these will stay attached to the original VPS and can’t
+//   - VPS add-ons such as Big Storage aren’t affected by cloning - these will stay attached to the original VPS and can’t
 //   be swapped automatically
 func (r *Repository) Clone(vpsName string) error {
 	requestBody := cloneRequest{VpsName: vpsName}
@@ -105,9 +106,9 @@ func (r *Repository) CloneToAvailabilityZone(vpsName string, availabilityZone st
 
 // Update allows you to lock/unlock a VPS, update a VPS description, and add/remove tags.
 //
-//   For locking the VPS, set isCustomerLocked to true. Set the value to false for unlocking the VPS
-//   You can change your VPS description by simply changing the description attribute
-//   To add/remove tags, you must update the tags attribute
+//      For locking the VPS, set isCustomerLocked to true. Set the value to false for unlocking the VPS
+//      You can change your VPS description by simply changing the description attribute
+//      To add/remove tags, you must update the tags attribute
 func (r *Repository) Update(vps Vps) error {
 	requestBody := vpsWrapper{Vps: vps}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s", vps.Name), Body: &requestBody}
