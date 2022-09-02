@@ -76,6 +76,10 @@ const (
       "algorithm": 8,
       "publicKey": "kljlfkjsdfkjasdklf="
     } ] }`
+	additionalContactFieldDataResponse = `{ "additionalContactFieldData": [
+		{ "name": "scotIntendedUse", "value": "private" },
+		{ "name": "nuRegistrantType", "value": "company" }
+	  ] }`
 )
 
 func TestRepository_GetAll(t *testing.T) {
@@ -670,4 +674,19 @@ func TestRepository_GetTldInfo(t *testing.T) {
 	assert.Equal(t, 1, tld.CancelTimeFrame)
 
 	assert.Equal(t, []string{"canRegister"}, tld.Capabilities)
+}
+
+func TestRepository_GETAdditionalContactFieldData(t *testing.T) {
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/domains/example.com/additional-contact-field-data", StatusCode: 200, Response: additionalContactFieldDataResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	additionaContactFieldList, err := repo.GetAdditionalContactFieldData("example.com")
+	require.NoError(t, err)
+	require.Equal(t, 2, len(additionaContactFieldList))
+	assert.Equal(t, "scotIntendedUse", additionaContactFieldList[0].Name)
+	assert.EqualValues(t, "private", additionaContactFieldList[0].Value)
+	assert.Equal(t, "nuRegistrantType", additionaContactFieldList[1].Name)
+	assert.EqualValues(t, "company", additionaContactFieldList[1].Value)
 }
