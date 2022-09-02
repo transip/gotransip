@@ -78,7 +78,6 @@ func (r *Repository) OrderMultiple(orders []Order) error {
 // Clone allows you to clone an existing VPS
 // There are a few things to take into account when you want to clone an existing VPS to a new VPS:
 //
-//
 // - If the original VPS (which you’re going to clone) is currently locked, the clone will fail;
 //
 //   - Cloned control panels can be used on the VPS, but as the IP address changes, this does require you to synchronise
@@ -107,7 +106,6 @@ func (r *Repository) CloneToAvailabilityZone(vpsName string, availabilityZone st
 
 // Update allows you to lock/unlock a VPS, update a VPS description, and add/remove tags.
 //
-
 //	For locking the VPS, set isCustomerLocked to true. Set the value to false for unlocking the VPS
 //	You can change your VPS description by simply changing the description attribute
 //	To add/remove tags, you must update the tags attribute
