@@ -164,6 +164,10 @@ type additionalContactFieldDataWrapper struct {
 	AdditionalContactFieldDataList []AdditionalContactFieldData `json:"additionalContactFieldData"`
 }
 
+type additionalContactFieldWrapper struct {
+	AdditionalContactFieldList []AdditionalContactField `json:"additional-contact-fields"`
+}
+
 // Contact struct for a Contact
 type Contact struct {
 	// Email address of the contact
@@ -374,4 +378,15 @@ type Transfer struct {
 type AdditionalContactFieldData struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
+}
+
+type requiredFields map[string][]AdditionalContactField
+
+// AdditionalContactField as required for a TLD
+type AdditionalContactField struct {
+	Name           string         `json:"name"`
+	Type           string         `json:"type"`
+	IsRequired     bool           `json:"isRequired"`
+	RequiredFields requiredFields `json:"requiredFields,omitempty"`
+	Values         []string       `json:"values"`
 }

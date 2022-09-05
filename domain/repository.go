@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 
@@ -317,4 +318,33 @@ func (r *Repository) GetAdditionalContactFieldData(domainName string) ([]Additio
 	err := r.Client.Get(restRequest, &response)
 
 	return response.AdditionalContactFieldDataList, err
+}
+
+// We need to make a custom unmarshaller here because extraFields is php associative if filled, (so object) and an array if unfilled
+// And Json.Unmarshal breaks due to this.
+func (rf *requiredFields) UnmarshalJSON(bytes []byte) error {
+	var addField map[string][]AdditionalContactField
+
+	if len(bytes) == 2 && bytes[0] == '[' && bytes[1] == ']' {
+		*rf = addField
+		fmt.Println("bbb")
+		return nil
+	}
+
+	if err := json.Unmarshal(bytes, &addField); err != nil {
+		return err
+	}
+
+	*rf = addField
+	return nil
+}
+
+// GetAdditionalContactFieldData returns a list of AdditionalContactFieldData for the given domain.
+func (r *Repository) GetAdditionalContactFields(TLD string) ([]AdditionalContactField, error) {
+	fmt.Printf("/tlds/%s/additional-contact-fields", TLD)
+	var response additionalContactFieldWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/tlds/%s/additional-contact-fields", TLD)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.AdditionalContactFieldList, err
 }
