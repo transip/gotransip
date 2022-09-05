@@ -327,7 +327,6 @@ func (rf *requiredFields) UnmarshalJSON(bytes []byte) error {
 
 	if len(bytes) == 2 && bytes[0] == '[' && bytes[1] == ']' {
 		*rf = addField
-		fmt.Println("bbb")
 		return nil
 	}
 

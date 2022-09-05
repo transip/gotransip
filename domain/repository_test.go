@@ -80,6 +80,15 @@ const (
 		{ "name": "scotIntendedUse", "value": "private" },
 		{ "name": "nuRegistrantType", "value": "company" }
 	  ] }`
+	additionalContactFieldResponse = `{"additional-contact-fields":[
+		{"name":"nuIdNumber","type":"string","isRequired":true,"requiredFields":[],"values":[]},
+		{"name":"nuRegistrantType","type":"enum","isRequired":true,"requiredFields":{
+			"company":
+			[{"name":"nuVatId_countryCode","type":"enum","isRequired":true,"requiredFields":{
+				"eu":[{"name":"nuVatId","type":"string","isRequired":true,"requiredFields":[],"values":[]}]
+			},
+			"values":["EU", "NON-EU"]}]
+		},"values":["person","company"]}]}`
 )
 
 func TestRepository_GetAll(t *testing.T) {
@@ -689,4 +698,18 @@ func TestRepository_GETAdditionalContactFieldData(t *testing.T) {
 	assert.EqualValues(t, "private", additionaContactFieldList[0].Value)
 	assert.Equal(t, "nuRegistrantType", additionaContactFieldList[1].Name)
 	assert.EqualValues(t, "company", additionaContactFieldList[1].Value)
+}
+
+func TestRepository_GETAdditionalContactFields(t *testing.T) {
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/tlds/.com/additional-contact-fields", StatusCode: 200, Response: additionalContactFieldResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	additionaContactFieldList, err := repo.GetAdditionalContactFields(".com")
+	require.NoError(t, err)
+	require.Equal(t, 2, len(additionaContactFieldList))
+	assert.Equal(t, "nuIdNumber", additionaContactFieldList[0].Name)
+	assert.EqualValues(t, true, additionaContactFieldList[0].IsRequired)
+	assert.EqualValues(t, "nuVatId_countryCode", additionaContactFieldList[1].RequiredFields["company"][0].Name)
 }
