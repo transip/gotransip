@@ -339,7 +339,8 @@ func (rf *requiredFields) UnmarshalJSON(bytes []byte) error {
 	return nil
 }
 
-// GetAdditionalContactFieldData returns a list of AdditionalContactFieldData for the given domain.
+// GetAdditionalContactFields returns a list of AdditionalContactField for the given domain.
+// The intention of this list is to generate frontend forms, and signal which fields are required.
 func (r *Repository) GetAdditionalContactFields(tld string) ([]AdditionalContactField, error) {
 	fmt.Printf("/tlds/%s/additional-contact-fields", tld)
 	var response additionalContactFieldWrapper
