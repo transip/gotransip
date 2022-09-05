@@ -340,10 +340,10 @@ func (rf *requiredFields) UnmarshalJSON(bytes []byte) error {
 }
 
 // GetAdditionalContactFieldData returns a list of AdditionalContactFieldData for the given domain.
-func (r *Repository) GetAdditionalContactFields(TLD string) ([]AdditionalContactField, error) {
-	fmt.Printf("/tlds/%s/additional-contact-fields", TLD)
+func (r *Repository) GetAdditionalContactFields(tld string) ([]AdditionalContactField, error) {
+	fmt.Printf("/tlds/%s/additional-contact-fields", tld)
 	var response additionalContactFieldWrapper
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/tlds/%s/additional-contact-fields", TLD)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/tlds/%s/additional-contact-fields", tld)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.AdditionalContactFieldList, err
