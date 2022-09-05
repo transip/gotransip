@@ -164,6 +164,8 @@ type additionalContactFieldDataWrapper struct {
 	AdditionalContactFieldDataList []AdditionalContactFieldData `json:"additionalContactFieldData"`
 }
 
+// additionaContactFieldWrapper struct containst a list of AdditionalContactField structs in it
+// this is solely used for unmarshalling
 type additionalContactFieldWrapper struct {
 	AdditionalContactFieldList []AdditionalContactField `json:"additional-contact-fields"`
 }
