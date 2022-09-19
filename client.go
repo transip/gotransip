@@ -68,8 +68,8 @@ func newClient(config ClientConfiguration) (*client, error) {
 	}
 
 	// check if token or private key is set
-	if len(config.Token) == 0 && config.PrivateKeyReader == nil {
-		return &client{}, errors.New("PrivateKeyReader, token or PrivateKeyReader is required")
+	if len(config.Token) == 0 && config.PrivateKeyReader == nil && config.KeyManager == nil {
+		return &client{}, errors.New("PrivateKeyReader, PrivateKeyPath, token or KeyManager is required")
 	}
 
 	if config.PrivateKeyReader != nil {
@@ -111,6 +111,7 @@ func newClient(config ClientConfiguration) (*client, error) {
 			ReadOnly:        config.Mode == APIModeReadOnly,
 			TokenExpiration: config.TokenExpiration,
 			Whitelisted:     config.TokenWhitelisted,
+			KeyManager:      config.KeyManager,
 		},
 		config: config,
 	}, nil

@@ -45,7 +45,7 @@ func TestNewClient(t *testing.T) {
 	// ClientConfig with only AccountName set should raise error about private keys
 	_, err = NewClient(cc)
 	if assert.Errorf(t, err, "expecting private key, token required error") {
-		assert.EqualError(t, err, "PrivateKeyReader, token or PrivateKeyReader is required")
+		assert.EqualError(t, err, "PrivateKeyReader, PrivateKeyPath, token or KeyManager is required")
 	}
 
 	cc.PrivateKeyReader = iotest.TimeoutReader(bytes.NewReader([]byte{0, 1}))

@@ -17,6 +17,11 @@ var (
 	ErrDecodingPrivateKey = errors.New("could not decode private key")
 )
 
+// A KeyManager can be used to offload the signing of a new Token request to a third party
+type KeyManager interface {
+	SignExternally(body []byte) (string, error)
+}
+
 func signWithKey(body []byte, key []byte) (string, error) {
 	// prepare key struct
 	block, _ := pem.Decode(key)
