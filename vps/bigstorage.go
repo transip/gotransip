@@ -2,11 +2,12 @@ package vps
 
 import (
 	"fmt"
+	"net/url"
+	"time"
+
 	"github.com/transip/gotransip/v6"
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
-	"net/url"
-	"time"
 )
 
 // BigStorageRepository allows you to manage all api actions on a bigstorage
@@ -121,6 +122,13 @@ func (r *BigStorageRepository) Order(order BigStorageOrder) error {
 	return r.Client.Post(restRequest)
 }
 
+// OrderWithResponse allows you to order a new bigstorage and returns a response
+func (r *BigStorageRepository) OrderWithResponse(order BigStorageOrder) (rest.Response, error) {
+	restRequest := rest.Request{Endpoint: "/big-storages", Body: &order}
+
+	return r.Client.PostWithResponse(restRequest)
+}
+
 // Upgrade allows you to upgrade a BigStorage's size or/and to enable off-site backups
 func (r *BigStorageRepository) Upgrade(bigStorageName string, size int, offsiteBackups bool) error {
 	requestBody := bigStorageUpgradeRequest{BigStorageName: bigStorageName, Size: size, OffsiteBackups: offsiteBackups}
@@ -140,6 +148,14 @@ func (r *BigStorageRepository) Update(bigStorage BigStorage) error {
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorage.Name), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
+}
+
+// UpdateWithResponse returns a response
+func (r *BigStorageRepository) UpdateWithResponse(bigStorage BigStorage) (rest.Response, error) {
+	requestBody := bigStorageWrapper{BigStorage: bigStorage}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorage.Name), Body: &requestBody}
+
+	return r.Client.PutWithResponse(restRequest)
 }
 
 // DetachFromVps allows you to detach a bigstorage from the vps it is attached to
@@ -186,12 +202,33 @@ func (r *BigStorageRepository) RevertBackup(bigStorageName string, backupID int6
 	return r.Client.Patch(restRequest)
 }
 
+// RevertBackupWithResponse allows you to revert a bigstorage by bigstorage name and backupID and returns a response
+// if you want to revert a backup to a different big storage you can use the RevertBackupToOtherBigStorage method
+func (r *BigStorageRepository) RevertBackupWithResponse(bigStorageName string, backupID int64) (rest.Response, error) {
+	requestBody := actionWrapper{Action: "revert"}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupID), Body: &requestBody}
+
+	return r.Client.PatchWithResponse(restRequest)
+}
+
 // RevertBackupToOtherBigStorage allows you to revert a backup to a different big storage
 func (r *BigStorageRepository) RevertBackupToOtherBigStorage(bigStorageName string, backupID int64, destinationBigStorageName string) error {
 	requestBody := bigStorageRestoreBackupsWrapper{Action: "revert", DestinationBigStorageName: destinationBigStorageName}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupID), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
+}
+
+// RevertBackupToOtherBigStorageWithResponse allows you to revert a backup to a different big storage and returns a response
+func (r *BigStorageRepository) RevertBackupToOtherBigStorageWithResponse(
+	bigStorageName string,
+	backupID int64,
+	destinationBigStorageName string,
+) (rest.Response, error) {
+	requestBody := bigStorageRestoreBackupsWrapper{Action: "revert", DestinationBigStorageName: destinationBigStorageName}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupID), Body: &requestBody}
+
+	return r.Client.PatchWithResponse(restRequest)
 }
 
 // GetUsage allows you to query your bigstorage usage within a certain period
