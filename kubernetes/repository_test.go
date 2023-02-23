@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6/internal/testutil"
-	v1 "k8s.io/api/core/v1"
 )
 
 func TestRepository_GetClusters(t *testing.T) {
@@ -137,12 +136,6 @@ func TestRepository_GetNodePools(t *testing.T) {
 		assert.Equal(t, 3, list[0].DesiredNodeCount)
 		assert.Equal(t, "vps-bladevps-x4", list[0].NodeSpec)
 		assert.Equal(t, "ams0", list[0].AvailabilityZone)
-		assert.Equal(t, "bar", list[0].Labels["foo"])
-		if assert.Equal(t, 1, len(list[0].Taints)) {
-			assert.Equal(t, "foo", list[0].Taints[0].Key)
-			assert.Equal(t, "bar", list[0].Taints[0].Value)
-			assert.Equal(t, v1.TaintEffectNoSchedule, list[0].Taints[0].Effect)
-		}
 		if assert.Equal(t, 1, len(list[0].Nodes)) {
 			assert.Equal(t, NodeStatusActive, list[0].Nodes[0].Status)
 			assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", list[0].Nodes[0].UUID)
@@ -169,11 +162,6 @@ func TestRepository_GetNodePoolsByClusterName(t *testing.T) {
 		assert.Equal(t, 3, list[0].DesiredNodeCount)
 		assert.Equal(t, "vps-bladevps-x4", list[0].NodeSpec)
 		assert.Equal(t, "ams0", list[0].AvailabilityZone)
-		if assert.Equal(t, 1, len(list[0].Taints)) {
-			assert.Equal(t, "foo", list[0].Taints[0].Key)
-			assert.Equal(t, "bar", list[0].Taints[0].Value)
-			assert.Equal(t, v1.TaintEffectNoSchedule, list[0].Taints[0].Effect)
-		}
 		if assert.Equal(t, 1, len(list[0].Nodes)) {
 			assert.Equal(t, NodeStatusActive, list[0].Nodes[0].Status)
 			assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", list[0].Nodes[0].UUID)
@@ -199,12 +187,6 @@ func TestRepository_GetNodePool(t *testing.T) {
 	assert.Equal(t, 3, nodePool.DesiredNodeCount)
 	assert.Equal(t, "vps-bladevps-x4", nodePool.NodeSpec)
 	assert.Equal(t, "ams0", nodePool.AvailabilityZone)
-	assert.Equal(t, "bar", nodePool.Labels["foo"])
-	if assert.Equal(t, 1, len(nodePool.Taints)) {
-		assert.Equal(t, "foo", nodePool.Taints[0].Key)
-		assert.Equal(t, "bar", nodePool.Taints[0].Value)
-		assert.Equal(t, v1.TaintEffectNoSchedule, nodePool.Taints[0].Effect)
-	}
 	if assert.Equal(t, 1, len(nodePool.Nodes)) {
 		assert.Equal(t, NodeStatusActive, nodePool.Nodes[0].Status)
 		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", nodePool.Nodes[0].UUID)
@@ -227,16 +209,6 @@ func TestRepository_AddNodePool(t *testing.T) {
 		DesiredNodeCount: 3,
 		NodeSpec:         "vps-bladevps-x4",
 		AvailabilityZone: "ams0",
-		Labels: map[string]string{
-			"foo": "bar",
-		},
-		Taints: []v1.Taint{
-			{
-				Key:    "foo",
-				Value:  "bar",
-				Effect: v1.TaintEffectNoSchedule,
-			},
-		},
 	}
 
 	err := repo.AddNodePool(order)
@@ -258,16 +230,6 @@ func TestRepository_UpdateNodePool(t *testing.T) {
 		DesiredNodeCount: 4,
 		NodeSpec:         "vps-bladevps-x8",
 		AvailabilityZone: "ams0",
-		Labels: map[string]string{
-			"foo": "bar",
-		},
-		Taints: []v1.Taint{
-			{
-				Key:    "foo",
-				Value:  "bar",
-				Effect: v1.TaintEffectNoSchedule,
-			},
-		},
 	}
 
 	err := repo.UpdateNodePool(nodePoolToUpdate)

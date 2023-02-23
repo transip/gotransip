@@ -24,6 +24,10 @@ type Cluster struct {
 	Name string `json:"name"`
 	// The name that can be set by customer
 	Description string `json:"description"`
+	// Version of kubernetes this cluster is running
+	Version string `json:"version"`
+	// URL to connect to with kubectl
+	Endpoint string `json:"endpoint"`
 	// Whether or not another process is already doing stuff with this cluster
 	IsLocked bool `json:"isLocked,omitempty"`
 	// If the cluster is administratively blocked

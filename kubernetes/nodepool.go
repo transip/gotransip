@@ -1,9 +1,5 @@
 package kubernetes
 
-import (
-	v1 "k8s.io/api/core/v1"
-)
-
 // nodePoolsWrapper struct contains a list of NodePools in it,
 // this is solely used for unmarshalling/marshalling
 type nodePoolsWrapper struct {
@@ -30,10 +26,6 @@ type NodePool struct {
 	NodeSpec string `json:"nodeSpec"`
 	// Availability zone of the node pool
 	AvailabilityZone string `json:"availabilityZone"`
-	// Labels to be set on new nodes in the node pool
-	Labels map[string]string `json:"labels"`
-	// Taints to be set on new nodes in the node pool
-	Taints []v1.Taint `json:"taints"`
 	// Nodes in this node pool
 	Nodes []Node `json:"nodes,omitempty"`
 }
@@ -50,8 +42,4 @@ type NodePoolOrder struct {
 	NodeSpec string `json:"nodeSpec"`
 	// Availability zone of the node pool
 	AvailabilityZone string `json:"availabilityZone"`
-	// Labels to be set on new nodes in the node pool
-	Labels map[string]string `json:"labels"`
-	// Taints to be set on new nodes in the node pool
-	Taints []v1.Taint `json:"taints"`
 }
