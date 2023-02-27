@@ -1,3 +1,5 @@
+// Package kubernetes is an EXPERIMENTAL endpoint for controlling the resources of a kubernetes
+// cluster. It is not yet stable and may receive breaking changes.
 package kubernetes
 
 import (
