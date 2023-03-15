@@ -29,9 +29,9 @@ type Cluster struct {
 	// URL to connect to with kubectl
 	Endpoint string `json:"endpoint"`
 	// Whether or not another process is already doing stuff with this cluster
-	IsLocked bool `json:"isLocked,omitempty"`
+	IsLocked bool `json:"isLocked"`
 	// If the cluster is administratively blocked
-	IsBlocked bool `json:"isBlocked,omitempty"`
+	IsBlocked bool `json:"isBlocked"`
 }
 
 // ClusterOrder struct can be used to order a new cluster

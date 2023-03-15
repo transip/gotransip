@@ -16,7 +16,7 @@ type nodePoolWrapper struct {
 type NodePool struct {
 	// The unique identifier for the node pool
 	UUID string `json:"uuid"`
-	// The name of the cluster the node pool should be ordered for
+	// The name of the cluster the node pool belongs to
 	ClusterName string `json:"clusterName"`
 	// The name that can be set by customer
 	Description string `json:"description"`
@@ -33,7 +33,7 @@ type NodePool struct {
 // NodePoolOrder struct can be used to order a new node pool to a cluster
 type NodePoolOrder struct {
 	// The name of the cluster the node pool should be ordered for
-	ClusterName string `json:"clusterName"`
+	ClusterName string `json:"-"`
 	// The description of the node pool
 	Description string `json:"description,omitempty"`
 	// Amount of desired nodes in the node pool

@@ -83,27 +83,18 @@ func (r *Repository) GetKubeConfig(clusterName string) (string, error) {
 }
 
 // GetNodePools returns all node pools
-func (r *Repository) GetNodePools() ([]NodePool, error) {
+func (r *Repository) GetNodePools(clusterName string) ([]NodePool, error) {
 	var response nodePoolsWrapper
-	restRequest := rest.Request{Endpoint: "/kubernetes/node-pools"}
-	err := r.Client.Get(restRequest, &response)
-
-	return response.NodePools, err
-}
-
-// GetNodePoolsByClusterName returns all node pools for a given clusterName
-func (r *Repository) GetNodePoolsByClusterName(clusterName string) ([]NodePool, error) {
-	var response nodePoolsWrapper
-	restRequest := rest.Request{Endpoint: "/kubernetes/node-pools", Parameters: url.Values{"clusterName": []string{clusterName}}}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools", clusterName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.NodePools, err
 }
 
 // GetNodePool returns the NodePool for given nodePoolUUID
-func (r *Repository) GetNodePool(nodePoolUUID string) (NodePool, error) {
+func (r *Repository) GetNodePool(clusterName, nodePoolUUID string) (NodePool, error) {
 	var response nodePoolWrapper
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/node-pools/%s", nodePoolUUID)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s", clusterName, nodePoolUUID)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.NodePool, err
@@ -111,7 +102,7 @@ func (r *Repository) GetNodePool(nodePoolUUID string) (NodePool, error) {
 
 // AddNodePool allows you to order a new node pool to a cluster
 func (r *Repository) AddNodePool(nodePoolOrder NodePoolOrder) error {
-	restRequest := rest.Request{Endpoint: "/kubernetes/node-pools", Body: &nodePoolOrder}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools", nodePoolOrder.ClusterName), Body: &nodePoolOrder}
 
 	return r.Client.Post(restRequest)
 }
@@ -119,67 +110,61 @@ func (r *Repository) AddNodePool(nodePoolOrder NodePoolOrder) error {
 // UpdateNodePool allows you to update the description and desired node count of a node pool
 func (r *Repository) UpdateNodePool(nodePool NodePool) error {
 	requestBody := nodePoolWrapper{NodePool: nodePool}
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/node-pools/%s", nodePool.UUID), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s", nodePool.ClusterName, nodePool.UUID), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
 
 // RemoveNodePool will cancel the node pool, thus deleting it
-func (r *Repository) RemoveNodePool(nodePoolUUID string) error {
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/node-pools/%s", nodePoolUUID)}
+func (r *Repository) RemoveNodePool(clusterName, nodePoolUUID string) error {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s", clusterName, nodePoolUUID)}
 
 	return r.Client.Delete(restRequest)
 }
 
 // GetNodes returns all nodes
-func (r *Repository) GetNodes() ([]Node, error) {
+func (r *Repository) GetNodes(clusterName string) ([]Node, error) {
 	var response nodesWrapper
-	restRequest := rest.Request{Endpoint: "/kubernetes/nodes"}
-	err := r.Client.Get(restRequest, &response)
-
-	return response.Nodes, err
-}
-
-// GetNodesByClusterName returns all nodes for a cluster
-func (r *Repository) GetNodesByClusterName(clusterName string) ([]Node, error) {
-	var response nodesWrapper
-	restRequest := rest.Request{Endpoint: "/kubernetes/nodes", Parameters: url.Values{"clusterName": []string{clusterName}}}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/nodes", clusterName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Nodes, err
 }
 
 // GetNodesByNodePoolUUID returns all nodes for a node pool
-func (r *Repository) GetNodesByNodePoolUUID(nodePoolUUID string) ([]Node, error) {
+func (r *Repository) GetNodesByNodePoolUUID(clusterName, nodePoolUUID string) ([]Node, error) {
 	var response nodesWrapper
-	restRequest := rest.Request{Endpoint: "/kubernetes/nodes", Parameters: url.Values{"nodePoolUuid": []string{nodePoolUUID}}}
+	restRequest := rest.Request{
+		Endpoint:   fmt.Sprintf("/kubernetes/clusters/%s/nodes", clusterName),
+		Parameters: url.Values{"nodePoolUuid": []string{nodePoolUUID}},
+	}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Nodes, err
 }
 
 // GetNode return a node
-func (r *Repository) GetNode(nodeUUID string) (Node, error) {
+func (r *Repository) GetNode(clusterName, nodeUUID string) (Node, error) {
 	var response nodeWrapper
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/nodes/%s", nodeUUID)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/nodes/%s", clusterName, nodeUUID)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Node, err
 }
 
 // GetBlockStorageVolumes returns all block storage volumes
-func (r *Repository) GetBlockStorageVolumes() ([]BlockStorage, error) {
+func (r *Repository) GetBlockStorageVolumes(clusterName string) ([]BlockStorage, error) {
 	var response blockStoragesWrapper
-	restRequest := rest.Request{Endpoint: "/kubernetes/block-storages"}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/block-storages", clusterName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.BlockStorages, err
 }
 
 // GetBlockStorageVolume returns a specific block storage volume
-func (r *Repository) GetBlockStorageVolume(name string) (BlockStorage, error) {
+func (r *Repository) GetBlockStorageVolume(clusterName, name string) (BlockStorage, error) {
 	var response blockStorageWrapper
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/block-storages/%s", name)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/block-storages/%s", clusterName, name)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.BlockStorage, err
@@ -187,7 +172,7 @@ func (r *Repository) GetBlockStorageVolume(name string) (BlockStorage, error) {
 
 // AddBlockStorageVolume creates a block storage volume
 func (r *Repository) AddBlockStorageVolume(order BlockStorageOrder) error {
-	restRequest := rest.Request{Endpoint: "/kubernetes/block-storages", Body: &order}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/block-storages", order.ClusterName), Body: &order}
 
 	return r.Client.Post(restRequest)
 }
@@ -195,53 +180,53 @@ func (r *Repository) AddBlockStorageVolume(order BlockStorageOrder) error {
 // UpdateBlockStorageVolume allows you to update the name and attached node for a block storage volumes
 func (r *Repository) UpdateBlockStorageVolume(volume BlockStorage) error {
 	requestBody := blockStorageWrapper{BlockStorage: volume}
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/block-storages/%s", volume.Name), Body: &requestBody}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/block-storages/%s", volume.ClusterName, volume.Name), Body: &requestBody}
 
 	return r.Client.Put(restRequest)
 }
 
 // RemoveBlockStorageVolume will remove a block storage volume
-func (r *Repository) RemoveBlockStorageVolume(name string) error {
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/block-storages/%s", name)}
+func (r *Repository) RemoveBlockStorageVolume(clusterName, name string) error {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/block-storages/%s", clusterName, name)}
 
 	return r.Client.Delete(restRequest)
 }
 
 // GetLoadBalancers returns all load balancers
-func (r *Repository) GetLoadBalancers() ([]LoadBalancer, error) {
+func (r *Repository) GetLoadBalancers(clusterName string) ([]LoadBalancer, error) {
 	var response lbsWrapper
-	restRequest := rest.Request{Endpoint: "/kubernetes/load-balancers"}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/load-balancers", clusterName)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.LoadBalancers, err
 }
 
 // GetLoadBalancer returns a load balancer
-func (r *Repository) GetLoadBalancer(name string) (LoadBalancer, error) {
+func (r *Repository) GetLoadBalancer(clusterName, name string) (LoadBalancer, error) {
 	var response lbWrapper
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/load-balancers/%s", name)}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/load-balancers/%s", clusterName, name)}
 	err := r.Client.Get(restRequest, &response)
 
 	return response.LoadBalancer, err
 }
 
 // CreateLoadBalancer creates a new load balancer
-func (r *Repository) CreateLoadBalancer(name string) error {
-	restRequest := rest.Request{Endpoint: "/kubernetes/load-balancers", Body: &lbOrder{Name: name}}
+func (r *Repository) CreateLoadBalancer(clusterName, name string) error {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/load-balancers", clusterName), Body: &lbOrder{Name: name}}
 
 	return r.Client.Post(restRequest)
 }
 
 // UpdateLoadBalancer updates the entire state of the load balancer
-func (r *Repository) UpdateLoadBalancer(name string, config LoadBalancerConfig) error {
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/load-balancers/%s", name), Body: &lbcWrapper{Config: config}}
+func (r *Repository) UpdateLoadBalancer(clusterName, name string, config LoadBalancerConfig) error {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/load-balancers/%s", clusterName, name), Body: &lbcWrapper{Config: config}}
 
 	return r.Client.Put(restRequest)
 }
 
 // RemoveLoadBalancer will remove a load balancer
-func (r *Repository) RemoveLoadBalancer(name string) error {
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/load-balancers/%s", name)}
+func (r *Repository) RemoveLoadBalancer(clusterName, name string) error {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/load-balancers/%s", clusterName, name)}
 
 	return r.Client.Delete(restRequest)
 }

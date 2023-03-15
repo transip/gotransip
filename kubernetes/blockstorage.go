@@ -18,6 +18,8 @@ type BlockStorage struct {
 	UUID string `json:"uuid"`
 	// User configurable unique identifier (max 64 chars)
 	Name string `json:"name"`
+	// ClusterName is the name of the cluster the blockstorage belongs to
+	ClusterName string `json:"clusterName"`
 	// The volume's size in gibibytes
 	SizeInGiB int `json:"sizeInGib"`
 	// Type of storage
@@ -67,6 +69,8 @@ const (
 type BlockStorageOrder struct {
 	// user adjustable unique identifier for volume (max 64 chars), when none is given, the uuid will be used.
 	Name string `json:"name"`
+	// ClusterName name of the cluster the block storage will be available for
+	ClusterName string `json:"-"`
 	// amount of storage in gibibytes
 	SizeInGiB int `json:"sizeInGib"`
 	// type of storage
