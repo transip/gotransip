@@ -483,3 +483,58 @@ func TestRepository_RemoveLoadBalancer(t *testing.T) {
 	err := repo.RemoveLoadBalancer("k888k", "lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80")
 	require.NoError(t, err)
 }
+
+func TestRepository_GetNodePoolTaints(t *testing.T) {
+	const apiResponse = `{"taints":[{"key": "test-key", "value":"test-value", "effect":"NoSchedule", "modifiable": false}]}`
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/node-pools/402c2f84-c37d-9388-634d-00002b7c6a82/taints", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+
+	repo := Repository{Client: *client}
+	taints, err := repo.GetTaints("k888k", "402c2f84-c37d-9388-634d-00002b7c6a82")
+	require.NoError(t, err)
+	if assert.Equal(t, 1, len(taints)) {
+		assert.Equal(t, "test-key", taints[0].Key)
+		assert.Equal(t, "test-value", taints[0].Value)
+		assert.Equal(t, "NoSchedule", taints[0].Effect)
+		assert.Equal(t, false, taints[0].Modifiable)
+	}
+}
+
+func TestRepository_GetNodePoolLabels(t *testing.T) {
+	const apiResponse = `{"labels":[{"key": "test-key", "value":"test-value", "modifiable": false}]}`
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/node-pools/402c2f84-c37d-9388-634d-00002b7c6a82/labels", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+
+	repo := Repository{Client: *client}
+	labels, err := repo.GetLabels("k888k", "402c2f84-c37d-9388-634d-00002b7c6a82")
+	require.NoError(t, err)
+	if assert.Equal(t, 1, len(labels)) {
+		assert.Equal(t, "test-key", labels[0].Key)
+		assert.Equal(t, "test-value", labels[0].Value)
+		assert.Equal(t, false, labels[0].Modifiable)
+	}
+}
+
+func TestRepository_SetNodePoolLabels(t *testing.T) {
+	const apiRequest = `{"labels":[{"key":"test-key","value":"test-value","modifiable":false}]}`
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/node-pools/402c2f84-c37d-9388-634d-00002b7c6a82/labels", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: apiRequest}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+
+	repo := Repository{Client: *client}
+	err := repo.SetLabels("k888k", "402c2f84-c37d-9388-634d-00002b7c6a82", []Label{{Key: "test-key", Value: "test-value"}})
+	require.NoError(t, err)
+}
+
+func TestRepository_SetNodePoolTaints(t *testing.T) {
+	const apiRequest = `{"taints":[{"key":"test-key","value":"test-value","effect":"NoSchedule","modifiable":false}]}`
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/node-pools/402c2f84-c37d-9388-634d-00002b7c6a82/taints", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: apiRequest}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+
+	repo := Repository{Client: *client}
+	err := repo.SetTaints("k888k", "402c2f84-c37d-9388-634d-00002b7c6a82", []Taint{{Key: "test-key", Value: "test-value", Effect: "NoSchedule"}})
+	require.NoError(t, err)
+}

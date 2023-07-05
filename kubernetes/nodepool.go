@@ -43,3 +43,26 @@ type NodePoolOrder struct {
 	// Availability zone of the node pool
 	AvailabilityZone string `json:"availabilityZone"`
 }
+
+// Taint truct for a taints on a NodePool
+type Taint struct {
+	Key        string `json:"key"`
+	Value      string `json:"value"`
+	Effect     string `json:"effect"`
+	Modifiable bool   `json:"modifiable"`
+}
+
+type taintWrapper struct {
+	Taints []Taint `json:"taints"`
+}
+
+// Label Struct for a labels on a NodePool
+type Label struct {
+	Key        string `json:"key"`
+	Value      string `json:"value"`
+	Modifiable bool   `json:"modifiable"`
+}
+
+type labelWrapper struct {
+	Labels []Label `json:"labels"`
+}

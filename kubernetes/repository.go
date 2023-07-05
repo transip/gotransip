@@ -230,3 +230,45 @@ func (r *Repository) RemoveLoadBalancer(clusterName, name string) error {
 
 	return r.Client.Delete(restRequest)
 }
+
+// GetTaints will get all the taints on a NodePool
+func (r *Repository) GetTaints(clusterName, nodePoolUUID string) ([]Taint, error) {
+	var response taintWrapper
+	restRequest := rest.Request{
+		Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s/taints", clusterName, nodePoolUUID),
+	}
+
+	err := r.Client.Get(restRequest, &response)
+	return response.Taints, err
+}
+
+// SetTaints will set the taints on a NodePool
+func (r *Repository) SetTaints(clusterName, nodePoolUUID string, taints []Taint) error {
+	restRequest := rest.Request{
+		Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s/taints", clusterName, nodePoolUUID),
+		Body:     &taintWrapper{Taints: taints},
+	}
+
+	return r.Client.Put(restRequest)
+}
+
+// GetLabels will get the labels on a NodePool
+func (r *Repository) GetLabels(clusterName, nodePoolUUID string) ([]Label, error) {
+	var response labelWrapper
+	restRequest := rest.Request{
+		Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s/labels", clusterName, nodePoolUUID),
+	}
+
+	err := r.Client.Get(restRequest, &response)
+	return response.Labels, err
+}
+
+// SetLabels will set the labels on a NodePool
+func (r *Repository) SetLabels(clusterName, nodePoolUUID string, labels []Label) error {
+	restRequest := rest.Request{
+		Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s/labels", clusterName, nodePoolUUID),
+		Body:     &labelWrapper{Labels: labels},
+	}
+
+	return r.Client.Put(restRequest)
+}
