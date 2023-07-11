@@ -52,7 +52,7 @@ func TestRepository_GetClusterByName(t *testing.T) {
 }
 
 func TestRepository_CreateCluster(t *testing.T) {
-	const expectedRequestBody = `{"description":"production cluster"}`
+	const expectedRequestBody = `{"nodeSpec":"vps-k2","desiredNodeCount":3,"availabilityZone":"ams0","description":"production cluster","kubernetesVersion":"1.27.0"}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequestBody}
 	client, tearDown := server.GetClient()
@@ -60,7 +60,11 @@ func TestRepository_CreateCluster(t *testing.T) {
 	repo := Repository{Client: *client}
 
 	order := ClusterOrder{
-		Description: "production cluster",
+		NodeSpec:         "vps-k2",
+		NodeCount:        3,
+		AvailabilityZone: "ams0",
+		Description:      "production cluster",
+		Version:          "1.27.0",
 	}
 
 	err := repo.CreateCluster(order)

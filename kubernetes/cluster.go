@@ -36,6 +36,14 @@ type Cluster struct {
 
 // ClusterOrder struct can be used to order a new cluster
 type ClusterOrder struct {
+	// VPS ProductName for the WorkerNodes in the initial NodePool
+	NodeSpec string `json:"nodeSpec"`
+	// The desired amount of nodes in the initial NodePool
+	NodeCount int `json:"desiredNodeCount"`
+	// Availability Zone the WorkerNodes of the initial pool will spawn
+	AvailabilityZone string `json:"availabilityZone"`
 	// The description of the cluster
-	Description string `json:"description,omitempty"`
+	Description string `json:"description"`
+	// The specific version the Cluster should run on
+	Version string `json:"kubernetesVersion"`
 }
