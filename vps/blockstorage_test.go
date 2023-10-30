@@ -13,7 +13,7 @@ import (
 )
 
 func TestBlockStorageRepository_GetBlockStorages(t *testing.T) {
-	const apiResponse = `{ "blockStorages": [ { "name": "example-blockstorage", "description": "Block storage description", "diskSize": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0", "serial": "e7e12b3c7c6602973ac7" } ] } `
+	const apiResponse = `{ "blockStorages": [ { "name": "example-blockstorage", "description": "Block storage description", "size": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0", "serial": "e7e12b3c7c6602973ac7" } ] } `
 	server := testutil.MockServer{T: t, ExpectedURL: "/block-storages", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
 	defer tearDown()
@@ -25,7 +25,7 @@ func TestBlockStorageRepository_GetBlockStorages(t *testing.T) {
 
 	assert.Equal(t, "example-blockstorage", all[0].Name)
 	assert.Equal(t, "Block storage description", all[0].Description)
-	assert.EqualValues(t, 2147483648, all[0].DiskSize)
+	assert.EqualValues(t, 2147483648, all[0].Size)
 	assert.Equal(t, true, all[0].OffsiteBackups)
 	assert.Equal(t, "example-vps", all[0].VpsName)
 	assert.EqualValues(t, "active", all[0].Status)
@@ -35,7 +35,7 @@ func TestBlockStorageRepository_GetBlockStorages(t *testing.T) {
 }
 
 func TestBlockStorageRepository_GetSelection(t *testing.T) {
-	const apiResponse = `{ "blockStorages": [ { "name": "example-blockstorage", "description": "Block storage description", "diskSize": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0", "serial": "e7e12b3c7c6602973ac7"} ] } `
+	const apiResponse = `{ "blockStorages": [ { "name": "example-blockstorage", "description": "Block storage description", "size": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0", "serial": "e7e12b3c7c6602973ac7"} ] } `
 	server := testutil.MockServer{T: t, ExpectedURL: "/block-storages?page=1&pageSize=25", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
 	defer tearDown()
@@ -47,7 +47,7 @@ func TestBlockStorageRepository_GetSelection(t *testing.T) {
 
 	assert.Equal(t, "example-blockstorage", all[0].Name)
 	assert.Equal(t, "Block storage description", all[0].Description)
-	assert.EqualValues(t, 2147483648, all[0].DiskSize)
+	assert.EqualValues(t, 2147483648, all[0].Size)
 	assert.Equal(t, true, all[0].OffsiteBackups)
 	assert.Equal(t, "example-vps", all[0].VpsName)
 	assert.EqualValues(t, "active", all[0].Status)
@@ -57,7 +57,7 @@ func TestBlockStorageRepository_GetSelection(t *testing.T) {
 }
 
 func TestBlockStorageRepository_GetBlockStorageByName(t *testing.T) {
-	const apiResponse = `{ "blockStorage": { "name": "example-blockstorage", "description": "Block storage description", "diskSize": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0", "serial": "e7e12b3c7c6602973ac7" } } `
+	const apiResponse = `{ "blockStorage": { "name": "example-blockstorage", "description": "Block storage description", "size": 2147483648, "offsiteBackups": true, "vpsName": "example-vps", "status": "active", "isLocked": false, "availabilityZone": "ams0", "serial": "e7e12b3c7c6602973ac7" } } `
 	server := testutil.MockServer{T: t, ExpectedURL: "/block-storages/example-blockstorage", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
 	defer tearDown()
@@ -67,7 +67,7 @@ func TestBlockStorageRepository_GetBlockStorageByName(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, "example-blockstorage", blockstorage.Name)
 	assert.Equal(t, "Block storage description", blockstorage.Description)
-	assert.EqualValues(t, 2147483648, blockstorage.DiskSize)
+	assert.EqualValues(t, 2147483648, blockstorage.Size)
 	assert.Equal(t, true, blockstorage.OffsiteBackups)
 	assert.Equal(t, "example-vps", blockstorage.VpsName)
 	assert.EqualValues(t, "active", blockstorage.Status)
@@ -83,7 +83,7 @@ func TestBlockStorageRepository_OrderBlockStorage(t *testing.T) {
 	defer tearDown()
 	repo := BlockStorageRepository{Client: *client}
 
-	order := BlockStorageOrder{Type: "fast-storage", Size: 8, OffsiteBackups: true, AvailabilityZone: "ams0", VpsName: "example-vps", Description: "test-description"}
+	order := BlockStorageOrder{ProductType: "fast-storage", Size: 8, OffsiteBackups: true, AvailabilityZone: "ams0", VpsName: "example-vps", Description: "test-description"}
 	err := repo.Order(order)
 
 	require.NoError(t, err)
@@ -102,7 +102,7 @@ func TestBlockStorageRepository_UpgradeBlockStorage(t *testing.T) {
 }
 
 func TestBlockStorageRepository_UpdateBlockStorage(t *testing.T) {
-	const expectedRequest = `{"blockStorage":{"name":"example-blockstorage","description":"Block storage description","diskSize":2147483648,"offsiteBackups":true,"vpsName":"example-vps","status":"active","serial":"e7e12b3c7c6602973ac7","isLocked":false,"availabilityZone":"ams0","productType":"fast-storage"}}`
+	const expectedRequest = `{"blockStorage":{"name":"example-blockstorage","description":"Block storage description","size":2147483648,"offsiteBackups":true,"vpsName":"example-vps","status":"active","serial":"e7e12b3c7c6602973ac7","isLocked":false,"availabilityZone":"ams0","BlockStorageType":"fast-storage"}}`
 	server := testutil.MockServer{T: t, ExpectedURL: "/block-storages/example-blockstorage", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedRequest}
 	client, tearDown := server.GetClient()
 	defer tearDown()
@@ -111,7 +111,7 @@ func TestBlockStorageRepository_UpdateBlockStorage(t *testing.T) {
 	blockStorage := BlockStorage{
 		Name:             "example-blockstorage",
 		Description:      "Block storage description",
-		DiskSize:         2147483648,
+		Size:             2147483648,
 		OffsiteBackups:   true,
 		VpsName:          "example-vps",
 		Status:           BlockStorageStatusActive,
@@ -126,7 +126,7 @@ func TestBlockStorageRepository_UpdateBlockStorage(t *testing.T) {
 }
 
 func TestBlockStorageRepository_DetachVpsFromBlockStorage(t *testing.T) {
-	const expectedRequest = `{"blockStorage":{"name":"example-blockstorage","description":"Block storage description","diskSize":2147483648,"offsiteBackups":true,"vpsName":"example-vps","status":"active","serial":"e7e12b3c7c6602973ac7","isLocked":false,"availabilityZone":"ams0","productType":"fast-storage"}}`
+	const expectedRequest = `{"blockStorage":{"name":"example-blockstorage","description":"Block storage description","size":2147483648,"offsiteBackups":true,"vpsName":"example-vps","status":"active","serial":"e7e12b3c7c6602973ac7","isLocked":false,"availabilityZone":"ams0","BlockStorageType":"fast-storage"}}`
 	server := testutil.MockServer{T: t, ExpectedURL: "/block-storages/example-blockstorage", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedRequest}
 	client, tearDown := server.GetClient()
 	defer tearDown()
@@ -135,7 +135,7 @@ func TestBlockStorageRepository_DetachVpsFromBlockStorage(t *testing.T) {
 	blockStorage := BlockStorage{
 		Name:             "example-blockstorage",
 		Description:      "Block storage description",
-		DiskSize:         2147483648,
+		Size:             2147483648,
 		OffsiteBackups:   true,
 		Status:           "active",
 		IsLocked:         false,
@@ -148,7 +148,7 @@ func TestBlockStorageRepository_DetachVpsFromBlockStorage(t *testing.T) {
 }
 
 func TestBlockStorageRepository_AttachVpsToBlockStorage(t *testing.T) {
-	const expectedRequest = `{"blockStorage":{"name":"example-blockstorage","description":"Block storage description","diskSize":2147483648,"offsiteBackups":true,"vpsName":"","status":"active","serial":"e7e12b3c7c6602973ac7","isLocked":false,"availabilityZone":"ams0","productType":"fast-storage"}}`
+	const expectedRequest = `{"blockStorage":{"name":"example-blockstorage","description":"Block storage description","size":2147483648,"offsiteBackups":true,"vpsName":"","status":"active","serial":"e7e12b3c7c6602973ac7","isLocked":false,"availabilityZone":"ams0","BlockStorageType":"fast-storage"}}`
 	server := testutil.MockServer{T: t, ExpectedURL: "/block-storages/example-blockstorage", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedRequest}
 	client, tearDown := server.GetClient()
 	defer tearDown()
@@ -157,7 +157,7 @@ func TestBlockStorageRepository_AttachVpsToBlockStorage(t *testing.T) {
 	blockStorage := BlockStorage{
 		Name:             "example-blockstorage",
 		Description:      "Block storage description",
-		DiskSize:         2147483648,
+		Size:             2147483648,
 		OffsiteBackups:   true,
 		VpsName:          "example-vps",
 		Status:           "active",
@@ -182,7 +182,7 @@ func TestBlockStorageRepository_CancelBlockStorage(t *testing.T) {
 }
 
 func TestBlockStorageRepository_GetBlockStorageBackups(t *testing.T) {
-	const apiResponse = `{ "backups": [ { "id": 1583, "status": "active", "diskSize": 4294967296, "dateTimeCreate": "2019-12-31 09:13:55", "availabilityZone": "ams0" } ] }`
+	const apiResponse = `{ "backups": [ { "id": 1583, "status": "active", "size": 4294967296, "dateTimeCreate": "2019-12-31 09:13:55", "availabilityZone": "ams0" } ] }`
 	server := testutil.MockServer{T: t, ExpectedURL: "/block-storages/example-blockstorage/backups", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
 	defer tearDown()
@@ -194,7 +194,7 @@ func TestBlockStorageRepository_GetBlockStorageBackups(t *testing.T) {
 
 	assert.EqualValues(t, 1583, all[0].ID)
 	assert.EqualValues(t, "active", all[0].Status)
-	assert.EqualValues(t, 4294967296, all[0].DiskSize)
+	assert.EqualValues(t, 4294967296, all[0].Size)
 	assert.Equal(t, "2019-12-31 09:13:55", all[0].DateTimeCreate.Format("2006-01-02 15:04:05"))
 	assert.Equal(t, "ams0", all[0].AvailabilityZone)
 }

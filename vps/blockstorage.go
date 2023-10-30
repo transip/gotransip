@@ -14,23 +14,33 @@ import (
 // getting information, ordering, upgrading, attaching/detaching it to a vps
 type BlockStorageRepository repository.RestRepository
 
+// BlockStorageType is one of the following strings
+// 'big-storage', 'fast-storage'
+type BlockStorageType string
+
+// Definition of all the possible block storage types
+const (
+	BigStorageType  BlockStorageType = "big-storage"
+	FastStorageType BlockStorageType = "fast-storage"
+)
+
 // BlockStorageOrder struct which is used to construct a new order request for a blockstorage
 type BlockStorageOrder struct {
 	// The type of the block storage. It can be big-storage or fast-storage.
-	Type string `json:"type"`
+	ProductType BlockStorageType `json:"type"`
 	// The size of the block storage in KB.
 	// Big storages: The minimum size is 2 TiB and storage can be extended with up to maximum of 40 TiB. Make sure to
 	// use a multiple of 2 TiB. Note that 2 TiB equals 2147483648 KiB.
 	// Fast storages: The minimum size is 10 GiB and storage can be extended with up to maximum of 10000 GiB. Make sure
 	// to use a multiple of 10 GiB. Note that 10 GiB equals 10485760 KiB.
 	Size int `json:"size"`
-	// Whether to order offsite backups, omit this to use current value
+	// Whether to order offsite backups
 	OffsiteBackups bool `json:"offsiteBackups"`
 	// The name of the availabilityZone where the BlockStorage should be created. This parameter can not be used in conjunction with vpsName
 	// If a vpsName is provided as well as an availabilityZone, the zone of the vps is leading
 	AvailabilityZone string `json:"availabilityZone,omitempty"`
 	// The name of the VPS to attach the block storage to
-	VpsName string `json:"vpsName"`
+	VpsName string `json:"vpsName,omitempty"`
 	// Description that the block storage should have after ordering
 	Description string `json:"description,omitempty"`
 }
@@ -56,13 +66,13 @@ type BlockStorage struct {
 	// Name that can be set by customer
 	Description string `json:"description"`
 	// Disk size of the block storage in kB
-	DiskSize int64 `json:"diskSize,omitempty"`
+	Size int64 `json:"size,omitempty"`
 	// Whether a blockstorage has backups
 	OffsiteBackups bool `json:"offsiteBackups"`
 	// The VPS that the block storage is attached to
 	VpsName string `json:"vpsName"`
 	// Status of the block storage can be 'active', 'attaching' or 'detachting'
-	Status BlockStorageStatus `json:"status,omitempty"`
+	Status BlockStorageStatus `json:"status"`
 	// Serial of the block storage. This is a unique identifier that is visible by the vps it has been attached to. On
 	// linux servers it is visible using udevadm info /dev/vdb where it will be the value of ID_SERIAL. A symlink will
 	// also be created in /dev/disk-by-id/ containing the serial. This is useful if you want to map a disk inside a VPS
@@ -73,7 +83,7 @@ type BlockStorage struct {
 	// The availability zone the blockstorage is located in
 	AvailabilityZone string `json:"availabilityZone,omitempty"`
 	// The type of the block storage. It can be big-storage or fast-storage.
-	ProductType string `json:"productType"`
+	ProductType string `json:"BlockStorageType"`
 }
 
 // BlockStorageBackup struct for a BlockStorageBackup
@@ -83,7 +93,7 @@ type BlockStorageBackup struct {
 	// Status of the block storage backup ('active', 'creating', 'reverting', 'deleting', 'pendingDeletion', 'syncing', 'moving')
 	Status BackupStatus `json:"status,omitempty"`
 	// The backup disk size in kB
-	DiskSize int64 `json:"diskSize"`
+	Size int64 `json:"size"`
 	// Date of the block storage backup
 	DateTimeCreate rest.Time `json:"dateTimeCreate,omitempty"`
 	// The name of the availability zone the backup is in
@@ -150,7 +160,7 @@ func (r *BlockStorageRepository) Upgrade(blockStorageName string, size int, offs
 //   - One Block Storages can only be attached to one VPS at a time;
 //   - One VPS can have a maximum of 10 blockstorages attached;
 //   - Set the vpsName property to the VPS name to attach to for attaching Block Storage;
-//   - Set the vpsName property to null to detach the Block Storage from the currently attached VPS.
+//   - Set the vpsName property to an empty string to detach the Block Storage from the currently attached VPS.
 func (r *BlockStorageRepository) Update(blockStorage BlockStorage) error {
 	requestBody := blockStorageWrapper{BlockStorage: blockStorage}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/block-storages/%s", blockStorage.Name), Body: &requestBody}
