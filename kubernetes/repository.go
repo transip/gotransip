@@ -15,7 +15,7 @@ import (
 // this repository allows you to manage all Kubernetes services for your TransIP account
 type Repository repository.RestRepository
 
-// GetClusters returns a list of all your VPSs
+// GetClusters returns a list of all your Clusters
 func (r *Repository) GetClusters() ([]Cluster, error) {
 	var response clustersWrapper
 	restRequest := rest.Request{Endpoint: "/kubernetes/clusters"}
@@ -48,10 +48,17 @@ func (r *Repository) UpdateCluster(cluster Cluster) error {
 	return r.Client.Put(restRequest)
 }
 
-// HandoverCluster will handover a cluster to another TransIP Account. This call will initiate the handover process.
-// The actual handover will be done when the target customer accepts the handover
-func (r *Repository) HandoverCluster(clusterName string, targetCustomerName string) error {
-	requestBody := handoverRequest{Action: "handover", TargetCustomerName: targetCustomerName}
+// UpgradeCluster performs an upgrade of the Kubernetes version of your cluster
+func (r *Repository) UpgradeCluster(clusterName, version string) error {
+	requestBody := upgradeRequest{Action: "upgrade", Version: version}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s", clusterName), Body: &requestBody}
+
+	return r.Client.Patch(restRequest)
+}
+
+// ResetCluster performs a reset of the Kubernetes, bringing it back to the initial state it got ordered in
+func (r *Repository) ResetCluster(clusterName, confirmation string) error {
+	requestBody := resetRequest{Action: "reset", Confirmation: confirmation}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s", clusterName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
@@ -271,4 +278,40 @@ func (r *Repository) SetLabels(clusterName, nodePoolUUID string, labels []Label)
 	}
 
 	return r.Client.Put(restRequest)
+}
+
+// GetReleases returns the available releases on the platform
+func (r *Repository) GetReleases() ([]Release, error) {
+	var response releasesWrapper
+	restRequest := rest.Request{Endpoint: "/kubernetes/releases"}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Releases, err
+}
+
+// GetRelease returns an available releases on the platform
+func (r *Repository) GetRelease(version string) (Release, error) {
+	var response releaseWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/releases/%s", version)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Release, err
+}
+
+// GetCompatibleReleases returns the releases a cluster can upgrade to
+func (r *Repository) GetCompatibleReleases(clusterName string) ([]Release, error) {
+	var response releasesWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/releases", clusterName)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Releases, err
+}
+
+// GetCompatibleRelease returns the release a cluster can upgrade to
+func (r *Repository) GetCompatibleRelease(clusterName, version string) (Release, error) {
+	var response releaseWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/releases/%s", clusterName, version)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Release, err
 }

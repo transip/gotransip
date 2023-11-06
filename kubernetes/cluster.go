@@ -12,10 +12,17 @@ type clusterWrapper struct {
 	Cluster Cluster `json:"cluster"`
 }
 
-// handoverRequest is used to request a handover, this is solely used for marshalling
-type handoverRequest struct {
-	Action             string `json:"action"`
-	TargetCustomerName string `json:"targetCustomerName"`
+// resetRequest is used to request a cluster reset, this is solely used for marshalling
+type resetRequest struct {
+	Action       string `json:"action"`
+	Confirmation string `json:"confirmation"`
+}
+
+// upgradeRequest is used to request a cluster upgrade, this is solely used for marshalling
+
+type upgradeRequest struct {
+	Action  string `json:"action"`
+	Version string `json:"version"`
 }
 
 // Cluster struct for a Kubernetes cluster

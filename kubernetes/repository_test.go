@@ -9,6 +9,9 @@ import (
 	"github.com/transip/gotransip/v6/internal/testutil"
 )
 
+// To be compatible with < Go 1.20
+const dateOnlyFormat = "2006-01-02"
+
 func TestRepository_GetClusters(t *testing.T) {
 	const apiResponse = `{"clusters":[{"name":"k888k","description":"production cluster","isLocked":true,"isBlocked": false},{"name":"aiceayoo","description":"development cluster","isLocked":false,"isBlocked":true}]}`
 
@@ -83,18 +86,6 @@ func TestRepository_UpdateCluster(t *testing.T) {
 
 	err := repo.UpdateCluster(clusterToUpdate)
 
-	require.NoError(t, err)
-}
-
-func TestRepository_HandoverCluster(t *testing.T) {
-	const expectedRequest = `{"action":"handover","targetCustomerName":"bobexample"}`
-
-	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k", ExpectedMethod: "PATCH", StatusCode: 204, ExpectedRequest: expectedRequest}
-	client, tearDown := server.GetClient()
-	defer tearDown()
-	repo := Repository{Client: *client}
-
-	err := repo.HandoverCluster("k888k", "bobexample")
 	require.NoError(t, err)
 }
 
@@ -536,5 +527,133 @@ func TestRepository_SetNodePoolTaints(t *testing.T) {
 
 	repo := Repository{Client: *client}
 	err := repo.SetTaints("k888k", "402c2f84-c37d-9388-634d-00002b7c6a82", []Taint{{Key: "test-key", Value: "test-value", Effect: "NoSchedule"}})
+	require.NoError(t, err)
+}
+
+func TestRepository_UpgradeCluster(t *testing.T) {
+	const apiRequest = `{"action":"upgrade","version":"1.27.0"}`
+	server := testutil.MockServer{
+		T:               t,
+		ExpectedURL:     "/kubernetes/clusters/k888k",
+		ExpectedMethod:  "PATCH",
+		StatusCode:      204,
+		ExpectedRequest: apiRequest,
+	}
+
+	client, teardown := server.GetClient()
+	defer teardown()
+
+	repo := Repository{Client: *client}
+	err := repo.UpgradeCluster("k888k", "1.27.0")
+	require.NoError(t, err)
+}
+
+func TestRepository_ResetCluster(t *testing.T) {
+	const apiRequest = `{"action":"reset","confirmation":"k888k"}`
+	server := testutil.MockServer{
+		T:               t,
+		ExpectedURL:     "/kubernetes/clusters/k888k",
+		ExpectedMethod:  "PATCH",
+		StatusCode:      204,
+		ExpectedRequest: apiRequest,
+	}
+
+	client, teardown := server.GetClient()
+	defer teardown()
+
+	repo := Repository{Client: *client}
+	err := repo.ResetCluster("k888k", "k888k")
+	require.NoError(t, err)
+}
+
+func TestRepository_TestGetReleases(t *testing.T) {
+	const apiResponse = `{"releases":[{"version": "1.23.5","releaseDate": "2022-03-11","maintenanceModeDate": "2022-12-28","endOfLifeDate": "2023-02-28"}]}`
+	server := testutil.MockServer{
+		T:              t,
+		ExpectedURL:    "/kubernetes/releases",
+		ExpectedMethod: "GET",
+		StatusCode:     200,
+		Response:       apiResponse,
+	}
+
+	client, teardown := server.GetClient()
+	defer teardown()
+
+	repo := Repository{Client: *client}
+	releases, err := repo.GetReleases()
+	if assert.Equal(t, 1, len(releases)) {
+		assert.Equal(t, "1.23.5", releases[0].Version)
+		assert.Equal(t, "2022-03-11", releases[0].ReleaseDate.Format(dateOnlyFormat))
+		assert.Equal(t, "2022-12-28", releases[0].MaintenanceModeDate.Format(dateOnlyFormat))
+		assert.Equal(t, "2023-02-28", releases[0].EndOfLifeDate.Format(dateOnlyFormat))
+	}
+	require.NoError(t, err)
+}
+
+func TestRepository_TestGetRelease(t *testing.T) {
+	const apiResponse = `{"release":{"version": "1.23.5","releaseDate": "2022-03-11","maintenanceModeDate": "2022-12-28","endOfLifeDate": "2023-02-28"}}`
+	server := testutil.MockServer{
+		T:              t,
+		ExpectedURL:    "/kubernetes/releases/1.23.5",
+		ExpectedMethod: "GET",
+		StatusCode:     200,
+		Response:       apiResponse,
+	}
+
+	client, teardown := server.GetClient()
+	defer teardown()
+
+	repo := Repository{Client: *client}
+	release, err := repo.GetRelease("1.23.5")
+	assert.Equal(t, "1.23.5", release.Version)
+	assert.Equal(t, "2022-03-11", release.ReleaseDate.Format(dateOnlyFormat))
+	assert.Equal(t, "2022-12-28", release.MaintenanceModeDate.Format(dateOnlyFormat))
+	assert.Equal(t, "2023-02-28", release.EndOfLifeDate.Format(dateOnlyFormat))
+	require.NoError(t, err)
+}
+
+func TestRepository_TestGetCompatibleReleases(t *testing.T) {
+	const apiResponse = `{"releases":[{"isCompatibleUpgrade":true,"version": "1.23.5","releaseDate": "2022-03-11","maintenanceModeDate": "2022-12-28","endOfLifeDate": "2023-02-28"}]}`
+	server := testutil.MockServer{
+		T:              t,
+		ExpectedURL:    "/kubernetes/clusters/k888k/releases",
+		ExpectedMethod: "GET",
+		StatusCode:     200,
+		Response:       apiResponse,
+	}
+
+	client, teardown := server.GetClient()
+	defer teardown()
+
+	repo := Repository{Client: *client}
+	releases, err := repo.GetCompatibleReleases("k888k")
+	if assert.Equal(t, 1, len(releases)) {
+		assert.Equal(t, "1.23.5", releases[0].Version)
+		assert.Equal(t, "2022-03-11", releases[0].ReleaseDate.Format(dateOnlyFormat))
+		assert.Equal(t, "2022-12-28", releases[0].MaintenanceModeDate.Format(dateOnlyFormat))
+		assert.Equal(t, "2023-02-28", releases[0].EndOfLifeDate.Format(dateOnlyFormat))
+	}
+	require.NoError(t, err)
+}
+
+func TestRepository_TestGetCompatibleRelease(t *testing.T) {
+	const apiResponse = `{"release":{"isCompatibleUpgrade":true,"version": "1.23.5","releaseDate": "2022-03-11","maintenanceModeDate": "2022-12-28","endOfLifeDate": "2023-02-28"}}`
+	server := testutil.MockServer{
+		T:              t,
+		ExpectedURL:    "/kubernetes/clusters/k888k/releases/1.23.5",
+		ExpectedMethod: "GET",
+		StatusCode:     200,
+		Response:       apiResponse,
+	}
+
+	client, teardown := server.GetClient()
+	defer teardown()
+
+	repo := Repository{Client: *client}
+	release, err := repo.GetCompatibleRelease("k888k", "1.23.5")
+	assert.Equal(t, "1.23.5", release.Version)
+	assert.Equal(t, "2022-03-11", release.ReleaseDate.Format(dateOnlyFormat))
+	assert.Equal(t, "2022-12-28", release.MaintenanceModeDate.Format(dateOnlyFormat))
+	assert.Equal(t, "2023-02-28", release.EndOfLifeDate.Format(dateOnlyFormat))
 	require.NoError(t, err)
 }
