@@ -531,6 +531,44 @@ func TestRepository_GetOperatingSystems(t *testing.T) {
 	assert.Equal(t, 1250, oses[0].Price)
 }
 
+func TestRepository_FilterOperatingSystems(t *testing.T) {
+	const apiResponse = `{
+  "operatingSystems": [
+    {
+      "name": "ubuntu-18.04",
+      "description": "Ubuntu 18.04 LTS",
+      "version": "18.04 LTS",
+      "price": 1250,
+      "installFlavours": [
+        "installer",
+        "preinstallable",
+        "cloudinit"
+      ],
+	  "licenses": []
+    }
+  ]
+}`
+	server := testutil.MockServer{T: t, ExpectedURL: "/operating-systems", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse, ExpectedRequest: `{"productName":"vps-bladevps-x8","addons":["vpsAddon-1-extra-cpu-core"]}`}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	oses, err := repo.FilterOperatingSystems("vps-bladevps-x8", []string{"vpsAddon-1-extra-cpu-core"})
+	fmt.Printf("%+v", oses)
+	require.NoError(t, err)
+	require.Equal(t, 1, len(oses))
+
+	assert.Equal(t, "ubuntu-18.04", oses[0].Name)
+	assert.Equal(t, "Ubuntu 18.04 LTS", oses[0].Description)
+	assert.Equal(t, false, oses[0].IsPreinstallableImage)
+	assert.Contains(t, oses[0].InstallFlavours, InstallFlavourInstaller)
+	assert.Contains(t, oses[0].InstallFlavours, InstallFlavourPreinstallable)
+	assert.Contains(t, oses[0].InstallFlavours, InstallFlavourCloudInit)
+	assert.Equal(t, "18.04 LTS", oses[0].Version)
+	assert.Equal(t, 1250, oses[0].Price)
+	assert.Equal(t, 0, len(oses[0].Licenses))
+}
+
 func TestRepository_InstallOperatingSystemOptionalFields(t *testing.T) {
 	const expectedRequest = `{"operatingSystemName":"ubuntu-18.04"}`
 	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/operating-systems", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequest}
