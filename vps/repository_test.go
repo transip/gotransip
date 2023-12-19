@@ -554,7 +554,6 @@ func TestRepository_FilterOperatingSystems(t *testing.T) {
 	repo := Repository{Client: *client}
 
 	oses, err := repo.FilterOperatingSystems("vps-bladevps-x8", []string{"vpsAddon-1-extra-cpu-core"})
-	fmt.Printf("%+v", oses)
 	require.NoError(t, err)
 	require.Equal(t, 1, len(oses))
 

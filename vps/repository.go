@@ -302,7 +302,7 @@ func (r *Repository) FilterOperatingSystems(productName string, addons []string)
 	requestBody := operatingSystemsRequest{ProductName: productName, Addons: addons}
 	restRequest := rest.Request{Endpoint: "/operating-systems", Body: &requestBody}
 	err := r.Client.Get(restRequest, &response)
-	fmt.Printf("%+v\n", response)
+
 	return response.OperatingSystems, err
 }
 
