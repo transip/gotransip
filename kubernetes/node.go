@@ -14,6 +14,12 @@ type nodeWrapper struct {
 	Node Node `json:"node"`
 }
 
+// actionWrapper struct contains an action in it,
+// this is solely used for marshalling
+type actionWrapper struct {
+	Action string `json:"action"`
+}
+
 // Node struct is a single node in a kubernetes cluster node pool
 type Node struct {
 	// The unique identifier for the node

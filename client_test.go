@@ -3,7 +3,7 @@ package gotransip
 import (
 	"bytes"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -74,7 +74,7 @@ func TestNewClient(t *testing.T) {
 	// Test if private key from path is read and passed to the authenticator
 	privateKeyFile, err := os.Open("testdata/signature.key")
 	require.NoError(t, err)
-	privateKeyBody, err := ioutil.ReadAll(privateKeyFile)
+	privateKeyBody, err := io.ReadAll(privateKeyFile)
 	require.NoError(t, err)
 
 	// Test that a tokencache is passed to the authenticator
@@ -218,7 +218,7 @@ func (m *mockServer) getHTTPServer() *httptest.Server {
 		if req.ContentLength != 0 {
 			// get the request body
 			// and check if the body matches the expected request body
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			require.NoError(m.t, err)
 			assert.Equal(m.t, m.expectedRequest, string(body))
 		}

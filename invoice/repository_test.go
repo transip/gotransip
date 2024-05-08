@@ -2,7 +2,7 @@ package invoice
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -209,7 +209,7 @@ func TestRepository_GetInvoicePdf(t *testing.T) {
 
 	reader := pdf.GetReader()
 
-	bytes, err := ioutil.ReadAll(reader)
+	bytes, err := io.ReadAll(reader)
 	require.NoError(t, err)
 	assert.Equal(t, []byte("test123"), bytes)
 }

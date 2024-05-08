@@ -2,11 +2,15 @@ package kubernetes
 
 import (
 	"net"
+	"net/url"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6/internal/testutil"
+	"github.com/transip/gotransip/v6/rest"
+	"github.com/transip/gotransip/v6/vps"
 )
 
 // To be compatible with < Go 1.20
@@ -285,6 +289,115 @@ func TestRepository_GetNode(t *testing.T) {
 	}
 }
 
+func TestRepository_RebootNode(t *testing.T) {
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/nodes/76743b28-f779-3e68-6aa1-00007fbb911d", ExpectedMethod: "PATCH", ExpectedRequest: "{\"action\":\"reboot\"}"}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	t.Run("test valid reboot", func(t *testing.T) {
+		server.StatusCode = 204
+		err := repo.RebootNode("k888k", "76743b28-f779-3e68-6aa1-00007fbb911d")
+		require.NoError(t, err)
+	})
+
+	t.Run("test nonexistent node", func(t *testing.T) {
+		server.StatusCode = 404
+		server.Response = `{"error": "Node with uuid '76743b28-f779-3e68-6aa1-00007fbb911d' not found"}`
+		err := repo.RebootNode("k888k", "76743b28-f779-3e68-6aa1-00007fbb911d")
+
+		if assert.Error(t, err) {
+			assert.Equal(t, &rest.Error{
+				Message:    "Node with uuid '76743b28-f779-3e68-6aa1-00007fbb911d' not found",
+				StatusCode: 404,
+			}, err)
+		}
+	})
+
+	t.Run("test locked node", func(t *testing.T) {
+		server.StatusCode = 409
+		server.Response = `{"error": "Actions on Node '76743b28-f779-3e68-6aa1-00007fbb911d' are temporary disabled"}`
+		err := repo.RebootNode("k888k", "76743b28-f779-3e68-6aa1-00007fbb911d")
+
+		if assert.Error(t, err) {
+			assert.Equal(t, &rest.Error{
+				Message:    "Actions on Node '76743b28-f779-3e68-6aa1-00007fbb911d' are temporary disabled",
+				StatusCode: 409,
+			}, err)
+		}
+	})
+}
+
+func TestRepository_GetNodeStatistics(t *testing.T) {
+	const apiResponse = `
+	{
+		"usage": {
+		  "cpu": [
+				{
+				"percentage": 3.11,
+				"date": 1500538995
+				}
+			],
+		  "disk": [
+				{
+				"iopsRead": 0.27,
+				"iopsWrite": 0.13,
+				"date": 1500538995
+				}
+			],
+		  "network": [
+				{
+				"mbitOut": 100.2,
+				"mbitIn": 249.93,
+				"date": 1500538995
+				}
+			]
+		}
+	}`
+
+	values := url.Values{
+		"dateTimeStart": []string{"1500538995"},
+		"dateTimeEnd":   []string{"1500542619"},
+	}
+
+	server := testutil.MockServer{
+		T:              t,
+		ExpectedURL:    "/kubernetes/clusters/k888k/nodes/76743b28-f779-3e68-6aa1-00007fbb911d/stats?" + values.Encode(),
+		ExpectedMethod: "GET",
+		StatusCode:     200,
+		Response:       apiResponse,
+	}
+
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	statistics, err := repo.GetNodeStatistics(
+		"k888k",
+		"76743b28-f779-3e68-6aa1-00007fbb911d",
+		[]vps.UsageType{},
+		vps.UsagePeriod{
+			TimeStart: 1500538995,
+			TimeEnd:   1500542619,
+		})
+	require.NoError(t, err)
+
+	cpuStatistics := statistics.CPU
+	if assert.NotEmpty(t, cpuStatistics) {
+		assert.Equal(t, vps.UsageDataCPU{Date: 1500538995, Percentage: 3.11}, cpuStatistics[0])
+	}
+
+	diskStatistics := statistics.Disk
+	if assert.NotEmpty(t, diskStatistics) {
+		assert.Equal(t, vps.UsageDataDisk{Date: 1500538995, IopsRead: 0.27, IopsWrite: 0.13}, diskStatistics[0])
+	}
+
+	networkStatistics := statistics.Network
+	if assert.NotEmpty(t, networkStatistics) {
+		assert.Equal(t, vps.UsageDataNetwork{Date: 1500538995, MbitOut: 100.2, MbitIn: 249.93}, networkStatistics[0])
+	}
+}
+
 func TestRepository_GetBlockStorageVolumes(t *testing.T) {
 	const apiResponse = `{"volumes":[{"uuid":"220887f0-db1a-76a9-2332-00004f589b19","name":"custom-2c3501ab-5a45-34e9-c289-00002b084a0c","sizeInGib":20,"type":"hdd","availabilityZone":"ams0","status":"available","nodeUuid":"76743b28-f779-3e68-6aa1-00007fbb911d","serial":"a4d857d3fe5e814f34bb"}]}`
 
@@ -382,6 +495,49 @@ func TestRepository_RemoveBlockStorageVolume(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestRepository_GetBlockStorageStatistics(t *testing.T) {
+	const apiResponse = `
+	{
+		"usage": [
+			{
+				"iopsRead": 0.27,
+				"iopsWrite": 0.13,
+				"date": 1500538995
+			}
+		]
+	}`
+
+	values := url.Values{
+		"dateTimeStart": []string{"1500538995"},
+		"dateTimeEnd":   []string{"1500542619"},
+	}
+
+	server := testutil.MockServer{
+		T:              t,
+		ExpectedURL:    "/kubernetes/clusters/k888k/block-storages/custom-2c3501ab-5a45-34e9-c289-00002b084a0c/stats?" + values.Encode(),
+		ExpectedMethod: "GET",
+		StatusCode:     200,
+		Response:       apiResponse,
+	}
+
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	statistics, err := repo.GetBlockStorageStatistics(
+		"k888k",
+		"custom-2c3501ab-5a45-34e9-c289-00002b084a0c",
+		vps.UsagePeriod{
+			TimeStart: 1500538995,
+			TimeEnd:   1500542619,
+		})
+	require.NoError(t, err)
+
+	if assert.NotEmpty(t, statistics) {
+		assert.Equal(t, vps.UsageDataDisk{Date: 1500538995, IopsRead: 0.27, IopsWrite: 0.13}, statistics[0])
+	}
+}
+
 func TestRepository_GetLoadBalancers(t *testing.T) {
 	const apiResponse = `{"loadBalancers":[{"uuid":"220887f0-db1a-76a9-2332-00004f589b19","name":"lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80","status":"active","ipv4Address":"37.97.254.7","ipv6Address":"2a01:7c8:3:1337::1"}]}`
 
@@ -473,6 +629,78 @@ func TestRepository_RemoveLoadBalancer(t *testing.T) {
 
 	err := repo.RemoveLoadBalancer("k888k", "lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80")
 	require.NoError(t, err)
+}
+
+func TestRepository_GetLoadBalancerStatusReports(t *testing.T) {
+	const apiResponse = `
+	{
+		"statusReports": [
+			{
+				"nodeUuid": "76743b28-f779-3e68-6aa1-00007fbb911d",
+				"nodeIpAddress": "136.10.14.1",
+				"port": 80,
+				"ipVersion": 4,
+				"loadBalancerName": "lb0",
+				"loadBalancerIp": "136.144.151.255",
+				"state": "up",
+				"lastChange": "2019-09-29 16:51:18"
+			}
+		]
+	}`
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/load-balancers/lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80/status-reports", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	reports, err := repo.GetLoadBalancerStatusReports("k888k", "lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80")
+	require.NoError(t, err)
+
+	if assert.NotEmpty(t, reports) {
+		require.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", reports[0].NodeUUID)
+		require.Equal(t, net.ParseIP("136.10.14.1"), reports[0].NodeIPAddress)
+		require.Equal(t, 80, reports[0].Port)
+		require.Equal(t, 4, reports[0].IPVersion)
+		require.Equal(t, "lb0", reports[0].LoadBalancerName)
+		require.Equal(t, net.ParseIP("136.144.151.255"), reports[0].LoadBalancerIP)
+		require.Equal(t, LoadBalancerStateUp, reports[0].State)
+		require.Equal(t, "2019-09-29 16:51:18", reports[0].LastChange.Format(time.DateTime))
+	}
+}
+
+func TestRepository_GetLoadBalancerStatusReportsForNode(t *testing.T) {
+	const apiResponse = `
+	{
+		"statusReports": [
+			{
+				"nodeUuid": "76743b28-f779-3e68-6aa1-00007fbb911d",
+				"nodeIpAddress": "136.10.14.1",
+				"port": 80,
+				"ipVersion": 4,
+				"loadBalancerName": "lb0",
+				"loadBalancerIp": "136.144.151.255",
+				"state": "up",
+				"lastChange": "2019-09-29 16:51:18"
+			}
+		]
+	}`
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/load-balancers/lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80/status-reports/76743b28-f779-3e68-6aa1-00007fbb911d", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	reports, err := repo.GetLoadBalancerStatusReportsForNode("k888k", "lb-bbb0ddf8-8aeb-4f35-85ff-4e198a0faf80", "76743b28-f779-3e68-6aa1-00007fbb911d")
+	require.NoError(t, err)
+
+	if assert.NotEmpty(t, reports) {
+		require.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", reports[0].NodeUUID)
+		require.Equal(t, net.ParseIP("136.10.14.1"), reports[0].NodeIPAddress)
+		require.Equal(t, 80, reports[0].Port)
+		require.Equal(t, 4, reports[0].IPVersion)
+		require.Equal(t, "lb0", reports[0].LoadBalancerName)
+		require.Equal(t, net.ParseIP("136.144.151.255"), reports[0].LoadBalancerIP)
+		require.Equal(t, LoadBalancerStateUp, reports[0].State)
+		require.Equal(t, "2019-09-29 16:51:18", reports[0].LastChange.Format(time.DateTime))
+	}
 }
 
 func TestRepository_GetNodePoolTaints(t *testing.T) {
@@ -656,4 +884,157 @@ func TestRepository_TestGetCompatibleRelease(t *testing.T) {
 	assert.Equal(t, "2022-12-28", release.MaintenanceModeDate.Format(dateOnlyFormat))
 	assert.Equal(t, "2023-02-28", release.EndOfLifeDate.Format(dateOnlyFormat))
 	require.NoError(t, err)
+}
+
+func TestRepository_TestGetEvents(t *testing.T) {
+	const apiResponse = `
+	{
+		"events": [
+			{
+				"name": "kube-proxy-g9ldg.175d7f60d241f2c8",
+				"namespace": "default",
+				"type": "Warning",
+				"message": "Node is not ready",
+				"reason": "NodeNotReady",
+				"count": 6,
+				"creationTimestamp": 1683641890,
+				"firstTimestamp": 1683641890,
+				"lastTimestamp": 1683641890,
+				"involvedObjectKind": "Pod",
+				"involvedObjectName": "kube-proxy-g9ldg",
+				"sourceComponent": "kubelet"
+			}
+		]
+	}`
+
+	server := testutil.MockServer{
+		T:              t,
+		ExpectedURL:    "/kubernetes/clusters/k888k/events",
+		ExpectedMethod: "GET",
+		StatusCode:     200,
+		Response:       apiResponse,
+	}
+
+	client, teardown := server.GetClient()
+	defer teardown()
+
+	repo := Repository{Client: *client}
+	events, err := repo.GetEvents("k888k")
+
+	require.NoError(t, err)
+	if assert.NotEmpty(t, events) {
+		require.Equal(t, "kube-proxy-g9ldg.175d7f60d241f2c8", events[0].Name)
+		require.Equal(t, "default", events[0].Namespace)
+		require.Equal(t, "Warning", events[0].Type)
+		require.Equal(t, "Node is not ready", events[0].Message)
+		require.Equal(t, "NodeNotReady", events[0].Reason)
+		require.Equal(t, 6, events[0].Count)
+		require.Equal(t, 1683641890, events[0].CreationTimestamp)
+		require.Equal(t, 1683641890, events[0].FirstTimestamp)
+		require.Equal(t, 1683641890, events[0].LastTimestamp)
+		require.Equal(t, "Pod", events[0].InvolvedObjectKind)
+		require.Equal(t, "kube-proxy-g9ldg", events[0].InvolvedObjectName)
+		require.Equal(t, "kubelet", events[0].SourceComponent)
+	}
+}
+
+func TestRepository_TestGetEventsByNamespace(t *testing.T) {
+	const apiResponse = `
+	{
+		"events": [
+			{
+				"name": "kube-proxy-g9ldg.175d7f60d241f2c8",
+				"namespace": "default",
+				"type": "Warning",
+				"message": "Node is not ready",
+				"reason": "NodeNotReady",
+				"count": 6,
+				"creationTimestamp": 1683641890,
+				"firstTimestamp": 1683641890,
+				"lastTimestamp": 1683641890,
+				"involvedObjectKind": "Pod",
+				"involvedObjectName": "kube-proxy-g9ldg",
+				"sourceComponent": "kubelet"
+			}
+		]
+	}
+	`
+
+	server := testutil.MockServer{
+		T:              t,
+		ExpectedURL:    "/kubernetes/clusters/k888k/events?namespace=default",
+		ExpectedMethod: "GET",
+		StatusCode:     200,
+		Response:       apiResponse,
+	}
+
+	client, teardown := server.GetClient()
+	defer teardown()
+
+	repo := Repository{Client: *client}
+	events, err := repo.GetEventsByNamespace("k888k", "default")
+
+	require.NoError(t, err)
+	if assert.NotEmpty(t, events) {
+		require.Equal(t, "kube-proxy-g9ldg.175d7f60d241f2c8", events[0].Name)
+		require.Equal(t, "default", events[0].Namespace)
+		require.Equal(t, "Warning", events[0].Type)
+		require.Equal(t, "Node is not ready", events[0].Message)
+		require.Equal(t, "NodeNotReady", events[0].Reason)
+		require.Equal(t, 6, events[0].Count)
+		require.Equal(t, 1683641890, events[0].CreationTimestamp)
+		require.Equal(t, 1683641890, events[0].FirstTimestamp)
+		require.Equal(t, 1683641890, events[0].LastTimestamp)
+		require.Equal(t, "Pod", events[0].InvolvedObjectKind)
+		require.Equal(t, "kube-proxy-g9ldg", events[0].InvolvedObjectName)
+		require.Equal(t, "kubelet", events[0].SourceComponent)
+	}
+}
+
+func TestRepository_TestGetEventByName(t *testing.T) {
+	const apiResponse = `
+	{
+		"event": {
+			"name": "kube-proxy-g9ldg.175d7f60d241f2c8",
+			"namespace": "default",
+			"type": "Warning",
+			"message": "Node is not ready",
+			"reason": "NodeNotReady",
+			"count": 6,
+			"creationTimestamp": 1683641890,
+			"firstTimestamp": 1683641890,
+			"lastTimestamp": 1683641890,
+			"involvedObjectKind": "Pod",
+			"involvedObjectName": "kube-proxy-g9ldg",
+			"sourceComponent": "kubelet"
+		}
+	}
+	`
+	server := testutil.MockServer{
+		T:              t,
+		ExpectedURL:    "/kubernetes/clusters/k888k/events/kube-proxy-g9ldg.175d7f60d241f2c8",
+		ExpectedMethod: "GET",
+		StatusCode:     200,
+		Response:       apiResponse,
+	}
+
+	client, teardown := server.GetClient()
+	defer teardown()
+
+	repo := Repository{Client: *client}
+	event, err := repo.GetEventByName("k888k", "kube-proxy-g9ldg.175d7f60d241f2c8")
+
+	require.NoError(t, err)
+	require.Equal(t, "kube-proxy-g9ldg.175d7f60d241f2c8", event.Name)
+	require.Equal(t, "default", event.Namespace)
+	require.Equal(t, "Warning", event.Type)
+	require.Equal(t, "Node is not ready", event.Message)
+	require.Equal(t, "NodeNotReady", event.Reason)
+	require.Equal(t, 6, event.Count)
+	require.Equal(t, 1683641890, event.CreationTimestamp)
+	require.Equal(t, 1683641890, event.FirstTimestamp)
+	require.Equal(t, 1683641890, event.LastTimestamp)
+	require.Equal(t, "Pod", event.InvolvedObjectKind)
+	require.Equal(t, "kube-proxy-g9ldg", event.InvolvedObjectName)
+	require.Equal(t, "kubelet", event.SourceComponent)
 }

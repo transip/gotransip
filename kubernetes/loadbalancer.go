@@ -1,6 +1,10 @@
 package kubernetes
 
-import "net"
+import (
+	"net"
+
+	"github.com/transip/gotransip/v6/rest"
+)
 
 // lbsWrapper struct contains a list of LoadBalancers in it,
 // this is solely used for unmarshalling/marshalling
@@ -134,6 +138,32 @@ type PortConfiguration struct {
 	Mode PortConfigurationMode `json:"mode"`
 	// The mode determining how traffic between our load balancers and your attached IP address(es) is encrypted: 'off', 'on', 'strict'
 	EndpointSSLMode PortConfigurationEndpointSSLMode `json:"endpointSslMode"`
+}
+
+// LoadBalancerStatusReport A status report for the laodbalancer
+type LoadBalancerStatusReport struct {
+	NodeUUID         string            `json:"nodeUuid"`
+	NodeIPAddress    net.IP            `json:"nodeIpAddress"`
+	Port             int               `json:"port"`
+	IPVersion        int               `json:"ipVersion"`
+	LoadBalancerName string            `json:"loadBalancerName"`
+	LoadBalancerIP   net.IP            `json:"loadBalancerIp"`
+	State            LoadBalancerState `json:"state"`
+	LastChange       rest.Time         `json:"lastChange"`
+}
+
+// LoadBalancerState the state of the connection from the loadbalancer to the node
+type LoadBalancerState string
+
+const (
+	// LoadBalancerStateUp the connection from the loadbalanacer to the node is up
+	LoadBalancerStateUp LoadBalancerState = "up"
+	// LoadBalancerStateDown the connection from the loadbalanacer to the node is down
+	LoadBalancerStateDown LoadBalancerState = "down"
+)
+
+type loadBalancerStatusReportsWrapper struct {
+	StatusReports []LoadBalancerStatusReport `json:"statusReports"`
 }
 
 // PortConfigurationMode is one of the following strings

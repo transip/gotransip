@@ -6,9 +6,11 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
+	"github.com/transip/gotransip/v6/vps"
 )
 
 // Repository is the kubernetes repository
@@ -159,6 +161,39 @@ func (r *Repository) GetNode(clusterName, nodeUUID string) (Node, error) {
 	return response.Node, err
 }
 
+// RebootNode reboot a node
+func (r *Repository) RebootNode(clusterName, nodeUUID string) error {
+	restRequest := rest.Request{
+		Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/nodes/%s", clusterName, nodeUUID),
+		Body:     actionWrapper{Action: "reboot"},
+	}
+
+	return r.Client.Patch(restRequest)
+}
+
+// GetNodeStatistics get the vps statistics of a node
+func (r *Repository) GetNodeStatistics(clusterName, nodeUUID string, usageTypes []vps.UsageType, period vps.UsagePeriod) (vps.Usage, error) {
+	var response usageWrapper
+	types := make([]string, len(usageTypes))
+	for i, usageType := range usageTypes {
+		types[i] = string(usageType)
+	}
+
+	parameters := url.Values{
+		"dateTimeStart": []string{fmt.Sprintf("%d", period.TimeStart)},
+		"dateTimeEnd":   []string{fmt.Sprintf("%d", period.TimeEnd)},
+	}
+
+	if len(usageTypes) > 0 {
+		parameters.Add("types", strings.Join(types, ","))
+	}
+
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/nodes/%s/stats", clusterName, nodeUUID), Parameters: parameters}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Usage, err
+}
+
 // GetBlockStorageVolumes returns all block storage volumes
 func (r *Repository) GetBlockStorageVolumes(clusterName string) ([]BlockStorage, error) {
 	var response blockStoragesWrapper
@@ -199,6 +234,20 @@ func (r *Repository) RemoveBlockStorageVolume(clusterName, name string) error {
 	return r.Client.Delete(restRequest)
 }
 
+// GetBlockStorageStatistics get the disk statistics for a block-storage
+func (r *Repository) GetBlockStorageStatistics(clusterName, name string, period vps.UsagePeriod) ([]vps.UsageDataDisk, error) {
+	var response usageDataDiskWrapper
+	parameters := url.Values{
+		"dateTimeStart": []string{fmt.Sprintf("%d", period.TimeStart)},
+		"dateTimeEnd":   []string{fmt.Sprintf("%d", period.TimeEnd)},
+	}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/block-storages/%s/stats", clusterName, name), Parameters: parameters}
+
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Usage, err
+}
+
 // GetLoadBalancers returns all load balancers
 func (r *Repository) GetLoadBalancers(clusterName string) ([]LoadBalancer, error) {
 	var response lbsWrapper
@@ -236,6 +285,24 @@ func (r *Repository) RemoveLoadBalancer(clusterName, name string) error {
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/load-balancers/%s", clusterName, name)}
 
 	return r.Client.Delete(restRequest)
+}
+
+// GetLoadBalancerStatusReports will get the status reports for the loadbalancer
+func (r *Repository) GetLoadBalancerStatusReports(clusterName, name string) ([]LoadBalancerStatusReport, error) {
+	var response loadBalancerStatusReportsWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/load-balancers/%s/status-reports", clusterName, name)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.StatusReports, err
+}
+
+// GetLoadBalancerStatusReportsForNode will get the status reports for the loadbalancer pointing towards a specific node
+func (r *Repository) GetLoadBalancerStatusReportsForNode(clusterName, name, nodeUUID string) ([]LoadBalancerStatusReport, error) {
+	var response loadBalancerStatusReportsWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/load-balancers/%s/status-reports/%s", clusterName, name, nodeUUID)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.StatusReports, err
 }
 
 // GetTaints will get all the taints on a NodePool
@@ -314,4 +381,36 @@ func (r *Repository) GetCompatibleRelease(clusterName, version string) (Release,
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Release, err
+}
+
+// GetEvents returns the events in a cluster
+func (r *Repository) GetEvents(clusterName string) ([]Event, error) {
+	var response eventsWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/events", clusterName)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Events, err
+}
+
+// GetEventsByNamespace returns the events in a cluster filtered by namespace
+func (r *Repository) GetEventsByNamespace(clusterName, namespace string) ([]Event, error) {
+	var response eventsWrapper
+	restRequest := rest.Request{
+		Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/events", clusterName),
+		Parameters: url.Values{
+			"namespace": []string{namespace},
+		},
+	}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Events, err
+}
+
+// GetEventByName returns an event in a cluster
+func (r *Repository) GetEventByName(clusterName, eventName string) (Event, error) {
+	var response eventWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/events/%s", clusterName, eventName)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Event, err
 }

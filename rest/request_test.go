@@ -1,11 +1,12 @@
 package rest
 
 import (
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"io/ioutil"
+	"io"
 	"net/url"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestRequestMarshalling(t *testing.T) {
@@ -35,7 +36,7 @@ func TestHttpRequestForRestRequest(t *testing.T) {
 	assert.Equal(t, "application/json", httpRequest.Header.Get("Accept"))
 	assert.Equal(t, int64(91), httpRequest.ContentLength)
 
-	body, err := ioutil.ReadAll(httpRequest.Body)
+	body, err := io.ReadAll(httpRequest.Body)
 	require.NoError(t, err)
 	assert.Equal(t, "{\"availabilityZone\":\"ams\",\"operatingSystem\":\"ubuntu-18.04\",\"productName\":\"vps-bladevps-x1\"}", string(body))
 }
@@ -64,7 +65,7 @@ func TestBodyReader(t *testing.T) {
 	reader, err := request.GetBodyReader()
 	require.NoError(t, err)
 
-	body, err := ioutil.ReadAll(reader)
+	body, err := io.ReadAll(reader)
 	require.NoError(t, err)
 	assert.Equal(t, "{\"availabilityZone\":\"ams\",\"operatingSystem\":\"ubuntu-18.04\",\"productName\":\"vps-bladevps-x1\"}", string(body))
 }

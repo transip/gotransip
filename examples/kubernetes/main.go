@@ -31,7 +31,7 @@ func main() {
 		}
 		for _, n := range nodepools {
 			fmt.Printf(
-				"\tNodePool: [description=%s, zone=%s, spec=%s, nodeCount=%s]\n",
+				"\tNodePool: [description=%s, zone=%s, spec=%s, nodeCount=%d]\n",
 				n.Description, n.AvailabilityZone, n.NodeSpec, n.DesiredNodeCount,
 			)
 		}

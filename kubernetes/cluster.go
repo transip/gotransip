@@ -1,5 +1,7 @@
 package kubernetes
 
+import "github.com/transip/gotransip/v6/vps"
+
 // clustersWrapper struct contains a list of Clusters in it,
 // this is solely used for unmarshalling/marshalling
 type clustersWrapper struct {
@@ -45,4 +47,20 @@ type Cluster struct {
 type ClusterOrder struct {
 	// The description of the cluster
 	Description string `json:"description,omitempty"`
+}
+
+// StatisticsPeriod is struct that can be used to query usage statistics for a certain period
+type StatisticsPeriod struct {
+	// TimeStart contains a unix timestamp for the start of the period
+	TimeStart int64 `json:"dateTimeStart"`
+	// TimeEnd contains a unix timestamp for the end of the period
+	TimeEnd int64 `json:"dateTimeEnd"`
+}
+
+type usageWrapper struct {
+	Usage vps.Usage `json:"usage"`
+}
+
+type usageDataDiskWrapper struct {
+	Usage []vps.UsageDataDisk `json:"usage"`
 }
