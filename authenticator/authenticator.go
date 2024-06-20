@@ -69,6 +69,8 @@ type Authenticator struct {
 	// If unspecified, the default is 1 day.
 	// Has no effect for tokens provided via the Token field
 	TokenExpiration time.Duration
+	// A KeyManager is used to offload the signing of a new Token request to a third party (e.g. a key vault)
+	KeyManager KeyManager
 }
 
 // AuthRequest will be transformed and send in order to request a new Token
@@ -99,7 +101,7 @@ func (a *Authenticator) GetToken() (jwt.Token, error) {
 		}
 	}
 
-	if a.Token.Expired() && a.PrivateKeyBody == nil {
+	if a.Token.Expired() && a.PrivateKeyBody == nil && a.KeyManager == nil {
 		return jwt.Token{}, ErrTokenExpired
 	}
 	if a.Token.Expired() {
@@ -151,7 +153,7 @@ func (a *Authenticator) requestNewToken() (jwt.Token, error) {
 	if err != nil {
 		return jwt.Token{}, fmt.Errorf("error marshalling token request: %w", err)
 	}
-	signature, err := signWithKey(bodyToSign, a.PrivateKeyBody)
+	signature, err := a.sign(bodyToSign)
 	if err != nil {
 		return jwt.Token{}, err
 	}
@@ -183,6 +185,16 @@ func (a *Authenticator) requestNewToken() (jwt.Token, error) {
 	}
 
 	return jwt.New(tokenToReturn.Token)
+}
+
+// sign a new Token request body using either a provided KeyManager or a private key,
+// in case no KeyManager is provided it will fall back to using the private key
+func (a *Authenticator) sign(body []byte) (string, error) {
+	if a.KeyManager != nil {
+		return a.KeyManager.SignExternally(body)
+	}
+
+	return signWithKey(body, a.PrivateKeyBody)
 }
 
 // tokenResponse is used to extract a Token from the api server response

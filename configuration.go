@@ -65,4 +65,7 @@ type ClientConfiguration struct {
 	// TokenWhitelisted is used to indicate only whitelisted IP's may use the new tokens requested by the authenticator.
 	// This has no effect for tokens provided via the Token field.
 	TokenWhitelisted bool
+	// A KeyManager is used to offload the signing of a new Token request to a third party (e.g. a key vault).
+	// This is meant as an alternative for providing a private key directly
+	KeyManager authenticator.KeyManager
 }
