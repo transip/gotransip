@@ -1,6 +1,7 @@
 package email
 
 import (
+	"errors"
 	"fmt"
 	"net/mail"
 	"strings"
@@ -154,4 +155,41 @@ func (r *Repository) DeleteMaillist(domainName string, maillistID int) error {
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/email/%s/mail-lists/%d", domainName, maillistID)}
 
 	return r.Client.Delete(restRequest)
+}
+
+// GetAddonsByDomainName gets a list of mail addons associated with a domain
+func (r *Repository) GetAddonsByDomainName(domainName string) ([]MailAddon, error) {
+	var response mailAddonWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/email/%s/mail-addons", domainName)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.MailAddons, err
+}
+
+// LinkMailaddon Links an addon to a mailbox
+func (r *Repository) LinkMailaddon(addonID int, mailbox string) error {
+	components := strings.Split(mailbox, "@")
+	if len(components) != 2 {
+		return errors.New("invalid mailbox")
+	}
+	domainName := components[1]
+
+	linkAddonRequest := LinkAddonRequest{Action: "linkmailbox", AddonID: addonID, Mailbox: mailbox}
+	err := r.Client.Patch(rest.Request{Endpoint: fmt.Sprintf("/email/%s/mail-addons", domainName), Body: linkAddonRequest})
+
+	return err
+}
+
+// UnlinkMailaddon Unlinks an addon from a mailbox
+func (r *Repository) UnlinkMailaddon(addonID int, mailbox string) error {
+	components := strings.Split(mailbox, "@")
+	if len(components) != 2 {
+		return errors.New("invalid mailbox")
+	}
+	domainName := components[1]
+
+	linkAddonRequest := LinkAddonRequest{Action: "unlinkmailbox", AddonID: addonID, Mailbox: mailbox}
+	err := r.Client.Patch(rest.Request{Endpoint: fmt.Sprintf("/email/%s/mail-addons", domainName), Body: linkAddonRequest})
+
+	return err
 }

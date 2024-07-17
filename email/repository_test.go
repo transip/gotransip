@@ -256,3 +256,70 @@ func TestRepository_DeleteMaillist(t *testing.T) {
 	err := repo.DeleteMaillist("example.com", 1)
 	require.NoError(t, err)
 }
+
+func TestRepository_LinkAddon(t *testing.T) {
+	const expectedRequestBody = `{"action":"linkmailbox","addonId":7,"mailbox":"test@example.com"}`
+	server := testutil.MockServer{T: t, ExpectedURL: "/email/example.com/mail-addons", ExpectedMethod: "PATCH", StatusCode: 204, ExpectedRequest: expectedRequestBody}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	err := repo.LinkMailaddon(7, "test@example.com")
+	require.NoError(t, err)
+}
+
+func TestRepository_LinkAddonInvalidMailbox(t *testing.T) {
+	const expectedRequestBody = `{"action":"linkmailbox","addonId":7,"mailbox":"test@example.com"}`
+	server := testutil.MockServer{T: t, ExpectedURL: "/email/example.com/mail-addons", ExpectedMethod: "PATCH", StatusCode: 204, ExpectedRequest: expectedRequestBody}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	err := repo.LinkMailaddon(7, "testexample.com")
+	require.Error(t, err)
+	expectedErrorMessage := "invalid mailbox"
+	assert.EqualErrorf(t, err, expectedErrorMessage, "Error should be: %v, got: %v", expectedErrorMessage, err)
+}
+
+func TestRepository_UnlinkAddon(t *testing.T) {
+	const expectedRequestBody = `{"action":"unlinkmailbox","addonId":7,"mailbox":"test@example.com"}`
+	server := testutil.MockServer{T: t, ExpectedURL: "/email/example.com/mail-addons", ExpectedMethod: "PATCH", StatusCode: 204, ExpectedRequest: expectedRequestBody}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	err := repo.UnlinkMailaddon(7, "test@example.com")
+	require.NoError(t, err)
+}
+
+func TestRepository_UnlinkAddonInvalidMailbox(t *testing.T) {
+	const expectedRequestBody = `{"action":"unlinkmailbox","addonId":7,"mailbox":"test@example.com"}`
+	server := testutil.MockServer{T: t, ExpectedURL: "/email/example.com/mail-addons", ExpectedMethod: "PATCH", StatusCode: 204, ExpectedRequest: expectedRequestBody}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	err := repo.UnlinkMailaddon(7, "testexample.com")
+	require.Error(t, err)
+	expectedErrorMessage := "invalid mailbox"
+	assert.EqualErrorf(t, err, expectedErrorMessage, "Error should be: %v, got: %v", expectedErrorMessage, err)
+}
+
+func TestRepository_GetMailAddonsByDomainName(t *testing.T) {
+
+	const apiResponse = `{"addons": [{"id": 282154,"diskSpace": 1024,"mailboxes": 5,"linkedMailBox": "test@example.com","canBeLinked": false}]}`
+	server := testutil.MockServer{T: t, ExpectedURL: "/email/example.com/mail-addons", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	all, err := repo.GetAddonsByDomainName("example.com")
+	require.NoError(t, err)
+	require.Equal(t, 1, len(all))
+
+	assert.Equal(t, 282154, all[0].ID)
+	assert.Equal(t, "test@example.com", all[0].LinkedMailBox)
+	assert.Equal(t, false, all[0].CanBeLinked)
+	assert.Equal(t, 5, all[0].Mailboxes)
+	assert.Equal(t, 1024, all[0].DiskSpace)
+}
