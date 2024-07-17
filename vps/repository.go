@@ -296,6 +296,16 @@ func (r *Repository) GetOperatingSystems(vpsName string) ([]OperatingSystem, err
 	return response.OperatingSystems, err
 }
 
+// FilterOperatingSystems allows you to filter Operating Systems without needing a VPS
+func (r *Repository) FilterOperatingSystems(productName string, addons []string) ([]OperatingSystem, error) {
+	var response operatingSystemsWrapper
+	requestBody := operatingSystemsRequest{ProductName: productName, Addons: addons}
+	restRequest := rest.Request{Endpoint: "/operating-systems", Body: &requestBody}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.OperatingSystems, err
+}
+
 // InstallOperatingSystem allows you to install an operating system to a Vps,
 // optionally you can specify a hostname and a base64InstallText,
 // which would be the automatic installation configuration of your Vps
