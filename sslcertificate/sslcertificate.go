@@ -50,6 +50,14 @@ type Details struct {
 	SignedCertificateTimestamp string `json:"signedCertificateTimestamp"`
 }
 
+// Data struct of SSLCertificate
+type Data struct {
+	CaBundleCrt    string `json:"caBundleCrt"`
+	CertificateCrt string `json:"certificateCrt"`
+	CertificateP7b string `json:"certificateP7b"`
+	CertificateKey string `json:"certificateKey"`
+}
+
 // Wrapper struct contains a Sslcertificate in it,
 // this is solely used for unmarshalling/marshalling
 type wrapper struct {
@@ -66,6 +74,12 @@ type sslcertificatesWrapper struct {
 // this is solely used for unmarshalling/marshalling
 type detailsWrapper struct {
 	Details Details `json:"certificateDetails"`
+}
+
+// DataWrapper struct contains a Data in it,
+// this is solely used for unmarshalling/marshalling
+type dataWrapper struct {
+	Data Data `json:"certificateData"`
 }
 
 // OrderSSLCertificateRequest struct of a sslcertificate

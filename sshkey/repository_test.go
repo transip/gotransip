@@ -1,64 +1,12 @@
 package sshkey
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/transip/gotransip/v6"
-	"github.com/transip/gotransip/v6/repository"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
-	"testing"
+	"github.com/transip/gotransip/v6/internal/testutil"
 )
-
-// mockServer struct is used to test the how the client sends a request
-// and responds to a servers response
-type mockServer struct {
-	t               *testing.T
-	expectedURL     string
-	expectedMethod  string
-	statusCode      int
-	expectedRequest string
-	response        string
-	skipRequestBody bool
-}
-
-func (m *mockServer) getHTTPServer() *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		assert.Equal(m.t, m.expectedURL, req.URL.String()) // check if right expectedURL is called
-
-		if m.skipRequestBody == false && req.ContentLength != 0 {
-			// get the request body
-			// and check if the body matches the expected request body
-			body, err := ioutil.ReadAll(req.Body)
-			require.NoError(m.t, err)
-			assert.Equal(m.t, m.expectedRequest, string(body))
-		}
-
-		assert.Equal(m.t, m.expectedMethod, req.Method) // check if the right expectedRequest expectedMethod is used
-		rw.WriteHeader(m.statusCode)                    // respond with given status code
-
-		if m.response != "" {
-			_, err := rw.Write([]byte(m.response))
-			require.NoError(m.t, err, "error when writing mock response")
-		}
-	}))
-}
-
-func (m *mockServer) getClient() (*repository.Client, func()) {
-	httpServer := m.getHTTPServer()
-	config := gotransip.DemoClientConfiguration
-	config.URL = httpServer.URL
-	client, err := gotransip.NewClient(config)
-	require.NoError(m.t, err)
-
-	// return tearDown method with which will close the test server after the test
-	tearDown := func() {
-		httpServer.Close()
-	}
-
-	return &client, tearDown
-}
 
 func TestRepository_GetAll(t *testing.T) {
 	const apiResponse = `{
@@ -73,8 +21,8 @@ func TestRepository_GetAll(t *testing.T) {
   ]
 }
 `
-	server := mockServer{t: t, expectedURL: "/ssh-keys", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/ssh-keys", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -102,8 +50,8 @@ func TestRepository_GetSelection(t *testing.T) {
   ]
 }
 `
-	server := mockServer{t: t, expectedURL: "/ssh-keys?page=1&pageSize=25", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/ssh-keys?page=1&pageSize=25", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -128,8 +76,8 @@ func TestRepository_GetById(t *testing.T) {
     "fingerprint": "bb:22:43:69:2b:0d:3e:16:58:91:27:8a:62:29:97:d1"
   }
 }`
-	server := mockServer{t: t, expectedURL: "/ssh-keys/123", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/ssh-keys/123", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -145,8 +93,8 @@ func TestRepository_GetById(t *testing.T) {
 
 func TestRepository_Add(t *testing.T) {
 	const expectedRequestBody = `{"description":"Jim key","sshKey":"ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDf2pxWX/yhUBDyk2LPhvRtI0LnVO8PyR5Zt6AHrnhtLGqK+8YG9EMlWbCCWrASR+Q1hFQG example"}`
-	server := mockServer{t: t, expectedURL: "/ssh-keys", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequestBody}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/ssh-keys", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequestBody}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -156,8 +104,8 @@ func TestRepository_Add(t *testing.T) {
 
 func TestRepository_Update(t *testing.T) {
 	const expectedRequestBody = `{"description":"Jim key"}`
-	server := mockServer{t: t, expectedURL: "/ssh-keys/123", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequestBody}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/ssh-keys/123", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedRequestBody}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -171,8 +119,8 @@ func TestRepository_Update(t *testing.T) {
 }
 
 func TestRepository_Remove(t *testing.T) {
-	server := mockServer{t: t, expectedURL: "/ssh-keys/123", expectedMethod: "DELETE", statusCode: 204}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/ssh-keys/123", ExpectedMethod: "DELETE", StatusCode: 204}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 

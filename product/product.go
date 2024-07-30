@@ -14,6 +14,8 @@ type productsResponse struct {
 type Products struct {
 	// A list of big storage products
 	BigStorage []Product `json:"bigStorage,omitempty"`
+	// A list of block storage products
+	BlockStorage []Product `json:"blockStorage,omitempty"`
 	// A list of haip products
 	Haip []Product `json:"haip,omitempty"`
 	// A list of private network products

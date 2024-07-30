@@ -2,11 +2,12 @@ package vps
 
 import (
 	"fmt"
+	"net/url"
+	"time"
+
 	"github.com/transip/gotransip/v6"
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
-	"net/url"
-	"time"
 )
 
 // BigStorageRepository allows you to manage all api actions on a bigstorage
@@ -82,6 +83,7 @@ type BigStorageBackup struct {
 }
 
 // GetAll returns a list of your bigstorages
+// Deprecated: Use block storage resource instead
 func (r *BigStorageRepository) GetAll() ([]BigStorage, error) {
 	var response bigStoragesWrapper
 	restRequest := rest.Request{Endpoint: "/big-storages"}
@@ -92,6 +94,7 @@ func (r *BigStorageRepository) GetAll() ([]BigStorage, error) {
 
 // GetSelection returns a limited list of bigstorages,
 // specify how many and which page/chunk of your bigstorage you want to retrieve
+// Deprecated: Use block storage resource instead
 func (r *BigStorageRepository) GetSelection(page int, itemsPerPage int) ([]BigStorage, error) {
 	var response bigStoragesWrapper
 	params := url.Values{
@@ -106,6 +109,7 @@ func (r *BigStorageRepository) GetSelection(page int, itemsPerPage int) ([]BigSt
 }
 
 // GetByName returns a specific BigStorage struct by name
+// Deprecated: Use block storage resource instead
 func (r *BigStorageRepository) GetByName(bigStorageName string) (BigStorage, error) {
 	var response bigStorageWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorageName)}
@@ -115,13 +119,23 @@ func (r *BigStorageRepository) GetByName(bigStorageName string) (BigStorage, err
 }
 
 // Order allows you to order a new bigstorage
+// Deprecated: Use block storage resource instead
 func (r *BigStorageRepository) Order(order BigStorageOrder) error {
 	restRequest := rest.Request{Endpoint: "/big-storages", Body: &order}
 
 	return r.Client.Post(restRequest)
 }
 
+// OrderWithResponse allows you to order a new bigstorage and returns a response
+// Deprecated: Use block storage resource instead
+func (r *BigStorageRepository) OrderWithResponse(order BigStorageOrder) (rest.Response, error) {
+	restRequest := rest.Request{Endpoint: "/big-storages", Body: &order}
+
+	return r.Client.PostWithResponse(restRequest)
+}
+
 // Upgrade allows you to upgrade a BigStorage's size or/and to enable off-site backups
+// Deprecated: Use block storage resource instead
 func (r *BigStorageRepository) Upgrade(bigStorageName string, size int, offsiteBackups bool) error {
 	requestBody := bigStorageUpgradeRequest{BigStorageName: bigStorageName, Size: size, OffsiteBackups: offsiteBackups}
 	restRequest := rest.Request{Endpoint: "/big-storages", Body: &requestBody}
@@ -135,6 +149,8 @@ func (r *BigStorageRepository) Upgrade(bigStorageName string, size int, offsiteB
 //   - One VPS can have a maximum of 10 bigstorages attached;
 //   - Set the vpsName property to the VPS name to attach to for attaching Big Storage;
 //   - Set the vpsName property to null to detach the Big Storage from the currently attached VPS.
+//
+// Deprecated: Use block storage resource instead
 func (r *BigStorageRepository) Update(bigStorage BigStorage) error {
 	requestBody := bigStorageWrapper{BigStorage: bigStorage}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorage.Name), Body: &requestBody}
@@ -142,7 +158,17 @@ func (r *BigStorageRepository) Update(bigStorage BigStorage) error {
 	return r.Client.Put(restRequest)
 }
 
+// UpdateWithResponse returns a response
+// Deprecated: Use block storage resource instead
+func (r *BigStorageRepository) UpdateWithResponse(bigStorage BigStorage) (rest.Response, error) {
+	requestBody := bigStorageWrapper{BigStorage: bigStorage}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorage.Name), Body: &requestBody}
+
+	return r.Client.PutWithResponse(restRequest)
+}
+
 // DetachFromVps allows you to detach a bigstorage from the vps it is attached to
+// Deprecated: Use block storage resource instead
 func (r *BigStorageRepository) DetachFromVps(bigStorage BigStorage) error {
 	bigStorage.VpsName = ""
 
@@ -150,6 +176,7 @@ func (r *BigStorageRepository) DetachFromVps(bigStorage BigStorage) error {
 }
 
 // AttachToVps allows you to attach a given VPS by name to a BigStorage
+// Deprecated: Use block storage resource instead
 func (r *BigStorageRepository) AttachToVps(vpsName string, bigStorage BigStorage) error {
 	bigStorage.VpsName = vpsName
 
@@ -161,6 +188,8 @@ func (r *BigStorageRepository) AttachToVps(vpsName string, bigStorage BigStorage
 //
 //   - end: The Big Storage will be terminated from the end date of the agreement as can be found in the applicable quote;
 //   - immediately: The Big Storage will be terminated immediately.
+//
+// Deprecated: Use block storage resource instead
 func (r *BigStorageRepository) Cancel(bigStorageName string, endTime gotransip.CancellationTime) error {
 	requestBody := gotransip.CancellationRequest{EndTime: endTime}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s", bigStorageName), Body: &requestBody}
@@ -169,6 +198,7 @@ func (r *BigStorageRepository) Cancel(bigStorageName string, endTime gotransip.C
 }
 
 // GetBackups returns a list of backups for a specific bigstorage
+// Deprecated: Use block storage resource instead
 func (r *BigStorageRepository) GetBackups(bigStorageName string) ([]BigStorageBackup, error) {
 	var response bigStorageBackupsWrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/backups", bigStorageName)}
@@ -179,6 +209,7 @@ func (r *BigStorageRepository) GetBackups(bigStorageName string) ([]BigStorageBa
 
 // RevertBackup allows you to revert a bigstorage by bigstorage name and backupID
 // if you want to revert a backup to a different big storage you can use the RevertBackupToOtherBigStorage method
+// Deprecated: Use block storage resource instead
 func (r *BigStorageRepository) RevertBackup(bigStorageName string, backupID int64) error {
 	requestBody := actionWrapper{Action: "revert"}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupID), Body: &requestBody}
@@ -186,7 +217,18 @@ func (r *BigStorageRepository) RevertBackup(bigStorageName string, backupID int6
 	return r.Client.Patch(restRequest)
 }
 
+// RevertBackupWithResponse allows you to revert a bigstorage by bigstorage name and backupID and returns a response
+// if you want to revert a backup to a different big storage you can use the RevertBackupToOtherBigStorage method
+// Deprecated: Use block storage resource instead
+func (r *BigStorageRepository) RevertBackupWithResponse(bigStorageName string, backupID int64) (rest.Response, error) {
+	requestBody := actionWrapper{Action: "revert"}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupID), Body: &requestBody}
+
+	return r.Client.PatchWithResponse(restRequest)
+}
+
 // RevertBackupToOtherBigStorage allows you to revert a backup to a different big storage
+// Deprecated: Use block storage resource instead
 func (r *BigStorageRepository) RevertBackupToOtherBigStorage(bigStorageName string, backupID int64, destinationBigStorageName string) error {
 	requestBody := bigStorageRestoreBackupsWrapper{Action: "revert", DestinationBigStorageName: destinationBigStorageName}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupID), Body: &requestBody}
@@ -194,7 +236,21 @@ func (r *BigStorageRepository) RevertBackupToOtherBigStorage(bigStorageName stri
 	return r.Client.Patch(restRequest)
 }
 
+// RevertBackupToOtherBigStorageWithResponse allows you to revert a backup to a different big storage and returns a response
+// Deprecated: Use block storage resource instead
+func (r *BigStorageRepository) RevertBackupToOtherBigStorageWithResponse(
+	bigStorageName string,
+	backupID int64,
+	destinationBigStorageName string,
+) (rest.Response, error) {
+	requestBody := bigStorageRestoreBackupsWrapper{Action: "revert", DestinationBigStorageName: destinationBigStorageName}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/big-storages/%s/backups/%d", bigStorageName, backupID), Body: &requestBody}
+
+	return r.Client.PatchWithResponse(restRequest)
+}
+
 // GetUsage allows you to query your bigstorage usage within a certain period
+// Deprecated: Use block storage resource instead
 func (r *BigStorageRepository) GetUsage(bigStorageName string, period UsagePeriod) ([]UsageDataDisk, error) {
 	var response usageDataDiskWrapper
 	parameters := url.Values{
@@ -209,6 +265,7 @@ func (r *BigStorageRepository) GetUsage(bigStorageName string, period UsagePerio
 }
 
 // GetUsageLast24Hours allows you to get usage statistics for a given bigstorage within the last 24 hours
+// Deprecated: Use block storage resource instead
 func (r *BigStorageRepository) GetUsageLast24Hours(bigStorageName string) ([]UsageDataDisk, error) {
 	// always define a period body, this way we don't have to depend on the empty body logic on the api server
 	period := UsagePeriod{TimeStart: time.Now().Add(-24 * time.Hour).Unix(), TimeEnd: time.Now().Unix()}

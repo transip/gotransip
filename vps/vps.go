@@ -316,6 +316,39 @@ type bigStorageRestoreBackupsWrapper struct {
 	DestinationBigStorageName string `json:"destinationBigStorageName"`
 }
 
+// blockStorageWrapper struct contains a BlockStorage in it,
+// this is solely used for marshalling/unmarshalling
+type blockStorageWrapper struct {
+	BlockStorage BlockStorage `json:"blockStorage"`
+}
+
+// blockStoragesWrapper struct contains a list of BlockStorages in it,
+// this is solely used for unmarshalling
+type blockStoragesWrapper struct {
+	BlockStorages []BlockStorage `json:"blockStorages"`
+}
+
+// blockStorageUpgradeRequest struct is used upon when upgrading a blockstorage
+// this struct is used for marshalling the request
+type blockStorageUpgradeRequest struct {
+	BlockStorageName string `json:"blockStorageName"`
+	Size             int    `json:"size"`
+	OffsiteBackups   bool   `json:"offsiteBackups"`
+}
+
+// blockStorageBackupsWrapper struct contains a list of BlockStorageBackups in it,
+// this is solely used for unmarshalling
+type blockStorageBackupsWrapper struct {
+	BlockStorageBackups []BlockStorageBackup `json:"backups"`
+}
+
+// blockStorageRestoreBackupsWrapper is used to marshal a request for reverting a backup to a block storage
+// this is solely used for unmarshalling
+type blockStorageRestoreBackupsWrapper struct {
+	Action                      string `json:"action"`
+	DestinationBlockStorageName string `json:"destinationBlockStorageName"`
+}
+
 // usageDataDiskWrapper struct contains UsageDataDisk struct in it
 type usageDataDiskWrapper struct {
 	Usage []UsageDataDisk `json:"usage"`

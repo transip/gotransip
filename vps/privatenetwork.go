@@ -2,10 +2,11 @@ package vps
 
 import (
 	"fmt"
+	"net/url"
+
 	"github.com/transip/gotransip/v6"
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
-	"net/url"
 )
 
 // PrivateNetworkRepository allows you to manage all private network api actions
@@ -67,6 +68,14 @@ func (r *PrivateNetworkRepository) Order(description string) error {
 	return r.Client.Post(restRequest)
 }
 
+// OrderWithResponse allows you to order new private network with a given description and returns a response
+func (r *PrivateNetworkRepository) OrderWithResponse(description string) (rest.Response, error) {
+	requestBody := privateNetworkOrderRequest{Description: description}
+	restRequest := rest.Request{Endpoint: "/private-networks", Body: &requestBody}
+
+	return r.Client.PostWithResponse(restRequest)
+}
+
 // Update allows you to update the private network.
 // You can change the description by changing the Description field
 // on the PrivateNetwork struct Updating it using this function.
@@ -85,12 +94,28 @@ func (r *PrivateNetworkRepository) AttachVps(vpsName string, privateNetworkName 
 	return r.Client.Patch(restRequest)
 }
 
+// AttachVpsWithResponse allows you to attach a VPS to a PrivateNetwork and returns a response
+func (r *PrivateNetworkRepository) AttachVpsWithResponse(vpsName string, privateNetworkName string) (rest.Response, error) {
+	requestBody := privateNetworkActionwrapper{Action: "attachvps", VpsName: vpsName}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName), Body: &requestBody}
+
+	return r.Client.PatchWithResponse(restRequest)
+}
+
 // DetachVps allows you to detach a VPS from a PrivateNetwork
 func (r *PrivateNetworkRepository) DetachVps(vpsName string, privateNetworkName string) error {
 	requestBody := privateNetworkActionwrapper{Action: "detachvps", VpsName: vpsName}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
+}
+
+// DetachVpsWithResponse allows you to detach a VPS from a PrivateNetwork and returns a response
+func (r *PrivateNetworkRepository) DetachVpsWithResponse(vpsName string, privateNetworkName string) (rest.Response, error) {
+	requestBody := privateNetworkActionwrapper{Action: "detachvps", VpsName: vpsName}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/private-networks/%s", privateNetworkName), Body: &requestBody}
+
+	return r.Client.PatchWithResponse(restRequest)
 }
 
 // Cancel allows you to cancel a private network

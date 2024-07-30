@@ -3,14 +3,15 @@ package authenticator
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
+	"time"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6/jwt"
-	"io/ioutil"
-	"net/http"
-	"net/http/httptest"
-	"testing"
-	"time"
 )
 
 const amountOfNoncesToGet = 10
@@ -63,7 +64,7 @@ func TestAuthenticatorGetToken(t *testing.T) {
 func TestRequestANewToken(t *testing.T) {
 	server := getMockServer(t)
 	defer server.Close()
-	key, err := ioutil.ReadFile("../testdata/signature.key")
+	key, err := os.ReadFile("../testdata/signature.key")
 	require.NoError(t, err)
 
 	authenticator := Authenticator{
@@ -84,7 +85,7 @@ func TestAuthenticationErrorIsReturned(t *testing.T) {
 	server := getFailedMockServer(t)
 	defer server.Close()
 
-	key, err := ioutil.ReadFile("../testdata/signature.key")
+	key, err := os.ReadFile("../testdata/signature.key")
 	require.NoError(t, err)
 
 	authenticator := Authenticator{

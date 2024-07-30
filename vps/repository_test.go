@@ -2,10 +2,7 @@ package vps
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
-	"net/http"
-	"net/http/httptest"
 	"net/url"
 	"testing"
 	"time"
@@ -13,64 +10,15 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6"
+	"github.com/transip/gotransip/v6/internal/testutil"
 	"github.com/transip/gotransip/v6/ipaddress"
-	"github.com/transip/gotransip/v6/repository"
 )
-
-// mockServer struct is used to test the how the client sends a request
-// and responds to a servers response
-type mockServer struct {
-	t               *testing.T
-	expectedURL     string
-	expectedMethod  string
-	statusCode      int
-	expectedRequest string
-	response        string
-	skipRequestBody bool
-}
-
-func (m *mockServer) getHTTPServer() *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		assert.Equal(m.t, m.expectedURL, req.URL.String()) // check if right expectedURL is called
-
-		if m.skipRequestBody == false && req.ContentLength != 0 {
-			// get the request body
-			// and check if the body matches the expected request body
-			body, err := ioutil.ReadAll(req.Body)
-			require.NoError(m.t, err)
-			assert.Equal(m.t, m.expectedRequest, string(body))
-		}
-
-		assert.Equal(m.t, m.expectedMethod, req.Method) // check if the right expectedRequest expectedMethod is used
-		rw.WriteHeader(m.statusCode)                    // respond with given status code
-
-		if m.response != "" {
-			_, err := rw.Write([]byte(m.response))
-			require.NoError(m.t, err, "error when writing mock response")
-		}
-	}))
-}
-
-func (m *mockServer) getClient() (*repository.Client, func()) {
-	httpServer := m.getHTTPServer()
-	config := gotransip.DemoClientConfiguration
-	config.URL = httpServer.URL
-	client, err := gotransip.NewClient(config)
-	require.NoError(m.t, err)
-
-	// return tearDown method with which will close the test server after the test
-	tearDown := func() {
-		httpServer.Close()
-	}
-
-	return &client, tearDown
-}
 
 func TestRepository_GetAll(t *testing.T) {
 	const apiResponse = `{ "vpss": [ { "name": "example-vps", "description": "example VPS", "productName": "vps-bladevps-x1", "operatingSystem": "ubuntu-18.04", "diskSize": 157286400, "memorySize": 4194304, "cpus": 2, "status": "running", "ipAddress": "37.97.254.6", "macAddress": "52:54:00:3b:52:65", "currentSnapshots": 1, "maxSnapshots": 10, "isLocked": false, "isBlocked": false, "isCustomerLocked": false, "availabilityZone": "ams0", "tags": [ "customTag", "anotherTag" ] } ] }`
 
-	server := mockServer{t: t, expectedURL: "/vps", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -100,8 +48,8 @@ func TestRepository_GetAll(t *testing.T) {
 func TestRepository_GetAllByTags(t *testing.T) {
 	const apiResponse = `{ "vpss": [ { "name": "example-vps", "uuid": "bfa08ad9-6c12-4e03-95dd-a888b97ffe49", "description": "example VPS", "productName": "vps-bladevps-x1", "operatingSystem": "ubuntu-18.04", "diskSize": 157286400, "memorySize": 4194304, "cpus": 2, "status": "running", "ipAddress": "37.97.254.6", "macAddress": "52:54:00:3b:52:65", "currentSnapshots": 1, "maxSnapshots": 10, "isLocked": false, "isBlocked": false, "isCustomerLocked": false, "availabilityZone": "ams0", "tags": [ "customTag", "anotherTag" ] } ] }`
 
-	server := mockServer{t: t, expectedURL: "/vps?tags=customTag", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps?tags=customTag", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -132,8 +80,8 @@ func TestRepository_GetAllByTags(t *testing.T) {
 func TestRepository_GetSelection(t *testing.T) {
 	const apiResponse = `{ "vpss": [ { "name": "example-vps", "uuid": "bfa08ad9-6c12-4e03-95dd-a888b97ffe49", "description": "example VPS", "productName": "vps-bladevps-x1", "operatingSystem": "ubuntu-18.04", "diskSize": 157286400, "memorySize": 4194304, "cpus": 2, "status": "running", "ipAddress": "37.97.254.6", "macAddress": "52:54:00:3b:52:65", "currentSnapshots": 1, "maxSnapshots": 10, "isLocked": false, "isBlocked": false, "isCustomerLocked": false, "availabilityZone": "ams0", "tags": [ "customTag", "anotherTag" ] } ] }`
 
-	server := mockServer{t: t, expectedURL: "/vps?page=1&pageSize=25", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps?page=1&pageSize=25", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -163,8 +111,8 @@ func TestRepository_GetSelection(t *testing.T) {
 
 func TestRepository_GetByName(t *testing.T) {
 	const apiResponse = `{ "vps": { "name": "example-vps", "uuid": "bfa08ad9-6c12-4e03-95dd-a888b97ffe49", "description": "example VPS", "productName": "vps-bladevps-x1", "operatingSystem": "ubuntu-18.04", "diskSize": 157286400, "memorySize": 4194304, "cpus": 2, "status": "running", "ipAddress": "37.97.254.6", "macAddress": "52:54:00:3b:52:65", "currentSnapshots": 1, "maxSnapshots": 10, "isLocked": false, "isBlocked": false, "isCustomerLocked": false, "availabilityZone": "ams0", "tags": [ "customTag", "anotherTag" ] } }`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -193,8 +141,8 @@ func TestRepository_GetByName(t *testing.T) {
 
 func TestRepository_Order(t *testing.T) {
 	const expectedRequestBody = `{"productName":"vps-bladevps-x8","operatingSystem":"ubuntu-18.04","availabilityZone":"ams0","description":"example vps description","addons":["vpsAddon-1-extra-cpu-core"],"installFlavour":"cloudinit","hostname":"server01.example.com","username":"bob","sshKeys":["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDf2pxWX/yhUBDyk2LPhvRtI0LnVO8PyR5Zt6AHrnhtLGqK+8YG9EMlWbCCWrASR+Q1hFQG example"],"base64InstallText":"testtext123"}`
-	server := mockServer{t: t, expectedURL: "/vps", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequestBody}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequestBody}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -217,8 +165,8 @@ func TestRepository_Order(t *testing.T) {
 
 func TestRepository_OrderMultiple(t *testing.T) {
 	const expectedRequestBody = `{"vpss":[{"productName":"vps-bladevps-x8","operatingSystem":"ubuntu-18.04","availabilityZone":"ams0","description":"webserver01","addons":["vpsAddon-1-extra-cpu-core"],"hostname":"server01.example.com","base64InstallText":"testtext123"},{"productName":"vps-bladevps-x8","operatingSystem":"ubuntu-18.04","availabilityZone":"ams0","description":"backupserver01","hostname":"server01.example.com"}]}`
-	server := mockServer{t: t, expectedURL: "/vps", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequestBody}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequestBody}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -244,8 +192,8 @@ func TestRepository_OrderMultiple(t *testing.T) {
 
 func TestRepository_Clone(t *testing.T) {
 	const expectedRequest = `{"vpsName":"example-vps"}`
-	server := mockServer{t: t, expectedURL: "/vps", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -255,8 +203,8 @@ func TestRepository_Clone(t *testing.T) {
 
 func TestRepository_CloneToAvailabilityZone(t *testing.T) {
 	const expectedRequest = `{"vpsName":"example-vps","availabilityZone":"ams0"}`
-	server := mockServer{t: t, expectedURL: "/vps", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -266,8 +214,8 @@ func TestRepository_CloneToAvailabilityZone(t *testing.T) {
 
 func TestRepository_Update(t *testing.T) {
 	const expectedRequest = `{"vps":{"name":"example-vps","uuid":"bfa08ad9-6c12-4e03-95dd-a888b97ffe49","description":"example VPS","productName":"vps-bladevps-x1","operatingSystem":"ubuntu-18.04","diskSize":157286400,"memorySize":4194304,"cpus":2,"status":"running","ipAddress":"37.97.254.6","macAddress":"52:54:00:3b:52:65","currentSnapshots":1,"maxSnapshots":10,"isCustomerLocked":false,"availabilityZone":"ams0","tags":["customTag","anotherTag"]}}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -299,8 +247,8 @@ func TestRepository_Update(t *testing.T) {
 
 func TestRepository_Start(t *testing.T) {
 	const expectedRequest = `{"action":"start"}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps", expectedMethod: "PATCH", statusCode: 204, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps", ExpectedMethod: "PATCH", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -310,8 +258,8 @@ func TestRepository_Start(t *testing.T) {
 
 func TestRepository_Stop(t *testing.T) {
 	const expectedRequest = `{"action":"stop"}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps", expectedMethod: "PATCH", statusCode: 204, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps", ExpectedMethod: "PATCH", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -321,8 +269,8 @@ func TestRepository_Stop(t *testing.T) {
 
 func TestRepository_Reset(t *testing.T) {
 	const expectedRequest = `{"action":"reset"}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps", expectedMethod: "PATCH", statusCode: 204, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps", ExpectedMethod: "PATCH", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -332,8 +280,8 @@ func TestRepository_Reset(t *testing.T) {
 
 func TestRepository_Handover(t *testing.T) {
 	const expectedRequest = `{"action":"handover","targetCustomerName":"bobexample"}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps", expectedMethod: "PATCH", statusCode: 204, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps", ExpectedMethod: "PATCH", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -343,8 +291,8 @@ func TestRepository_Handover(t *testing.T) {
 
 func TestRepository_Cancel(t *testing.T) {
 	const expectedRequest = `{"endTime":"end"}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps", expectedMethod: "DELETE", statusCode: 204, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps", ExpectedMethod: "DELETE", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -362,8 +310,8 @@ func TestRepository_GetUsageData(t *testing.T) {
 	}
 
 	expectedURL := "/vps/example-vps/usage?" + values.Encode()
-	server := mockServer{t: t, expectedURL: expectedURL, expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: expectedURL, ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -385,8 +333,8 @@ func TestRepository_GetAllUsageDataByVps(t *testing.T) {
 	}
 
 	expectedURL := "/vps/example-vps/usage?" + values.Encode()
-	server := mockServer{t: t, expectedURL: expectedURL, expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: expectedURL, ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -419,8 +367,8 @@ func TestRepository_GetAllUsageDataByVps24Hours(t *testing.T) {
 	}
 
 	expectedURL := "/vps/example-vps/usage?" + values.Encode()
-	server := mockServer{t: t, expectedURL: expectedURL, expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: expectedURL, ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -445,8 +393,8 @@ func TestRepository_GetAllUsageDataByVps24Hours(t *testing.T) {
 
 func TestRepository_GetVNCData(t *testing.T) {
 	const apiResponse = `{ "vncData": { "host": "vncproxy.transip.nl", "path": "websockify?token=testtokentje", "url": "https://vncproxy.transip.nl/websockify?token=testtokentje", "token": "testtokentje", "password": "esisteinpassw0rd" } }`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/vnc-data", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/vnc-data", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -461,8 +409,8 @@ func TestRepository_GetVNCData(t *testing.T) {
 }
 
 func TestRepository_RegenerateVNCToken(t *testing.T) {
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/vnc-data", expectedMethod: "PATCH", statusCode: 204}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/vnc-data", ExpectedMethod: "PATCH", StatusCode: 204}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -472,8 +420,8 @@ func TestRepository_RegenerateVNCToken(t *testing.T) {
 
 func TestRepository_GetAddons(t *testing.T) {
 	const apiResponse = `{ "addons": { "active": [ { "name": "example-product-name", "description": "This is an example product", "price": 499, "recurringPrice": 799 } ], "cancellable": [ { "name": "example-product-name", "description": "This is an example product", "price": 499, "recurringPrice": 799 } ], "available": [ { "name": "example-product-name", "description": "This is an example product", "price": 499, "recurringPrice": 799 } ] } }`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/addons", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/addons", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -501,8 +449,8 @@ func TestRepository_GetAddons(t *testing.T) {
 
 func TestRepository_OrderAddons(t *testing.T) {
 	const expectedRequest = `{"addons":["vps-addon-1-extra-ip-address"]}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/addons", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/addons", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -511,8 +459,8 @@ func TestRepository_OrderAddons(t *testing.T) {
 }
 
 func TestRepository_CancelAddon(t *testing.T) {
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/addons/einaddon", expectedMethod: "DELETE", statusCode: 204}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/addons/einaddon", ExpectedMethod: "DELETE", StatusCode: 204}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -522,8 +470,8 @@ func TestRepository_CancelAddon(t *testing.T) {
 
 func TestRepository_GetUpgrades(t *testing.T) {
 	const apiResponse = `{ "upgrades": [ { "name": "example-product-name", "description": "This is an example product", "price": 499, "recurringPrice": 799 } ] } `
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/upgrades", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/upgrades", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -539,8 +487,8 @@ func TestRepository_GetUpgrades(t *testing.T) {
 
 func TestRepository_Upgrade(t *testing.T) {
 	const expectedRequest = `{"productName":"vps-bladevps-pro-x16"}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/upgrades", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/upgrades", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -564,8 +512,8 @@ func TestRepository_GetOperatingSystems(t *testing.T) {
     }
   ]
 }`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/operating-systems", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/operating-systems", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -585,8 +533,8 @@ func TestRepository_GetOperatingSystems(t *testing.T) {
 
 func TestRepository_InstallOperatingSystemOptionalFields(t *testing.T) {
 	const expectedRequest = `{"operatingSystemName":"ubuntu-18.04"}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/operating-systems", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/operating-systems", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -596,8 +544,8 @@ func TestRepository_InstallOperatingSystemOptionalFields(t *testing.T) {
 
 func TestRepository_InstallOperatingSystem(t *testing.T) {
 	const expectedRequest = `{"operatingSystemName":"ubuntu-18.04","hostname":"test","base64InstallText":"ZGFzaXN0YmFzZTY0"}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/operating-systems", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/operating-systems", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -607,8 +555,8 @@ func TestRepository_InstallOperatingSystem(t *testing.T) {
 
 func TestRepository_InstallOperatingSystemWithOptions(t *testing.T) {
 	const expectedRequest = `{"operatingSystemName":"ubuntu-20.04","installFlavour":"cloudinit","username":"bob","sshKeys":["ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDf2pxWX/yhUBDyk2LPhvRtI0LnVO8PyR5Zt6AHrnhtLGqK+8YG9EMlWbCCWrASR+Q1hFQG example"]}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/operating-systems", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/operating-systems", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -628,8 +576,8 @@ func TestRepository_InstallOperatingSystemWithOptions(t *testing.T) {
 
 func TestRepository_GetIPAddresses(t *testing.T) {
 	const apiResponse = `{ "ipAddresses" : [ { "dnsResolvers" : [ "195.8.195.8", "195.135.195.135" ], "subnetMask" : "255.255.255.0", "reverseDns" : "example.com", "address" : "149.210.192.184", "gateway" : "149.210.192.1" }, { "address" : "2a01:7c8:aab5:5d5::1", "gateway" : "2a01:7c8:aab5::1", "dnsResolvers" : [ "2a01:7c8:7000:195::8:195:8", "2a01:7c8:7000:195::135:195:135" ], "subnetMask" : "/48", "reverseDns" : "example.com" } ] }`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/ip-addresses", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/ip-addresses", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -654,8 +602,8 @@ func TestRepository_GetIPAddresses(t *testing.T) {
 
 func TestRepository_GetIPAddressByAddress(t *testing.T) {
 	const apiResponse = `{ "ipAddress": { "address": "37.97.254.6", "subnetMask": "255.255.255.0", "gateway": "37.97.254.1", "dnsResolvers": [ "195.8.195.8", "195.135.195.135" ], "reverseDns": "example.com" } } `
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/ip-addresses/37.97.254.6", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/ip-addresses/37.97.254.6", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -673,8 +621,8 @@ func TestRepository_GetIPAddressByAddress(t *testing.T) {
 
 func TestRepository_AddIPv6Address(t *testing.T) {
 	const expectedRequest = `{"ipAddress":"2a01:7c8:3:1337::6"}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/ip-addresses", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/ip-addresses", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -685,8 +633,8 @@ func TestRepository_AddIPv6Address(t *testing.T) {
 
 func TestRepository_UpdateReverseDNS(t *testing.T) {
 	const expectedRequest = `{"ipAddress":{"address":"37.97.254.6","gateway":"37.97.254.1","reverseDns":"example.com","subnetMask":"255.0.0.0"}}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/ip-addresses/37.97.254.6", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/ip-addresses/37.97.254.6", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -702,8 +650,8 @@ func TestRepository_UpdateReverseDNS(t *testing.T) {
 }
 
 func TestRepository_RemoveIPv6Address(t *testing.T) {
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/ip-addresses/2a01::1", expectedMethod: "DELETE", statusCode: 204}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/ip-addresses/2a01::1", ExpectedMethod: "DELETE", StatusCode: 204}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -714,8 +662,8 @@ func TestRepository_RemoveIPv6Address(t *testing.T) {
 
 func TestRepository_GetSnapshots(t *testing.T) {
 	const apiResponse = `{ "snapshots": [ { "name": "1572607577", "description": "before upgrade", "diskSize": 314572800, "status": "creating", "dateTimeCreate": "2019-07-14 12:21:11", "operatingSystem": "ubuntu-18.04" } ] } `
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/snapshots", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/snapshots", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -734,8 +682,8 @@ func TestRepository_GetSnapshots(t *testing.T) {
 
 func TestRepository_GetSnapshotByName(t *testing.T) {
 	const apiResponse = `{ "snapshot": { "name": "1572607577", "description": "before upgrade", "diskSize": 314572800, "status": "creating", "dateTimeCreate": "2019-07-14 12:21:11", "operatingSystem": "ubuntu-18.04" } }`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/snapshots/1572607577", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/snapshots/1572607577", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -752,8 +700,8 @@ func TestRepository_GetSnapshotByName(t *testing.T) {
 
 func TestRepository_CreateSnapshot(t *testing.T) {
 	const expectedRequest = `{"description":"BeforeItsAllBroken","shouldStartVps":true}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/snapshots", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/snapshots", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -762,8 +710,8 @@ func TestRepository_CreateSnapshot(t *testing.T) {
 }
 
 func TestRepository_RevertSnapshot(t *testing.T) {
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/snapshots/1337", expectedMethod: "PATCH", statusCode: 204}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/snapshots/1337", ExpectedMethod: "PATCH", StatusCode: 204}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -773,8 +721,8 @@ func TestRepository_RevertSnapshot(t *testing.T) {
 
 func TestRepository_RevertSnapshotToOtherVps(t *testing.T) {
 	const expectedRequest = `{"destinationVpsName":"example-vps2"}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/snapshots/1337", expectedMethod: "PATCH", statusCode: 204, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/snapshots/1337", ExpectedMethod: "PATCH", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -783,8 +731,8 @@ func TestRepository_RevertSnapshotToOtherVps(t *testing.T) {
 }
 
 func TestRepository_RemoveSnapshot(t *testing.T) {
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/snapshots/1337", expectedMethod: "DELETE", statusCode: 204}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/snapshots/1337", ExpectedMethod: "DELETE", StatusCode: 204}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -794,8 +742,8 @@ func TestRepository_RemoveSnapshot(t *testing.T) {
 
 func TestRepository_GetBackups(t *testing.T) {
 	const apiResponse = `{ "backups": [ { "id": 712332, "status": "active", "dateTimeCreate": "2019-11-29 22:11:20", "diskSize": 157286400, "operatingSystem": "Ubuntu 19.10", "availabilityZone": "ams0" } ] }`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/backups", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/backups", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -813,8 +761,8 @@ func TestRepository_GetBackups(t *testing.T) {
 
 func TestRepository_RevertBackup(t *testing.T) {
 	const expectedRequest = `{"action":"revert"}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/backups/1337", expectedMethod: "PATCH", statusCode: 204, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/backups/1337", ExpectedMethod: "PATCH", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -824,8 +772,8 @@ func TestRepository_RevertBackup(t *testing.T) {
 
 func TestRepository_ConvertBackupToSnapshot(t *testing.T) {
 	const expectedRequest = `{"action":"convert","description":"BeforeItsAllBroken"}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/backups/1337", expectedMethod: "PATCH", statusCode: 204, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/backups/1337", ExpectedMethod: "PATCH", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 

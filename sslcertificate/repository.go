@@ -19,7 +19,7 @@ func (r *Repository) GetAll() ([]SSLCertificate, error) {
 	return response.Sslcertificates, err
 }
 
-// GetByID returns a SSL certificate by ID
+// GetByID returns an SSL certificate by ID
 func (r *Repository) GetByID(id int) (SSLCertificate, error) {
 	var response wrapper
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/ssl-certificates/%d", id)}
@@ -42,4 +42,13 @@ func (r *Repository) Order(orderRequest OrderSSLCertificateRequest) error {
 	restRequest := rest.Request{Endpoint: "/ssl-certificates", Body: orderRequest}
 
 	return r.Client.Post(restRequest)
+}
+
+// Download an SSL certificate
+func (r *Repository) Download(id int) (Data, error) {
+	var response dataWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/ssl-certificates/%d/download", id)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Data, err
 }

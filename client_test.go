@@ -3,10 +3,7 @@ package gotransip
 import (
 	"bytes"
 	"errors"
-	"github.com/transip/gotransip/v6/authenticator"
-	"github.com/transip/gotransip/v6/repository"
-	"github.com/transip/gotransip/v6/rest"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -18,6 +15,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/transip/gotransip/v6/authenticator"
+	"github.com/transip/gotransip/v6/repository"
+	"github.com/transip/gotransip/v6/rest"
 )
 
 func TestNewClient(t *testing.T) {
@@ -74,7 +74,7 @@ func TestNewClient(t *testing.T) {
 	// Test if private key from path is read and passed to the authenticator
 	privateKeyFile, err := os.Open("testdata/signature.key")
 	require.NoError(t, err)
-	privateKeyBody, err := ioutil.ReadAll(privateKeyFile)
+	privateKeyBody, err := io.ReadAll(privateKeyFile)
 	require.NoError(t, err)
 
 	// Test that a tokencache is passed to the authenticator
@@ -218,7 +218,7 @@ func (m *mockServer) getHTTPServer() *httptest.Server {
 		if req.ContentLength != 0 {
 			// get the request body
 			// and check if the body matches the expected request body
-			body, err := ioutil.ReadAll(req.Body)
+			body, err := io.ReadAll(req.Body)
 			require.NoError(m.t, err)
 			assert.Equal(m.t, m.expectedRequest, string(body))
 		}
@@ -231,7 +231,7 @@ func (m *mockServer) getHTTPServer() *httptest.Server {
 		// check if the request has the right content-type
 		assert.Equal(m.t, req.Header.Get("Accept"), "application/json")
 		// check if the request has the right user-agent
-		assert.Equal(m.t, req.Header.Get("User-Agent"), "go-client-gotransip/6.17.0")
+		assert.Equal(m.t, req.Header.Get("User-Agent"), userAgent)
 		// check if the request has the right content-type
 		assert.Equal(m.t, req.Header.Get("Content-Type"), "application/json")
 

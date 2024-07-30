@@ -2,7 +2,7 @@ package authenticator
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,7 +11,7 @@ import (
 
 // See: https://api.transip.nl/v6/auth
 func TestSignWithKey(t *testing.T) {
-	key, err := ioutil.ReadFile("../testdata/signature.key")
+	key, err := os.ReadFile("../testdata/signature.key")
 	require.NoError(t, err)
 
 	requestBody := &AuthRequest{

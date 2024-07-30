@@ -2,15 +2,16 @@ package vps
 
 import (
 	"fmt"
+	"net"
+	"net/url"
+	"strings"
+	"time"
+
 	"github.com/transip/gotransip/v6"
 	"github.com/transip/gotransip/v6/ipaddress"
 	"github.com/transip/gotransip/v6/product"
 	"github.com/transip/gotransip/v6/repository"
 	"github.com/transip/gotransip/v6/rest"
-	"net"
-	"net/url"
-	"strings"
-	"time"
 )
 
 // Repository is the vps repository
@@ -64,6 +65,14 @@ func (r *Repository) Order(vpsOrder Order) error {
 	restRequest := rest.Request{Endpoint: "/vps", Body: &vpsOrder}
 
 	return r.Client.Post(restRequest)
+
+}
+
+// OrderWithResponse allows you to order a new VPS and returns a response
+func (r *Repository) OrderWithResponse(vpsOrder Order) (rest.Response, error) {
+	restRequest := rest.Request{Endpoint: "/vps", Body: &vpsOrder}
+
+	return r.Client.PostWithResponse(restRequest)
 }
 
 // OrderMultiple allows you to order multiple vpses at the same time
@@ -74,25 +83,41 @@ func (r *Repository) OrderMultiple(orders []Order) error {
 	return r.Client.Post(restRequest)
 }
 
+// OrderMultipleWithResponse allows you to order multiple vpses at the same time and returns a response
+func (r *Repository) OrderMultipleWithResponse(orders []Order) (rest.Response, error) {
+	requestBody := vpssOrderWrapper{Orders: orders}
+	restRequest := rest.Request{Endpoint: "/vps", Body: &requestBody}
+
+	return r.Client.PostWithResponse(restRequest)
+}
+
 // Clone allows you to clone an existing VPS
 // There are a few things to take into account when you want to clone an existing VPS to a new VPS:
 //
 // - If the original VPS (which you’re going to clone) is currently locked, the clone will fail;
 //
-// - Cloned control panels can be used on the VPS, but as the IP address changes, this does require you to synchronise
-//   the new license on the new VPS (licenses are often IP-based);
+//   - Cloned control panels can be used on the VPS, but as the IP address changes, this does require you to synchronise
+//     the new license on the new VPS (licenses are often IP-based);
 //
-// - Possibly, your VPS has its network interface(s) configured using (a) static IP(‘s) rather than a dynamic allocation
-//   using DHCP. If this is the case, you have to configure the new IP(‘s) on the new VPS.
-//   Do note that this is not the case with our pre-installed control panel images;
+//   - Possibly, your VPS has its network interface(s) configured using (a) static IP(‘s) rather than a dynamic allocation
+//     using DHCP. If this is the case, you have to configure the new IP(‘s) on the new VPS.
+//     Do note that this is not the case with our pre-installed control panel images;
 //
-// - VPS add-ons such as Big Storage aren’t affected by cloning - these will stay attached to the original VPS and can’t
-//   be swapped automatically
+//   - VPS add-ons such as Big Storage aren’t affected by cloning - these will stay attached to the original VPS and can’t
+//     be swapped automatically
 func (r *Repository) Clone(vpsName string) error {
 	requestBody := cloneRequest{VpsName: vpsName}
 	restRequest := rest.Request{Endpoint: "/vps", Body: &requestBody}
 
 	return r.Client.Post(restRequest)
+}
+
+// CloneWithResponse allows you to clone an existing VPS and returns a response
+func (r *Repository) CloneWithResponse(vpsName string) (rest.Response, error) {
+	requestBody := cloneRequest{VpsName: vpsName}
+	restRequest := rest.Request{Endpoint: "/vps", Body: &requestBody}
+
+	return r.Client.PostWithResponse(restRequest)
 }
 
 // CloneToAvailabilityZone allows you to clone a vps to a specific availability zone, identified by name
@@ -103,11 +128,19 @@ func (r *Repository) CloneToAvailabilityZone(vpsName string, availabilityZone st
 	return r.Client.Post(restRequest)
 }
 
+// CloneToAvailabilityZoneWithResponse allows you to clone a vps to a specific availability zone, identified by name and returns a response
+func (r *Repository) CloneToAvailabilityZoneWithResponse(vpsName string, availabilityZone string) (rest.Response, error) {
+	requestBody := cloneRequest{VpsName: vpsName, AvailabilityZone: availabilityZone}
+	restRequest := rest.Request{Endpoint: "/vps", Body: &requestBody}
+
+	return r.Client.PostWithResponse(restRequest)
+}
+
 // Update allows you to lock/unlock a VPS, update a VPS description, and add/remove tags.
 //
-//   For locking the VPS, set isCustomerLocked to true. Set the value to false for unlocking the VPS
-//   You can change your VPS description by simply changing the description attribute
-//   To add/remove tags, you must update the tags attribute
+//	For locking the VPS, set isCustomerLocked to true. Set the value to false for unlocking the VPS
+//	You can change your VPS description by simply changing the description attribute
+//	To add/remove tags, you must update the tags attribute
 func (r *Repository) Update(vps Vps) error {
 	requestBody := vpsWrapper{Vps: vps}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s", vps.Name), Body: &requestBody}
@@ -356,6 +389,15 @@ func (r *Repository) CreateSnapshot(vpsName string, description string, shouldSt
 	return r.Client.Post(restRequest)
 }
 
+// CreateSnapshotWithResponse allows you to create a snapshot for restoring it at a later time or restoring it to another VPS and returns a response
+// See the function RevertSnapshot for this.
+func (r *Repository) CreateSnapshotWithResponse(vpsName string, description string, shouldStartVps bool) (rest.Response, error) {
+	requestBody := createSnapshotRequest{Description: description, ShouldStartVps: shouldStartVps}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/snapshots", vpsName), Body: &requestBody}
+
+	return r.Client.PostWithResponse(restRequest)
+}
+
 // RevertSnapshot allows you to revert a snapshot of a vps,
 // if you want to revert a snapshot to a different vps you can use the RevertSnapshotToOtherVps method
 func (r *Repository) RevertSnapshot(vpsName string, snapshotName string) error {
@@ -364,12 +406,27 @@ func (r *Repository) RevertSnapshot(vpsName string, snapshotName string) error {
 	return r.Client.Patch(restRequest)
 }
 
+// RevertSnapshotWithResponse allows you to revert a snapshot of a vps and returns a response
+// if you want to revert a snapshot to a different vps you can use the RevertSnapshotToOtherVps method
+func (r *Repository) RevertSnapshotWithResponse(vpsName string, snapshotName string) (rest.Response, error) {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/snapshots/%s", vpsName, snapshotName)}
+	return r.Client.PatchWithResponse(restRequest)
+}
+
 // RevertSnapshotToOtherVps allows you to revert a snapshot to a different vps
 func (r *Repository) RevertSnapshotToOtherVps(vpsName string, snapshotName string, destinationVps string) error {
 	requestBody := revertSnapshotRequest{DestinationVpsName: destinationVps}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/snapshots/%s", vpsName, snapshotName), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
+}
+
+// RevertSnapshotToOtherVpsWithResponse allows you to revert a snapshot to a different vps
+func (r *Repository) RevertSnapshotToOtherVpsWithResponse(vpsName string, snapshotName string, destinationVps string) (rest.Response, error) {
+	requestBody := revertSnapshotRequest{DestinationVpsName: destinationVps}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/snapshots/%s", vpsName, snapshotName), Body: &requestBody}
+
+	return r.Client.PatchWithResponse(restRequest)
 }
 
 // RemoveSnapshot allows you to remove a snapshot from a given VPS
@@ -396,10 +453,26 @@ func (r *Repository) RevertBackup(vpsName string, backupID int64) error {
 	return r.Client.Patch(restRequest)
 }
 
+// RevertBackupWithResponse allows you to revert a backup and returns a response
+func (r *Repository) RevertBackupWithResponse(vpsName string, backupID int64) (rest.Response, error) {
+	requestBody := actionWrapper{Action: "revert"}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/backups/%d", vpsName, backupID), Body: &requestBody}
+
+	return r.Client.PatchWithResponse(restRequest)
+}
+
 // ConvertBackupToSnapshot allows you to convert a backup to a snapshot
 func (r *Repository) ConvertBackupToSnapshot(vpsName string, backupID int64, snapshotDescription string) error {
 	requestBody := convertBackupRequest{SnapshotDescription: snapshotDescription, Action: "convert"}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/backups/%d", vpsName, backupID), Body: &requestBody}
 
 	return r.Client.Patch(restRequest)
+}
+
+// ConvertBackupToSnapshotWithResponse allows you to convert a backup to a snapshot and returns a response
+func (r *Repository) ConvertBackupToSnapshotWithResponse(vpsName string, backupID int64, snapshotDescription string) (rest.Response, error) {
+	requestBody := convertBackupRequest{SnapshotDescription: snapshotDescription, Action: "convert"}
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/vps/%s/backups/%d", vpsName, backupID), Body: &requestBody}
+
+	return r.Client.PatchWithResponse(restRequest)
 }

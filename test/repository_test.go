@@ -1,27 +1,17 @@
 package test
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6"
+	"github.com/transip/gotransip/v6/internal/testutil"
 	"github.com/transip/gotransip/v6/rest"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
-func getMockServer(t *testing.T, url string, method string, statusCode int, response string) *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		assert.Equal(t, url, req.URL.String()) // check if right url is called
-		assert.Equal(t, method, req.Method)    // check if the right request method is used
-		rw.WriteHeader(statusCode)             // respond with given status code
-		_, err := rw.Write([]byte(response))
-		require.NoError(t, err, "error when writing mock response")
-	}))
-}
-
 func getRepository(t *testing.T, url string, responseStatusCode int, response string) (Repository, func()) {
-	server := getMockServer(t, url, "GET", responseStatusCode, response)
+	server := testutil.GetMockServer(t, url, "GET", responseStatusCode, response)
 	config := gotransip.DemoClientConfiguration
 	config.URL = server.URL
 	client, err := gotransip.NewClient(config)

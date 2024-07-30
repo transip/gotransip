@@ -3,16 +3,14 @@ package domain
 import (
 	"errors"
 	"fmt"
+	"net"
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/transip/gotransip/v6"
-	"github.com/transip/gotransip/v6/repository"
+	"github.com/transip/gotransip/v6/internal/testutil"
 	"github.com/transip/gotransip/v6/rest"
-	"io/ioutil"
-	"net"
-	"net/http"
-	"net/http/httptest"
-	"testing"
 )
 
 const (
@@ -80,58 +78,9 @@ const (
     } ] }`
 )
 
-// mockServer struct is used to test the how the client sends a request
-// and responds to a servers response
-type mockServer struct {
-	t                   *testing.T
-	expectedURL         string
-	expectedMethod      string
-	statusCode          int
-	expectedRequestBody string
-	response            string
-	skipRequestBody     bool
-}
-
-func (m *mockServer) getHTTPServer() *httptest.Server {
-	return httptest.NewServer(http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
-		assert.Equal(m.t, m.expectedURL, req.URL.String()) // check if right expectedURL is called
-
-		if m.skipRequestBody == false && req.ContentLength != 0 {
-			// get the request body
-			// and check if the body matches the expected request body
-			body, err := ioutil.ReadAll(req.Body)
-			require.NoError(m.t, err)
-			assert.Equal(m.t, m.expectedRequestBody, string(body))
-		}
-
-		assert.Equal(m.t, m.expectedMethod, req.Method) // check if the right expectedRequestBody expectedMethod is used
-		rw.WriteHeader(m.statusCode)                    // respond with given status code
-
-		if m.response != "" {
-			_, err := rw.Write([]byte(m.response))
-			require.NoError(m.t, err, "error when writing mock response")
-		}
-	}))
-}
-
-func (m *mockServer) getClient() (*repository.Client, func()) {
-	httpServer := m.getHTTPServer()
-	config := gotransip.DemoClientConfiguration
-	config.URL = httpServer.URL
-	client, err := gotransip.NewClient(config)
-	require.NoError(m.t, err)
-
-	// return tearDown method with which will close the test server after the test
-	tearDown := func() {
-		httpServer.Close()
-	}
-
-	return &client, tearDown
-}
-
 func TestRepository_GetAll(t *testing.T) {
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domains", statusCode: 200, response: domainsAPIResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/domains", StatusCode: 200, Response: domainsAPIResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -151,8 +100,8 @@ func TestRepository_GetAll(t *testing.T) {
 }
 
 func TestRepository_GetSelection(t *testing.T) {
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domains?page=1&pageSize=25", statusCode: 200, response: domainsAPIResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/domains?page=1&pageSize=25", StatusCode: 200, Response: domainsAPIResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -172,8 +121,8 @@ func TestRepository_GetSelection(t *testing.T) {
 }
 
 func TestRepository_GetAllByTags(t *testing.T) {
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domains?tags=customTag", statusCode: 200, response: domainsAPIResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/domains?tags=customTag", StatusCode: 200, Response: domainsAPIResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -194,8 +143,8 @@ func TestRepository_GetAllByTags(t *testing.T) {
 }
 
 func TestRepository_GetByDomainName(t *testing.T) {
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domains/example.com", statusCode: 200, response: domainAPIResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/domains/example.com", StatusCode: 200, Response: domainAPIResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -215,8 +164,8 @@ func TestRepository_GetByDomainName(t *testing.T) {
 
 func TestRepository_GetByDomainNameError(t *testing.T) {
 	domainName := "example2.com"
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: fmt.Sprintf("/domains/%s", domainName), statusCode: 404, response: error404Response}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: fmt.Sprintf("/domains/%s", domainName), StatusCode: 404, Response: error404Response}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -229,8 +178,8 @@ func TestRepository_GetByDomainNameError(t *testing.T) {
 
 func TestRepository_Register(t *testing.T) {
 	expectedRequest := `{"domainName":"example.com"}`
-	server := mockServer{t: t, expectedMethod: "POST", expectedURL: "/domains", statusCode: 201, expectedRequestBody: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "POST", ExpectedURL: "/domains", StatusCode: 201, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -241,8 +190,8 @@ func TestRepository_Register(t *testing.T) {
 
 func TestRepository_RegisterError(t *testing.T) {
 	errorResponse := `{"error":"The domain 'example.com' is not free and thus cannot be registered"}`
-	server := mockServer{t: t, expectedMethod: "POST", expectedURL: "/domains", statusCode: 406, skipRequestBody: true, response: errorResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "POST", ExpectedURL: "/domains", StatusCode: 406, SkipRequestBody: true, Response: errorResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -255,8 +204,8 @@ func TestRepository_RegisterError(t *testing.T) {
 
 func TestRepository_Transfer(t *testing.T) {
 	expectedRequest := `{"domainName":"example.com","authCode":"test123"}`
-	server := mockServer{t: t, expectedMethod: "POST", expectedURL: "/domains", statusCode: 201, expectedRequestBody: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "POST", ExpectedURL: "/domains", StatusCode: 201, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -268,8 +217,8 @@ func TestRepository_Transfer(t *testing.T) {
 
 func TestRepository_TransferError(t *testing.T) {
 	errorResponse := `{"error":"The domain 'example.com' is not registered and thus cannot be transferred"}`
-	server := mockServer{t: t, expectedMethod: "POST", expectedURL: "/domains", statusCode: 409, skipRequestBody: true, response: errorResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "POST", ExpectedURL: "/domains", StatusCode: 409, SkipRequestBody: true, Response: errorResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -283,8 +232,8 @@ func TestRepository_TransferError(t *testing.T) {
 
 func TestRepository_Update(t *testing.T) {
 	expectedRequest := `{"domain":{"tags":["test123","test1234"],"cancellationDate":"0001-01-01T00:00:00Z","isTransferLocked":false,"isWhitelabel":false,"name":"example.com","registrationDate":"0001-01-01T00:00:00Z","renewalDate":"0001-01-01T00:00:00Z"}}`
-	server := mockServer{t: t, expectedMethod: "PUT", expectedURL: "/domains/example.com", statusCode: 204, expectedRequestBody: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "PUT", ExpectedURL: "/domains/example.com", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -296,8 +245,8 @@ func TestRepository_Update(t *testing.T) {
 
 func TestRepository_CancelEnd(t *testing.T) {
 	expectedRequest := `{"endTime":"end"}`
-	server := mockServer{t: t, expectedMethod: "DELETE", expectedURL: "/domains/example.com", statusCode: 204, expectedRequestBody: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "DELETE", ExpectedURL: "/domains/example.com", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -307,8 +256,8 @@ func TestRepository_CancelEnd(t *testing.T) {
 
 func TestRepository_Cancel(t *testing.T) {
 	expectedRequest := `{"endTime":"immediately"}`
-	server := mockServer{t: t, expectedMethod: "DELETE", expectedURL: "/domains/example.com", statusCode: 204, expectedRequestBody: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "DELETE", ExpectedURL: "/domains/example.com", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -318,8 +267,8 @@ func TestRepository_Cancel(t *testing.T) {
 
 func TestRepository_GetDomainBranding(t *testing.T) {
 	domainName := "example2.com"
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: fmt.Sprintf("/domains/%s/branding", domainName), statusCode: 200, response: brandingAPIResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: fmt.Sprintf("/domains/%s/branding", domainName), StatusCode: 200, Response: brandingAPIResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -337,8 +286,8 @@ func TestRepository_GetDomainBranding(t *testing.T) {
 
 func TestRepository_UpdateDomainBranding(t *testing.T) {
 	expectedRequest := `{"branding":{"bannerLine1":"Example B.V.","bannerLine2":"admin@example.com","bannerLine3":"www.example.com","companyName":"www.example.com/tou","companyUrl":"Example B.V.","supportEmail":"Example","termsOfUsageUrl":"http://www.example.com/products"}}`
-	server := mockServer{t: t, expectedMethod: "PUT", expectedURL: "/domains/example.com/branding", statusCode: 204, expectedRequestBody: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "PUT", ExpectedURL: "/domains/example.com/branding", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -358,8 +307,8 @@ func TestRepository_UpdateDomainBranding(t *testing.T) {
 
 func TestRepository_GetContacts(t *testing.T) {
 	domainName := "example.com"
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: fmt.Sprintf("/domains/%s/contacts", domainName), statusCode: 200, response: contactsAPIResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: fmt.Sprintf("/domains/%s/contacts", domainName), StatusCode: 200, Response: contactsAPIResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -385,8 +334,8 @@ func TestRepository_GetContacts(t *testing.T) {
 
 func TestRepository_UpdateContacts(t *testing.T) {
 	expectedRequest := `{"contacts":[{"type":"registrant","firstName":"John","lastName":"Doe","companyName":"Example B.V.","companyKvk":"83057825","companyType":"BV","street":"Easy street","number":"12","postalCode":"1337 XD","city":"Leiden","phoneNumber":"+31 715241919","faxNumber":"+31 715241919","email":"example@example.com","country":"nl"}]}`
-	server := mockServer{t: t, expectedMethod: "PUT", expectedURL: "/domains/example.com/contacts", statusCode: 204, expectedRequestBody: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "PUT", ExpectedURL: "/domains/example.com/contacts", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -414,8 +363,8 @@ func TestRepository_UpdateContacts(t *testing.T) {
 }
 
 func TestRepository_GetDnsEntries(t *testing.T) {
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domains/example.com/dns", statusCode: 200, response: dnsEntriesAPIResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/domains/example.com/dns", StatusCode: 200, Response: dnsEntriesAPIResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -431,8 +380,8 @@ func TestRepository_GetDnsEntries(t *testing.T) {
 
 func TestRepository_AddDnsEntry(t *testing.T) {
 	expectedRequest := `{"dnsEntry":{"name":"www","expire":1337,"type":"A","content":"127.0.0.1"}}`
-	server := mockServer{t: t, expectedMethod: "POST", expectedURL: "/domains/example.com/dns", statusCode: 201, expectedRequestBody: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "POST", ExpectedURL: "/domains/example.com/dns", StatusCode: 201, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -443,8 +392,8 @@ func TestRepository_AddDnsEntry(t *testing.T) {
 
 func TestRepository_UpdateDnsEntry(t *testing.T) {
 	expectedRequest := `{"dnsEntry":{"name":"www","expire":1337,"type":"A","content":"127.0.0.1"}}`
-	server := mockServer{t: t, expectedMethod: "PATCH", expectedURL: "/domains/example.com/dns", statusCode: 204, expectedRequestBody: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "PATCH", ExpectedURL: "/domains/example.com/dns", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -455,8 +404,8 @@ func TestRepository_UpdateDnsEntry(t *testing.T) {
 
 func TestRepository_ReplaceDnsEntries(t *testing.T) {
 	expectedRequest := `{"dnsEntries":[{"name":"www","expire":1337,"type":"A","content":"127.0.0.1"}]}`
-	server := mockServer{t: t, expectedMethod: "PUT", expectedURL: "/domains/example.com/dns", statusCode: 204, expectedRequestBody: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "PUT", ExpectedURL: "/domains/example.com/dns", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -467,8 +416,8 @@ func TestRepository_ReplaceDnsEntries(t *testing.T) {
 
 func TestRepository_RemoveDnsEntry(t *testing.T) {
 	expectedRequest := `{"dnsEntry":{"name":"www","expire":1337,"type":"A","content":"127.0.0.1"}}`
-	server := mockServer{t: t, expectedMethod: "DELETE", expectedURL: "/domains/example.com/dns", statusCode: 204, expectedRequestBody: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "DELETE", ExpectedURL: "/domains/example.com/dns", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -478,8 +427,8 @@ func TestRepository_RemoveDnsEntry(t *testing.T) {
 }
 
 func TestRepository_GetDnsSecEntries(t *testing.T) {
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domains/example.com/dnssec", statusCode: 200, response: dnsSecEntriesAPIResponseRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/domains/example.com/dnssec", StatusCode: 200, Response: dnsSecEntriesAPIResponseRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -495,8 +444,8 @@ func TestRepository_GetDnsSecEntries(t *testing.T) {
 
 func TestRepository_ReplaceDnsSecEntries(t *testing.T) {
 	expectedRequestBody := `{"dnsSecEntries":[{"algorithm":8,"flags":1,"keyTag":67239,"publicKey":"test123"}]}`
-	server := mockServer{t: t, expectedMethod: "PUT", expectedURL: "/domains/example.com/dnssec", statusCode: 204, expectedRequestBody: expectedRequestBody}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "PUT", ExpectedURL: "/domains/example.com/dnssec", StatusCode: 204, ExpectedRequest: expectedRequestBody}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -507,8 +456,8 @@ func TestRepository_ReplaceDnsSecEntries(t *testing.T) {
 
 func TestRepository_GetNameservers(t *testing.T) {
 	apiResponse := `{"nameservers":[{"hostname":"ns0.transip.nl","ipv4":"127.0.0.1","ipv6":"2a01::1"}]}`
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domains/example.com/nameservers", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/domains/example.com/nameservers", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -522,8 +471,8 @@ func TestRepository_GetNameservers(t *testing.T) {
 
 func TestRepository_UpdateNameservers(t *testing.T) {
 	expectedRequest := `{"nameservers":[{"hostname":"ns0.transip.nl","ipv4":"127.0.0.1","ipv6":"2a01::1"}]}`
-	server := mockServer{t: t, expectedMethod: "PUT", expectedURL: "/domains/example.com/nameservers", statusCode: 204, expectedRequestBody: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "PUT", ExpectedURL: "/domains/example.com/nameservers", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -538,8 +487,8 @@ func TestRepository_UpdateNameservers(t *testing.T) {
 
 func TestRepository_GetDomainAction(t *testing.T) {
 	apiResponse := `{"action":{"name":"changeNameservers","message":"success","hasFailed":false}}`
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domains/example.com/actions", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/domains/example.com/actions", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -553,8 +502,8 @@ func TestRepository_GetDomainAction(t *testing.T) {
 
 func TestRepository_RetryDomainAction(t *testing.T) {
 	expectedRequest := `{"authCode":"test","dnsEntries":[{"name":"www","expire":86400,"type":"A","content":"127.0.0.1"}],"nameservers":[{"hostname":"ns0.transip.nl","ipv4":"127.0.0.1","ipv6":"2a01::1"}],"contacts":[{"type":"registrant","firstName":"John","lastName":"Doe","companyName":"Example B.V.","companyKvk":"83057825","companyType":"BV","street":"Easy street","number":"12","postalCode":"1337 XD","city":"Leiden","phoneNumber":"+31 715241919","faxNumber":"+31 715241919","email":"example@example.com","country":"nl"}]}`
-	server := mockServer{t: t, expectedMethod: "PATCH", expectedURL: "/domains/example.com/actions", statusCode: 204, expectedRequestBody: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "PATCH", ExpectedURL: "/domains/example.com/actions", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -590,8 +539,8 @@ func TestRepository_RetryDomainAction(t *testing.T) {
 }
 
 func TestRepository_CancelDomainAction(t *testing.T) {
-	server := mockServer{t: t, expectedMethod: "DELETE", expectedURL: "/domains/example.com/actions", statusCode: 204}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "DELETE", ExpectedURL: "/domains/example.com/actions", StatusCode: 204}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -601,8 +550,8 @@ func TestRepository_CancelDomainAction(t *testing.T) {
 
 func TestRepository_GetSSLCertificates(t *testing.T) {
 	apiResponse := `{"certificates":[{"certificateId":12358,"commonName":"example.com","expirationDate":"2019-10-24 12:59:59","status":"active"}]}`
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domains/example.com/ssl", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/domains/example.com/ssl", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -617,8 +566,8 @@ func TestRepository_GetSSLCertificates(t *testing.T) {
 
 func TestRepository_GetSSLCertificateByID(t *testing.T) {
 	apiResponse := `{"certificate":{"certificateId":12358,"commonName":"example.com","expirationDate":"2019-10-24 12:59:59","status":"active"}}`
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domains/example.com/ssl/12358", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/domains/example.com/ssl/12358", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -632,8 +581,8 @@ func TestRepository_GetSSLCertificateByID(t *testing.T) {
 
 func TestRepository_GetWHOIS(t *testing.T) {
 	apiResponse := `{"whois":"test123"}`
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domains/example.com/whois", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/domains/example.com/whois", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -643,8 +592,8 @@ func TestRepository_GetWHOIS(t *testing.T) {
 }
 
 func TestRepository_OrderWhitelabel(t *testing.T) {
-	server := mockServer{t: t, expectedMethod: "POST", expectedURL: "/whitelabel", statusCode: 201}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "POST", ExpectedURL: "/whitelabel", StatusCode: 201}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -654,8 +603,8 @@ func TestRepository_OrderWhitelabel(t *testing.T) {
 
 func TestRepository_GetAvailability(t *testing.T) {
 	apiResponse := `{"availability":{"domainName":"example.com","status":"free","actions":["register"]}}`
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domain-availability/example.com", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/domain-availability/example.com", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -669,8 +618,8 @@ func TestRepository_GetAvailability(t *testing.T) {
 func TestRepository_GetAvailabilityForMultipleDomains(t *testing.T) {
 	apiResponse := `{"availability":[{"domainName":"example.com","status":"free","actions":["register"]}]}`
 	expectedRequest := `{"domainNames":["example.com","example.nl"]}`
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/domain-availability", statusCode: 200, expectedRequestBody: expectedRequest, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/domain-availability", StatusCode: 200, ExpectedRequest: expectedRequest, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -684,8 +633,8 @@ func TestRepository_GetAvailabilityForMultipleDomains(t *testing.T) {
 
 func TestRepository_GetTLDs(t *testing.T) {
 	apiResponse := `{"tlds":[{"name":".nl","price":399,"recurringPrice":749,"capabilities":["canRegister"],"minLength":2,"maxLength":63,"registrationPeriodLength":12,"cancelTimeFrame":1}]}`
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/tlds", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/tlds", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 
@@ -705,8 +654,8 @@ func TestRepository_GetTLDs(t *testing.T) {
 
 func TestRepository_GetTldInfo(t *testing.T) {
 	apiResponse := `{"tld":{"name":".nl","price":399,"recurringPrice":749,"capabilities":["canRegister"],"minLength":2,"maxLength":63,"registrationPeriodLength":12,"cancelTimeFrame":1}}`
-	server := mockServer{t: t, expectedMethod: "GET", expectedURL: "/tlds/.nl", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedMethod: "GET", ExpectedURL: "/tlds/.nl", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := Repository{Client: *client}
 

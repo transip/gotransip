@@ -1,15 +1,17 @@
 package vps
 
 import (
+	"testing"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"testing"
+	"github.com/transip/gotransip/v6/internal/testutil"
 )
 
 func TestLicenseRepository_GetLicenses(t *testing.T) {
 	const apiResponse = `{ "licenses": { "active": [ { "id": 42, "name": "cpanel-admin", "price": 1050, "recurringPrice": 1050, "type": "addon", "quantity": 1, "maxQuantity": 1, "keys": [ { "name": "Cpanel license key", "key": "XXXXXXXXXXX" } ] } ], "cancellable": [ { "id": 42, "name": "cpanel-admin", "price": 1050, "recurringPrice": 1050, "type": "addon", "quantity": 1, "maxQuantity": 1, "keys": [ { "name": "Cpanel license key", "key": "XXXXXXXXXXX" } ] } ], "available": [ { "name": "installatron", "price": 1050, "recurringPrice": 1050, "type": "addon", "maxQuantity": 1 } ] } }` //nolint
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/licenses", expectedMethod: "GET", statusCode: 200, response: apiResponse}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/licenses", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := LicenseRepository{Client: *client}
 
@@ -47,8 +49,8 @@ func TestLicenseRepository_GetLicenses(t *testing.T) {
 
 func TestLicenseRepository_OrderLicense(t *testing.T) {
 	const expectedRequest = `{"licenseName":"cpanel-pro","quantity":1}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/licenses", expectedMethod: "POST", statusCode: 201, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/licenses", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := LicenseRepository{Client: *client}
 
@@ -60,8 +62,8 @@ func TestLicenseRepository_OrderLicense(t *testing.T) {
 
 func TestLicenseRepository_ReplaceLicense(t *testing.T) {
 	const expectedRequest = `{"newLicenseName":"cpanel-pro"}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/licenses/1337", expectedMethod: "PUT", statusCode: 204, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/licenses/1337", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := LicenseRepository{Client: *client}
 
@@ -73,8 +75,8 @@ func TestLicenseRepository_ReplaceLicense(t *testing.T) {
 
 func TestLicenseRepository_CancelLicense(t *testing.T) {
 	const expectedRequest = `{"endTime":"end"}`
-	server := mockServer{t: t, expectedURL: "/vps/example-vps/licenses/1337", expectedMethod: "DELETE", statusCode: 204, expectedRequest: expectedRequest}
-	client, tearDown := server.getClient()
+	server := testutil.MockServer{T: t, ExpectedURL: "/vps/example-vps/licenses/1337", ExpectedMethod: "DELETE", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
 	defer tearDown()
 	repo := LicenseRepository{Client: *client}
 
