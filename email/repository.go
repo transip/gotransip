@@ -193,3 +193,12 @@ func (r *Repository) UnlinkMailaddon(addonID int, mailbox string) error {
 
 	return err
 }
+
+// GetMailpackages gets a list of mail packages associated with a account
+func (r *Repository) GetMailpackages() ([]Mailpackage, error) {
+	var response mailpackagesWrapper
+	restRequest := rest.Request{Endpoint: "/email"}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.MailPackages, err
+}

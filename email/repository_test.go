@@ -306,7 +306,6 @@ func TestRepository_UnlinkAddonInvalidMailbox(t *testing.T) {
 }
 
 func TestRepository_GetMailAddonsByDomainName(t *testing.T) {
-
 	const apiResponse = `{"addons": [{"id": 282154,"diskSpace": 1024,"mailboxes": 5,"linkedMailBox": "test@example.com","canBeLinked": false}]}`
 	server := testutil.MockServer{T: t, ExpectedURL: "/email/example.com/mail-addons", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
@@ -322,4 +321,22 @@ func TestRepository_GetMailAddonsByDomainName(t *testing.T) {
 	assert.Equal(t, false, all[0].CanBeLinked)
 	assert.Equal(t, 5, all[0].Mailboxes)
 	assert.Equal(t, 1024, all[0].DiskSpace)
+}
+
+func TestRepository_GetMailpackages(t *testing.T) {
+	const apiResponse = `{"packages": [{"domain": "example.com", "status": "creating"},{"domain": "example2.com", "status": "created"}]}`
+	server := testutil.MockServer{T: t, ExpectedURL: "/email", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	all, err := repo.GetMailpackages()
+	require.NoError(t, err)
+	require.Equal(t, 2, len(all))
+
+	assert.Equal(t, "example.com", all[0].Domain)
+	assert.Equal(t, "creating", all[0].Status)
+
+	assert.Equal(t, "example2.com", all[1].Domain)
+	assert.Equal(t, "created", all[1].Status)
 }

@@ -74,4 +74,15 @@ func main() {
 		fmt.Printf("Addon ID %d with disk space: %d, additional mailboxes: '%d' \n", addon.ID, addon.DiskSpace, addon.Mailboxes)
 	}
 	fmt.Println(strings.Repeat("-", 50))
+
+	log.Println("Getting a list of mail packages")
+	mailpackages, err := emailRepo.GetMailpackages()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(strings.Repeat("-", 50))
+	for _, pkg := range mailpackages {
+		fmt.Printf("Package for domain %s and status %s", pkg.Domain, pkg.Status)
+	}
+	fmt.Println(strings.Repeat("-", 50))
 }
