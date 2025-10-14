@@ -17,10 +17,10 @@ analyze:lint:
   tags:
     - k8s-tbk
 
-lint:golint:
+lint:gofmt:
   stage: lint
   script:
-    - ci/lint.sh
+    - ci/gofmt.sh
   tags:
     - k8s-tbk
 

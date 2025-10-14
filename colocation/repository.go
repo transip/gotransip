@@ -8,7 +8,7 @@ import (
 	"net"
 )
 
-// Repository can be used to get a list of your colocations, create a remote hands request
+// Repository can be used to get a list of your colocations
 // and edit/show/update colocation IP address data
 type Repository repository.RestRepository
 
@@ -29,18 +29,6 @@ func (r *Repository) GetByName(coloName string) (Colocation, error) {
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Colocation, err
-}
-
-// CreateRemoteHandsRequest allows you to request a remote task from an engineer.
-// It sends a request to a datacenter engineer to perform simple task on your server, e.g. a 'powercycle'.
-func (r *Repository) CreateRemoteHandsRequest(remoteHandsRequest RemoteHandsRequest) error {
-	requestBody := remoteHandsRequestWrapper{RemoteHands: remoteHandsRequest}
-	restRequest := rest.Request{
-		Endpoint: fmt.Sprintf("/colocations/%s/remote-hands", remoteHandsRequest.ColoName),
-		Body:     &requestBody,
-	}
-
-	return r.Client.Post(restRequest)
 }
 
 // GetIPAddresses returns all IP addresses attached to your Colocation

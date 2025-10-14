@@ -27,12 +27,6 @@ type colocationWrapper struct {
 	Colocation Colocation `json:"colocation"`
 }
 
-// remoteHandsRequestWrapper is used to marshal a json request for a RemoteHandsRequest
-// it encapsulates the RemoteHandsRequest with a remoteHands key
-type remoteHandsRequestWrapper struct {
-	RemoteHands RemoteHandsRequest `json:"remoteHands"`
-}
-
 // ipAddressWrapper struct contains an IPAddress in it,
 // this is solely used for unmarshalling
 type ipAddressWrapper struct {
@@ -46,18 +40,4 @@ type addIPRequest struct {
 	IPAddress net.IP `json:"ipAddress"`
 	// Reverse DNS, also known as the PTR record
 	ReverseDNS string `json:"reverseDns,omitempty"`
-}
-
-// RemoteHandsRequest struct for a RemoteHandsRequest
-type RemoteHandsRequest struct {
-	// Name of the colocation contract
-	ColoName string `json:"coloName,omitempty"`
-	// Name of the person that created the remote hands request
-	ContactName string `json:"contactName,omitempty"`
-	// Phonenumber to contact in case of questions regarding the remotehands request
-	PhoneNumber string `json:"phoneNumber,omitempty"`
-	// Expected duration in minutes
-	ExpectedDuration int `json:"expectedDuration,omitempty"`
-	// The instructions for the datacenter engineer to perform
-	Instructions string `json:"instructions,omitempty"`
 }

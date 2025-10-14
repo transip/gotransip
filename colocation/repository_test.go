@@ -43,25 +43,6 @@ func TestRepository_GetByName(t *testing.T) {
 	assert.Equal(t, "2a01:7c8:c038:6::/64", colo.IPRanges[0].String())
 }
 
-func TestRepository_CreateRemoteHandsRequest(t *testing.T) {
-	const expectedRequest = `{"remoteHands":{"coloName":"example2","contactName":"Herman Kaakdorst","phoneNumber":"+31 612345678","expectedDuration":15,"instructions":"Reboot server with label Loadbalancer0"}}`
-	server := testutil.MockServer{T: t, ExpectedURL: "/colocations/example2/remote-hands", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequest}
-	client, tearDown := server.GetClient()
-	defer tearDown()
-	repo := Repository{Client: *client}
-
-	remoteHands := RemoteHandsRequest{
-		ColoName:         "example2",
-		ContactName:      "Herman Kaakdorst",
-		PhoneNumber:      "+31 612345678",
-		ExpectedDuration: 15,
-		Instructions:     "Reboot server with label Loadbalancer0",
-	}
-
-	err := repo.CreateRemoteHandsRequest(remoteHands)
-	require.NoError(t, err)
-}
-
 func TestRepository_GetIPAddresses(t *testing.T) {
 	const apiResponse = `{ "ipAddresses" : [ { "dnsResolvers" : [ "195.8.195.8", "195.135.195.135" ], "subnetMask" : "255.255.255.0", "reverseDns" : "example.com", "address" : "149.210.192.184", "gateway" : "149.210.192.1" }, { "address" : "2a01:7c8:aab5:5d5::1", "gateway" : "2a01:7c8:aab5::1", "dnsResolvers" : [ "2a01:7c8:7000:195::8:195:8", "2a01:7c8:7000:195::135:195:135" ], "subnetMask" : "/48", "reverseDns" : "example.com" } ] }`
 	server := testutil.MockServer{T: t, ExpectedURL: "/colocations/example2/ip-addresses", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
