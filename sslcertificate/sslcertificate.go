@@ -5,6 +5,7 @@ type SSLCertificate struct {
 	CertificateID  int    `json:"certificateId"`
 	CommonName     string `json:"commonName"`
 	ExpirationDate string `json:"expirationDate"`
+	OrderDate      string `json:"orderDate"`
 	Status         string `json:"status"`
 }
 

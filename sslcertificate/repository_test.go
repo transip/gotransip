@@ -9,7 +9,7 @@ import (
 )
 
 func TestSslcertificateRepository_GetAll(t *testing.T) {
-	const apiResponse = `{"certificates":[{"certificateId":1,"commonName":"example.com","expirationDate":"0000-00-00 00:00:00","status":"active"}]}`
+	const apiResponse = `{"certificates":[{"certificateId":1,"commonName":"example.com","expirationDate":"0000-00-00 00:00:00","orderDate":"0000-00-00 00:00:00","status":"active"}]}`
 	server := testutil.MockServer{T: t, ExpectedURL: "/ssl-certificates", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
 	defer tearDown()
@@ -22,11 +22,12 @@ func TestSslcertificateRepository_GetAll(t *testing.T) {
 	assert.Equal(t, 1, all[0].CertificateID)
 	assert.Equal(t, "example.com", all[0].CommonName)
 	assert.Equal(t, "0000-00-00 00:00:00", all[0].ExpirationDate)
+	assert.Equal(t, "0000-00-00 00:00:00", all[0].OrderDate)
 	assert.Equal(t, "active", all[0].Status)
 }
 
 func TestSslcertificateRepository_GetById(t *testing.T) {
-	const apiResponse = `{"certificate":{"certificateId":1,"commonName":"example.com","expirationDate":"0000-00-00 00:00:00","status":"active"},"_links":[{"rel":"self","link":"https:\/\/127.0.0.1\/v6\/ssl-certificates\/2"}]}`
+	const apiResponse = `{"certificate":{"certificateId":1,"commonName":"example.com","expirationDate":"0000-00-00 00:00:00","orderDate":"0000-00-00 00:00:00","status":"active"},"_links":[{"rel":"self","link":"https:\/\/127.0.0.1\/v6\/ssl-certificates\/2"}]}`
 	server := testutil.MockServer{T: t, ExpectedURL: "/ssl-certificates/1", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
 	defer tearDown()
@@ -38,6 +39,7 @@ func TestSslcertificateRepository_GetById(t *testing.T) {
 	assert.Equal(t, 1, sslcertificate.CertificateID)
 	assert.Equal(t, "example.com", sslcertificate.CommonName)
 	assert.Equal(t, "0000-00-00 00:00:00", sslcertificate.ExpirationDate)
+	assert.Equal(t, "0000-00-00 00:00:00", sslcertificate.OrderDate)
 	assert.Equal(t, "active", sslcertificate.Status)
 }
 
