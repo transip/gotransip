@@ -568,7 +568,7 @@ func TestRepository_CreateBlockStorageVolumeSnapshot(t *testing.T) {
 }
 
 func TestRepository_ListBlockStorageVolumeSnapshots(t *testing.T) {
-	const apiResponse = `{"snapshots":[{"uuid":"11e5bf86-f133-47f8-855e-c031447fb817","name":"snapshot-0d9cee62-663e-4b57-90e2-1de0589af578","creationDate":"2025-04-20","clusterName":"k888k","blockStorageName":"pvc-75975fdd-7b87-477e-a82a-8191367b0b9b","sizeInGib":10,"status":"ready"}]}`
+	const apiResponse = `{"snapshots":[{"uuid":"11e5bf86-f133-47f8-855e-c031447fb817","name":"snapshot-0d9cee62-663e-4b57-90e2-1de0589af578","creationDate":"2026-05-01 14:34:23","clusterName":"k888k","blockStorageName":"pvc-75975fdd-7b87-477e-a82a-8191367b0b9b","sizeInGib":10,"status":"ready"}]}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/block-storage-snapshots", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
@@ -581,7 +581,7 @@ func TestRepository_ListBlockStorageVolumeSnapshots(t *testing.T) {
 	if assert.Equal(t, 1, len(list)) {
 		assert.Equal(t, "11e5bf86-f133-47f8-855e-c031447fb817", list[0].UUID)
 		assert.Equal(t, "snapshot-0d9cee62-663e-4b57-90e2-1de0589af578", list[0].Name)
-		assert.Equal(t, "2025-04-20", list[0].CreationDate.Format(dateOnlyFormat))
+		assert.Equal(t, "2026-05-01 14:34:23", list[0].CreationDate.Format(time.DateTime))
 		assert.Equal(t, "k888k", list[0].ClusterName)
 		assert.Equal(t, 10, list[0].SizeInGiB)
 		assert.Equal(t, BlockStorageSnapshotReady, list[0].Status)
@@ -590,7 +590,7 @@ func TestRepository_ListBlockStorageVolumeSnapshots(t *testing.T) {
 }
 
 func TestRepository_GetBlockStorageVolumesSnapshotByName(t *testing.T) {
-	const apiResponse = `{"snapshot":{"uuid":"s1","name":"snap-1","creationDate":"2025-04-21","clusterName":"k888k","sizeInGib":20,"status":"ready","blockstorageName":"volume-1"}}`
+	const apiResponse = `{"snapshot":{"uuid":"s1","name":"snap-1","creationDate":"2026-05-01 14:34:23","clusterName":"k888k","sizeInGib":20,"status":"ready","blockstorageName":"volume-1"}}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/block-storage-snapshots/snap-1", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
@@ -602,7 +602,7 @@ func TestRepository_GetBlockStorageVolumesSnapshotByName(t *testing.T) {
 
 	assert.Equal(t, "s1", snapshot.UUID)
 	assert.Equal(t, "snap-1", snapshot.Name)
-	assert.Equal(t, "2025-04-21", snapshot.CreationDate.Format(dateOnlyFormat))
+	assert.Equal(t, "2026-05-01 14:34:23", snapshot.CreationDate.Format(time.DateTime))
 	assert.Equal(t, "k888k", snapshot.ClusterName)
 	assert.Equal(t, 20, snapshot.SizeInGiB)
 	assert.Equal(t, BlockStorageSnapshotReady, snapshot.Status)

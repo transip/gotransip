@@ -16,7 +16,7 @@ type BlockStorageSnapshot struct {
 	// User configurable unique identifier (max 64 chars)
 	Name string `json:"name"`
 	// CreationDate is the date when the snapshot was created
-	CreationDate rest.Date `json:"creationDate"`
+	CreationDate rest.Time `json:"creationDate"`
 	// ClusterName is the name of the cluster the blockstorage belongs to
 	ClusterName string `json:"clusterName"`
 	// The volume's size in gibibytes
