@@ -77,4 +77,6 @@ type BlockStorageOrder struct {
 	Type BlockStorageType `json:"type"`
 	// location of the volume
 	AvailabilityZone string `json:"availabilityZone"`
+	// When provided this snapshot is restored on the newly created block storage
+	SnapshotName string `json:"snapshotName,omitempty"`
 }

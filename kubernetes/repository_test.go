@@ -117,6 +117,19 @@ func TestRepository_GetKubeConfig(t *testing.T) {
 	assert.Contains(t, config, "apiVersion: v1")
 }
 
+func TestRepository_GetKubeConfigInvalidBase64(t *testing.T) {
+	const apiResponse = `{"kubeConfig": {"encodedYaml": "###"}}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/kubeconfig", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	config, err := repo.GetKubeConfig("k888k")
+	require.Error(t, err)
+	assert.Empty(t, config)
+}
+
 func TestRepository_GetNodePools(t *testing.T) {
 	const apiResponse = `{"nodePools":[{"uuid":"402c2f84-c37d-9388-634d-00002b7c6a82","description":"frontend","desiredNodeCount":3,"nodeSpec":"vps-bladevps-x4","availabilityZone":"ams0","labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}],"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}]}]}`
 
@@ -536,6 +549,74 @@ func TestRepository_GetBlockStorageStatistics(t *testing.T) {
 	if assert.NotEmpty(t, statistics) {
 		assert.Equal(t, vps.UsageDataDisk{Date: 1500538995, IopsRead: 0.27, IopsWrite: 0.13}, statistics[0])
 	}
+}
+
+func TestRepository_CreateBlockStorageVolumeSnapshot(t *testing.T) {
+	const expectedRequestBody = `{"clusterName":"k888k","blockStorageName":"volume-1","name":"snap-1"}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/block-storage-snapshots", ExpectedMethod: "POST", StatusCode: 201, ExpectedRequest: expectedRequestBody}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	err := repo.CreateBlockStorageVolumeSnapshot(BlockStorageSnapshotOrder{
+		ClusterName:      "k888k",
+		BlockStorageName: "volume-1",
+		Name:             "snap-1",
+	})
+	require.NoError(t, err)
+}
+
+func TestRepository_ListBlockStorageVolumeSnapshots(t *testing.T) {
+	const apiResponse = `{"snapshots":[{"uuid":"11e5bf86-f133-47f8-855e-c031447fb817","name":"snapshot-0d9cee62-663e-4b57-90e2-1de0589af578","creationDate":"2025-04-20","clusterName":"k888k","blockStorageName":"pvc-75975fdd-7b87-477e-a82a-8191367b0b9b","sizeInGib":10,"status":"ready"}]}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/block-storage-snapshots", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	list, err := repo.ListBlockStorageVolumeSnapshots("k888k")
+	require.NoError(t, err)
+
+	if assert.Equal(t, 1, len(list)) {
+		assert.Equal(t, "11e5bf86-f133-47f8-855e-c031447fb817", list[0].UUID)
+		assert.Equal(t, "snapshot-0d9cee62-663e-4b57-90e2-1de0589af578", list[0].Name)
+		assert.Equal(t, "2025-04-20", list[0].CreationDate.Format(dateOnlyFormat))
+		assert.Equal(t, "k888k", list[0].ClusterName)
+		assert.Equal(t, 10, list[0].SizeInGiB)
+		assert.Equal(t, BlockStorageSnapshotReady, list[0].Status)
+		assert.Equal(t, "pvc-75975fdd-7b87-477e-a82a-8191367b0b9b", list[0].BlockStorageName)
+	}
+}
+
+func TestRepository_GetBlockStorageVolumesSnapshotByName(t *testing.T) {
+	const apiResponse = `{"snapshot":{"uuid":"s1","name":"snap-1","creationDate":"2025-04-21","clusterName":"k888k","sizeInGib":20,"status":"ready","blockstorageName":"volume-1"}}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/block-storage-snapshots/snap-1", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	snapshot, err := repo.GetBlockStorageVolumesSnapshotByName("k888k", "snap-1")
+	require.NoError(t, err)
+
+	assert.Equal(t, "s1", snapshot.UUID)
+	assert.Equal(t, "snap-1", snapshot.Name)
+	assert.Equal(t, "2025-04-21", snapshot.CreationDate.Format(dateOnlyFormat))
+	assert.Equal(t, "k888k", snapshot.ClusterName)
+	assert.Equal(t, 20, snapshot.SizeInGiB)
+	assert.Equal(t, BlockStorageSnapshotReady, snapshot.Status)
+	assert.Equal(t, "volume-1", snapshot.BlockStorageName)
+}
+
+func TestRepository_RemoveBlockStorageVolumeSnapshot(t *testing.T) {
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/block-storage-snapshots/snap-1", ExpectedMethod: "DELETE", StatusCode: 204}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	err := repo.RemoveBlockStorageVolumeSnapshot("k888k", "snap-1")
+	require.NoError(t, err)
 }
 
 func TestRepository_GetLoadBalancers(t *testing.T) {

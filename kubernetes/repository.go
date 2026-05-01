@@ -17,6 +17,34 @@ import (
 // this repository allows you to manage all Kubernetes services for your TransIP account
 type Repository repository.RestRepository
 
+func (r *Repository) CreateBlockStorageVolumeSnapshot(order BlockStorageSnapshotOrder) error {
+	request := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/block-storage-snapshots", order.ClusterName), Body: &order}
+
+	return r.Client.Post(request)
+}
+
+func (r *Repository) ListBlockStorageVolumeSnapshots(clusterName string) ([]BlockStorageSnapshot, error) {
+	var response blockStorageSnapshotsWrapper
+	request := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/block-storage-snapshots", clusterName)}
+
+	err := r.Client.Get(request, &response)
+
+	return response.BlockStorageSnapshots, err
+}
+
+func (r *Repository) GetBlockStorageVolumesSnapshotByName(clusterName, name string) (BlockStorageSnapshot, error) {
+	var response blockStorageSnapshotWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/block-storage-snapshots/%s", clusterName, name)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.BlockStorageSnapshot, err
+}
+
+func (r *Repository) RemoveBlockStorageVolumeSnapshot(clusterName, name string) error {
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/block-storage-snapshots/%s", clusterName, name)}
+	return r.Client.Delete(restRequest)
+}
+
 // GetClusters returns a list of all your Clusters
 func (r *Repository) GetClusters() ([]Cluster, error) {
 	var response clustersWrapper
