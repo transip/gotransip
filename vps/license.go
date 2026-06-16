@@ -41,6 +41,8 @@ type License struct {
 	ID int64 `json:"id"`
 	// License name
 	Name string `json:"name"`
+	// License description
+	Description string `json:"description"`
 	// Price in cents
 	Price int `json:"price"`
 	// Recurring price in cents
@@ -59,6 +61,8 @@ type License struct {
 type LicenseProduct struct {
 	// License name
 	Name string `json:"name"`
+	// License description
+	Description string `json:"description"`
 	// Price in cents
 	Price int `json:"price"`
 	// Recurring price in cents

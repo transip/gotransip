@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	libraryVersion  = "6.27.1"
+	libraryVersion  = "6.27.2"
 	defaultBasePath = "https://api.transip.nl/v6"
 	userAgent       = "go-client-gotransip/" + libraryVersion
 )
