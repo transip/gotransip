@@ -17,12 +17,11 @@ type BlockStorageSnapshot struct {
 	Name string `json:"name"`
 	// CreationDate is the date when the snapshot was created
 	CreationDate rest.Time `json:"creationDate"`
-	// ClusterName is the name of the cluster the blockstorage belongs to
+	// ClusterName is the name of the cluster the snapshot belongs to
 	ClusterName string `json:"clusterName"`
-	// The volume's size in gibibytes
+	// The snapshot's size in gibibytes
 	SizeInGiB int `json:"sizeInGib"`
-	// Status of the volume 'attached', 'attaching', 'available', 'creating',
-	// 'deleting' or 'detaching'
+	// Status of the snapshot 'ready', 'creating', 'reverting' or 'deleting'
 	Status BlockStorageSnapshotStatus `json:"status,omitempty"`
 	// blockStorageName references the source of this snapshot
 	BlockStorageName string `json:"blockstorageName"`

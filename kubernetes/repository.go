@@ -121,20 +121,32 @@ func (r *Repository) GetKubeConfig(clusterName string) (string, error) {
 
 // GetNodePools returns all node pools
 func (r *Repository) GetNodePools(clusterName string) ([]NodePool, error) {
-	var response nodePoolsWrapper
+	var response struct {
+		NodePools []nodePoolResponse `json:"nodePools"`
+	}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools", clusterName)}
 	err := r.Client.Get(restRequest, &response)
+	if err != nil {
+		return nil, err
+	}
 
-	return response.NodePools, err
+	nodePools := make([]NodePool, len(response.NodePools))
+	for i, npr := range response.NodePools {
+		nodePools[i] = npr.intoNodePool()
+	}
+
+	return nodePools, err
 }
 
 // GetNodePool returns the NodePool for given nodePoolUUID
 func (r *Repository) GetNodePool(clusterName, nodePoolUUID string) (NodePool, error) {
-	var response nodePoolWrapper
+	var response struct {
+		NodePool nodePoolResponse `json:"nodePool"`
+	}
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s", clusterName, nodePoolUUID)}
 	err := r.Client.Get(restRequest, &response)
 
-	return response.NodePool, err
+	return response.NodePool.intoNodePool(), err
 }
 
 // AddNodePool allows you to order a new node pool to a cluster
@@ -146,9 +158,40 @@ func (r *Repository) AddNodePool(nodePoolOrder NodePoolOrder) error {
 
 // UpdateNodePool allows you to update the description and desired node count of a node pool
 func (r *Repository) UpdateNodePool(nodePool NodePool) error {
-	requestBody := nodePoolWrapper{NodePool: nodePool}
-	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s", nodePool.ClusterName, nodePool.UUID), Body: &requestBody}
+	var requestBody interface{}
 
+	if nodePool.Autoscaling != nil {
+		requestBody = struct {
+			NodePool nodePoolAutoscalingUpdateRequest `json:"nodePool"`
+		}{
+			NodePool: nodePoolAutoscalingUpdateRequest{
+				UUID:               nodePool.UUID,
+				ClusterName:        nodePool.ClusterName,
+				Description:        nodePool.Description,
+				DesiredNodeCount:   nodePool.DesiredNodeCount,
+				NodeSpec:           nodePool.NodeSpec,
+				AvailabilityZone:   nodePool.AvailabilityZone,
+				MinNodeCount:       nodePool.Autoscaling.MinNodeCount,
+				MaxNodeCount:       nodePool.Autoscaling.MaxNodeCount,
+				AutoscalingEnabled: nodePool.Autoscaling.Enabled,
+			},
+		}
+	} else {
+		requestBody = struct {
+			NodePool nodePoolUpdateRequest `json:"nodePool"`
+		}{
+			NodePool: nodePoolUpdateRequest{
+				UUID:             nodePool.UUID,
+				ClusterName:      nodePool.ClusterName,
+				Description:      nodePool.Description,
+				DesiredNodeCount: nodePool.DesiredNodeCount,
+				AvailabilityZone: nodePool.AvailabilityZone,
+				NodeSpec:         nodePool.NodeSpec,
+			},
+		}
+	}
+
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s", nodePool.ClusterName, nodePool.UUID), Body: &requestBody}
 	return r.Client.Put(restRequest)
 }
 
@@ -157,6 +200,22 @@ func (r *Repository) RemoveNodePool(clusterName, nodePoolUUID string) error {
 	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s", clusterName, nodePoolUUID)}
 
 	return r.Client.Delete(restRequest)
+}
+
+// RemoveNodesFromNodePool will remove multiple nodes from a specific NodePool
+func (r *Repository) RemoveNodesFromNodePool(clusterName, nodePoolUUID string, nodeUUIDS []string) error {
+	restRequest := rest.Request{
+		Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/node-pools/%s", clusterName, nodePoolUUID),
+		Body: &struct {
+			Action string   `json:"action"`
+			Nodes  []string `json:"nodes"`
+		}{
+			Action: "remove_nodes",
+			Nodes:  nodeUUIDS,
+		},
+	}
+
+	return r.Client.Patch(restRequest)
 }
 
 // GetNodes returns all nodes
@@ -187,6 +246,15 @@ func (r *Repository) GetNode(clusterName, nodeUUID string) (Node, error) {
 	err := r.Client.Get(restRequest, &response)
 
 	return response.Node, err
+}
+
+// RemoveNode removes a single node. This will automatically update the NodePool's DesiredNodeCount
+func (r *Repository) RemoveNode(clusterName, nodeUUID string) error {
+	restRequest := rest.Request{
+		Endpoint: fmt.Sprintf("/kubernetes/clusters/%s/nodes/%s", clusterName, nodeUUID),
+	}
+
+	return r.Client.Delete(restRequest)
 }
 
 // RebootNode reboot a node

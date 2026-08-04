@@ -1,8 +1,11 @@
 package kubernetes
 
 import (
+	"fmt"
 	"net"
+	"net/http"
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -131,7 +134,7 @@ func TestRepository_GetKubeConfigInvalidBase64(t *testing.T) {
 }
 
 func TestRepository_GetNodePools(t *testing.T) {
-	const apiResponse = `{"nodePools":[{"uuid":"402c2f84-c37d-9388-634d-00002b7c6a82","description":"frontend","desiredNodeCount":3,"nodeSpec":"vps-bladevps-x4","availabilityZone":"ams0","labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}],"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}]}]}`
+	const apiResponse = `{"nodePools":[{"uuid":"402c2f84-c37d-9388-634d-00002b7c6a82","description":"frontend","desiredNodeCount":3,"nodeSpec":"vps-bladevps-x4","availabilityZone":"ams0","minNodeCount":0,"maxNodeCount":0,"autscalingEnabled":false,"labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}],"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}]}]}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/node-pools", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
@@ -147,6 +150,9 @@ func TestRepository_GetNodePools(t *testing.T) {
 		assert.Equal(t, 3, list[0].DesiredNodeCount)
 		assert.Equal(t, "vps-bladevps-x4", list[0].NodeSpec)
 		assert.Equal(t, "ams0", list[0].AvailabilityZone)
+		assert.Equal(t, 0, list[0].Autoscaling.MinNodeCount)
+		assert.Equal(t, 0, list[0].Autoscaling.MaxNodeCount)
+		assert.Equal(t, false, list[0].Autoscaling.Enabled)
 		if assert.Equal(t, 1, len(list[0].Nodes)) {
 			assert.Equal(t, NodeStatusActive, list[0].Nodes[0].Status)
 			assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", list[0].Nodes[0].UUID)
@@ -157,7 +163,7 @@ func TestRepository_GetNodePools(t *testing.T) {
 }
 
 func TestRepository_GetNodePool(t *testing.T) {
-	const apiResponse = `{"nodePool":{"uuid":"402c2f84-c37d-9388-634d-00002b7c6a82","description":"frontend","desiredNodeCount":3,"nodeSpec":"vps-bladevps-x4","availabilityZone":"ams0","labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}],"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}]}}`
+	const apiResponse = `{"nodePool":{"uuid":"402c2f84-c37d-9388-634d-00002b7c6a82","description":"frontend","desiredNodeCount":3,"nodeSpec":"vps-bladevps-x4","availabilityZone":"ams0","minNodeCount":0,"maxNodeCount":0,"autscalingEnabled":false,"labels":{"foo":"bar"},"taints":[{"key":"foo","value":"bar","effect":"NoSchedule"}],"nodes":[{"uuid":"76743b28-f779-3e68-6aa1-00007fbb911d","nodePoolUuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","status":"active"}]}}`
 
 	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/node-pools/402c2f84-c37d-9388-634d-00002b7c6a82", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
 	client, tearDown := server.GetClient()
@@ -172,6 +178,9 @@ func TestRepository_GetNodePool(t *testing.T) {
 	assert.Equal(t, 3, nodePool.DesiredNodeCount)
 	assert.Equal(t, "vps-bladevps-x4", nodePool.NodeSpec)
 	assert.Equal(t, "ams0", nodePool.AvailabilityZone)
+	assert.Equal(t, 0, nodePool.Autoscaling.MinNodeCount)
+	assert.Equal(t, 0, nodePool.Autoscaling.MaxNodeCount)
+	assert.Equal(t, false, nodePool.Autoscaling.Enabled)
 	if assert.Equal(t, 1, len(nodePool.Nodes)) {
 		assert.Equal(t, NodeStatusActive, nodePool.Nodes[0].Status)
 		assert.Equal(t, "76743b28-f779-3e68-6aa1-00007fbb911d", nodePool.Nodes[0].UUID)
@@ -220,6 +229,95 @@ func TestRepository_UpdateNodePool(t *testing.T) {
 	err := repo.UpdateNodePool(nodePoolToUpdate)
 
 	require.NoError(t, err)
+}
+
+func TestRepository_UpdateNodePoolAutoScaling(t *testing.T) {
+	const expectedRequest = `{"nodePool":{"uuid":"402c2f84-c37d-9388-634d-00002b7c6a82","clusterName":"k888k","description":"backend","desiredNodeCount":4,"nodeSpec":"vps-bladevps-x8","availabilityZone":"ams0","minNodeCount":3,"maxNodeCount":10,"autoscalingEnabled":true}}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/node-pools/402c2f84-c37d-9388-634d-00002b7c6a82", ExpectedMethod: "PUT", StatusCode: 204, ExpectedRequest: expectedRequest}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	autoscaling := NodePoolAutoscaling{
+		MinNodeCount: 3,
+		MaxNodeCount: 10,
+		Enabled:      true,
+	}
+
+	nodePoolToUpdate := NodePool{
+		UUID:             "402c2f84-c37d-9388-634d-00002b7c6a82",
+		ClusterName:      "k888k",
+		Description:      "backend",
+		DesiredNodeCount: 4,
+		NodeSpec:         "vps-bladevps-x8",
+		AvailabilityZone: "ams0",
+		Autoscaling:      &autoscaling,
+	}
+
+	err := repo.UpdateNodePool(nodePoolToUpdate)
+
+	require.NoError(t, err)
+}
+
+func TestRepository_RemoveNodesFromNodePool(t *testing.T) {
+	expectedRequest := func(nodes []string) string {
+		s := ""
+		if len(nodes) > 0 {
+			s = fmt.Sprintf("\"%s\"", strings.Join(nodes, "\",\""))
+		}
+
+		return fmt.Sprintf("{\"action\":\"remove_nodes\",\"nodes\":[%s]}", s)
+	}
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/node-pools/402c2f84-c37d-9388-634d-00002b7c6a82", ExpectedMethod: "PATCH", StatusCode: 204, ExpectedRequest: expectedRequest([]string{})}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	t.Run("without nodes", func(t *testing.T) {
+		err := repo.RemoveNodesFromNodePool("k888k", "402c2f84-c37d-9388-634d-00002b7c6a82", []string{})
+		require.NoError(t, err)
+	})
+
+	t.Run("with nodes", func(t *testing.T) {
+		server.ExpectedRequest = expectedRequest([]string{
+			"413cd700-63c7-4559-a978-7b51ccfc648d",
+			"2e05a8af-bad7-475c-a9a7-cef05c398ca4",
+			"28da4aab-0c90-4203-8185-193c3c56b908",
+		})
+
+		err := repo.RemoveNodesFromNodePool("k888k", "402c2f84-c37d-9388-634d-00002b7c6a82", []string{
+			"413cd700-63c7-4559-a978-7b51ccfc648d",
+			"2e05a8af-bad7-475c-a9a7-cef05c398ca4",
+			"28da4aab-0c90-4203-8185-193c3c56b908",
+		})
+		require.NoError(t, err)
+	})
+
+	t.Run("with 1 node not found", func(t *testing.T) {
+		server.ExpectedRequest = expectedRequest([]string{
+			"413cd700-63c7-4559-a978-7b51ccfc648d",
+			"2e05a8af-bad7-475c-a9a7-cef05c398ca4",
+			"28da4aab-0c90-4203-8185-193c3c56b908",
+		})
+
+		server.StatusCode = http.StatusNotFound
+		server.Response = `{"error": "Node with uuid '28da4aab-0c90-4203-8185-193c3c56b908' not found"}`
+
+		err := repo.RemoveNodesFromNodePool("k888k", "402c2f84-c37d-9388-634d-00002b7c6a82", []string{
+			"413cd700-63c7-4559-a978-7b51ccfc648d",
+			"2e05a8af-bad7-475c-a9a7-cef05c398ca4",
+			"28da4aab-0c90-4203-8185-193c3c56b908",
+		})
+
+		if assert.Error(t, err) {
+			assert.Equal(t, &rest.Error{
+				Message:    "Node with uuid '28da4aab-0c90-4203-8185-193c3c56b908' not found",
+				StatusCode: 404,
+			}, err)
+		}
+	})
 }
 
 func TestRepository_RemoveNodePool(t *testing.T) {
@@ -300,6 +398,16 @@ func TestRepository_GetNode(t *testing.T) {
 		assert.Equal(t, "255.255.255.0", node.IPAddresses[0].Netmask.String())
 		assert.Equal(t, NodeAddressTypeExternal, node.IPAddresses[0].Type)
 	}
+}
+
+func TestRepository_RemoveNode(t *testing.T) {
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/clusters/k888k/nodes/76743b28-f779-3e68-6aa1-00007fbb911d", ExpectedMethod: "DELETE", StatusCode: 204}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	err := repo.RemoveNode("k888k", "76743b28-f779-3e68-6aa1-00007fbb911d")
+	require.NoError(t, err)
 }
 
 func TestRepository_RebootNode(t *testing.T) {
