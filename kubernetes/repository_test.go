@@ -1227,3 +1227,99 @@ func TestRepository_TestGetEventByName(t *testing.T) {
 	require.Equal(t, "kube-proxy-g9ldg", event.InvolvedObjectName)
 	require.Equal(t, "kubelet", event.SourceComponent)
 }
+
+func TestRepository_GetProducts(t *testing.T) {
+	const apiResponse = `{"products":[{"type":"workerNode","name":"node-ks","description":"Node KS \/ 1 vCPU \/ 1 GB RAM","periodPrices":[{"periodUnit":"month","periodLength":1,"isExact":true,"currency":"EUR","costCents":"500"},{"periodUnit":"hour","periodLength":1,"isExact":false,"currency":"EUR","costCents":"0.7440"}],"specs":[{"name":"disk","amount":26214400,"unit":"KiB","description":"Amount of disk space"},{"name":"memory","amount":1048576,"unit":"KiB","description":"Amount of memory"},{"name":"cpu","amount":1,"unit":"core","description":"Amount of CPU cores"},{"name":"traffic","amount":1000,"unit":"GiB","description":"Amount of free traffic per month (included in VPS traffic pool)"}],"price":0,"paymentPeriod":"perMinute"},{"type":"workerNode","name":"node-k2","description":"Node K2 \/ 1 vCPU \/ 2 GB RAM","periodPrices":[{"periodUnit":"month","periodLength":1,"isExact":true,"currency":"EUR","costCents":"1000"},{"periodUnit":"hour","periodLength":1,"isExact":false,"currency":"EUR","costCents":"1.4881"}],"specs":[{"name":"disk","amount":26214400,"unit":"KiB","description":"Amount of disk space"},{"name":"memory","amount":2097152,"unit":"KiB","description":"Amount of memory"},{"name":"cpu","amount":1,"unit":"core","description":"Amount of CPU cores"},{"name":"traffic","amount":2000,"unit":"GiB","description":"Amount of free traffic per month (included in VPS traffic pool)"}],"price":0,"paymentPeriod":"perMinute"},{"type":"workerNode","name":"node-k4","description":"Node K4 \/ 2 vCPUs \/ 4 GB RAM","periodPrices":[{"periodUnit":"month","periodLength":1,"isExact":true,"currency":"EUR","costCents":"2000"},{"periodUnit":"hour","periodLength":1,"isExact":false,"currency":"EUR","costCents":"2.9762"}],"specs":[{"name":"disk","amount":26214400,"unit":"KiB","description":"Amount of disk space"},{"name":"memory","amount":4194304,"unit":"KiB","description":"Amount of memory"},{"name":"cpu","amount":2,"unit":"core","description":"Amount of CPU cores"},{"name":"traffic","amount":5000,"unit":"GiB","description":"Amount of free traffic per month (included in VPS traffic pool)"}],"price":0,"paymentPeriod":"perMinute"},{"type":"workerNode","name":"node-k8","description":"Node K8 \/ 4 vCPUs \/ 8 GB RAM","periodPrices":[{"periodUnit":"month","periodLength":1,"isExact":true,"currency":"EUR","costCents":"4000"},{"periodUnit":"hour","periodLength":1,"isExact":false,"currency":"EUR","costCents":"5.9524"}],"specs":[{"name":"disk","amount":26214400,"unit":"KiB","description":"Amount of disk space"},{"name":"memory","amount":8388608,"unit":"KiB","description":"Amount of memory"},{"name":"cpu","amount":4,"unit":"core","description":"Amount of CPU cores"},{"name":"traffic","amount":10000,"unit":"GiB","description":"Amount of free traffic per month (included in VPS traffic pool)"}],"price":0,"paymentPeriod":"perMinute"},{"type":"workerNode","name":"node-k16","description":"Node K16 \/ 4 vCPUs \/ 16 GB RAM","periodPrices":[{"periodUnit":"month","periodLength":1,"isExact":true,"currency":"EUR","costCents":"8000"},{"periodUnit":"hour","periodLength":1,"isExact":false,"currency":"EUR","costCents":"11.9048"}],"specs":[{"name":"disk","amount":52428800,"unit":"KiB","description":"Amount of disk space"},{"name":"memory","amount":16777216,"unit":"KiB","description":"Amount of memory"},{"name":"cpu","amount":4,"unit":"core","description":"Amount of CPU cores"},{"name":"traffic","amount":15000,"unit":"GiB","description":"Amount of free traffic per month (included in VPS traffic pool)"}],"price":0,"paymentPeriod":"perMinute"},{"type":"performanceWorkerNode","name":"node-p2","description":"Node P2 \/ 2 vCPUs \/ 4 GB RAM","periodPrices":[{"periodUnit":"month","periodLength":1,"isExact":true,"currency":"EUR","costCents":"2500"},{"periodUnit":"hour","periodLength":1,"isExact":false,"currency":"EUR","costCents":"3.7202"}],"specs":[{"name":"disk","amount":52428800,"unit":"KiB","description":"Amount of disk space"},{"name":"memory","amount":4194304,"unit":"KiB","description":"Amount of memory"},{"name":"cpu","amount":2,"unit":"core","description":"Amount of CPU cores"},{"name":"traffic","amount":2000,"unit":"GiB","description":"Amount of free traffic per month (included in VPS traffic pool)"}],"price":0,"paymentPeriod":"perMinute"},{"type":"performanceWorkerNode","name":"node-p4","description":"Node P4 \/ 4 vCPUs \/ 8 GB RAM","periodPrices":[{"periodUnit":"month","periodLength":1,"isExact":true,"currency":"EUR","costCents":"5000"},{"periodUnit":"hour","periodLength":1,"isExact":false,"currency":"EUR","costCents":"7.4405"}],"specs":[{"name":"disk","amount":52428800,"unit":"KiB","description":"Amount of disk space"},{"name":"memory","amount":8388608,"unit":"KiB","description":"Amount of memory"},{"name":"cpu","amount":4,"unit":"core","description":"Amount of CPU cores"},{"name":"traffic","amount":2000,"unit":"GiB","description":"Amount of free traffic per month (included in VPS traffic pool)"}],"price":0,"paymentPeriod":"perMinute"},{"type":"performanceWorkerNode","name":"node-p8","description":"Node P8 \/ 8 vCPUs \/ 16 GB RAM","periodPrices":[{"periodUnit":"month","periodLength":1,"isExact":true,"currency":"EUR","costCents":"10000"},{"periodUnit":"hour","periodLength":1,"isExact":false,"currency":"EUR","costCents":"14.8810"}],"specs":[{"name":"disk","amount":52428800,"unit":"KiB","description":"Amount of disk space"},{"name":"memory","amount":16777216,"unit":"KiB","description":"Amount of memory"},{"name":"cpu","amount":8,"unit":"core","description":"Amount of CPU cores"},{"name":"traffic","amount":2000,"unit":"GiB","description":"Amount of free traffic per month (included in VPS traffic pool)"}],"price":0,"paymentPeriod":"perMinute"},{"type":"performanceWorkerNode","name":"node-p16","description":"Node P16 \/ 16 vCPUs \/ 32 GB RAM","periodPrices":[],"specs":[{"name":"disk","amount":52428800,"unit":"KiB","description":"Amount of disk space"},{"name":"memory","amount":33554432,"unit":"KiB","description":"Amount of memory"},{"name":"cpu","amount":16,"unit":"core","description":"Amount of CPU cores"},{"name":"traffic","amount":40000,"unit":"GiB","description":"Amount of free traffic per month (included in VPS traffic pool)"}],"price":0,"paymentPeriod":"perMinute"},{"type":"performanceWorkerNode","name":"node-p32","description":"Node P32 \/ 32 vCPUs \/ 64 GB RAM","periodPrices":[],"specs":[{"name":"disk","amount":52428800,"unit":"KiB","description":"Amount of disk space"},{"name":"memory","amount":67108864,"unit":"KiB","description":"Amount of memory"},{"name":"cpu","amount":32,"unit":"core","description":"Amount of CPU cores"},{"name":"traffic","amount":80000,"unit":"GiB","description":"Amount of free traffic per month (included in VPS traffic pool)"}],"price":0,"paymentPeriod":"perMinute"},{"type":"blockStorage","name":"big-storage","description":"Big Storage (per 1 GiB)","periodPrices":[{"periodUnit":"month","periodLength":1,"isExact":true,"currency":"EUR","costCents":"0.60"},{"periodUnit":"hour","periodLength":1,"isExact":false,"currency":"EUR","costCents":"0.0009"}],"specs":[{"name":"disk","amount":1048576,"unit":"KiB","description":"Amount of disk space per unit"}],"price":0,"paymentPeriod":"perMinute"},{"type":"blockStorage","name":"fast-storage","description":"Fast Storage (per 1 GiB)","periodPrices":[{"periodUnit":"month","periodLength":1,"isExact":true,"currency":"EUR","costCents":"10"},{"periodUnit":"hour","periodLength":1,"isExact":false,"currency":"EUR","costCents":"0.0149"}],"specs":[{"name":"disk","amount":1048576,"unit":"KiB","description":"Amount of disk space per unit"}],"price":0,"paymentPeriod":"perMinute"},{"type":"loadBalancer","name":"load-balancer","description":"Load Balancer","periodPrices":[{"periodUnit":"month","periodLength":1,"isExact":true,"currency":"EUR","costCents":"1000"},{"periodUnit":"hour","periodLength":1,"isExact":false,"currency":"EUR","costCents":"1.4881"}],"specs":[],"price":0,"paymentPeriod":"perMinute"}]}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/products", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	list, err := repo.GetProducts()
+	require.NoError(t, err)
+
+	if assert.Equal(t, 13, len(list)) {
+		// First product: node-ks worker node
+		assert.Equal(t, "workerNode", list[0].Type)
+		assert.Equal(t, "node-ks", list[0].Name)
+		assert.Equal(t, "Node KS / 1 vCPU / 1 GB RAM", list[0].Description)
+
+		if assert.Equal(t, 4, len(list[0].Specs)) {
+			assert.Equal(t, "disk", list[0].Specs[0].Name)
+			assert.Equal(t, int64(26214400), list[0].Specs[0].Amount)
+			assert.Equal(t, "KiB", list[0].Specs[0].Unit)
+			assert.Equal(t, "Amount of disk space", list[0].Specs[0].Description)
+
+			assert.Equal(t, "memory", list[0].Specs[1].Name)
+			assert.Equal(t, int64(1048576), list[0].Specs[1].Amount)
+
+			assert.Equal(t, "cpu", list[0].Specs[2].Name)
+			assert.Equal(t, int64(1), list[0].Specs[2].Amount)
+			assert.Equal(t, "core", list[0].Specs[2].Unit)
+
+			assert.Equal(t, "traffic", list[0].Specs[3].Name)
+			assert.Equal(t, int64(1000), list[0].Specs[3].Amount)
+			assert.Equal(t, "GiB", list[0].Specs[3].Unit)
+		}
+
+		if assert.Equal(t, 2, len(list[0].PeriodPrices)) {
+			assert.Equal(t, "month", list[0].PeriodPrices[0].PeriodUnit)
+			assert.Equal(t, 1, list[0].PeriodPrices[0].PeriodLength)
+			assert.True(t, list[0].PeriodPrices[0].IsExact)
+			assert.Equal(t, "EUR", list[0].PeriodPrices[0].Currency)
+			assert.Equal(t, "500", list[0].PeriodPrices[0].CostCents)
+
+			assert.Equal(t, "hour", list[0].PeriodPrices[1].PeriodUnit)
+			assert.False(t, list[0].PeriodPrices[1].IsExact)
+			assert.Equal(t, "0.7440", list[0].PeriodPrices[1].CostCents)
+		}
+
+		// Performance worker node
+		assert.Equal(t, "performanceWorkerNode", list[5].Type)
+		assert.Equal(t, "node-p2", list[5].Name)
+
+		// Product without period prices
+		assert.Equal(t, "node-p16", list[8].Name)
+		assert.Empty(t, list[8].PeriodPrices)
+
+		// Block storage and load balancer
+		assert.Equal(t, "blockStorage", list[10].Type)
+		assert.Equal(t, "big-storage", list[10].Name)
+
+		assert.Equal(t, "loadBalancer", list[12].Type)
+		assert.Equal(t, "load-balancer", list[12].Name)
+		assert.Empty(t, list[12].Specs)
+	}
+}
+
+func TestRepository_GetProductByName(t *testing.T) {
+	const apiResponse = `{"product":{"type":"workerNode","name":"node-k8","description":"Kubernetes worker node","specs":[{"name":"cpu","amount":2,"unit":"core","description":"2 vCPU cores"}],"periodPrices":[{"periodUnit":"month","periodLength":1,"isExact":true,"currency":"EUR","costCents":"1000"}]}}`
+
+	server := testutil.MockServer{T: t, ExpectedURL: "/kubernetes/products/node-k8", ExpectedMethod: "GET", StatusCode: 200, Response: apiResponse}
+	client, tearDown := server.GetClient()
+	defer tearDown()
+	repo := Repository{Client: *client}
+
+	product, err := repo.GetProductByName("node-k8")
+	require.NoError(t, err)
+
+	assert.Equal(t, "workerNode", product.Type)
+	assert.Equal(t, "node-k8", product.Name)
+	assert.Equal(t, "Kubernetes worker node", product.Description)
+
+	if assert.Equal(t, 1, len(product.Specs)) {
+		assert.Equal(t, "cpu", product.Specs[0].Name)
+		assert.Equal(t, int64(2), product.Specs[0].Amount)
+		assert.Equal(t, "core", product.Specs[0].Unit)
+		assert.Equal(t, "2 vCPU cores", product.Specs[0].Description)
+	}
+
+	if assert.Equal(t, 1, len(product.PeriodPrices)) {
+		assert.Equal(t, "month", product.PeriodPrices[0].PeriodUnit)
+		assert.Equal(t, 1, product.PeriodPrices[0].PeriodLength)
+		assert.True(t, product.PeriodPrices[0].IsExact)
+		assert.Equal(t, "EUR", product.PeriodPrices[0].Currency)
+		assert.Equal(t, "1000", product.PeriodPrices[0].CostCents)
+	}
+}

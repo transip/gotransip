@@ -319,7 +319,7 @@ func TestRepository_GetUsageData(t *testing.T) {
 	require.NoError(t, err)
 
 	require.Equal(t, 1, len(usageData.CPU))
-	assert.EqualValues(t, 3.11, usageData.CPU[0].Percentage)
+	assert.EqualValues(t, float32(3.11), usageData.CPU[0].Percentage)
 	assert.EqualValues(t, 1574783109, usageData.CPU[0].Date)
 }
 
@@ -345,16 +345,16 @@ func TestRepository_GetAllUsageDataByVps(t *testing.T) {
 	require.Equal(t, 1, len(usageData.Disk))
 	require.Equal(t, 1, len(usageData.Network))
 
-	assert.EqualValues(t, 3.11, usageData.CPU[0].Percentage)
+	assert.EqualValues(t, float32(3.11), usageData.CPU[0].Percentage)
 	assert.EqualValues(t, 1574783109, usageData.CPU[0].Date)
 
-	assert.EqualValues(t, 0.27, usageData.Disk[0].IopsRead)
-	assert.EqualValues(t, 0.13, usageData.Disk[0].IopsWrite)
+	assert.EqualValues(t, float32(0.27), usageData.Disk[0].IopsRead)
+	assert.EqualValues(t, float32(0.13), usageData.Disk[0].IopsWrite)
 	assert.EqualValues(t, 1574783109, usageData.Disk[0].Date)
 
-	assert.EqualValues(t, 100.2, usageData.Network[0].MbitOut)
-	assert.EqualValues(t, 249.93, usageData.Network[0].MbitIn)
-	assert.EqualValues(t, 1574783109, usageData.Network[0].Date)
+	assert.EqualValues(t, float32(100.2), usageData.Network[0].MbitOut)
+	assert.EqualValues(t, float32(249.93), usageData.Network[0].MbitIn)
+	assert.EqualValues(t, float32(1574783109), usageData.Network[0].Date)
 }
 
 func TestRepository_GetAllUsageDataByVps24Hours(t *testing.T) {
@@ -379,16 +379,16 @@ func TestRepository_GetAllUsageDataByVps24Hours(t *testing.T) {
 	require.Equal(t, 1, len(usageData.Disk))
 	require.Equal(t, 1, len(usageData.Network))
 
-	assert.EqualValues(t, 3.11, usageData.CPU[0].Percentage)
+	assert.EqualValues(t, float32(3.11), usageData.CPU[0].Percentage)
 	assert.EqualValues(t, 1574783109, usageData.CPU[0].Date)
 
-	assert.EqualValues(t, 0.27, usageData.Disk[0].IopsRead)
-	assert.EqualValues(t, 0.13, usageData.Disk[0].IopsWrite)
+	assert.EqualValues(t, float32(0.27), usageData.Disk[0].IopsRead)
+	assert.EqualValues(t, float32(0.13), usageData.Disk[0].IopsWrite)
 	assert.EqualValues(t, 1574783109, usageData.Disk[0].Date)
 
-	assert.EqualValues(t, 100.2, usageData.Network[0].MbitOut)
-	assert.EqualValues(t, 249.93, usageData.Network[0].MbitIn)
-	assert.EqualValues(t, 1574783109, usageData.Network[0].Date)
+	assert.EqualValues(t, float32(100.2), usageData.Network[0].MbitOut)
+	assert.EqualValues(t, float32(249.93), usageData.Network[0].MbitIn)
+	assert.EqualValues(t, float32(1574783109), usageData.Network[0].Date)
 }
 
 func TestRepository_GetVNCData(t *testing.T) {

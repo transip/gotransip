@@ -510,3 +510,21 @@ func (r *Repository) GetEventByName(clusterName, eventName string) (Event, error
 
 	return response.Event, err
 }
+
+// GetProducts returns all Kubernetes products available on the platform
+func (r *Repository) GetProducts() ([]Product, error) {
+	var response productsWrapper
+	restRequest := rest.Request{Endpoint: "/kubernetes/products"}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Products, err
+}
+
+// GetProductByName returns a specific Kubernetes product by its name
+func (r *Repository) GetProductByName(name string) (Product, error) {
+	var response productWrapper
+	restRequest := rest.Request{Endpoint: fmt.Sprintf("/kubernetes/products/%s", name)}
+	err := r.Client.Get(restRequest, &response)
+
+	return response.Product, err
+}

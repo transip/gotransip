@@ -236,8 +236,8 @@ func TestBigStorageRepository_GetBigStorageUsage(t *testing.T) {
 	require.NoError(t, err)
 
 	require.Equal(t, 1, len(usageData))
-	assert.EqualValues(t, 0.27, usageData[0].IopsRead)
-	assert.EqualValues(t, 0.13, usageData[0].IopsWrite)
+	assert.EqualValues(t, float32(0.27), usageData[0].IopsRead)
+	assert.EqualValues(t, float32(0.13), usageData[0].IopsWrite)
 	assert.EqualValues(t, 1574783109, usageData[0].Date)
 }
 
@@ -259,7 +259,7 @@ func TestBigStorageRepository_GetBigStorageUsageLast24Hours(t *testing.T) {
 	require.NoError(t, err)
 
 	require.Equal(t, 1, len(usageData))
-	assert.EqualValues(t, 0.27, usageData[0].IopsRead)
-	assert.EqualValues(t, 0.13, usageData[0].IopsWrite)
+	assert.EqualValues(t, float32(0.27), usageData[0].IopsRead)
+	assert.EqualValues(t, float32(0.13), usageData[0].IopsWrite)
 	assert.EqualValues(t, 1574783109, usageData[0].Date)
 }
