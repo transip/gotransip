@@ -1,10 +1,11 @@
 package vps
 
 import (
+	"net"
+
 	"github.com/transip/gotransip/v6/ipaddress"
 	"github.com/transip/gotransip/v6/product"
 	"github.com/transip/gotransip/v6/rest"
-	"net"
 )
 
 // BackupStatus is one of the following strings
@@ -176,6 +177,13 @@ type upgradeRequest struct {
 // this is solely used for marshalling
 type upgradesWrapper struct {
 	Upgrades []product.Product `json:"upgrades"`
+}
+
+// operatingSystemsRequest struct contains a productName and an optional list of addons
+// this is solely used for marshalling
+type operatingSystemsRequest struct {
+	ProductName string   `json:"productName"`
+	Addons      []string `json:"addons,omitempty"`
 }
 
 // operatingSystemsWrapper struct contains a list with OperatingSystems in it,
