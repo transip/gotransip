@@ -52,7 +52,7 @@ const (
       "email": "firstlast@example.com",
       "country": "nl"
     },
-    "domain": { "name": "example.com", "registrationStatus": "registered", "isBlocked": false }
+    "domain": { "name": "example.com", "registrationStatus": "registered" }
   }
 }`
 )
@@ -165,7 +165,7 @@ func TestRepository_GetVerificationByID(t *testing.T) {
 	assert.Equal(t, "company", verification.Contact.CompanyName)
 	assert.Equal(t, "nl", verification.Contact.Country)
 
-	assert.Equal(t, VerificationDomain{Name: "example.com", RegistrationStatus: "registered", IsBlocked: false}, verification.Domain)
+	assert.Equal(t, VerificationDomain{Name: "example.com", RegistrationStatus: "registered"}, verification.Domain)
 }
 
 func TestRepository_GetVerificationByIDError(t *testing.T) {

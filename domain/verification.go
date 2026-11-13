@@ -116,8 +116,6 @@ type VerificationDomain struct {
 	Name string `json:"name"`
 	// The registration status of this domain
 	RegistrationStatus string `json:"registrationStatus"`
-	// Whether this domain is blocked
-	IsBlocked bool `json:"isBlocked"`
 }
 
 // UnmarshalJSON parses a JSON object, or the empty JSON array the api returns when there is no domain
