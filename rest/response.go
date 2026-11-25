@@ -44,14 +44,12 @@ type Date struct {
 
 // UnmarshalJSON parses datetime strings returned by the transip api
 func (tt *Time) UnmarshalJSON(input []byte) error {
-	loc, err := time.LoadLocation("Europe/Amsterdam")
-	if err != nil {
-		return err
-	}
 	// don't parse on empty dates
 	if string(input) == `""` {
 		return nil
 	}
+
+	loc := time.FixedZone("CEST", 2*60*60)
 	newTime, err := time.ParseInLocation(`"2006-01-02 15:04:05"`, string(input), loc)
 	if err != nil {
 		return err
@@ -63,14 +61,12 @@ func (tt *Time) UnmarshalJSON(input []byte) error {
 
 // UnmarshalJSON parses date strings returned by the transip api
 func (td *Date) UnmarshalJSON(input []byte) error {
-	loc, err := time.LoadLocation("Europe/Amsterdam")
-	if err != nil {
-		return err
-	}
 	// don't parse on empty dates
 	if string(input) == `""` {
 		return nil
 	}
+
+	loc := time.FixedZone("CEST", 2*60*60)
 	newTime, err := time.ParseInLocation(`"2006-01-02"`, string(input), loc)
 	if err != nil {
 		return err
